@@ -7,11 +7,16 @@
     "node": ">=22"
   },
   "scripts": {
+    "trip:refresh": "tsx scripts/refresh-trip.ts",
+    "trip:pull": "tsx scripts/refresh-trip.ts --source cli",
+    "trip:scrape": "tsx scripts/refresh-trip.ts --source html",
+    "trip:scrape:headed": "tsx scripts/refresh-trip.ts --source html --headed",
     "trip:import": "tsx scripts/import-trip.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "playwright": "^1.61.1",
     "valibot": "^1.4.2",
     "yaml": "^2.9.0"
   },
