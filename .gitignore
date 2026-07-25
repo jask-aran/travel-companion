@@ -1,0 +1,21 @@
+# Dependencies and builds
+node_modules/
+dist/
+.vite/
+coverage/
+playwright-report/
+test-results/
+
+# Environment and local tooling
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Private Wanderlog ingestion inputs and reports
+private-import/
+*-raw.json
+*.wanderlog.html
+
+# Local generated working data
+public-data/**/working.json
