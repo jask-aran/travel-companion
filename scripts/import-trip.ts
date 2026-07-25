@@ -3,7 +3,8 @@ import { basename, dirname, extname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
 import { parseWanderlogSource } from "../packages/wanderlog-import/src/index.js";
-import { normaliseWanderlog, type ImportOverrides } from "../packages/trip-normaliser/src/index.js";
+import { normaliseCompleteWanderlog } from "../packages/trip-normaliser/src/complete.js";
+import type { ImportOverrides } from "../packages/trip-normaliser/src/index.js";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -29,7 +30,7 @@ if (values.overrides) {
   overrides = parseYaml(await readFile(resolve(values.overrides), "utf8")) as ImportOverrides;
 }
 
-const { bundle, report } = normaliseWanderlog(parsed.data, {
+const { bundle, report } = normaliseCompleteWanderlog(parsed.data, {
   sourceKind: parsed.kind,
   sourceText,
   ...(overrides ? { overrides } : {}),
