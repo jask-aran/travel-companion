@@ -6,7 +6,7 @@ import {
   type RouteLeg,
   type TripBundle,
   type TripDay,
-} from "../../trip-schema/src/index.js";
+} from "@travel-companion/trip-schema";
 
 export interface ImportWarning {
   code: string;
@@ -251,13 +251,40 @@ function itemFromBlock(
       const info = asRecord(block.flightInfo);
       const airline = asString(asRecord(info?.airline)?.name);
       const flightNumber = info?.number === undefined ? undefined : String(info.number);
-      const departAirport = asString(asRecord(asRecord(block.depart)?.airport)?.iata);
-      const arriveAirport = asString(asRecord(asRecord(block.arrive)?.airport)?.iata);
+      const depart = asRecord(block.depart);
+      const arrive = asRecord(block.arrive);
+      const departAirportRecord = asRecord(depart?.airport);
+      const arriveAirportRecord = asRecord(arrive?.airport);
+
       const item: DayItem = { ...common, type: "flight" };
-      if (airline) item.airline = airline;
-      if (flightNumber) item.flightNumber = flightNumber;
-      if (departAirport) item.departAirport = departAirport;
-      if (arriveAirport) item.arriveAirport = arriveAirport;
+      const assign = (key: string, value: string | undefined) => {
+        if (value) (item as Record<string, unknown>)[key] = value;
+      };
+
+      assign("airline", airline);
+      assign("flightNumber", flightNumber);
+      assign("departAirport", asString(departAirportRecord?.iata));
+      assign("arriveAirport", asString(arriveAirportRecord?.iata));
+      assign("departCity", asString(departAirportRecord?.cityName));
+      assign("arriveCity", asString(arriveAirportRecord?.cityName));
+      assign("departTime", asString(depart?.time));
+      assign("arriveTime", asString(arrive?.time));
+      assign("departDate", asString(depart?.date));
+      assign("arriveDate", asString(arrive?.date));
+      assign("confirmationNumber", asString(block.confirmationNumber));
+
+      const airportPlaceId = (airport: ReturnType<typeof asRecord>) => {
+        const id = asString(asRecord(airport?.googlePlace)?.place_id);
+        return id ? `google-place:${id}` : undefined;
+      };
+      assign("departPlaceId", airportPlaceId(departAirportRecord));
+      assign("arrivePlaceId", airportPlaceId(arriveAirportRecord));
+
+      const travellers = Array.isArray(block.travelerNames)
+        ? block.travelerNames.filter((name): name is string => typeof name === "string")
+        : undefined;
+      if (travellers?.length) item.travellerNames = travellers;
+
       return item;
     }
     default:
