@@ -2,57 +2,101 @@
 
 A fast, mobile-first PWA for viewing a shared trip itinerary.
 
-The app is centred on one continuous, vertically scrollable itinerary with sticky day navigation, representative place images, inline travel details, a floating half-height map, and direct Google Maps handoff for navigation.
+The operator pipeline is local and semi-deterministic:
 
-Trip data is acquired and normalised through one orchestrated ingestion command. Wanderlog CLI JSON is the primary source; an integrated Playwright scraper retrieves the Wanderlog page and extracts embedded MobX state when the CLI fails.
+```text
+Wanderlog CLI (primary)  ─┐
+                          ├─→ normaliser → TripBundle (gitignored) → local PWA build
+Playwright HTML fallback ─┘
+```
 
-## Ingestion
+Raw Wanderlog output never belongs in git. The Wanderlog trip id lives only in a gitignored local config. Hosting/sharing privacy is deferred until you actually need to publish.
 
-Requirements: Node.js 22+, pnpm, Wanderlog CLI, and Playwright Chromium.
+## One-time setup
 
 ```bash
 pnpm install
-pnpm exec playwright install chromium
-pnpm trip:refresh
+pnpm exec playwright install chromium   # backup scraper only
+
+cp config/trip.example.yaml config/trip.local.yaml
+# edit trip.local.yaml: wanderlogId, publicId, wanderlog.web.url, paths.workingBundle
 ```
 
-`trip:refresh` reads `config/trip.yaml`, which contains the Wanderlog trip ID, canonical page URL, source paths, browser-profile path, and generated-bundle path.
+CLI notes:
 
-The command:
+- Use **`wanderlog trips show <id> --output json`** (modern subcommand).
+- Do **not** use the legacy `wanderlog trip` singular alias — it mishandles flags.
+- Scripts spawn the binary directly, so shell aliases are ignored. Set `wanderlog.cli.command` in `trip.local.yaml` to the real binary name on your PATH (often `wanderlog-cli` if installed from Go).
+- Read-only export of a shared trip can work without login.
 
-1. runs `wanderlog trips show <configured-id> --output json`;
-2. validates and saves the raw JSON;
-3. falls back to Playwright scraping when CLI acquisition fails;
-4. extracts `window.__MOBX_STATE__.tripPlanStore.data` from the scraped HTML;
-5. runs both sources through the same normaliser;
-6. writes the validated working `TripBundle` and private reports.
+## Operator loop
 
-Useful forced modes:
+```bash
+pnpm trip:refresh    # CLI first, HTML scraper on CLI failure
+pnpm dev             # serves the generated working.json as /trip.json
+```
+
+Forced sources:
 
 ```bash
 pnpm trip:pull             # CLI only
 pnpm trip:scrape           # browser scraper only, headless
-pnpm trip:scrape:headed    # browser scraper with a visible persistent profile
+pnpm trip:scrape:headed    # visible browser (auth if needed)
 ```
 
-The headed command is useful if Wanderlog later requires authentication. Browser state is retained under the gitignored `private-import/browser-profile` directory.
+`trip:refresh` reads **`config/trip.local.yaml`** (gitignored). It:
 
-Optional source-keyed corrections are automatically loaded from `private-import/overrides.yaml` when present.
+1. runs `wanderlog-cli trips show <configured-id> --output json`;
+2. validates and saves raw JSON under `private-import/` (gitignored);
+3. falls back to Playwright when CLI acquisition fails;
+4. normalises through the shared allow-listed pipeline;
+5. writes `public-data/trips/<publicId>/working.json` (gitignored) plus private reports.
 
-The lower-level file importer remains available for debugging:
+The web app never talks to Wanderlog. Vite serves that local `working.json` as `/trip.json` in dev and embeds it into `dist/` on `pnpm build`.
 
 ```bash
-pnpm trip:import private-import/wanderlog-trip.json
-pnpm trip:import private-import/wanderlog-page.html
+pnpm build
+pnpm preview
 ```
 
-Run static checks with:
+Build fails closed if you have not refreshed a local bundle yet.
+
+## Checks
 
 ```bash
 pnpm typecheck
 pnpm test
 ```
 
-Raw Wanderlog files, browser profiles, overrides, and import reports remain private and excluded from Git. The generated `TripBundle` is the only application data contract.
+## What is private
 
-See [docs/project-spec.md](docs/project-spec.md) for the product specification and [docs/ingestion.md](docs/ingestion.md) for the ingestion implementation.
+| Path | Role |
+|------|------|
+| `config/trip.local.yaml` | Wanderlog trip id, plan URL, local paths |
+| `private-import/` | Raw CLI JSON, scraped HTML, browser profile, overrides, reports |
+| `public-data/**/working.json` | Normalised TripBundle used by the PWA |
+| `apps/web/dist/` | Local build output (may contain the bundle) |
+
+Committed: `config/trip.example.yaml` (placeholders only), schema, normaliser, PWA shell.
+
+## Repository layout
+
+```text
+apps/web                 SolidJS itinerary PWA
+packages/trip-schema     Canonical TripBundle schema
+packages/trip-normaliser Wanderlog → TripBundle
+packages/wanderlog-import CLI/HTML acquisition adapters
+config/trip.example.yaml Template for local config
+config/trip.local.yaml   Your trip id (gitignored)
+docs/                    Product spec and ingestion notes
+```
+
+## Tracking
+
+1. [Ingestion and schema](https://github.com/jask-aran/travel-companion/issues/1) (done)
+2. [Continuous itinerary PWA](https://github.com/jask-aran/travel-companion/issues/2) (done)
+3. [Map interaction](https://github.com/jask-aran/travel-companion/issues/3)
+4. [Publishing and updates](https://github.com/jask-aran/travel-companion/issues/4)
+5. [Optional live-editing backend](https://github.com/jask-aran/travel-companion/issues/5)
+
+See [docs/project-spec.md](docs/project-spec.md) and [docs/ingestion.md](docs/ingestion.md).

@@ -1,0 +1,43 @@
+# Copy to config/trip.local.yaml and fill in your trip.
+# trip.local.yaml is gitignored — never commit Wanderlog IDs or private URLs.
+
+trip:
+  # From the Wanderlog plan URL: https://wanderlog.com/plan/<wanderlogId>/...
+  wanderlogId: YOUR_WANDERLOG_TRIP_ID
+  # Public slug used only for local output paths and TripBundle.tripId (not a secret,
+  # but kept local so the repo does not advertise a specific trip).
+  publicId: my-trip
+
+wanderlog:
+  cli:
+    # Modern shape: wanderlog-cli trips show <wanderlogId> --output json
+    # Do not use the legacy singular `trip` command — it mishandles flags.
+    # Scripts spawn the binary directly (shell aliases like `wanderlog=...` are ignored).
+    command: wanderlog-cli
+    timeoutMs: 60000
+  web:
+    # Canonical plan page for the Playwright fallback scraper.
+    url: https://wanderlog.com/plan/YOUR_WANDERLOG_TRIP_ID/your-trip-slug
+    browserProfileDir: private-import/browser-profile
+    headless: true
+    timeoutMs: 60000
+
+google:
+  # Google Maps browser key, used for Place Photos. Optional — without it the
+  # app renders no photos. Google forbids caching the images, so the key ships
+  # in the built app and the browser loads each photo directly: restrict the
+  # key by HTTP referrer in the Cloud console, and enable "Places API (New)".
+  apiKey: ""
+
+share:
+  # Passphrase that encrypts the published trip payload. With this set, the
+  # build writes trip.enc instead of trip.json and the app asks for it once.
+  # Leave empty to publish plaintext (only safe on a private host).
+  passphrase: ""
+
+paths:
+  rawJson: private-import/wanderlog-trip.json
+  rawHtml: private-import/wanderlog-page.html
+  overrides: private-import/overrides.yaml
+  workingBundle: public-data/trips/my-trip/working.json
+  report: private-import/import-report.json
