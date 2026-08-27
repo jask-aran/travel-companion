@@ -1,4 +1,4 @@
-import { parseTripBundle, type Place } from "../../trip-schema/src/index.js";
+import { parseTripBundle, type Place } from "@travel-companion/trip-schema";
 import {
   normaliseWanderlog,
   type ImportOverrides,
@@ -53,9 +53,17 @@ function addGlobalLodging(
     const sourceBlockId = number(block.id);
     const hotel = record(block.hotel);
     const checkIn = string(hotel?.checkIn);
-    const day = checkIn ? bundle.days.find((candidate) => candidate.date === checkIn) : undefined;
+    const checkOut = string(hotel?.checkOut);
+    const checkInDay = checkIn
+      ? bundle.days.find((candidate) => candidate.date === checkIn)
+      : undefined;
+    const checkOutDay =
+      checkOut && checkOut !== checkIn
+        ? bundle.days.find((candidate) => candidate.date === checkOut)
+        : undefined;
     const rawPlace = record(block.place);
-    if (!day || !rawPlace || sourceBlockId === undefined) continue;
+    if (!rawPlace || sourceBlockId === undefined) continue;
+    if (!checkInDay && !checkOutDay) continue;
 
     const googlePlaceId = string(rawPlace.place_id);
     const placeId = googlePlaceId
@@ -84,22 +92,63 @@ function addGlobalLodging(
     else if (imageKey) place.image = { source: "wanderlog", sourceKey: imageKey };
     bundle.places[placeId] = place;
 
-    const itemId = `source-block:${sourceBlockId}`;
-    if (!day.items.some((item) => item.id === itemId)) {
-      const itemOverride = overrides?.items?.[itemId];
-      day.items.unshift({
-        id: itemId,
-        sourceBlockId,
-        type: "lodging",
-        placeId,
-        name: place.name,
-        ...(itemOverride?.startTime ? { startTime: itemOverride.startTime } : {}),
-        ...(itemOverride?.endTime ? { endTime: itemOverride.endTime } : {}),
-        ...(itemOverride?.notes ? { notes: itemOverride.notes } : {}),
-        ...(itemOverride?.status ? { status: itemOverride.status } : {}),
-      });
+    const itemOverride = overrides?.items?.[`source-block:${sourceBlockId}`];
+    // Wanderlog stores no check-in/out *times*, only these dates — but it does
+    // carry the booking details you actually need at the desk.
+    const placeRecord = record(block.place);
+    const confirmationNumber =
+      string(hotel?.confirmationNumber) || string(block.confirmationNumber);
+    const phone = string(placeRecord?.international_phone_number);
+    const website = string(placeRecord?.website);
+    const travellerNames = Array.isArray(hotel?.travelerNames)
+      ? hotel.travelerNames.filter((name): name is string => typeof name === "string")
+      : undefined;
+
+    const lodgingFields = {
+      sourceBlockId,
+      type: "lodging" as const,
+      placeId,
+      name: place.name,
+      ...(checkIn ? { checkInDate: checkIn } : {}),
+      ...(checkOut ? { checkOutDate: checkOut } : {}),
+      ...(confirmationNumber ? { confirmationNumber } : {}),
+      ...(phone ? { phone } : {}),
+      ...(website ? { website } : {}),
+      ...(travellerNames?.length ? { travellerNames } : {}),
+      ...(itemOverride?.startTime ? { startTime: itemOverride.startTime } : {}),
+      ...(itemOverride?.endTime ? { endTime: itemOverride.endTime } : {}),
+      ...(itemOverride?.notes ? { notes: itemOverride.notes } : {}),
+      ...(itemOverride?.status ? { status: itemOverride.status } : {}),
+    };
+
+    if (checkInDay) {
+      const itemId = `source-block:${sourceBlockId}`;
+      if (!checkInDay.items.some((item) => item.id === itemId)) {
+        checkInDay.items.unshift({
+          id: itemId,
+          ...lodgingFields,
+          phase: "check-in",
+        });
+      }
+      if (!checkInDay.map.orderedPlaceIds.includes(placeId)) {
+        checkInDay.map.orderedPlaceIds.unshift(placeId);
+      }
     }
-    if (!day.map.orderedPlaceIds.includes(placeId)) day.map.orderedPlaceIds.unshift(placeId);
+
+    // Separate check-out callout on the departure day (Wanderlog-style edge markers).
+    if (checkOutDay) {
+      const checkoutId = `source-block:${sourceBlockId}:checkout`;
+      if (!checkOutDay.items.some((item) => item.id === checkoutId)) {
+        checkOutDay.items.push({
+          id: checkoutId,
+          ...lodgingFields,
+          phase: "check-out",
+        });
+      }
+      if (!checkOutDay.map.orderedPlaceIds.includes(placeId)) {
+        checkOutDay.map.orderedPlaceIds.push(placeId);
+      }
+    }
   }
 
   report.counts.items = bundle.days.reduce((sum, day) => sum + day.items.length, 0);
