@@ -12,10 +12,16 @@ test-results/
 !.env.example
 .DS_Store
 
+# Local trip identity / acquisition config (Wanderlog trip id, private URL)
+config/trip.local.yaml
+config/trip.yaml
+
 # Private Wanderlog ingestion inputs and reports
 private-import/
 *-raw.json
 *.wanderlog.html
 
-# Local generated working data
-public-data/**/working.json
+# Local generated working data and any app-copied trip payload
+public-data/
+apps/web/public/trip.json
+apps/web/dist/

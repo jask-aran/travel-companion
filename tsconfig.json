@@ -10,7 +10,15 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "vitest/globals"]
+    "types": ["node", "vitest/globals"],
+    "paths": {
+      "@travel-companion/trip-schema": ["./packages/trip-schema/src/index.ts"]
+    }
   },
-  "include": ["packages/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts"]
+  "include": [
+    "packages/**/*.ts",
+    "scripts/**/*.ts",
+    "tests/**/*.ts",
+    "apps/web/src/lib/**/*.ts"
+  ]
 }
