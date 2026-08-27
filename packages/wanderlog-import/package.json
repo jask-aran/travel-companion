@@ -1,0 +1,14 @@
+{
+  "name": "@travel-companion/wanderlog-import",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1",
+    "valibot": "^1.4.2",
+    "yaml": "^2.9.0"
+  }
+}

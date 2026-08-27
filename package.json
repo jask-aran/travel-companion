@@ -7,13 +7,18 @@
     "node": ">=22"
   },
   "scripts": {
+    "dev": "pnpm --filter @travel-companion/web dev",
+    "build": "pnpm --filter @travel-companion/web build",
+    "preview": "pnpm --filter @travel-companion/web preview",
     "trip:refresh": "tsx scripts/refresh-trip.ts",
     "trip:pull": "tsx scripts/refresh-trip.ts --source cli",
     "trip:scrape": "tsx scripts/refresh-trip.ts --source html",
     "trip:scrape:headed": "tsx scripts/refresh-trip.ts --source html --headed",
     "trip:import": "tsx scripts/import-trip.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit && pnpm --filter @travel-companion/web typecheck",
+    "test": "vitest run",
+    "publish:stage": "tsx scripts/publish.ts",
+    "deploy": "pnpm build && tsx scripts/publish.ts && wrangler pages deploy apps/web/.publish --project-name jask-aran --branch main --commit-dirty=true"
   },
   "dependencies": {
     "playwright": "^1.61.1",
@@ -25,5 +30,10 @@
     "tsx": "^4.23.1",
     "typescript": "^5.9.0",
     "vitest": "^4.1.10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
