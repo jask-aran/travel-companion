@@ -1,0 +1,1453 @@
+:root {
+  color-scheme: light;
+  --ink: #0b1f33;
+  --ink-soft: #1c3348;
+  --paper: #f3efe4;
+  --paper-elevated: #fffaf0;
+  --line: #c9c0ad;
+  --line-strong: #9a8f7a;
+  --mist: #d7e1ea;
+  --sea: #2f6f8f;
+  --sea-deep: #1f4f68;
+  --seal: #c23b22;
+  --seal-soft: #f0d2cb;
+  --ok: #2f6b4f;
+  --warn: #9a6b12;
+  --shadow: 0 10px 30px rgb(var(--ink-rgb) / 10%);
+  --radius-card: 18px;
+  --tab-height: 3.2rem;
+  --header-pad-top: max(0.75rem, env(safe-area-inset-top));
+  --page-pad: max(0.5rem, env(safe-area-inset-left));
+  --page-pad-right: max(0.5rem, env(safe-area-inset-right));
+  /* One hue per kind of thing, so a day is scannable by colour alone:
+     activities stay neutral ink, travel recedes to slate, and the two you
+     most need to spot — flights and where you sleep — get blue and amber. */
+  --kind-stop: #0b1f33;
+  --kind-flight: #1f4f68;
+  --kind-lodging: #8a5a1a;
+  --kind-lodging-soft: #f3e3c6;
+  --kind-travel: #5c6f7d;
+  /* Channel tokens: every translucent use derives from these, so swapping
+     the palette below carries the whole sheet with it. */
+  --ink-rgb: 11 31 51;
+  --line-rgb: 154 143 122;
+  --sea-rgb: 47 111 143;
+  --flight-rgb: 31 79 104;
+  --travel-rgb: 92 111 125;
+  --lodging-rgb: 138 90 26;
+  --seal-rgb: 194 59 34;
+  --on-dark-rgb: 247 241 230;
+
+  --page-top: #e8e1d2;
+  --page-bottom: #ebe4d6;
+  --on-dark: #f7f1e6;
+  --header-bg: linear-gradient(180deg, rgb(11 31 51 / 96%), rgb(11 31 51 / 88%));
+  --bar-bg: linear-gradient(180deg, #0b1f33 0%, #0e253c 100%);
+
+  --font-sans: "Sora", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --sticky-offset: calc(var(--header-pad-top) + var(--tab-height) + 0.5rem);
+}
+
+/*
+ * Dark palette. Three states: an explicit choice stamps data-theme on the root
+ * and always wins; with nothing stamped the system preference decides. Only
+ * the tokens are redefined — every rule below is written against them.
+ *
+ * Kept warm rather than neutral-grey so it still reads as a travel document
+ * at night rather than a generic dark UI.
+ */
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
+  color-scheme: dark;
+
+  --ink-rgb: 233 226 213;
+  --line-rgb: 104 114 128;
+  --sea-rgb: 122 178 208;
+  --flight-rgb: 132 186 214;
+  --travel-rgb: 148 165 179;
+  --lodging-rgb: 214 163 74;
+  --seal-rgb: 226 108 80;
+  --on-dark-rgb: 240 236 228;
+
+  --ink: #e9e2d5;
+  --ink-soft: #bdb5a6;
+  --paper: #141b23;
+  --paper-elevated: #1d262f;
+  --line: #2f3a45;
+  --line-strong: #4b5866;
+  --mist: #24313d;
+  --sea: #7ab2d0;
+  --sea-deep: #9ccbe4;
+  --seal: #e26c50;
+  --seal-soft: #4a241b;
+  --ok: #74c199;
+  --warn: #d6a441;
+  --shadow: 0 10px 30px rgb(0 0 0 / 45%);
+
+  --kind-stop: #e9e2d5;
+  --kind-flight: #84bad6;
+  --kind-lodging: #d6a34a;
+  --kind-lodging-soft: #3b2c14;
+  --kind-travel: #94a5b3;
+
+  --page-top: #101821;
+  --page-bottom: #161d26;
+  --on-dark: #f0ece4;
+  --header-bg: linear-gradient(180deg, #0d141b, #121a23);
+  --bar-bg: linear-gradient(180deg, #0d141b 0%, #131c26 100%);
+}
+
+/* The explicit light choice must win back over a dark system preference. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  max-width: 100%;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  margin: 0;
+  overflow-x: clip;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgb(var(--sea-rgb) / 14%), transparent 34%),
+    linear-gradient(180deg, var(--page-top) 0%, var(--paper) 28%, var(--page-bottom) 100%);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+code {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+  cursor: pointer;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/*
+ * The trip title sits at the top of the page and scrolls away with it — only
+ * the day bar below detaches and follows you down.
+ */
+.trip-header {
+  position: relative;
+  z-index: 20;
+  max-width: 100%;
+  background: var(--header-bg);
+  color: var(--on-dark);
+  box-shadow: 0 10px 28px rgb(var(--ink-rgb) / 22%);
+}
+
+.trip-header__inner {
+  padding: var(--header-pad-top) var(--page-pad-right) 0.7rem var(--page-pad);
+}
+
+.trip-header__eyebrow,
+.day-section__date,
+.day-tab__index,
+.state-panel__eyebrow,
+.itinerary-footer {
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.trip-header__eyebrow,
+.state-panel__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  opacity: 0.72;
+}
+
+.trip-header__title {
+  margin: 0;
+  font-size: clamp(1.45rem, 4vw, 1.85rem);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+.trip-header__range {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  opacity: 0.78;
+}
+
+.day-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  /* Opaque enough to hide the itinerary sliding under it. */
+  background: var(--bar-bg);
+  /* Sibling of the header now, so it must set its own foreground. */
+  color: var(--on-dark);
+  box-shadow: 0 6px 18px rgb(var(--ink-rgb) / 28%);
+  padding-top: var(--header-pad-top);
+  border-top: 1px solid rgb(var(--on-dark-rgb) / 12%);
+  max-width: 100%;
+}
+
+.day-tabs__scroller {
+  display: flex;
+  gap: 0.55rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 0.4rem var(--page-pad) 0.45rem;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  max-width: 100%;
+}
+
+.day-tabs__scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.day-tab {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 0.45rem;
+  row-gap: 0;
+  min-width: 5.9rem;
+  margin: 0;
+  padding: 0.28rem 0.6rem;
+  border: 1px solid rgb(var(--on-dark-rgb) / 16%);
+  border-radius: 999px;
+  background: rgb(var(--on-dark-rgb) / 6%);
+  color: inherit;
+  text-align: left;
+  scroll-snap-align: start;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.day-tab:hover {
+  background: rgb(var(--on-dark-rgb) / 12%);
+}
+
+.day-tab:focus-visible {
+  outline: 2px solid #f3c7b8;
+  outline-offset: 2px;
+}
+
+.day-tab--active {
+  background: var(--seal);
+  border-color: rgb(var(--on-dark-rgb) / 18%);
+  box-shadow: 0 8px 18px rgb(var(--seal-rgb) / 28%);
+}
+
+.day-tab__index {
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+.day-tab__weekday {
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.day-tab__date {
+  font-size: 0.66rem;
+  opacity: 0.78;
+  line-height: 1.2;
+}
+
+.itinerary {
+  position: relative;
+  width: min(64rem, 100%);
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1.1rem var(--page-pad) calc(2.5rem + env(safe-area-inset-bottom));
+  overflow-x: clip;
+}
+
+
+.day-section {
+  position: relative;
+  scroll-margin-top: var(--sticky-offset);
+  padding: 0.4rem 0 1.4rem;
+  max-width: 100%;
+  min-width: 0;
+  /* All 21 days are in the DOM at once so the day tabs and scroll-spy stay
+     simple. This skips layout/paint for the offscreen ones; `auto` in the
+     intrinsic size makes the browser remember each section's real height
+     after its first render, so the scrollbar stops jumping. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+.day-section + .day-section {
+  border-top: 1px dashed rgb(var(--line-rgb) / 45%);
+  margin-top: 0.4rem;
+  padding-top: 1.3rem;
+}
+
+.day-section__header {
+  display: grid;
+  grid-template-columns: 2.3rem minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+  margin-bottom: 0.95rem;
+}
+
+.day-section__index {
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  box-shadow: 0 0 0 6px rgb(243 239 228 / 88%);
+}
+
+.day-section__date {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--sea-deep);
+}
+
+.day-section__title {
+  margin: 0.15rem 0 0;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.day-section__subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--ink-soft);
+  opacity: 0.8;
+  overflow-wrap: anywhere;
+}
+
+.day-section__headtext {
+  min-width: 0;
+}
+
+.day-section__count {
+  margin: 0.3rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(var(--ink-rgb) / 45%);
+}
+
+.day-section__moving {
+  padding-left: 0.5rem;
+  border-left: 1px solid rgb(var(--line-rgb) / 55%);
+  color: var(--sea-deep);
+}
+
+/* ---------------------------------------------------------------------------
+   Day contents
+   Three kinds of thing, deliberately different in weight so a day reads at a
+   glance: a stop is a bounded card, travel is a tinted connector between
+   cards, a note is an unboxed aside. Travel of an hour or more becomes a
+   proportionally tall block, so a long haul looks long while scrolling.
+--------------------------------------------------------------------------- */
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  max-width: 100%;
+}
+
+/* --- Stops --- */
+
+.stop-item {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stop {
+  display: grid;
+  grid-template-columns: 1.7rem minmax(0, 1fr);
+  gap: 1.05rem;
+  padding: 0.7rem 0.85rem 0.75rem 0.7rem;
+  border: 1px solid rgb(201 192 173 / 85%);
+  border-radius: 14px;
+  background: var(--paper-elevated);
+  box-shadow: 0 1px 2px rgb(var(--ink-rgb) / 5%), 0 6px 16px rgb(var(--ink-rgb) / 6%);
+  min-width: 0;
+}
+
+.stop__badge {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.stop__num {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.stop--stay .stop__badge {
+  background: var(--kind-lodging);
+}
+
+.stop--stay {
+  background:
+    linear-gradient(135deg, rgb(var(--lodging-rgb) / 7%), transparent 40%),
+    var(--paper-elevated);
+  border-color: rgb(var(--lodging-rgb) / 28%);
+}
+
+.stop__body {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.stop__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.stop__name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.stop__name[href] {
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--sea-rgb) / 30%);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.stop__name[href]:hover {
+  text-decoration-color: var(--sea);
+}
+
+.stop__name:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.flight-arrow {
+  margin: 0 0.35rem;
+  color: var(--sea-deep);
+}
+
+.stop__meta {
+  margin: 0.15rem 0 0;
+  font-size: 0.76rem;
+  color: var(--sea-deep);
+  text-transform: lowercase;
+  font-variant: small-caps;
+}
+
+.stop__where {
+  margin: 0.08rem 0 0;
+  font-size: 0.74rem;
+  color: rgb(var(--ink-rgb) / 50%);
+  overflow-wrap: anywhere;
+}
+
+.item-time {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+.item-time__sep {
+  margin: 0 0.15rem;
+  opacity: 0.55;
+}
+
+/* --- Travel --- */
+
+.travel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.3rem 0 0.3rem 1.35rem;
+  padding: 0.3rem 0.7rem;
+  border-left: 2px dashed rgb(var(--travel-rgb) / 50%);
+  background: linear-gradient(90deg, rgb(var(--travel-rgb) / 10%), rgb(var(--travel-rgb) / 2%));
+  border-radius: 0 8px 8px 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--kind-travel);
+}
+
+/* An hour or more: a block sized by how long it takes. */
+.travel--long {
+  min-height: var(--travel-height, 4rem);
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  border-left-style: solid;
+  border-left-width: 3px;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgb(var(--travel-rgb) / 10%) 0 6px,
+      rgb(var(--travel-rgb) / 3%) 6px 12px
+    );
+}
+
+.travel__glyph {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: var(--paper-elevated);
+  color: var(--kind-travel);
+  box-shadow: inset 0 0 0 1px rgb(var(--travel-rgb) / 30%);
+}
+
+.travel--long .travel__glyph {
+  width: 1.7rem;
+  height: 1.7rem;
+  background: var(--kind-travel);
+  color: var(--paper-elevated);
+  box-shadow: none;
+}
+
+.travel__mode {
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.travel--long .travel__mode {
+  font-size: 0.76rem;
+}
+
+.travel__detail {
+  color: rgb(var(--ink-rgb) / 58%);
+}
+
+.mode-glyph {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.travel--long .mode-glyph,
+.stop__badge--flight .mode-glyph {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.stop__badge--flight .mode-glyph {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* --- Notes: an aside, deliberately unboxed --- */
+
+.note-item {
+  margin: 0.3rem 0 0.3rem 1.35rem;
+}
+
+.note-text {
+  margin: 0;
+  padding: 0.35rem 0 0.35rem 0.7rem;
+  border-left: 2px solid var(--line-strong);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.lodging-item {
+  margin: 0.35rem 0;
+}
+
+/* Space between consecutive stop cards when no travel sits between them. */
+.stop-item + .stop-item {
+  margin-top: 0.5rem;
+}
+
+/* --- Notes / expandable text --- */
+
+.item-notes {
+  margin-top: 0.35rem;
+}
+
+.item-notes__text {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.item-notes__text--open {
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.text-button {
+  margin-top: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sea);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.text-button:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.status-pill {
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--seal-soft);
+  color: var(--seal);
+}
+
+.status-pill--optional {
+  background: rgb(var(--sea-rgb) / 14%);
+  color: var(--sea-deep);
+}
+
+.status-pill--tentative {
+  background: rgb(154 107 18 / 16%);
+  color: var(--warn);
+}
+
+/* --- Lodging bookends --- */
+
+.day-bookend {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 0 0.7rem;
+}
+
+.day-bookend--end {
+  margin: 0.7rem 0 0;
+}
+.lodging-band {
+  border: 1px solid rgb(var(--lodging-rgb) / 30%);
+  border-left: 4px solid var(--kind-lodging);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgb(var(--lodging-rgb) / 9%), rgb(var(--lodging-rgb) / 2%) 55%),
+    var(--paper-elevated);
+  overflow: hidden;
+}
+
+/* Arriving is the emphatic edge; leaving is the same hue, drained. */
+.lodging-band--out {
+  border-left-color: rgb(var(--lodging-rgb) / 40%);
+  background: rgb(255 250 240 / 75%);
+}
+
+.lodging-band__summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+
+.lodging-band__summary:disabled {
+  cursor: default;
+}
+
+.lodging-band__summary:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: -2px;
+}
+
+.lodging-band__phase {
+  flex: none;
+  padding: 0.1rem 0.4rem;
+  border-radius: 5px;
+  background: var(--kind-lodging-soft);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--kind-lodging);
+}
+
+.lodging-band--out .lodging-band__phase {
+  background: rgb(var(--lodging-rgb) / 10%);
+}
+
+.lodging-band__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lodging-band__nights {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: rgb(var(--ink-rgb) / 55%);
+}
+
+.lodging-band__chevron {
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1.5px solid var(--line-strong);
+  border-bottom: 1.5px solid var(--line-strong);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 160ms ease;
+}
+
+.lodging-band__chevron.is-open {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
+.lodging-band__detail {
+  padding: 0 0.7rem 0.65rem;
+  display: grid;
+  gap: 0.4rem;
+  justify-items: start;
+}
+
+.lodging-band__where {
+  margin: 0;
+  font-size: 0.76rem;
+  color: rgb(var(--ink-rgb) / 55%);
+}
+
+.lodging-band__dates {
+  margin: 0;
+  display: flex;
+  gap: 1.4rem;
+}
+
+.lodging-band__dates dt {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(var(--ink-rgb) / 50%);
+}
+
+.lodging-band__dates dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* --- Footer and full-screen states --- */
+
+.itinerary-footer {
+  margin-top: 1.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(var(--line-rgb) / 35%);
+  color: rgb(var(--ink-rgb) / 55%);
+  font-size: 0.72rem;
+}
+
+.itinerary-footer p {
+  margin: 0;
+}
+
+.state-panel {
+  min-height: 100dvh;
+  display: grid;
+  align-content: center;
+  gap: 0.45rem;
+  padding: 2rem var(--page-pad);
+  color: var(--ink);
+}
+
+.state-panel__title {
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+.state-panel__body {
+  margin: 0.4rem 0 0;
+  max-width: 28rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.state-panel--error .state-panel__title {
+  color: var(--seal);
+}
+
+@media (min-width: 720px) {
+  :root {
+    --page-pad: max(1rem, env(safe-area-inset-left));
+    --page-pad-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Header, tab bar and cards share one measure so their edges align. */
+  .trip-header__inner,
+  .day-tabs__scroller {
+    width: min(64rem, 100%);
+    margin: 0 auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* The measure itself provides the gutter here, so the cards use all of it. */
+  .itinerary {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* --- Flight cards: the most distinct thing in a day --- */
+
+.card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem 0.8rem;
+  border-radius: 14px;
+  justify-items: start;
+  min-width: 0;
+}
+
+.card--flight {
+  border: 1px solid rgb(var(--flight-rgb) / 35%);
+  border-left: 4px solid var(--kind-flight);
+  background:
+    linear-gradient(135deg, rgb(var(--flight-rgb) / 10%), rgb(var(--flight-rgb) / 2%) 55%),
+    var(--paper-elevated);
+  box-shadow: 0 1px 2px rgb(var(--ink-rgb) / 5%), 0 6px 16px rgb(var(--flight-rgb) / 8%);
+}
+
+.card__kind {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kind-flight);
+}
+
+.card__kind .mode-glyph {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+  stroke: none;
+}
+
+.card__ref {
+  margin-left: auto;
+  padding: 0.05rem 0.4rem;
+  border-radius: 5px;
+  background: rgb(var(--flight-rgb) / 12%);
+  letter-spacing: 0.1em;
+}
+
+.card__ref--dark {
+  background: rgb(var(--ink-rgb) / 8%);
+  color: var(--ink);
+}
+
+.flight-legs {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(2.5rem, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.flight-end {
+  display: grid;
+  gap: 0.05rem;
+}
+
+.flight-end--arrive {
+  text-align: right;
+  justify-items: end;
+}
+
+.flight-end__time {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.flight-end__plus {
+  font-size: 0.6rem;
+  color: var(--seal);
+  margin-left: 0.1rem;
+}
+
+.flight-end__code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--kind-flight);
+}
+
+.flight-end__city {
+  font-size: 0.72rem;
+  color: rgb(var(--ink-rgb) / 55%);
+}
+
+.flight-path {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--kind-flight);
+}
+
+.flight-path__line {
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    rgb(var(--flight-rgb) / 55%) 0 4px,
+    transparent 4px 8px
+  );
+}
+
+.flight-path .mode-glyph {
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+  stroke: none;
+  transform: rotate(90deg);
+}
+
+/* --- Shared expandable detail --- */
+
+.card__detail {
+  width: 100%;
+  display: grid;
+  gap: 0.3rem;
+  padding-top: 0.2rem;
+}
+
+.card__detail-row {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.card__detail-label {
+  display: inline-block;
+  min-width: 5.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgb(var(--ink-rgb) / 45%);
+}
+
+.lodging-band__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  padding-top: 0.15rem;
+}
+
+/* A flight standing in for a route leg: same shape, flight colour. */
+.travel--flight {
+  border-left: 3px solid var(--kind-flight);
+  background: linear-gradient(90deg, rgb(var(--flight-rgb) / 14%), rgb(var(--flight-rgb) / 3%));
+  color: var(--kind-flight);
+}
+
+.travel--flight .travel__glyph {
+  background: var(--kind-flight);
+  color: var(--paper-elevated);
+  box-shadow: none;
+}
+
+.travel--flight .mode-glyph {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* --- Day summary vs day route --- */
+
+.day-part {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.day-part__label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--ink-rgb) / 40%);
+}
+
+.day-part__label::after {
+  content: "";
+  display: block;
+  margin-top: 0.3rem;
+  border-top: 1px solid rgb(var(--line-rgb) / 45%);
+}
+
+/* --- Place photo, right-hand slot --- */
+
+/*
+ * With a photo the card carries no padding of its own: the image runs to the
+ * top, right and bottom edges, and the badge and body bring their own spacing.
+ * `overflow: hidden` clips the image to the card's corner radius.
+ */
+.stop:has(.stop__photo) {
+  grid-template-columns: 1.7rem minmax(0, 1fr) 8rem;
+  column-gap: 1.05rem;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  /* A little taller than the content needs, so cards breathe. */
+  min-height: 7rem;
+}
+
+.stop:has(.stop__photo) .stop__rail {
+  margin: 0.7rem 0 0.7rem 0.7rem;
+}
+
+.stop:has(.stop__photo) .stop__body {
+  padding: 0.7rem 0;
+}
+
+/*
+ * Explicit columns: the badge and photo span all rows, which makes them
+ * definite-placement items — auto-placement would otherwise put the photo
+ * ahead of the body and squeeze the text into the last column.
+ */
+.stop__photo {
+  grid-column: 3;
+  grid-row: 1 / -1;
+  position: relative;
+  margin: 0;
+  width: 8rem;
+  /*
+   * Bleeds to the card edges at the default height. On an expanded card the
+   * cap stops the crop narrowing to an unrecognisable vertical sliver.
+   */
+  align-self: start;
+  height: 100%;
+  max-height: 15rem;
+}
+
+/*
+ * Absolutely positioned rather than height:100% — the figure has no definite
+ * height, so a percentage cannot resolve and a portrait photo would render at
+ * its natural size and stretch the whole card.
+ */
+.stop__photo-link {
+  position: absolute;
+  inset: 0;
+}
+
+.stop__photo-link:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+}
+
+.stop__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: rgb(var(--line-rgb) / 18%);
+}
+
+.stop__photo figure,
+.stop__photo {
+  overflow: hidden;
+}
+
+/*
+ * Google requires the photographer credit wherever the image appears. With a
+ * full-bleed image there is no margin for it, so it overlays the foot of the
+ * photo on a scrim that keeps it legible over any picture.
+ */
+.stop__photo figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 0.9rem 0.35rem 0.25rem;
+  font-size: 0.55rem;
+  line-height: 1.2;
+  color: rgb(var(--on-dark-rgb) / 88%);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 55%);
+  background: linear-gradient(transparent, rgb(0 0 0 / 55%));
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  pointer-events: none;
+}
+
+@media (min-width: 460px) {
+  .stop:has(.stop__photo) {
+    grid-template-columns: 1.7rem minmax(0, 1fr) 11rem;
+    min-height: 8.5rem;
+  }
+
+  .stop__photo {
+    width: 11rem;
+  }
+}
+
+/* --- Scraped POI detail --- */
+
+.detail {
+  margin-top: 0.45rem;
+}
+
+.detail__glance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.55rem;
+}
+
+.detail__chip {
+  padding: 0.1rem 0.4rem;
+  border-radius: 5px;
+  background: rgb(var(--ink-rgb) / 7%);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+}
+
+/* Hours are the one detail worth reading before you set off. */
+.detail__chip--hours {
+  background: rgb(var(--sea-rgb) / 13%);
+  color: var(--sea-deep);
+}
+
+.detail__body {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgb(var(--line-rgb) / 40%);
+}
+
+.detail__blurb {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.detail__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.detail__tags li {
+  padding: 0.08rem 0.4rem;
+  border: 1px solid rgb(var(--line-rgb) / 55%);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  color: rgb(var(--ink-rgb) / 60%);
+}
+
+.detail__links {
+  display: flex;
+  gap: 0.9rem;
+}
+
+/* --- Theme toggle --- */
+
+.theme-toggle {
+  position: absolute;
+  top: var(--header-pad-top);
+  right: var(--page-pad-right);
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid rgb(var(--on-dark-rgb) / 22%);
+  border-radius: 999px;
+  background: rgb(var(--on-dark-rgb) / 8%);
+  color: var(--on-dark);
+  transition: background 160ms ease;
+}
+
+.theme-toggle:hover {
+  background: rgb(var(--on-dark-rgb) / 16%);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --- Card rail: number, then the disclosure beneath it --- */
+
+.stop__rail {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stop__disclose {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.4rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgb(var(--ink-rgb) / 45%);
+}
+
+.stop__disclose:hover {
+  color: var(--sea);
+}
+
+.stop__disclose:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.stop__chevron {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform 160ms ease;
+}
+
+.stop__chevron.is-open {
+  transform: rotate(225deg) translate(-1px, -1px);
+}
+
+.detail__glance {
+  margin-top: 0.1rem;
+}
+
+/* --- Unlock gate --- */
+
+.unlock {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 2rem var(--page-pad);
+}
+
+.unlock__card {
+  width: min(24rem, 100%);
+  display: grid;
+  gap: 0.5rem;
+  padding: 1.5rem 1.4rem;
+  border: 1px solid rgb(var(--line-rgb) / 45%);
+  border-radius: var(--radius-card);
+  background: var(--paper-elevated);
+  box-shadow: var(--shadow);
+}
+
+.unlock__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sea-deep);
+}
+
+.unlock__title {
+  margin: 0;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+}
+
+.unlock__body {
+  margin: 0 0 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.unlock__input {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid rgb(var(--line-rgb) / 65%);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.unlock__input:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 1px;
+}
+
+.unlock__error {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--seal);
+}
+
+.btn {
+  padding: 0.55rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background: var(--seal);
+  color: #fff;
+}
+
+.btn--primary:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+}
