@@ -7,11 +7,13 @@ import { loadIngestionConfig } from "../packages/wanderlog-import/src/config.js"
 import { parseWanderlogSource } from "../packages/wanderlog-import/src/index.js";
 import { parseTripBundle } from "../packages/trip-schema/src/index.js";
 import { normaliseCompleteWanderlog } from "../packages/trip-normaliser/src/complete.js";
+import { attachPlacePhotos } from "../packages/trip-normaliser/src/place-photos.js";
+import { attachPlaceDetails } from "../packages/trip-normaliser/src/place-details.js";
 import type { ImportOverrides } from "../packages/trip-normaliser/src/index.js";
 
 const { values } = parseArgs({
   options: {
-    config: { type: "string", default: "config/trip.yaml" },
+    config: { type: "string", default: "config/trip.local.yaml" },
     source: { type: "string", default: "auto" },
     headed: { type: "boolean", default: false },
   },
@@ -114,6 +116,17 @@ const result = normaliseCompleteWanderlog(parsed.data, {
 });
 
 result.bundle.tripId = config.trip.publicId;
+
+// Wanderlog's own scraped POI records: categories, blurb, hours, visit length.
+const detailCount = attachPlaceDetails(result.bundle, parsed.data);
+
+/*
+ * Google photo names expire and may not be cached, so they are refreshed here
+ * on every ingest. Without a key the app simply renders no photos.
+ */
+const googleApiKey = process.env.GOOGLE_MAPS_API_KEY ?? config.google?.apiKey;
+const photoReport = await attachPlacePhotos(result.bundle, googleApiKey);
+
 const bundle = parseTripBundle(result.bundle);
 const workingBundlePath = loaded.resolvePath(config.paths.workingBundle);
 const reportPath = loaded.resolvePath(config.paths.report);
@@ -127,3 +140,14 @@ console.log(`Acquired Wanderlog trip ${config.trip.wanderlogId} via ${acquired.s
 console.log(`Saved raw source: ${rawPath}`);
 console.log(`Generated TripBundle: ${workingBundlePath}`);
 console.log(`Import report: ${reportPath}`);
+console.log(`Place details: ${detailCount} places enriched from Wanderlog metadata.`);
+if (photoReport.skipped && !photoReport.requested) {
+  console.log(
+    "Place photos: skipped. Set google.apiKey in config/trip.local.yaml (or GOOGLE_MAPS_API_KEY) to fetch them.",
+  );
+} else {
+  console.log(
+    `Place photos: ${photoReport.attached} attached, ${photoReport.failed} failed, ${photoReport.skipped} skipped.`,
+  );
+  for (const message of photoReport.errors) console.warn(`  ! ${message}`);
+}
