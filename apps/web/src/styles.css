@@ -1154,7 +1154,6 @@ p {
   width: calc(var(--photo-w) * 1.6);
   margin: 0;
   overflow: hidden;
-  transition: width 220ms ease;
 }
 
 .stop__photo img {
@@ -1255,25 +1254,6 @@ p {
   .stop {
     --photo-w: 9rem;
   }
-}
-
-/* Notes inside a card */
-.item-notes {
-  margin-top: 0.35rem;
-}
-
-.item-notes__text {
-  color: var(--ink-soft);
-  overflow-wrap: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-}
-
-.item-notes__text--open {
-  -webkit-line-clamp: unset;
-  overflow: visible;
 }
 
 /* --- Buttons and pills --- */
@@ -2185,9 +2165,8 @@ html {
   z-index: 2;
   padding: 0.15rem 0.45rem;
   border-radius: 999px;
-  background: rgb(0 0 0 / 55%);
+  background: rgb(0 0 0 / 62%);
   color: #fff;
-  backdrop-filter: blur(4px);
 }
 
 .stop:has(> .stop__photo) .stop__when > .mode-glyph,
@@ -2237,14 +2216,69 @@ html {
   text-overflow: ellipsis;
 }
 
-.stop__notes-text.is-open {
-  white-space: pre-line;
-  overflow-wrap: break-word;
+.stop__notes > .stop__chevron,
+.stop__notes-toggle > .stop__chevron {
+  color: var(--ink-muted);
 }
 
 .stop__notes > .stop__chevron {
   margin-top: 0.4em;
+}
+
+/* The chevron of an opened note, level with its first line. */
+.stop__notes-toggle {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.5em;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.stop__notes-body {
+  min-width: 0;
+  overflow-wrap: break-word;
+  color: var(--ink);
+  cursor: auto;
+}
+
+/* Notes formatted as in Wanderlog: paragraphs, lists, bold, italic, links. */
+.rich-notes > * {
+  margin: 0;
+}
+
+.rich-notes > * + * {
+  margin-top: 0.5em;
+}
+
+.rich-notes ul,
+.rich-notes ol {
+  padding-left: 1.1em;
+}
+
+.rich-notes ul {
+  list-style: disc;
+}
+
+.rich-notes li + li {
+  margin-top: 0.15em;
+}
+
+.rich-notes li::marker {
   color: var(--ink-muted);
+}
+
+.rich-notes strong {
+  font-weight: 650;
+}
+
+.rich-notes a {
+  color: var(--sea);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  overflow-wrap: anywhere;
 }
 
 /* The credit's shade fades in from the left like the photo, so it does not
@@ -2281,4 +2315,40 @@ html {
 
 .stop__notes--static > .stop__notes-text {
   white-space: normal;
+}
+
+/* A day's route opens and closes on its hotel, one line like a flight. */
+.hotel-pill .flight-pill__card {
+  background-image: var(--lodging-wash);
+}
+
+.hotel-pill__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.hotel-pill__phase {
+  align-items: center;
+  gap: 0.3rem;
+  word-spacing: -0.3em;
+}
+
+.hotel-pill__phase > .mode-glyph {
+  width: 0.9rem;
+  height: 0.9rem;
+  color: var(--kind-lodging);
+}
+
+/* Each card paints and lays out on its own, so a change inside one (a note
+   opening, a photo arriving) does not repaint the page around it. */
+.stop,
+.lodging-band,
+.card,
+.flight-pill__card {
+  contain: layout paint;
 }

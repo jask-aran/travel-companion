@@ -22,7 +22,7 @@ import { departureKey } from "../lib/departure-targets";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { fold, unfold } from "../lib/fold-motion";
 import { sunTimes, type FlightTiming } from "../lib/day-times";
-import { DayItemRow, FlightConnector, FlightRow, LodgingBand, RouteLegRow } from "./ItemCards";
+import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
 /** A stat's name as an icon, the word kept for screen readers. */
@@ -93,9 +93,12 @@ export function DaySection(props: {
   const legs = () => routing().legs;
   const endLeg = () => routing().endLeg;
   const placeName = (placeId: string) => props.bundle.places[placeId]?.name;
-  /** Names a hotel end of a leg, since the hotel is not a stop beside it. */
-  const legOrigin = (leg: { fromPlaceId: string }) =>
-    leg.fromPlaceId === wokeIn()?.placeId ? `from ${placeName(leg.fromPlaceId)}` : undefined;
+  /** Today's role for the hotel at each end of the route, for its pill. */
+  const startPhase = () => (wokeInSlot()?.role === "check-out" ? "check-out" : undefined);
+  const endPhase = () =>
+    routing().plan.start.some((slot) => slot.role === "check-in" && slot.stay.key === sleepsIn()?.key)
+      ? "check-in"
+      : undefined;
   const timings = () => routing().timings;
   /** The run to the airport starts at the hotel you check out of today. */
   const leavesFromCheckOut = (timing: FlightTiming | undefined) =>
@@ -396,6 +399,16 @@ export function DaySection(props: {
             <div class="day-part">
               <p class="day-part__label">Day route</p>
               <ol class="timeline">
+                <Show when={wokeIn()}>
+                  {(stay) => (
+                    <HotelPill
+                      name={stay().name}
+                      place={stayPlace(props.bundle, stay())}
+                      phase={startPhase()}
+                      by={checkOutBy()}
+                    />
+                  )}
+                </Show>
                 <For each={routeItems()}>
                   {(item, index) => (
                     <>
@@ -405,7 +418,7 @@ export function DaySection(props: {
                       </Show>
                       <Show when={!binding().supersededLegs.has(item.id) && legs().get(item.id)}>
                         {(leg) => (
-                          <RouteLegRow leg={leg()} places={props.bundle.places} note={legOrigin(leg())} />
+                          <RouteLegRow leg={leg()} places={props.bundle.places} />
                         )}
                       </Show>
                       <DayItemRow
@@ -422,12 +435,11 @@ export function DaySection(props: {
                   )}
                 </For>
                 <Show when={endLeg()}>
-                  {(leg) => (
-                    <RouteLegRow
-                      leg={leg()}
-                      places={props.bundle.places}
-                      note={`to ${placeName(leg().toPlaceId)}`}
-                    />
+                  {(leg) => <RouteLegRow leg={leg()} places={props.bundle.places} />}
+                </Show>
+                <Show when={sleepsIn()}>
+                  {(stay) => (
+                    <HotelPill name={stay().name} place={stayPlace(props.bundle, stay())} phase={endPhase()} />
                   )}
                 </Show>
               </ol>

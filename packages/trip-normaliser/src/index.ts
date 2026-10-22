@@ -82,10 +82,59 @@ function sourceId(prefix: string, value: unknown): string {
   return `${prefix}:${String(value)}`;
 }
 
-function quillText(value: unknown): string | undefined {
+/** Wraps one inline run in Markdown markers, keeping edge whitespace outside them. */
+function markInline(text: string, attributes: JsonRecord | undefined): string {
+  const match = /^(\s*)([\s\S]*?)(\s*)$/.exec(text);
+  const [, lead = "", core = "", trail = ""] = match ?? [];
+  if (!core) return text;
+  let out = core;
+  if (attributes?.italic === true) out = `_${out}_`;
+  if (attributes?.bold === true) out = `**${out}**`;
+  const href = asString(attributes?.link);
+  if (href) out = `[${out}](${href})`;
+  return `${lead}${out}${trail}`;
+}
+
+/**
+ * Converts a Quill delta (Wanderlog's note format) to a small Markdown subset:
+ * `**bold**`, `_italic_`, `[text](url)`, `- ` bullets, `1. ` ordered items and a
+ * blank line between paragraphs. Line attributes (list) sit on the "\n" that ends
+ * the line; inline attributes sit on the text inserts.
+ */
+export function quillToMarkdown(value: unknown): string | undefined {
   const ops = asRecords(asRecord(value)?.ops);
-  const text = ops.map((op) => asString(op.insert) ?? "").join("").trim();
-  return text || undefined;
+  const lines: Array<{ text: string; list?: "bullet" | "ordered" | undefined }> = [];
+  let current = "";
+  for (const op of ops) {
+    if (typeof op.insert !== "string") continue;
+    const attributes = asRecord(op.attributes);
+    const parts = op.insert.split("\n");
+    parts.forEach((part, index) => {
+      if (index > 0) {
+        const list = attributes?.list;
+        const header = attributes?.header !== undefined && current.trim();
+        const text = header ? `**${current.replaceAll("**", "").trim()}**` : current;
+        lines.push({ text, list: list === "bullet" || list === "ordered" ? list : undefined });
+        current = "";
+      }
+      if (part) current += markInline(part, attributes);
+    });
+  }
+  if (current) lines.push({ text: current });
+
+  let out = "";
+  let ordinal = 0;
+  let previousList: string | undefined;
+  for (const line of lines) {
+    const text = line.text.trimEnd();
+    const separator = !out ? "" : line.list && line.list === previousList ? "\n" : "\n\n";
+    ordinal = line.list === "ordered" && previousList === "ordered" ? ordinal + 1 : 1;
+    const prefix = line.list === "bullet" ? "- " : line.list === "ordered" ? `${ordinal}. ` : "";
+    out += separator + prefix + text;
+    previousList = line.list;
+  }
+  const markdown = out.replace(/[ \t]+$/gm, "").replace(/\n{3,}/g, "\n\n").trim();
+  return markdown || undefined;
 }
 
 function firstString(value: unknown): string | undefined {
@@ -223,7 +272,7 @@ function commonItemFields(block: JsonRecord, overrides: ImportOverrides | undefi
   if (startTime) common.startTime = startTime;
   const endTime = override?.endTime ?? asString(block.endTime);
   if (endTime) common.endTime = endTime;
-  const notes = override?.notes ?? quillText(block.text);
+  const notes = override?.notes ?? quillToMarkdown(block.text);
   if (notes) common.notes = notes;
   if (override?.status) common.status = override.status;
   return common;

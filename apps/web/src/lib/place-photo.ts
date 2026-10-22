@@ -14,11 +14,11 @@ const apiKey = typeof __GOOGLE_MAPS_KEY__ === "string" ? __GOOGLE_MAPS_KEY__ : "
 export const placePhotosEnabled = apiKey.length > 0;
 
 /**
- * Generous relative to the slot width: the photo is full-bleed and stretches
- * to the card height, so an expanded card can be far taller than it is wide.
- * Billing is per request, not per pixel.
+ * The photo column is at most 9rem × 1.6 (its fade) on a wide phone: 480px
+ * covers that on a 2x screen. Larger images only cost decode time while a
+ * day opens; an opened card dims its photo to a backdrop anyway.
  */
-const MAX_WIDTH_PX = 800;
+const MAX_WIDTH_PX = 480;
 
 export function placePhotoUrl(place: Place): string | undefined {
   if (!apiKey || !place.photo?.name) return undefined;

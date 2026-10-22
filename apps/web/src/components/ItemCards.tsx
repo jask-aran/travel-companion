@@ -1,4 +1,4 @@
-import { For, Show, createSignal, onCleanup, onMount, type JSX } from "solid-js";
+import { For, Show, createSignal, type JSX } from "solid-js";
 import type {
   DepartureBoard,
   DepartureOption,
@@ -25,6 +25,8 @@ import {
   nightsBetween,
   noteRestatesNames,
 } from "../lib/format";
+import { notesPreview } from "../lib/rich-notes";
+import { RichNotes } from "./RichNotes";
 import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "../lib/maps";
 import { photoAttribution, placePhotoUrl, staticMapUrl } from "../lib/place-photo";
 import { LONG_LEG_SECONDS } from "../lib/route-legs";
@@ -52,55 +54,6 @@ function TimeLabel(props: { start?: string | undefined; end?: string | undefined
         </Show>
         {end()}
       </time>
-    </Show>
-  );
-}
-
-/**
- * Notes clamp by line, not by character count: the old `length > 110` heuristic
- * left the identical six-name passenger list expanded on every flight.
- */
-function Notes(props: {
-  text?: string | undefined;
-  label?: string | undefined;
-  /** Opened by the card's own chevron instead of a "More" link. */
-  open?: boolean | undefined;
-}) {
-  const [ownOpen, setOpen] = createSignal(false);
-  const open = () => props.open ?? ownOpen();
-  /** "More" only when the clamp actually hides something. */
-  const [clamped, setClamped] = createSignal(false);
-  let paragraph: HTMLParagraphElement | undefined;
-
-  onMount(() => {
-    if (!paragraph) return;
-    const measure = () => {
-      if (paragraph && !open()) setClamped(paragraph.scrollHeight > paragraph.clientHeight + 1);
-    };
-    // Offscreen days have no layout yet; this measures once they get one.
-    const observer = new ResizeObserver(measure);
-    observer.observe(paragraph);
-    onCleanup(() => observer.disconnect());
-  });
-
-  return (
-    <Show when={props.text?.trim()}>
-      {(text) => (
-        <div class="item-notes">
-          <p
-            ref={paragraph}
-            class="item-notes__text"
-            classList={{ "item-notes__text--open": open() }}
-          >
-            {text()}
-          </p>
-          <Show when={props.open === undefined && (clamped() || open())}>
-            <button type="button" class="text-button" onClick={() => setOpen((v) => !v)}>
-              {open() ? "Less" : (props.label ?? "More")}
-            </button>
-          </Show>
-        </div>
-      )}
     </Show>
   );
 }
@@ -575,22 +528,7 @@ export function PlaceRow(props: {
           <PlaceHours place={props.place} weekday={props.weekday} />
           <Show when={area()}>{(where) => <p class="stop__where">{where()}</p>}</Show>
           <StatusPill status={props.item.status} />
-          {/* Your notes, previewed in one line; the chevron says there is more. */}
-          <Show when={notes()}>
-            {(text) => (
-              <button
-                type="button"
-                class="stop__notes"
-                aria-expanded={notesOpen()}
-                onClick={() => setNotesOpen((open) => !open)}
-              >
-                <span class="stop__notes-text" classList={{ "is-open": notesOpen() }}>
-                  {text()}
-                </span>
-                <span class="stop__chevron" classList={{ "is-open": notesOpen() }} aria-hidden="true" />
-              </button>
-            )}
-          </Show>
+          <Show when={notes()}>{(text) => <NotesLine text={text()} open={notesOpen()} onToggle={setNotesOpen} />}</Show>
         </div>
         <PlacePhoto place={props.place} mapFallback={props.isStay} />
       </article>
@@ -602,6 +540,33 @@ export function PlaceRow(props: {
  * The in-route form of a flight: the full card lives in the day summary, so
  * here it only has to say "this hop is the flight, not a ground route".
  */
+/**
+ * Your notes as a card's last line: the first line as a preview with a
+ * chevron, opening in place to the whole note, formatted as in Wanderlog.
+ * The whole line toggles, except a link inside the opened note.
+ */
+function NotesLine(props: { text: string; open: boolean; onToggle: (open: boolean) => void }) {
+  const toggle = (event: MouseEvent) => {
+    if ((event.target as Element).closest("a")) return;
+    props.onToggle(!props.open);
+  };
+  return (
+    <div class="stop__notes" classList={{ "is-open": props.open }} onClick={toggle}>
+      <Show when={props.open} fallback={<span class="stop__notes-text">{notesPreview(props.text)}</span>}>
+        <RichNotes text={props.text} class="stop__notes-body" />
+      </Show>
+      <button
+        type="button"
+        class="stop__notes-toggle"
+        aria-expanded={props.open}
+        aria-label={props.open ? "Hide notes" : "Show notes"}
+      >
+        <span class="stop__chevron" classList={{ "is-open": props.open }} aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
 export function FlightConnector(props: { item: FlightItem }) {
   /** "JQ 34", the way a boarding pass writes it; the full name if no code. */
   const code = () =>
@@ -638,6 +603,45 @@ export function FlightConnector(props: { item: FlightItem }) {
             </span>
           </Show>
         </span>
+      </div>
+    </li>
+  );
+}
+
+/**
+ * The hotel a day's route leaves from or returns to, as a one-line card like
+ * a flight's: the leg beside it then needs no "from" or "to". The full card,
+ * with check-in and booking, lives in the day summary.
+ */
+export function HotelPill(props: {
+  name: string;
+  place?: Place | undefined;
+  /** What today means for this stay: checking out (by when) or in. */
+  phase?: "check-out" | "check-in" | undefined;
+  /** When to leave, on a check-out morning before a flight. */
+  by?: string | undefined;
+}) {
+  return (
+    <li class="flight-pill hotel-pill">
+      <div class="flight-pill__card">
+        <span class="kind-badge kind-badge--lodging" aria-hidden="true">
+          <ModeGlyph mode="lodging" />
+        </span>
+        <Show when={props.place} fallback={<span class="hotel-pill__name">{props.name}</span>}>
+          {(place) => (
+            <a class="hotel-pill__name" href={buildGoogleMapsUrl(place())} target="_blank" rel="noopener noreferrer">
+              {props.name}
+            </a>
+          )}
+        </Show>
+        <Show when={props.phase}>
+          {(phase) => (
+            <span class="flight-pill__detail hotel-pill__phase">
+              <Icon name={phase()} />
+              <span>{phase() === "check-in" ? "Check in" : props.by ? `Out by ${props.by}` : "Check out"}</span>
+            </span>
+          )}
+        </Show>
       </div>
     </li>
   );
@@ -765,9 +769,7 @@ export function FlightRow(props: {
                   {props.item.travellerNames?.join(", ")}
                 </p>
               </Show>
-              <Show when={!noteRestatesNames(props.item.notes, props.item.travellerNames)}>
-                <Notes text={props.item.notes} />
-              </Show>
+              <Show when={extraNotes()}>{(text) => <RichNotes text={text()} />}</Show>
             </div>
           </Show>
         </div>
@@ -779,7 +781,7 @@ export function FlightRow(props: {
 export function NoteRow(props: { item: NoteItem }) {
   return (
     <li class="note-item">
-      <p class="note-text">{formatArrows(props.item.text)}</p>
+      <RichNotes text={formatArrows(props.item.text)} class="note-text" />
     </li>
   );
 }
@@ -939,7 +941,7 @@ export function LodgingBand(props: {
               </p>
             </Show>
             <Show when={props.item.notes?.trim()}>
-              {(text) => <p class="lodging-band__notes">{text()}</p>}
+              {(text) => <RichNotes text={text()} class="lodging-band__notes" />}
             </Show>
           </div>
         </Show>
