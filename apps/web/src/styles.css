@@ -57,13 +57,22 @@
   --sea: #2f6f8f;
   --seal: #c23b22;
   --seal-soft: #f0d2cb;
+  /* Text on a seal-red fill: light on the deep red, dark on the salmon. */
+  --on-seal: #fffaf0;
   --warn: #9a6b12;
   --shadow: 0 10px 30px rgb(var(--ink-rgb) / 10%);
 
   --kind-flight: #1f4f68;
   --kind-lodging: #8a5a1a;
   --kind-travel: #5c6f7d;
-  --tint: 7%;
+  /* How strongly each kind tints what it fills. */
+  --tint-flight: 8%;
+  --tint-lodging: 7%;
+  --tint-travel: 5%;
+  --lodging-wash: linear-gradient(
+    rgb(var(--lodging-rgb) / var(--tint-lodging)),
+    rgb(var(--lodging-rgb) / var(--tint-lodging))
+  );
 
   --on-dark: #f7f1e6;
   --header-bg: linear-gradient(180deg, rgb(11 31 51 / 96%), rgb(11 31 51 / 88%));
@@ -105,7 +114,7 @@
 
   --ink: #ece6da;
   --ink-soft: #c9c2b5;
-  --ink-muted: #a3acb6;
+  --ink-muted: #b3bbc4;
   /* The page sits well below the cards: a near-black blue, with the card
      surface two clear steps up, so a card reads as an object, not a tint. */
   --paper: #0b1016;
@@ -114,16 +123,27 @@
   --page-bottom: #0d131a;
   --card-border: rgb(201 192 173 / 22%);
   --card-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 20px rgb(0 0 0 / 35%);
-  --sea: #7ab2d0;
+  --sea: #92c4df;
   --seal: #e26c50;
   --seal-soft: #4a241b;
+  --on-seal: #0b1016;
   --warn: #d6a441;
   --shadow: 0 10px 30px rgb(0 0 0 / 55%);
 
-  --kind-flight: #84bad6;
-  --kind-lodging: #d6a34a;
+  --kind-flight: #a2cce4;
+  --kind-lodging: #e4b663;
   --kind-travel: #94a5b3;
-  --tint: 12%;
+  /* Over navy, slate and blue converge and amber goes muddy: flights lead,
+     transfers sit near the card colour, hotels stay a faint warmth. */
+  --tint-flight: 14%;
+  --tint-lodging: 7%;
+  --tint-travel: 5%;
+  /* An even amber wash over navy greys out; a glow from the badge reads warm. */
+  --lodging-wash: linear-gradient(
+    90deg,
+    rgb(var(--lodging-rgb) / 16%),
+    rgb(var(--lodging-rgb) / 0%) 70%
+  );
 
   --on-dark: #f0ece4;
   --header-bg: linear-gradient(180deg, #121b25, #16202b);
@@ -145,7 +165,7 @@
 
     --ink: #ece6da;
     --ink-soft: #c9c2b5;
-    --ink-muted: #a3acb6;
+    --ink-muted: #b3bbc4;
     /* The page sits well below the cards: a near-black blue, with the card
        surface two clear steps up, so a card reads as an object, not a tint. */
     --paper: #0b1016;
@@ -154,16 +174,27 @@
     --page-bottom: #0d131a;
     --card-border: rgb(201 192 173 / 22%);
     --card-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 20px rgb(0 0 0 / 35%);
-    --sea: #7ab2d0;
+    --sea: #92c4df;
     --seal: #e26c50;
     --seal-soft: #4a241b;
+    --on-seal: #0b1016;
     --warn: #d6a441;
     --shadow: 0 10px 30px rgb(0 0 0 / 55%);
 
-    --kind-flight: #84bad6;
-    --kind-lodging: #d6a34a;
+    --kind-flight: #a2cce4;
+    --kind-lodging: #e4b663;
     --kind-travel: #94a5b3;
-    --tint: 12%;
+    /* Over navy, slate and blue converge and amber goes muddy: flights lead,
+       transfers sit near the card colour, hotels stay a faint warmth. */
+    --tint-flight: 14%;
+    --tint-lodging: 7%;
+    --tint-travel: 5%;
+    /* An even amber wash over navy greys out; a glow from the badge reads warm. */
+    --lodging-wash: linear-gradient(
+      90deg,
+      rgb(var(--lodging-rgb) / 16%),
+      rgb(var(--lodging-rgb) / 0%) 70%
+    );
 
     --on-dark: #f0ece4;
     --header-bg: linear-gradient(180deg, #121b25, #16202b);
@@ -463,6 +494,11 @@ p {
 .day-tab--active {
   background: var(--seal);
   border-color: transparent;
+  color: var(--on-seal);
+}
+
+.day-tab--active .day-tab__index {
+  opacity: 1;
 }
 
 .day-tab__index {
@@ -1673,18 +1709,15 @@ p {
 
 /* Each kind tints what it fills, layered over the card surface. */
 .lodging-band {
-  background-image: linear-gradient(
-    rgb(var(--lodging-rgb) / var(--tint)),
-    rgb(var(--lodging-rgb) / var(--tint))
-  );
+  background-image: var(--lodging-wash);
 }
 
 .day-summary__flights {
-  background: rgb(var(--flight-rgb) / var(--tint));
+  background: rgb(var(--flight-rgb) / var(--tint-flight));
 }
 
 .day-summary__transfer {
-  background: rgb(var(--travel-rgb) / var(--tint));
+  background: rgb(var(--travel-rgb) / var(--tint-travel));
 }
 
 /* --- Cleanup: wrapping and spacing --- */
@@ -1838,8 +1871,8 @@ p {
   border-radius: var(--card-radius);
   background: var(--paper-elevated);
   background-image: linear-gradient(
-    rgb(var(--flight-rgb) / var(--tint)),
-    rgb(var(--flight-rgb) / var(--tint))
+    rgb(var(--flight-rgb) / var(--tint-flight)),
+    rgb(var(--flight-rgb) / var(--tint-flight))
   );
   box-shadow: var(--card-shadow);
 }
