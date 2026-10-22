@@ -446,7 +446,8 @@ p {
   background: rgb(var(--on-dark-rgb) / 6%);
   text-align: left;
   line-height: 1.2;
-  scroll-snap-align: start;
+  /* Centre, matching how the active pill is scrolled into focus. */
+  scroll-snap-align: center;
   transition: background 160ms ease;
 }
 

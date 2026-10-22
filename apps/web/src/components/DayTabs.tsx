@@ -1,7 +1,6 @@
 import { For, createEffect, on } from "solid-js";
 import type { TripDay } from "@travel-companion/trip-schema";
 import { formatTabDayMonth, formatTabWeekday } from "../lib/format";
-import { scrollToDay } from "../lib/active-day";
 
 export function DayTabs(props: {
   days: TripDay[];
@@ -14,20 +13,13 @@ export function DayTabs(props: {
     on(
       () => props.activeDayId,
       (activeId) => {
+        // Centre the active pill, so it stays in focus wherever it moved from.
         const tab = scroller?.querySelector<HTMLElement>(`[data-day-id="${activeId}"]`);
         if (!tab || !scroller) return;
-        const tabLeft = tab.offsetLeft;
-        const tabRight = tabLeft + tab.offsetWidth;
-        const viewLeft = scroller.scrollLeft;
-        const viewRight = viewLeft + scroller.clientWidth;
-        if (tabLeft < viewLeft + 12) {
-          scroller.scrollTo({ left: Math.max(0, tabLeft - 24), behavior: "smooth" });
-        } else if (tabRight > viewRight - 12) {
-          scroller.scrollTo({
-            left: tabRight - scroller.clientWidth + 24,
-            behavior: "smooth",
-          });
-        }
+        const tabBox = tab.getBoundingClientRect();
+        const viewBox = scroller.getBoundingClientRect();
+        const offset = tabBox.left + tabBox.width / 2 - (viewBox.left + viewBox.width / 2);
+        scroller.scrollTo({ left: Math.max(0, scroller.scrollLeft + offset), behavior: "smooth" });
       },
     ),
   );
@@ -48,10 +40,7 @@ export function DayTabs(props: {
                 aria-selected={active()}
                 id={`tab-${day.id}`}
                 tabindex={active() ? 0 : -1}
-                onClick={() => {
-                  props.onSelect(day.id);
-                  scrollToDay(day.id);
-                }}
+                onClick={() => props.onSelect(day.id)}
               >
                 <span class="day-tab__index">{String(index() + 1).padStart(2, "0")}</span>
                 <span class="day-tab__weekday">{formatTabWeekday(day.date)}</span>

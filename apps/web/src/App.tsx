@@ -12,7 +12,7 @@ import {
 } from "solid-js";
 import { DaySection } from "./components/DaySection";
 import { DayTabs } from "./components/DayTabs";
-import { observeActiveDay } from "./lib/active-day";
+import { observeActiveDay, scrollToDay } from "./lib/active-day";
 import { formatArrows, formatTripRange } from "./lib/format";
 import { loadTripBundle, tripIsEncrypted } from "./lib/load-trip";
 import { forgetPassphrase, readPassphrase, rememberPassphrase } from "./lib/passphrase";
@@ -22,7 +22,7 @@ import { collectStays } from "./lib/lodging";
 import { AppUpdate } from "./components/AppUpdate";
 import { CollapseAll } from "./components/CollapseAll";
 import { RefreshTrip } from "./components/RefreshTrip";
-import { setDayCollapsed } from "./lib/collapsed-days";
+import { isDayCollapsed, setDayCollapsed } from "./lib/collapsed-days";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { indexRouteLegs } from "./lib/route-legs";
 
@@ -111,13 +111,36 @@ export default function App() {
     if (unlockTimer) clearTimeout(unlockTimer);
   });
 
-  const selectDay = (dayId: string) => {
-    // Jumping to a folded day should show it, not just its header.
-    setDayCollapsed(dayId, false);
-    setActiveDayId(dayId);
+  /**
+   * Make a day the active one, holding off the scroll-spy while the page
+   * scrolls there so the pill does not flick through the days in between.
+   */
+  const holdSpy = (releaseAfterMs?: number) => {
     setTabLocked(true);
     if (unlockTimer) clearTimeout(unlockTimer);
-    unlockTimer = setTimeout(() => setTabLocked(false), 700);
+    if (releaseAfterMs !== undefined) {
+      unlockTimer = setTimeout(() => setTabLocked(false), releaseAfterMs);
+    }
+  };
+
+  /** A header tap: the page is already there, so only a short hold. */
+  const focusDay = (dayId: string) => {
+    setActiveDayId(dayId);
+    holdSpy(700);
+  };
+
+  /**
+   * A tab tap opens its day; tapping the tab of the day already open and in
+   * focus folds it again.
+   */
+  const selectDay = (dayId: string) => {
+    const day = trip()?.days.find((candidate) => candidate.id === dayId);
+    const open = day ? !isDayCollapsed(day.id, day.date) : false;
+    setDayCollapsed(dayId, dayId === activeDayId() && open);
+    setActiveDayId(dayId);
+    // Hold until the page has actually arrived, however far that is.
+    holdSpy();
+    void scrollToDay(dayId).then(() => holdSpy(150));
   };
 
   return (
@@ -200,6 +223,7 @@ export default function App() {
                         stays={stays}
                         legIndex={legIndex}
                         stayPlaceIds={stayPlaceIds}
+                        onFocus={focusDay}
                       />
                     )}
                   </For>

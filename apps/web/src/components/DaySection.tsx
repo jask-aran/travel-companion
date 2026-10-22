@@ -77,6 +77,8 @@ export function DaySection(props: {
   legIndex: RouteLegIndex;
   /** Place ids that are one of the trip's stays. */
   stayPlaceIds: Set<string>;
+  /** Tapping the header makes this the active day, moving the tab pill. */
+  onFocus?: (dayId: string) => void;
 }) {
   const stays = createMemo(() => props.stays ?? collectStays(props.bundle));
 
@@ -268,7 +270,10 @@ export function DaySection(props: {
         class="day-section__header"
         aria-expanded={!collapsed()}
         aria-controls={bodyId()}
-        onClick={() => setDayCollapsed(props.day.id, !collapsed())}
+        onClick={() => {
+          setDayCollapsed(props.day.id, !collapsed());
+          props.onFocus?.(props.day.id);
+        }}
       >
         <div class="day-section__index" aria-hidden="true">
           {String(props.index + 1).padStart(2, "0")}

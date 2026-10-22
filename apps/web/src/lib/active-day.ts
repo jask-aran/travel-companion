@@ -72,16 +72,58 @@ export function observeActiveDay(
   };
 }
 
-export function scrollToDay(dayId: string, behavior?: ScrollBehavior): void {
+/**
+ * Scroll a day's header to the top. Offscreen days render at an estimated
+ * height (content-visibility), so a long smooth scroll can stop well short of
+ * a far day as the days it passes take their real size. It keeps going in
+ * smooth legs until close, then lands exactly. Resolves when it is done.
+ */
+export async function scrollToDay(dayId: string): Promise<void> {
   const el = document.getElementById(dayId);
   if (!el) return;
 
-  const reduceMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const target = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+  const offBy = () => el.getBoundingClientRect().top - target;
 
-  el.scrollIntoView({
-    behavior: behavior ?? (reduceMotion ? "auto" : "smooth"),
-    block: "start",
+  if (!reduceMotion) {
+    for (let leg = 0; leg < 4 && Math.abs(offBy()) > window.innerHeight / 2; leg += 1) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      await scrollEnd();
+    }
+  }
+  await land(el, offBy);
+}
+
+/** Resolves when a scroll stops. Safari lacks scrollend, hence the timer. */
+function scrollEnd(): Promise<void> {
+  return new Promise((resolve) => {
+    const done = () => {
+      clearTimeout(timer);
+      window.removeEventListener("scrollend", done);
+      resolve();
+    };
+    const timer = setTimeout(done, 2500);
+    window.addEventListener("scrollend", done, { once: true });
   });
+}
+
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+/**
+ * Jump the last stretch without animation, then hold it there until it stays
+ * put for a few frames: days rendered for the first time can still shift it.
+ * "instant", not "auto": auto defers to the page's smooth scroll-behavior.
+ */
+async function land(el: HTMLElement, offBy: () => number): Promise<void> {
+  let steady = 0;
+  for (let frame = 0; frame < 60 && steady < 4; frame += 1) {
+    if (Math.abs(offBy()) > 2) {
+      el.scrollIntoView({ behavior: "instant", block: "start" });
+      steady = 0;
+    } else {
+      steady += 1;
+    }
+    await nextFrame();
+  }
 }
