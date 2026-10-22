@@ -145,6 +145,7 @@ const departureReport = await attachDepartures(
     google: googleApiKey,
     navitime: process.env.NAVITIME_API_KEY ?? config.navitime?.apiKey,
     translate: googleApiKey,
+    translateProject: config.google?.projectNumber?.toString(),
   },
   dirname(workingBundlePath),
 );
@@ -180,6 +181,8 @@ console.log(
 for (const message of departureReport.errors) console.warn(`  ! ${message}`);
 const translation = departureReport.translation;
 if (translation) {
-  console.log(`Line names: ${translation.translated} translated, ${translation.cached} cached.`);
+  console.log(
+    `Line names (${translation.model} model): ${translation.translated} translated, ${translation.cached} cached.`,
+  );
   if (translation.failed) console.warn(`  ! Translation unavailable, names left as given: ${translation.failed}`);
 }

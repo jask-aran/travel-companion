@@ -37,6 +37,8 @@ export type DepartureKeys = {
   navitime?: string | undefined;
   /** Google Cloud Translation, for names NAVITIME and Google give in Japanese or Korean. */
   translate?: string | undefined;
+  /** The Google Cloud project's number, which selects the Translation LLM. */
+  translateProject?: string | undefined;
 };
 
 export type DepartureReport = {
@@ -187,6 +189,7 @@ export async function attachDepartures(
     locals.filter(needsTranslation),
     keys.translate,
     join(cacheDir, "translations-cache.json"),
+    keys.translateProject,
   );
   report.translation = translation;
 

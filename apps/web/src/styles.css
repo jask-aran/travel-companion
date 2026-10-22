@@ -1207,31 +1207,43 @@ p {
 
 /*
  * The photo (or a stay's map) sits behind the card's right edge and fades
- * into it rather than standing in a hard-edged column. The text keeps clear
- * of all but the faded part. Opened, the card needs its full width, so the
- * photo dims to a backdrop and the text runs across it.
+ * into it rather than standing in a hard-edged column. `--photo-w` is the
+ * part that reads as a picture; the text column ends exactly there, and the
+ * top-row icons align to that edge with the title. The fade runs on behind
+ * the text, eased so it is only a tint there. Opened, the card needs its
+ * full width, so the photo dims to a backdrop and the text runs across it.
  */
 .stop,
 .lodging-band {
-  --photo-w: 7.5rem;
+  --photo-w: 6.75rem;
   position: relative;
 }
 
 .lodging-band {
-  --photo-w: 8.5rem;
+  --photo-w: 7.5rem;
 }
 
 .stop__photo {
   position: absolute;
   inset: 0 0 0 auto;
-  width: var(--photo-w);
+  /* 1.6x: the picture plus the fade that reaches back under the text. */
+  width: calc(var(--photo-w) * 1.6);
   margin: 0;
   overflow: hidden;
   transition: width 220ms ease;
 }
 
 .stop__photo img {
-  mask-image: linear-gradient(to right, transparent, #000 45%);
+  /* Eased: a tint under the text (the column ends at 37.5%), then solid. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgb(0 0 0 / 8%) 15%,
+    rgb(0 0 0 / 25%) 30%,
+    rgb(0 0 0 / 50%) 42%,
+    rgb(0 0 0 / 80%) 55%,
+    #000 68%
+  );
   transition: opacity 220ms ease;
 }
 
@@ -1245,7 +1257,12 @@ p {
 
 .stop:has(> .stop__photo) > .stop__body,
 .lodging-band:has(> .stop__photo) > .lodging-band__summary {
-  padding-right: calc(var(--photo-w) * 0.6 + 0.5rem);
+  padding-right: var(--photo-w);
+}
+
+/* The chevron's usual overhang would poke past the column onto the photo. */
+.stop:has(> .stop__photo) .stop__disclose {
+  margin-right: 0;
 }
 
 /* Opened: the photo widens and dims, and the text takes the whole card. */
@@ -1278,7 +1295,7 @@ p {
 
 @media (max-width: 370px) {
   .stop {
-    --photo-w: 6.75rem;
+    --photo-w: 6.25rem;
   }
 }
 
@@ -1319,7 +1336,7 @@ p {
 
 @media (min-width: 460px) {
   .stop {
-    --photo-w: 10rem;
+    --photo-w: 9rem;
   }
 }
 
@@ -2379,7 +2396,37 @@ html {
   display: none;
 }
 
-/* No rating to push them right: the first contact icon does. */
-.stop__top > :is(.stop__badge, .item-time) + .icon-link {
+/* Rating, call, website and chevron: one group at the column's right edge.
+   The row wraps, so a crowded one (time range and all four) puts the group
+   on a line of its own, still right-aligned, instead of over the photo. */
+.stop__top {
+  flex-wrap: wrap;
+  row-gap: 0.15rem;
+}
+
+.stop__actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.stop__actions > .stop__rating {
+  margin: 0 0.2rem 0 0;
+}
+
+.stop__actions > .stop__disclose {
+  margin-left: 0;
+}
+
+.stop__actions .icon-link {
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: 0;
+}
+
+/* The credit's shade fades in from the left like the photo, so it does not
+   draw a box across the faded edge; the credit itself sits right, on solid. */
+.stop__photo figcaption {
+  mask-image: linear-gradient(to right, transparent 30%, #000 70%);
 }

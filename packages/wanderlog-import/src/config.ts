@@ -35,6 +35,8 @@ const IngestionConfigSchema = v.object({
   google: v.optional(
     v.object({
       apiKey: v.optional(v.string()),
+      /** Project number, for the Translation LLM (line names); standard model without it. */
+      projectNumber: v.optional(v.union([v.string(), v.number()])),
     }),
   ),
   /**

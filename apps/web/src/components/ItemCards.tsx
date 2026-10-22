@@ -539,7 +539,10 @@ export function PlaceRow(props: {
               </Show>
             </span>
             <TimeLabel start={props.item.startTime} end={props.item.endTime} />
-            {/* The score rides the top row, so the category below fits on one line. */}
+            {/* The score and contacts ride the top row, so the category below
+                fits on one line. They move as one group: when the time leaves
+                no room, the group drops beneath it rather than onto the photo. */}
+            <span class="stop__actions">
             <Show when={rating() ? props.place.rating : undefined}>
               {(score) => (
                 <span class="stop__rating" title={rating()}>
@@ -563,6 +566,7 @@ export function PlaceRow(props: {
                 <span class="stop__chevron" classList={{ "is-open": detailOpen() }} />
               </button>
             </Show>
+            </span>
           </div>
           <a
             class="stop__name"
