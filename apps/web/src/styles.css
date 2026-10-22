@@ -1801,3 +1801,20 @@ p {
 .day-summary__transfer .travel__inner:has(.travel__text) {
   padding-block: 0.55rem;
 }
+
+/* Between journeys: how much of the day is spent somewhere, in one line. */
+.day-summary__between {
+  display: flex;
+  margin: 0;
+  padding: 0.45rem var(--pad);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  word-spacing: -0.3em;
+  color: var(--ink-muted);
+}
+
+.day-summary__between .mode-glyph {
+  color: var(--seal);
+}

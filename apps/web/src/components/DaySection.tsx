@@ -23,6 +23,7 @@ import {
   dayWalking,
   isJourney,
   legsForDay,
+  stopsBetween,
   type RouteLegIndex,
 } from "../lib/route-legs";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
@@ -204,10 +205,38 @@ export function DaySection(props: {
       const out = legOutOf(flight.arrivePlaceId);
       if (out) shown.add(out.id);
     }
-    return [...allLegs().values()].filter(
-      (leg) => !shown.has(leg.id) && isJourney(leg, props.bundle.places),
-    );
+    // Each leg with where it sits in the route: it leaves from `fromIndex`
+    // (-1 is the hotel) and arrives at `toIndex` (past the end is the hotel).
+    const items = routeItems();
+    const placeBefore = (index: number) => {
+      for (let i = index - 1; i >= 0; i -= 1) if (items[i]?.type === "place") return i;
+      return -1;
+    };
+    const placed = [...legs().entries()].map(([itemId, leg]) => {
+      const toIndex = items.findIndex((item) => item.id === itemId);
+      return { leg, toIndex, fromIndex: placeBefore(toIndex) };
+    });
+    const end = endLeg();
+    if (end) placed.push({ leg: end, toIndex: items.length, fromIndex: placeBefore(items.length) });
+    return placed.filter(({ leg }) => !shown.has(leg.id) && isJourney(leg, props.bundle.places));
   });
+
+  const stopsLabel = (count: number) =>
+    count === 0 ? "No stops" : `${count} stop${count === 1 ? "" : "s"}`;
+
+  /** Places you spend time at between one journey and the next. */
+  const stopsBefore = (index: number) => {
+    const previous = journeys()[index - 1];
+    const current = journeys()[index];
+    if (!previous || !current) return undefined;
+    return stopsBetween(
+      routeItems(),
+      previous.toIndex,
+      current.fromIndex,
+      props.bundle.places,
+      props.stayPlaceIds,
+    );
+  };
   /** The town the day is based in, from where you sleep. Shown even folded. */
   const baseCity = createMemo(() => {
     const stay = stayForDay(stays(), props.day.date);
@@ -425,11 +454,23 @@ export function DaySection(props: {
                     </>
                   )}
                 </For>
+                {/* Stop counts between journeys give the day its shape: a
+                    handful between two long legs is a day out, none is a
+                    change of train. */}
                 <For each={journeys()}>
-                  {(leg) => (
-                    <ol class="day-summary__transfer">
-                      <RouteLegRow leg={leg} places={props.bundle.places} showEnds />
-                    </ol>
+                  {(journey, index) => (
+                    <>
+                      {/* Not `when={count}`: a count of 0 is the case that matters most. */}
+                      <Show when={index() > 0}>
+                        <p class="day-summary__between with-icon">
+                          <Icon name="pin" />
+                          {stopsLabel(stopsBefore(index()) ?? 0)}
+                        </p>
+                      </Show>
+                      <ol class="day-summary__transfer">
+                        <RouteLegRow leg={journey.leg} places={props.bundle.places} showEnds />
+                      </ol>
+                    </>
                   )}
                 </For>
                 <For each={arriving()}>

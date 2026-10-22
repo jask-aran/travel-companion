@@ -5,6 +5,7 @@ import {
   dayTravelSeconds,
   dayWalking,
   isJourney,
+  stopsBetween,
   indexRouteLegs,
   legsForDay,
 } from "../apps/web/src/lib/route-legs.js";
@@ -265,5 +266,41 @@ describe("journeys worth a place in the summary", () => {
       { id: "c", fromPlaceId: "z", toPlaceId: "w", travelMode: "walking", durationSeconds: 300, distanceMetres: 400 },
     ]);
     expect(walk).toEqual({ seconds: 900, metres: 1200 });
+  });
+});
+
+describe("stops between journeys", () => {
+  const places = {
+    station: { id: "station", name: "Hakone-Yumoto Station", category: "train_station" },
+    shrine: { id: "shrine", name: "Hakone Shrine", category: "shinto_shrine" },
+    pier: { id: "pier", name: "Cruise pier", category: "ferry_service" },
+    bus: { id: "bus", name: "Motohakone-ko", category: "bus_stop" },
+    hotel: { id: "hotel", name: "Granbell", category: "lodging" },
+  } as unknown as TripBundle["places"];
+  const stop = (placeId: string) => ({ id: placeId, type: "place", placeId }) as const;
+
+  it("counts where you spend time, not where you change", () => {
+    const items = [stop("station"), stop("bus"), stop("shrine"), stop("pier"), stop("station")];
+    expect(stopsBetween(items, 0, 4, places, new Set())).toBe(2);
+  });
+
+  it("reads a straight change of train as none", () => {
+    expect(stopsBetween([stop("station")], 0, 0, places, new Set())).toBe(0);
+  });
+
+  it("counts a destination you arrive at directly", () => {
+    expect(stopsBetween([stop("shrine")], 0, 0, places, new Set())).toBe(1);
+  });
+
+  it("counts a border crossing or a cruise as somewhere you spend time", () => {
+    const more = {
+      ...places,
+      dmz: { id: "dmz", name: "DMZ zone", category: "border_crossing_station" },
+    } as unknown as TripBundle["places"];
+    expect(stopsBetween([stop("dmz"), stop("pier")], 0, 1, more, new Set())).toBe(2);
+  });
+
+  it("leaves out the hotel", () => {
+    expect(stopsBetween([stop("hotel"), stop("shrine")], 0, 1, places, new Set(["hotel"]))).toBe(1);
   });
 });

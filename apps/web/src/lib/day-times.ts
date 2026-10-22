@@ -1,4 +1,5 @@
 import type { DayItem, FlightItem, Place, RouteLeg } from "@travel-companion/trip-schema";
+import { isWaypoint } from "./route-legs";
 
 const RAD = Math.PI / 180;
 const DAY_MS = 86_400_000;
@@ -97,10 +98,6 @@ export type FlightTiming = {
  */
 export const LATEST_CHECK_OUT = "11:00";
 
-/** A station or exit you pass through, not somewhere you spend time. */
-const isTransitPoint = (place?: Place) =>
-  /station|transit|transportation/.test(place?.category ?? "");
-
 function leaveTime(airportBy: string, legs: RouteLeg[]): string | undefined {
   const [hours = 0, minutes = 0] = airportBy.split(":").map(Number);
   const travel = legs.reduce((sum, leg) => sum + Math.ceil((leg.durationSeconds ?? 0) / 60), 0);
@@ -142,7 +139,7 @@ export function flightTiming(
   const chain = [direct];
   for (let index = at - 1; index >= 0; index -= 1) {
     const stop = stops[index]!;
-    if (stop.type !== "place" || !isTransitPoint(places[stop.placeId])) return single;
+    if (stop.type !== "place" || !isWaypoint(places[stop.placeId])) return single;
     const leg = legs.get(stop.id);
     if (!leg?.durationSeconds) return single;
     chain.unshift(leg);

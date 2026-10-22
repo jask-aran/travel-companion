@@ -91,6 +91,50 @@ export function dayTravelSeconds(legs: Map<string, RouteLeg>): number {
   return total;
 }
 
+/**
+ * Google's transport types: somewhere you pass through rather than spend
+ * time. Matched exactly, since a substring would also catch a border
+ * crossing ("border_crossing_station") or a sightseeing cruise.
+ */
+const WAYPOINT_TYPES = new Set([
+  "train_station",
+  "subway_station",
+  "transit_station",
+  "logical_transit_station",
+  "light_rail_station",
+  "bus_station",
+  "bus_stop",
+  "transit_depot",
+  "ferry_terminal",
+  "airport",
+  "international_airport",
+  "transportation_service",
+]);
+
+export const isWaypoint = (place?: Place) => WAYPOINT_TYPES.has(place?.category ?? "");
+
+/**
+ * How many places you spend time at between two journeys: the stops from
+ * where one arrives to where the next leaves, both included, leaving out
+ * hotels and waypoints. A handful reads as a day out; none, as a change of
+ * train.
+ */
+export function stopsBetween(
+  items: DayItem[],
+  fromIndex: number,
+  toIndex: number,
+  places: Record<string, Place>,
+  stayPlaceIds: Set<string>,
+): number {
+  let count = 0;
+  for (let index = Math.max(0, fromIndex); index <= toIndex && index < items.length; index += 1) {
+    const item = items[index];
+    if (item?.type !== "place" || stayPlaceIds.has(item.placeId)) continue;
+    if (!isWaypoint(places[item.placeId])) count += 1;
+  }
+  return count;
+}
+
 /** Time and distance on foot across the day's legs. */
 export function dayWalking(legs: Iterable<RouteLeg>): { seconds: number; metres: number } {
   let seconds = 0;
