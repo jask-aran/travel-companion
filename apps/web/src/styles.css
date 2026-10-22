@@ -1074,8 +1074,11 @@ p {
 /* Rows stretch to the column. Sized to content instead, the clamped notes
    (a -webkit-box, whose minimum width is its whole unwrapped line) pushed
    the card wider than the screen. */
+/* One column that cannot grow: a wide top row would otherwise widen every
+   line in the card and push the address and notes under the photo. */
 .stop__body {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   justify-items: stretch;
   gap: 0.2rem;
@@ -1085,9 +1088,10 @@ p {
 
 .stop__top {
   justify-self: stretch;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   margin-bottom: 0.35rem;
 }
 
@@ -1098,7 +1102,7 @@ p {
 }
 
 .item-time__sep {
-  margin: 0 0.2rem;
+  margin: 0 0.05rem;
   color: var(--ink-muted);
 }
 
@@ -1856,4 +1860,71 @@ p {
   font-size: var(--fs-small);
   color: var(--ink-muted);
   white-space: nowrap;
+}
+
+/* --- Polish --- */
+
+/* Ratings: a filled star in the warm accent, not a mono glyph. */
+.stop__rating .mode-glyph {
+  fill: var(--warn);
+  stroke: none;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.stop__rating .with-icon {
+  gap: 0.15rem;
+}
+
+/* The tab bar fades at its edges, so a cut-off pill reads as "scrolls on". */
+.day-tabs__scroller {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 0.75rem,
+    #000 calc(100% - 0.75rem),
+    transparent 100%
+  );
+}
+
+/* Touch: no grey/blue flash, a small press on things that toggle. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.day-tab,
+.header-button,
+.card__ref--toggle,
+.stop__disclose,
+.text-button {
+  transition-property: background, transform;
+  transition-duration: 160ms, 120ms;
+}
+
+.day-tab:active,
+.header-button:active,
+.card__ref--toggle:active,
+.stop__disclose:active,
+.text-button:active {
+  transform: scale(0.96);
+}
+
+.day-section__index {
+  transition: transform 120ms ease;
+}
+
+.day-section__header:active .day-section__index {
+  transform: scale(0.92);
+}
+
+.lodging-band__summary:not(:disabled):active {
+  background: rgb(var(--ink-rgb) / 4%);
+}
+
+/* Small phones: a slightly narrower photo so a time range and rating share
+   the top row with the disclosure. */
+@media (max-width: 370px) {
+  .stop:has(.stop__photo) {
+    grid-template-columns: minmax(0, 1fr) 6.75rem;
+  }
 }

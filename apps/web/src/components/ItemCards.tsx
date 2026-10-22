@@ -1,4 +1,4 @@
-import { For, Show, createSignal, type JSX } from "solid-js";
+import { For, Show, createSignal, onCleanup, onMount, type JSX } from "solid-js";
 import type {
   DayItem,
   FlightItem,
@@ -61,16 +61,37 @@ function TimeLabel(props: { start?: string | undefined; end?: string | undefined
  */
 function Notes(props: { text?: string | undefined; label?: string | undefined }) {
   const [open, setOpen] = createSignal(false);
+  /** "More" only when the clamp actually hides something. */
+  const [clamped, setClamped] = createSignal(false);
+  let paragraph: HTMLParagraphElement | undefined;
+
+  onMount(() => {
+    if (!paragraph) return;
+    const measure = () => {
+      if (paragraph && !open()) setClamped(paragraph.scrollHeight > paragraph.clientHeight + 1);
+    };
+    // Offscreen days have no layout yet; this measures once they get one.
+    const observer = new ResizeObserver(measure);
+    observer.observe(paragraph);
+    onCleanup(() => observer.disconnect());
+  });
+
   return (
     <Show when={props.text?.trim()}>
       {(text) => (
         <div class="item-notes">
-          <p class="item-notes__text" classList={{ "item-notes__text--open": open() }}>
+          <p
+            ref={paragraph}
+            class="item-notes__text"
+            classList={{ "item-notes__text--open": open() }}
+          >
             {text()}
           </p>
-          <button type="button" class="text-button" onClick={() => setOpen((v) => !v)}>
-            {open() ? "Less" : (props.label ?? "More")}
-          </button>
+          <Show when={clamped() || open()}>
+            <button type="button" class="text-button" onClick={() => setOpen((v) => !v)}>
+              {open() ? "Less" : (props.label ?? "More")}
+            </button>
+          </Show>
         </div>
       )}
     </Show>
@@ -345,7 +366,10 @@ export function PlaceRow(props: {
             <Show when={rating() ? props.place.rating : undefined}>
               {(score) => (
                 <span class="stop__rating" title={rating()}>
-                  <span aria-hidden="true">★{score().toFixed(1)}</span>
+                  <span class="with-icon" aria-hidden="true">
+                    <Icon name="star" />
+                    {score().toFixed(1)}
+                  </span>
                   <Hidden>{`Rated ${rating()?.replace("★ ", "")}`}</Hidden>
                 </span>
               )}
