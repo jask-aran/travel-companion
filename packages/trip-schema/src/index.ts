@@ -118,6 +118,8 @@ export const FlightItemSchema = v.object({
   ...BaseItemSchema.entries,
   type: v.literal("flight"),
   airline: optionalString,
+  /** IATA airline code ("JQ"): the short form for a one-line flight. */
+  airlineCode: optionalString,
   flightNumber: optionalString,
   departAirport: optionalString,
   arriveAirport: optionalString,

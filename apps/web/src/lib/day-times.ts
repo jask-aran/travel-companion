@@ -1,5 +1,5 @@
 import type { DayItem, FlightItem, Place, RouteLeg } from "@travel-companion/trip-schema";
-import { isWaypoint } from "./route-legs";
+import { isWaypoint } from "./route-legs.js";
 
 const RAD = Math.PI / 180;
 const DAY_MS = 86_400_000;

@@ -264,6 +264,7 @@ function itemFromBlock(
       };
 
       assign("airline", airline);
+      assign("airlineCode", asString(asRecord(info?.airline)?.iata));
       assign("flightNumber", flightNumber);
       assign("departAirport", asString(departAirportRecord?.iata));
       assign("arriveAirport", asString(arriveAirportRecord?.iata));

@@ -389,21 +389,41 @@ export function PlaceRow(props: {
  * here it only has to say "this hop is the flight, not a ground route".
  */
 export function FlightConnector(props: { item: FlightItem }) {
-  const detail = () =>
-    [props.item.departTime, props.item.arriveTime].filter(Boolean).join(" – ");
+  /** "JQ 34", the way a boarding pass writes it; the full name if no code. */
+  const code = () =>
+    [props.item.airlineCode ?? props.item.airline, props.item.flightNumber]
+      .filter(Boolean)
+      .join(" ") || "Flight";
+  const route = () =>
+    [props.item.departAirport, props.item.arriveAirport].filter(Boolean).join(" → ");
+  const times = () => [props.item.departTime, props.item.arriveTime].filter(Boolean).join("–");
+  const nextDay = () =>
+    Boolean(props.item.arriveDate && props.item.departDate && props.item.arriveDate !== props.item.departDate);
 
+  /* A thin one-line card, as Wanderlog draws a flight in the day: the full
+     card with timings and booking lives in the day summary. */
   return (
-    <li class="travel travel--flight">
-      <div class="travel__inner">
-        <span class="travel__glyph">
+    <li class="flight-pill">
+      <div class="flight-pill__card">
+        <span class="kind-badge kind-badge--flight" aria-hidden="true">
           <ModeGlyph mode="flight" />
         </span>
-        <span class="travel__mode">
-          {[props.item.airline, props.item.flightNumber].filter(Boolean).join(" ") || "Flight"}
+        <span class="flight-pill__route">{route() || code()}</span>
+        <span class="flight-pill__detail">
+          <Show when={route()}>
+            <span>{code()}</span>
+          </Show>
+          <Show when={times()}>
+            <span>
+              {times()}
+              <Show when={nextDay()}>
+                <sup class="flight-end__plus" title="Arrives the next day">
+                  +1
+                </sup>
+              </Show>
+            </span>
+          </Show>
         </span>
-        <Show when={detail()}>
-          <span class="travel__detail">{detail()}</span>
-        </Show>
       </div>
     </li>
   );

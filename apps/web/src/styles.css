@@ -1818,3 +1818,42 @@ p {
 .day-summary__between .mode-glyph {
   color: var(--seal);
 }
+
+/* A flight inside the day route: one thin card, badge on the rail. */
+.flight-pill {
+  margin: 0.35rem 0;
+}
+
+.flight-pill__card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.6rem;
+  padding: 0.3rem var(--pad);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  background: var(--paper-elevated);
+  background-image: linear-gradient(
+    rgb(var(--flight-rgb) / var(--tint)),
+    rgb(var(--flight-rgb) / var(--tint))
+  );
+  box-shadow: var(--card-shadow);
+}
+
+.flight-pill__route {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--kind-flight);
+  white-space: nowrap;
+}
+
+.flight-pill__detail {
+  margin-left: auto;
+  display: flex;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
