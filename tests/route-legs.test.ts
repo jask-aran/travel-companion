@@ -10,6 +10,7 @@ import {
   legsForDay,
 } from "../apps/web/src/lib/route-legs.js";
 import {
+  areaOf,
   cleanAddress,
   formatArrows,
   formatDuration,
@@ -302,5 +303,31 @@ describe("stops between journeys", () => {
 
   it("leaves out the hotel", () => {
     expect(stopsBetween([stop("hotel"), stop("shrine")], 0, 1, places, new Set(["hotel"]))).toBe(1);
+  });
+});
+
+describe("areaOf", () => {
+  it("gives the ward and city, not the street", () => {
+    expect(areaOf("1 Chome-1-4 Meieki, Nakamura Ward, Nagoya, Aichi, Japan")).toBe("Nakamura Ward, Nagoya");
+    expect(areaOf("1 Chome Marunouchi, Chiyoda City, Tokyo 100-0005, Japan")).toBe("Chiyoda City, Tokyo");
+    expect(areaOf("347-20 Seogyo-dong, Mapo-gu, Seoul, South Korea")).toBe("Mapo-gu, Seoul");
+  });
+
+  it("reads a country-first Japanese address the same way", () => {
+    expect(
+      areaOf("Japan, 〒453-0015 Aichi, Nagoya, Nakamura Ward, Tsubakicho, 9−13 9番13号 ９−９−１３ 9番13号 13号"),
+    ).toBe("Nakamura Ward, Nagoya");
+  });
+
+  it("falls back to the last two named parts, and names a rural town", () => {
+    expect(areaOf("1-1 Furugome, Narita, Chiba 282-0004, Japan")).toBe("Narita, Chiba");
+    expect(areaOf("164 Motohakone, Hakone, Ashigarashimo District, Kanagawa 250-0522, Japan")).toBe(
+      "Hakone, Kanagawa",
+    );
+  });
+
+  it("gives nothing when no part is in Latin script", () => {
+    // The card then falls back to Google's locality.
+    expect(areaOf("1 Chome-22-2 Showamachi, 高山市 岐阜県 506-0053, Japan")).toBeUndefined();
   });
 });

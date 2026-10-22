@@ -158,6 +158,43 @@ export function cleanAddress(address?: string): string | undefined {
   return parts.slice(0, 3).join(", ") || undefined;
 }
 
+/** A ward, district or city: the level of an address that places you. */
+const DISTRICT = /\b(?:Ward|City|District)$|-(?:gu|ku|shi|si|gun)$/i;
+
+/**
+ * Where a place is, without the street: the ward and the city ("Nakamura
+ * Ward, Nagoya"), or failing a ward, the last two named parts ("Narita,
+ * Chiba"). Japanese addresses sometimes come country-first ("Japan, 〒453
+ * Aichi, Nagoya, Nakamura Ward, …"), so the order is put smallest-first.
+ */
+export function areaOf(address?: string): string | undefined {
+  if (!address?.trim()) return undefined;
+  const raw = address.split(",").map((part) => part.trim());
+  const countryFirst = COUNTRY.test(raw[0] ?? "");
+  const parts = (countryFirst ? raw.reverse() : raw)
+    .map((part) =>
+      part
+        .split(/\s+/)
+        .filter((token) => !POSTAL.test(token) && !/^〒/.test(token))
+        .join(" ")
+        .trim(),
+    )
+    // Named parts only: no block numbers, "1 Chome", the country, or text
+    // in Japanese or Korean script that duplicates the romanised parts.
+    .filter((part) => /^[A-Za-z][A-Za-z\s'.-]*$/.test(part) && !/\bChome\b/i.test(part) && !COUNTRY.test(part));
+  const unique = parts.filter((part, index) => parts.indexOf(part) === index);
+  const ward = unique.findIndex((part) => DISTRICT.test(part));
+  // A Japanese "District" (gun) groups rural towns, so the town before it is
+  // the place: "Hakone, Kanagawa", not "Ashigarashimo District, Kanagawa".
+  const rural = ward > 0 && /District$/.test(unique[ward] ?? "") && /japan/i.test(address);
+  const area = rural
+    ? [unique[ward - 1]!, unique.at(-1)!]
+    : ward >= 0
+      ? unique.slice(ward, ward + 2)
+      : unique.slice(-2);
+  return area.join(", ") || undefined;
+}
+
 /**
  * Wanderlog writes the passenger list into a flight's free-text note as well
  * as its structured `travelerNames`. Once the names are shown as a field, the

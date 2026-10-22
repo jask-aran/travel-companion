@@ -1135,28 +1135,6 @@ p {
   color: var(--ink-muted);
 }
 
-.stop__disclose {
-  margin-left: auto;
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  margin-right: -0.35rem;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  color: var(--ink-muted);
-}
-
-.stop__disclose:hover {
-  color: var(--sea);
-}
-
-.stop__disclose:focus-visible {
-  outline: 2px solid var(--sea);
-}
-
 .stop__chevron {
   width: 0.5rem;
   height: 0.5rem;
@@ -1259,11 +1237,6 @@ p {
 .stop:has(> .stop__photo) > .stop__body,
 .lodging-band:has(> .stop__photo) > .lodging-band__summary {
   padding-right: var(--photo-w);
-}
-
-/* The chevron's usual overhang would poke past the column onto the photo. */
-.stop:has(> .stop__photo) .stop__disclose {
-  margin-right: 0;
 }
 
 /* Opened: the photo widens and dims, and the text takes the whole card. */
@@ -1830,15 +1803,10 @@ p {
 }
 
 .stop__rating {
-  margin-left: auto;
   font-family: var(--font-mono);
   font-size: var(--fs-label);
   color: var(--ink-muted);
   white-space: nowrap;
-}
-
-.stop__rating + .stop__disclose {
-  margin-left: 0;
 }
 
 .card__ref--toggle {
@@ -1975,7 +1943,7 @@ html {
 .day-tab,
 .header-button,
 .card__ref--toggle,
-.stop__disclose,
+.stop__notes,
 .text-button {
   transition-property: background, transform;
   transition-duration: 160ms, 120ms;
@@ -1984,7 +1952,6 @@ html {
 .day-tab:active,
 .header-button:active,
 .card__ref--toggle:active,
-.stop__disclose:active,
 .text-button:active {
   transform: scale(0.96);
 }
@@ -2290,9 +2257,14 @@ html {
   overflow-wrap: break-word;
 }
 
-/* An icon that is a link: Maps, call, website. Tap-sized, quiet. */
+/* An icon that is a link or a button: Maps, call, website, copy. Tap-sized, quiet. */
 .icon-link {
   flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
   display: grid;
   place-items: center;
   width: 2rem;
@@ -2352,39 +2324,30 @@ html {
   display: none;
 }
 
-/* The name, with rating, call, website and chevron at the column's right
-   edge, level with the name's first line. A long name wraps beside them. */
-.stop__name-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  column-gap: 0.35rem;
+/* What it is, then its rating and contacts, left-aligned like the words
+   before them; a long category wraps the icons to the next line. */
+.stop__meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.45rem;
+  row-gap: 0.1rem;
+  min-width: 0;
 }
 
 .stop__actions {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 0.1rem;
-}
-
-/* In the name row, centred on the name's first 1.25em line. */
-.stop__name-row > .stop__actions {
-  margin-top: calc((var(--fs-name) * 1.25 - 1.4rem) / 2);
+  gap: 0.05rem;
 }
 
 .stop__actions > .stop__rating {
-  margin: 0 0.2rem 0 0;
-}
-
-.stop__actions > .stop__disclose {
-  margin-left: 0;
+  margin: 0 0.25rem 0 0;
 }
 
 .stop__actions .icon-link {
-  width: 1.4rem;
-  height: 1.4rem;
-  margin: 0;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .stop__actions .icon-link .mode-glyph {
@@ -2392,9 +2355,52 @@ html {
   height: 0.9rem;
 }
 
-.stop__actions > .stop__disclose {
-  width: 1.4rem;
-  margin-right: -0.2rem;
+/* The planned time, marked as a time by its clock. */
+.stop__when {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.stop__when > .mode-glyph {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--ink-muted);
+}
+
+/* Your notes as the card's last line: one line, then all of it. */
+.stop__notes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.4rem 0 0;
+  border: 0;
+  border-top: var(--hairline);
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stop__notes-text {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stop__notes-text.is-open {
+  white-space: pre-line;
+  overflow-wrap: break-word;
+}
+
+.stop__notes > .stop__chevron {
+  margin-top: 0.4em;
+  color: var(--ink-muted);
 }
 
 /* The credit's shade fades in from the left like the photo, so it does not

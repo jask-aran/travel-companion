@@ -12,6 +12,7 @@ import type {
   TripBundle,
 } from "@travel-companion/trip-schema";
 import {
+  areaOf,
   cleanAddress,
   formatArrows,
   formatDistance,
@@ -430,6 +431,35 @@ function PlacePhoto(props: { place: Place; mapFallback?: boolean | undefined }) 
   );
 }
 
+/** Copies the full address, for a taxi app or a message; ticks when done. */
+function CopyAddress(props: { address?: string | undefined }) {
+  const [copied, setCopied] = createSignal(false);
+  const copy = async (address: string) => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // No clipboard (an insecure context or a refusal): nothing to show.
+    }
+  };
+  return (
+    <Show when={props.address?.trim()}>
+      {(address) => (
+        <button
+          type="button"
+          class="icon-link"
+          aria-label={copied() ? "Address copied" : `Copy address: ${address()}`}
+          title={address()}
+          onClick={() => void copy(address())}
+        >
+          <Icon name={copied() ? "check" : "copy"} />
+        </button>
+      )}
+    </Show>
+  );
+}
+
 /** Call and website as icons, beside the rating rather than repeated below. */
 function ContactIcons(props: { phone?: string | undefined; website?: string | undefined }) {
   return (
@@ -497,63 +527,23 @@ export function PlaceRow(props: {
   /** 0 = Sunday, for picking the right day's opening hours. */
   weekday: number;
 }) {
-  const [detailOpen, setDetailOpen] = createSignal(false);
+  const [notesOpen, setNotesOpen] = createSignal(false);
   const category = () => formatCategory(props.place.category);
   /** Full rating with its review count, for the tooltip and screen readers. */
   const rating = () => formatRatingLabel(props.place.rating, props.place.ratingCount);
-  const contacts = () => Boolean(props.place.details?.phone || props.place.details?.website);
-  /**
-   * A time range plus rating, call and website will not fit the top row
-   * beside a photo on a phone, so then the rating and contacts move to the
-   * name row rather than wrapping under the time; the chevron stays on top,
-   * where it has room. Everywhere else the whole group stays on top, which
-   * leaves the name its full width.
-   */
-  const crowded = () =>
-    Boolean(props.item.startTime && props.item.endTime && props.item.endTime !== props.item.startTime) &&
-    contacts();
-
-  /** Score and contacts, and the chevron with them unless crowded apart. */
-  const actions = (withDisclose: boolean) => (
-    <span class="stop__actions">
-      <Show when={rating() ? props.place.rating : undefined}>
-        {(score) => (
-          <span class="stop__rating" title={rating()}>
-            <span class="with-icon" aria-hidden="true">
-              <Icon name="star" />
-              {score().toFixed(1)}
-            </span>
-            <Hidden>{`Rated ${rating()?.replace("★ ", "")}`}</Hidden>
-          </span>
-        )}
-      </Show>
-      <ContactIcons phone={props.place.details?.phone} website={props.place.details?.website} />
-      <Show when={withDisclose}>{disclose()}</Show>
-    </span>
-  );
-
-  /** Only your own notes open the card: Google's blurb and tags were reference nobody read. */
-  const disclose = () => (
-    <Show when={props.item.notes?.trim()}>
-      <button
-        type="button"
-        class="stop__disclose"
-        aria-expanded={detailOpen()}
-        aria-label={detailOpen() ? "Hide notes" : "Show notes"}
-        onClick={() => setDetailOpen((v) => !v)}
-      >
-        <span class="stop__chevron" classList={{ "is-open": detailOpen() }} />
-      </button>
-    </Show>
-  );
+  /** Where it is, not the street: the photo and name open Maps for that. */
+  const area = () => areaOf(props.place.address) ?? props.place.locality;
+  const notes = () => props.item.notes?.trim();
+  const timed = () => Boolean(props.item.startTime || props.item.endTime);
 
   return (
     <li class="stop-item">
-      <article class="stop" classList={{ "stop--stay": props.isStay, "stop--open": detailOpen() }}>
+      <article class="stop" classList={{ "stop--stay": props.isStay, "stop--open": notesOpen() }}>
         {/*
-          * Fixed slots so nothing competes for width: a top row for the
-          * marker and time, the name row with its actions at the right, then
-          * secondary lines. The photo sits behind, fading in from the right.
+          * Top to bottom: marker and planned time; the name; what it is, with
+          * rating and contacts beside it; where it is; hours; then your notes,
+          * one line until opened. The photo sits behind, fading in from the
+          * right.
           */}
         <div class="stop__body">
           <div class="stop__top">
@@ -562,29 +552,60 @@ export function PlaceRow(props: {
                 <ModeGlyph mode="lodging" />
               </Show>
             </span>
-            <TimeLabel start={props.item.startTime} end={props.item.endTime} />
-            <Show when={!crowded()} fallback={<span class="stop__actions">{disclose()}</span>}>
-              {actions(true)}
+            <Show when={timed()}>
+              <span class="stop__when" title="Planned time in Wanderlog">
+                <Icon name="clock" />
+                <Hidden>Planned </Hidden>
+                <TimeLabel start={props.item.startTime} end={props.item.endTime} />
+              </span>
             </Show>
           </div>
-          <div class="stop__name-row">
-            <a
-              class="stop__name"
-              href={buildGoogleMapsUrl(props.place)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {props.place.name}
-            </a>
-            <Show when={crowded()}>{actions(false)}</Show>
+          <a
+            class="stop__name"
+            href={buildGoogleMapsUrl(props.place)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {props.place.name}
+          </a>
+          {/* Left-aligned after the category, wrapping as a line of text does. */}
+          <div class="stop__meta-row">
+            <Show when={category()}>{(text) => <span class="stop__meta">{text()}</span>}</Show>
+            <span class="stop__actions">
+              <Show when={rating() ? props.place.rating : undefined}>
+                {(score) => (
+                  <span class="stop__rating" title={rating()}>
+                    <span class="with-icon" aria-hidden="true">
+                      <Icon name="star" />
+                      {score().toFixed(1)}
+                    </span>
+                    <Hidden>{`Rated ${rating()?.replace("★ ", "")}`}</Hidden>
+                  </span>
+                )}
+              </Show>
+              <ContactIcons phone={props.place.details?.phone} website={props.place.details?.website} />
+              <CopyAddress address={props.place.address} />
+            </span>
           </div>
-          <Show when={category()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
-          <Show when={cleanAddress(props.place.address)}>
-            {(where) => <p class="stop__where">{where()}</p>}
-          </Show>
+          <Show when={area()}>{(where) => <p class="stop__where">{where()}</p>}</Show>
           <StatusPill status={props.item.status} />
-          <Notes text={props.item.notes} open={detailOpen()} />
           <PlaceDetail place={props.place} weekday={props.weekday} />
+          {/* Your notes, previewed in one line; the chevron says there is more. */}
+          <Show when={notes()}>
+            {(text) => (
+              <button
+                type="button"
+                class="stop__notes"
+                aria-expanded={notesOpen()}
+                onClick={() => setNotesOpen((open) => !open)}
+              >
+                <span class="stop__notes-text" classList={{ "is-open": notesOpen() }}>
+                  {text()}
+                </span>
+                <span class="stop__chevron" classList={{ "is-open": notesOpen() }} aria-hidden="true" />
+              </button>
+            )}
+          </Show>
         </div>
         <PlacePhoto place={props.place} mapFallback={props.isStay} />
       </article>
