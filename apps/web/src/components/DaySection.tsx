@@ -1,4 +1,4 @@
-import { For, Show, createMemo } from "solid-js";
+import { For, Show, createEffect, createMemo, createSignal, on } from "solid-js";
 import type { DayItem, FlightItem, TripBundle, TripDay } from "@travel-companion/trip-schema";
 import {
   formatArrows,
@@ -25,6 +25,7 @@ import {
   type RouteLegIndex,
 } from "../lib/route-legs";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
+import { fold, unfold } from "../lib/fold-motion";
 import { flightTiming, sunsetTime, type FlightTiming } from "../lib/day-times";
 import { DayItemRow, FlightConnector, FlightRow, LodgingBand, RouteLegRow } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
@@ -227,6 +228,32 @@ export function DaySection(props: {
   const collapsed = () => isDayCollapsed(props.day.id, props.day.date);
   const bodyId = () => `body-${props.day.id}`;
 
+  /**
+   * The body stays mounted while it folds shut, so it can animate out, and
+   * is unmounted after: a folded day costs nothing, photos included.
+   */
+  const [shown, setShown] = createSignal(!collapsed());
+  let body: HTMLDivElement | undefined;
+  createEffect(
+    on(
+      collapsed,
+      (isCollapsed) => {
+        if (!isCollapsed) {
+          setShown(true);
+          // After Solid mounts the body (and points `body` at it), before paint.
+          queueMicrotask(() => body && unfold(body));
+          return;
+        }
+        if (!body) return setShown(false);
+        void fold(body).then(() => {
+          // Reopened mid-fold: leave it mounted.
+          if (collapsed()) setShown(false);
+        });
+      },
+      { defer: true },
+    ),
+  );
+
   return (
     <section
       class="day-section"
@@ -268,8 +295,8 @@ export function DaySection(props: {
         <span class="day-section__chevron" classList={{ "is-open": !collapsed() }} aria-hidden="true" />
       </button>
 
-      <Show when={!collapsed()}>
-        <div class="day-section__body" id={bodyId()}>
+      <Show when={shown()}>
+        <div class="day-section__body" id={bodyId()} ref={body}>
           {/* The shape of the day up front: how much of it is moving, where
               you sleep, whether you fly. An AI-written summary will sit
               between the figures and the bookings. */}

@@ -1649,3 +1649,103 @@ p {
 .day-summary__transfer {
   background: rgb(var(--travel-rgb) / var(--tint));
 }
+
+/* --- Cleanup: wrapping and spacing --- */
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* The Google Maps pin on links that open Maps; the pin is taller than wide. */
+.gmaps-icon {
+  width: auto;
+  height: 1.15rem;
+  flex: none;
+}
+
+.travel__open {
+  display: grid;
+  place-items: center;
+  min-width: 1.75rem;
+}
+
+/* An address is a hint, not the destination: one line, cut short. */
+.stop__where {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* One line: phase, nights, then the district, which truncates. */
+.lodging-band__eyebrow {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.lodging-band__eyebrow > span {
+  flex: none;
+}
+
+.lodging-band__eyebrow > .lodging-band__city {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flight-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.flight-foot > .leave-time {
+  margin: 0;
+}
+
+.flight-foot > .text-button {
+  margin-left: auto;
+  flex: none;
+}
+
+/* In the summary a transfer is one line; the tall rail is for the route. */
+.day-summary__transfer .travel--long .travel__inner {
+  min-height: 2.7rem;
+}
+
+.stop__rating {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.stop__rating + .stop__disclose {
+  margin-left: 0;
+}
+
+.card__ref--toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.card__ref-chevron {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-1px) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.card__ref-chevron.is-open {
+  transform: translateY(1px) rotate(225deg);
+}

@@ -1,5 +1,6 @@
 import { createSignal, onCleanup, Show } from "solid-js";
 import { checkForAppUpdate } from "../lib/app-update";
+import { failure, success } from "../lib/haptics";
 
 declare const __TRIP_BASE__: string;
 const base = typeof __TRIP_BASE__ === "string" ? __TRIP_BASE__ : "/";
@@ -51,13 +52,16 @@ export function RefreshTrip(props: { passphrase: string }) {
         return;
       }
       if (tripChanged) {
+        success();
         await caches.delete("trip-bundle").catch(() => false);
         say("Updated. Reloading…", false);
         location.reload();
         return;
       }
+      success();
       say("Already up to date.");
     } catch (error) {
+      failure();
       say(error instanceof Error ? error.message : "Refresh failed");
     }
     setBusy(false);

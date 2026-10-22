@@ -28,6 +28,7 @@ import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "
 import { photoAttribution, placePhotoUrl } from "../lib/place-photo";
 import { LONG_LEG_SECONDS } from "../lib/route-legs";
 import type { FlightTiming } from "../lib/day-times";
+import { GoogleMapsIcon } from "./GoogleMapsIcon";
 import { Hidden, Icon } from "./Icon";
 
 function StatusPill(props: { status?: DayItem["status"] | undefined }) {
@@ -170,7 +171,7 @@ export function RouteLegRow(props: {
           >
             {contents()}
             <span class="travel__open">
-              <Icon name="map" />
+              <GoogleMapsIcon />
             </span>
           </a>
         )}
@@ -301,10 +302,9 @@ export function PlaceRow(props: {
   weekday: number;
 }) {
   const [detailOpen, setDetailOpen] = createSignal(false);
-  const meta = () =>
-    [formatCategory(props.place.category), formatRatingLabel(props.place.rating, props.place.ratingCount)]
-      .filter(Boolean)
-      .join(" · ");
+  const category = () => formatCategory(props.place.category);
+  /** Full rating with its review count, for the tooltip and screen readers. */
+  const rating = () => formatRatingLabel(props.place.rating, props.place.ratingCount);
 
   return (
     <li class="stop-item">
@@ -322,6 +322,15 @@ export function PlaceRow(props: {
               </Show>
             </span>
             <TimeLabel start={props.item.startTime} end={props.item.endTime} />
+            {/* The score rides the top row, so the category below fits on one line. */}
+            <Show when={rating() ? props.place.rating : undefined}>
+              {(score) => (
+                <span class="stop__rating" title={rating()}>
+                  <span aria-hidden="true">★{score().toFixed(1)}</span>
+                  <Hidden>{`Rated ${rating()?.replace("★ ", "")}`}</Hidden>
+                </span>
+              )}
+            </Show>
             <Show when={hasPlaceDetail(props.place)}>
               <button
                 type="button"
@@ -342,7 +351,7 @@ export function PlaceRow(props: {
           >
             {props.place.name}
           </a>
-          <Show when={meta()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
+          <Show when={category()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
           <Show when={cleanAddress(props.place.address)}>
             {(where) => <p class="stop__where">{where()}</p>}
           </Show>
@@ -411,8 +420,22 @@ export function FlightRow(props: {
               <ModeGlyph mode="flight" />
             </span>
             <span>{code()}</span>
+            {/* The booking reference opens the booking: no separate button. */}
             <Show when={props.item.confirmationNumber}>
-              {(reference) => <span class="card__ref">{reference()}</span>}
+              {(reference) => (
+                <Show when={hasDetail()} fallback={<span class="card__ref">{reference()}</span>}>
+                  <button
+                    type="button"
+                    class="card__ref card__ref--toggle"
+                    aria-expanded={open()}
+                    aria-label={`Booking ${reference()}, ${open() ? "hide" : "show"} details`}
+                    onClick={() => setOpen((v) => !v)}
+                  >
+                    {reference()}
+                    <span class="card__ref-chevron" classList={{ "is-open": open() }} aria-hidden="true" />
+                  </button>
+                </Show>
+              )}
             </Show>
           </div>
 
@@ -443,34 +466,39 @@ export function FlightRow(props: {
             </div>
           </div>
 
-          <Show when={props.timing}>
-            {(timing) => (
-              <p class="leave-time">
-                <Show when={props.leaveLabel && timing().leaveBy}>
-                  {(leaveBy) => (
-                    <>
-                      {props.leaveLabel ?? "Leave by"} <strong>{leaveBy()}</strong>
-                      {" · "}
-                    </>
-                  )}
-                </Show>
-                At {props.item.departAirport ?? "the airport"} by <strong>{timing().airportBy}</strong>
-              </p>
-            )}
-          </Show>
-
           <StatusPill status={props.item.status} />
 
-          <Show when={hasDetail()}>
-            <button
-              type="button"
-              class="text-button"
-              aria-expanded={open()}
-              onClick={() => setOpen((v) => !v)}
-            >
-              {open() ? "Less" : "Booking"}
-            </button>
-          </Show>
+          {/* When to be there, with the booking beside it rather than below. */}
+          <div class="flight-foot">
+            <Show when={props.timing}>
+              {(timing) => (
+                <p class="leave-time">
+                  <Show when={props.leaveLabel && timing().leaveBy}>
+                    {(leaveBy) => (
+                      <>
+                        {props.leaveLabel ?? "Leave by"} <strong>{leaveBy()}</strong>
+                        {"\u00a0· "}
+                      </>
+                    )}
+                  </Show>
+                  <span class="nowrap">
+                    At {props.item.departAirport ?? "the airport"} by <strong>{timing().airportBy}</strong>
+                  </span>
+                </p>
+              )}
+            </Show>
+            {/* Without a reference to tap, the booking still needs a way in. */}
+            <Show when={hasDetail() && !props.item.confirmationNumber}>
+              <button
+                type="button"
+                class="text-button"
+                aria-expanded={open()}
+                onClick={() => setOpen((v) => !v)}
+              >
+                {open() ? "Less" : "Booking"}
+              </button>
+            </Show>
+          </div>
           <Show when={open()}>
             <div class="card__detail">
               <Show when={props.item.travellerNames?.length}>
@@ -571,9 +599,6 @@ export function LodgingBand(props: {
         </span>
         <span class="lodging-band__eyebrow">
           <span class="lodging-band__phase">{phaseLabel()}</span>
-          <Show when={props.place?.locality}>
-            {(city) => <span>{city()}</span>}
-          </Show>
           <Show when={nights()}>
             {(count) => (
               <span class="with-icon">
@@ -582,6 +607,10 @@ export function LodgingBand(props: {
                 <Hidden>{` night${count() === 1 ? "" : "s"}`}</Hidden>
               </span>
             )}
+          </Show>
+          {/* Last, so a long district is what gets cut short. */}
+          <Show when={props.place?.locality}>
+            {(city) => <span class="lodging-band__city">{city()}</span>}
           </Show>
         </span>
         <Show when={expandable()}>
@@ -656,11 +685,12 @@ export function LodgingBand(props: {
             <Show when={props.place}>
               {(place) => (
                 <a
-                  class="text-button"
+                  class="text-button with-icon"
                   href={buildGoogleMapsUrl(place())}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
+                  <GoogleMapsIcon />
                   Maps
                 </a>
               )}

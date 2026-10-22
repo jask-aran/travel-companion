@@ -3,6 +3,7 @@ import { render } from "solid-js/web";
 import { registerSW } from "virtual:pwa-register";
 import App from "./App";
 import { checkForUpdatesOnResume, rememberRegistration } from "./lib/app-update";
+import { installTapHaptics } from "./lib/haptics";
 import "./fonts.css";
 import "./styles.css";
 
@@ -12,6 +13,7 @@ registerSW({
   onRegisteredSW: rememberRegistration,
 });
 checkForUpdatesOnResume();
+installTapHaptics();
 
 const root = document.getElementById("root");
 if (!root) {
