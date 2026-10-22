@@ -73,10 +73,10 @@ export function observeActiveDay(
 }
 
 /**
- * Scroll a day's header to the top. Offscreen days render at an estimated
- * height (content-visibility), so a long smooth scroll can stop well short of
- * a far day as the days it passes take their real size. It keeps going in
- * smooth legs until close, then lands exactly. Resolves when it is done.
+ * Scroll a day's header to the top. Photos loading and days unfolding can
+ * still shift the page mid-scroll, so a long smooth scroll may stop short of
+ * a far day. It keeps going in smooth legs until close, then lands exactly.
+ * Resolves when it is done.
  */
 export async function scrollToDay(dayId: string): Promise<void> {
   const el = document.getElementById(dayId);
@@ -126,4 +126,20 @@ async function land(el: HTMLElement, offBy: () => number): Promise<void> {
     }
     await nextFrame();
   }
+}
+
+/**
+ * Hold an element where it is on screen while the page changes height around
+ * it, as when every day folds at once and the ones above it shrink too.
+ * Corrects each frame for `ms`, then lets go.
+ */
+export function pinOnScreen(el: HTMLElement, ms: number): void {
+  const top = el.getBoundingClientRect().top;
+  const until = performance.now() + ms;
+  const step = () => {
+    const drift = el.getBoundingClientRect().top - top;
+    if (Math.abs(drift) >= 1) window.scrollBy({ top: drift, behavior: "instant" });
+    if (performance.now() < until) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }

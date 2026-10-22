@@ -693,6 +693,8 @@ export function LodgingBand(props: {
           )}
         </Show>
       </button>
+      {/* The hotel's photo, or for an address-only stay the streets round it. */}
+      <Show when={props.place}>{(place) => <PlacePhoto place={place()} mapFallback />}</Show>
 
       <Show when={open()}>
         <div class="lodging-band__detail">

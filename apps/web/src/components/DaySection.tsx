@@ -275,7 +275,12 @@ export function DaySection(props: {
   const hasSummary = createMemo(
     () => hasStats() || summarySlots().length > 0 || flights().length > 0,
   );
-  const collapsed = () => isDayCollapsed(props.day.id, props.day.date);
+  /**
+   * A memo, not a plain accessor: the collapsed set is one store for every
+   * day, and a fold effect keyed on the raw read would re-run (and replay its
+   * unfold) on every day whenever any one of them is toggled.
+   */
+  const collapsed = createMemo(() => isDayCollapsed(props.day.id, props.day.date));
   const bodyId = () => `body-${props.day.id}`;
 
   /**

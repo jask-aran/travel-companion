@@ -529,15 +529,13 @@ p {
   position: relative;
   scroll-margin-top: var(--sticky-offset);
   padding: 0.4rem 0.75rem 1.4rem;
-  /* content-visibility implies paint containment, which would clip anything
-     overhanging the section (badges, card shadows). The inline padding gives
-     them room; the negative margin keeps the content where it was. */
+  /* Inline room for overhanging badges and shadows, cancelled by the
+     negative margin; the day divider is inset to match. */
   margin-inline: -0.75rem;
   min-width: 0;
-  /* All days are in the DOM so tabs and scroll-spy stay simple; this skips
-     layout and paint for the offscreen ones. */
-  content-visibility: auto;
-  contain-intrinsic-size: auto 900px;
+  /* No content-visibility: its guessed heights for unrendered days made the
+     page jump as each one laid out. Folded days unmount their bodies and
+     photos load lazily, so laying out the rest is cheap. */
 }
 
 /* The rule between days spans the cards, not the section's overhang room. */
@@ -632,7 +630,6 @@ p {
 }
 
 .day-section--collapsed {
-  contain-intrinsic-size: auto 5rem;
   padding-bottom: 0.5rem;
 }
 
@@ -1995,4 +1992,20 @@ html {
   :root:not([data-theme="light"]) .stop__photo--map img {
     filter: invert(0.9) hue-rotate(180deg) saturate(0.6) brightness(0.95);
   }
+}
+
+/* A hotel band takes the photo column too: the summary row beside it, the
+   opened details full width beneath. */
+.lodging-band:has(> .stop__photo) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.5rem;
+}
+
+.lodging-band > .stop__photo {
+  height: 100%;
+  max-height: 8rem;
+}
+
+.lodging-band > :not(.lodging-band__summary, .stop__photo) {
+  grid-column: 1 / -1;
 }

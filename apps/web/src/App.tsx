@@ -12,7 +12,7 @@ import {
 } from "solid-js";
 import { DaySection } from "./components/DaySection";
 import { DayTabs } from "./components/DayTabs";
-import { observeActiveDay, scrollToDay } from "./lib/active-day";
+import { observeActiveDay, pinOnScreen, scrollToDay } from "./lib/active-day";
 import { formatArrows, formatTripRange } from "./lib/format";
 import { loadTripBundle, tripIsEncrypted } from "./lib/load-trip";
 import { forgetPassphrase, readPassphrase, rememberPassphrase } from "./lib/passphrase";
@@ -123,6 +123,22 @@ export default function App() {
     }
   };
 
+  /**
+   * Fold or open every day without losing your place: the day you are on keeps
+   * its header where it is while the days around it change height, and stays
+   * the active tab. Without this the page shrinks to a few headers and the
+   * spy reads "scrolled to the bottom" as the last day.
+   */
+  const keepActiveDay = () => {
+    const section = document.getElementById(activeDayId());
+    holdSpy(900);
+    if (!section) return;
+    if (section.getBoundingClientRect().top < 0) {
+      section.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+    pinOnScreen(section, 700);
+  };
+
   /** A header tap: the page is already there, so only a short hold. */
   const focusDay = (dayId: string) => {
     setActiveDayId(dayId);
@@ -136,10 +152,23 @@ export default function App() {
   const selectDay = (dayId: string) => {
     const day = trip()?.days.find((candidate) => candidate.id === dayId);
     const open = day ? !isDayCollapsed(day.id, day.date) : false;
-    setDayCollapsed(dayId, dayId === activeDayId() && open);
+    const closing = dayId === activeDayId() && open;
     setActiveDayId(dayId);
     // Hold until the page has actually arrived, however far that is.
     holdSpy();
+    if (closing) {
+      // Closing the day you are in: bring its header up first, then fold, so
+      // the page shrinks below a header that stays put instead of under you.
+      const section = document.getElementById(dayId);
+      // scroll-margin-top keeps it clear of the sticky tabs.
+      if (section && section.getBoundingClientRect().top < 0) {
+        section.scrollIntoView({ block: "start", behavior: "instant" });
+      }
+      setDayCollapsed(dayId, true);
+      holdSpy(500);
+      return;
+    }
+    setDayCollapsed(dayId, false);
     void scrollToDay(dayId).then(() => holdSpy(150));
   };
 
@@ -196,7 +225,7 @@ export default function App() {
                 <header class="trip-header">
                   <div class="trip-header__actions">
                     <RefreshTrip passphrase={passphrase() ?? ""} />
-                    <CollapseAll days={data.days} />
+                    <CollapseAll days={data.days} onToggle={keepActiveDay} />
                     <ThemeToggle />
                   </div>
                   <div class="trip-header__inner">

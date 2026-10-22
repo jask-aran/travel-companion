@@ -3,7 +3,11 @@ import type { TripDay } from "@travel-companion/trip-schema";
 import { allDaysCollapsed, setDaysCollapsed } from "../lib/collapsed-days";
 
 /** Folds every day to its header, or opens them all again. */
-export function CollapseAll(props: { days: TripDay[] }) {
+export function CollapseAll(props: {
+  days: TripDay[];
+  /** Called just before the change, so the page can hold its place. */
+  onToggle?: () => void;
+}) {
   const folded = () => allDaysCollapsed(props.days);
   const label = () => (folded() ? "Expand all days" : "Collapse all days");
 
@@ -11,7 +15,10 @@ export function CollapseAll(props: { days: TripDay[] }) {
     <button
       type="button"
       class="header-button"
-      onClick={() => setDaysCollapsed(props.days.map((day) => day.id), !folded())}
+      onClick={() => {
+        props.onToggle?.();
+        setDaysCollapsed(props.days.map((day) => day.id), !folded());
+      }}
       aria-label={label()}
       title={label()}
     >
