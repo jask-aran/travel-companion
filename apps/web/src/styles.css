@@ -2354,3 +2354,13 @@ html {
 .flight-pill__card {
   contain: layout paint;
 }
+
+/* A long leg with a timetable: the board follows the leg's line directly,
+   and the leg keeps its length (time on the rail) below the board. */
+.travel--long:has(> .departures) {
+  min-height: var(--travel-height, 4rem);
+}
+
+.travel--long:has(> .departures) .travel__inner {
+  min-height: 2.7rem;
+}

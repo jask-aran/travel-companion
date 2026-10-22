@@ -147,6 +147,7 @@ export function DaySection(props: {
 
   const journeys = () => routing().journeys;
   /** Departure times fetched at pull time for a summary leg, if any. */
+  /** Departures for a leg, shown where you take it: on the day route. */
   const boardFor = (leg: RouteLeg) => props.bundle.departures?.[departureKey(leg)];
 
   const stopsLabel = (count: number) =>
@@ -353,7 +354,7 @@ export function DaySection(props: {
                       <Show when={timings().get(item.id)?.legs.length}>
                         <ol class="day-summary__transfer">
                           <For each={timings().get(item.id)?.legs}>
-                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} showEnds board={boardFor(leg)} />}
+                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} showEnds />}
                           </For>
                         </ol>
                       </Show>
@@ -367,7 +368,7 @@ export function DaySection(props: {
                       <Show when={legOutOf(item.arrivePlaceId)}>
                         {(leg) => (
                           <ol class="day-summary__transfer">
-                            <RouteLegRow leg={leg()} places={props.bundle.places} showEnds board={boardFor(leg())} />
+                            <RouteLegRow leg={leg()} places={props.bundle.places} showEnds />
                           </ol>
                         )}
                       </Show>
@@ -392,7 +393,6 @@ export function DaySection(props: {
                           leg={journey.leg}
                           places={props.bundle.places}
                           showEnds
-                          board={boardFor(journey.leg)}
                         />
                       </ol>
                     </>
@@ -427,7 +427,7 @@ export function DaySection(props: {
                       </Show>
                       <Show when={!binding().supersededLegs.has(item.id) && legs().get(item.id)}>
                         {(leg) => (
-                          <RouteLegRow leg={leg()} places={props.bundle.places} />
+                          <RouteLegRow leg={leg()} places={props.bundle.places} board={boardFor(leg())} />
                         )}
                       </Show>
                       <DayItemRow
@@ -444,7 +444,7 @@ export function DaySection(props: {
                   )}
                 </For>
                 <Show when={endLeg()}>
-                  {(leg) => <RouteLegRow leg={leg()} places={props.bundle.places} />}
+                  {(leg) => <RouteLegRow leg={leg()} places={props.bundle.places} board={boardFor(leg())} />}
                 </Show>
                 <Show when={sleepsIn()}>
                   {(stay) => (
