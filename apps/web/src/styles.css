@@ -912,11 +912,6 @@ p {
   margin: 0.1rem 0 0;
 }
 
-.lodging-band__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
 
 .lodging-item {
   margin: 0.35rem 0;
@@ -1096,7 +1091,6 @@ p {
 }
 
 .stop:has(.stop__photo) {
-  grid-template-columns: minmax(0, 1fr) 7.5rem;
   min-height: 8rem;
 }
 
@@ -1211,17 +1205,81 @@ p {
   overflow-wrap: break-word;
 }
 
-.stop__photo {
-  grid-column: 2;
-  grid-row: 1;
+/*
+ * The photo (or a stay's map) sits behind the card's right edge and fades
+ * into it rather than standing in a hard-edged column. The text keeps clear
+ * of all but the faded part. Opened, the card needs its full width, so the
+ * photo dims to a backdrop and the text runs across it.
+ */
+.stop,
+.lodging-band {
+  --photo-w: 7.5rem;
   position: relative;
+}
+
+.lodging-band {
+  --photo-w: 8.5rem;
+}
+
+.stop__photo {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: var(--photo-w);
   margin: 0;
-  /* Fills the card's height, capped so an expanded card does not turn the
-     crop into a sliver. */
-  align-self: start;
-  height: 100%;
-  max-height: 16rem;
   overflow: hidden;
+  transition: width 220ms ease;
+}
+
+.stop__photo img {
+  mask-image: linear-gradient(to right, transparent, #000 45%);
+  transition: opacity 220ms ease;
+}
+
+/* Text above the photo, clear of everything but its faded edge. */
+.stop__body,
+.lodging-band__summary,
+.lodging-band__detail {
+  position: relative;
+  z-index: 1;
+}
+
+.stop:has(> .stop__photo) > .stop__body,
+.lodging-band:has(> .stop__photo) > .lodging-band__summary {
+  padding-right: calc(var(--photo-w) * 0.6 + 0.5rem);
+}
+
+/* Opened: the photo widens and dims, and the text takes the whole card. */
+.stop--open > .stop__photo,
+.lodging-band--open > .stop__photo {
+  width: 70%;
+}
+
+.stop--open > .stop__photo img,
+.lodging-band--open > .stop__photo img {
+  opacity: 0.16;
+  mask-image: linear-gradient(to right, transparent, #000 70%);
+}
+
+.stop.stop--open:has(> .stop__photo) > .stop__body,
+.lodging-band.lodging-band--open:has(> .stop__photo) > .lodging-band__summary {
+  padding-right: var(--pad);
+}
+
+/* Google's credit must stay legible, so it does not dim with the photo. */
+.stop--open > .stop__photo figcaption,
+.lodging-band--open > .stop__photo figcaption {
+  inset: 0 0 auto 0;
+  padding: 0.25rem 0.35rem 0.9rem;
+  background: none;
+  text-align: right;
+  color: var(--ink-muted);
+  text-shadow: none;
+}
+
+@media (max-width: 370px) {
+  .stop {
+    --photo-w: 6.75rem;
+  }
 }
 
 .stop__photo-link {
@@ -1251,6 +1309,8 @@ p {
   color: rgb(255 255 255 / 88%);
   text-shadow: 0 1px 2px rgb(0 0 0 / 55%);
   background: linear-gradient(transparent, rgb(0 0 0 / 55%));
+  /* Right-aligned, on the solid part of the photo, not its faded edge. */
+  text-align: right;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1258,8 +1318,8 @@ p {
 }
 
 @media (min-width: 460px) {
-  .stop:has(.stop__photo) {
-    grid-template-columns: minmax(0, 1fr) 10rem;
+  .stop {
+    --photo-w: 10rem;
   }
 }
 
@@ -1958,11 +2018,6 @@ html {
 
 /* Small phones: a slightly narrower photo so a time range and rating share
    the top row with the disclosure. */
-@media (max-width: 370px) {
-  .stop:has(.stop__photo) {
-    grid-template-columns: minmax(0, 1fr) 6.75rem;
-  }
-}
 
 /* "+1" rides above the time without growing the line box, so the pill's
    route and times share one baseline. */
@@ -1996,19 +2051,6 @@ html {
 
 /* A hotel band takes the photo column too: the summary row beside it, the
    opened details full width beneath. */
-.lodging-band:has(> .stop__photo) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 6.5rem;
-}
-
-.lodging-band > .stop__photo {
-  height: 100%;
-  max-height: 8rem;
-}
-
-.lodging-band > :not(.lodging-band__summary, .stop__photo) {
-  grid-column: 1 / -1;
-}
 
 /* --- Departure boards --- */
 
@@ -2041,6 +2083,7 @@ html {
 }
 
 .departures__lead {
+  flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: baseline;
@@ -2049,22 +2092,12 @@ html {
   overflow: hidden;
 }
 
-.departures__arrow {
-  color: var(--ink-muted);
-}
-
 .departures__lead .departures__line {
   margin-left: 0.3rem;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--ink-soft);
   font-family: var(--font-sans);
-}
-
-.departures__count {
-  margin-left: auto;
-  color: var(--ink-muted);
-  font-size: var(--fs-label);
 }
 
 .departures__chevron {
@@ -2166,4 +2199,187 @@ html {
 .departure__line--express,
 .departure__line--shinkansen {
   font-weight: 600;
+}
+
+/* Folded board: the next few departures, the one to aim for first. */
+.departures__lead > span:not(.departures__line) {
+  color: var(--ink-muted);
+}
+
+.departures__lead > .departures__next {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.departures__every,
+.departures__typical {
+  flex: none;
+  color: var(--ink-muted);
+  font-size: var(--fs-label);
+}
+
+.departures__typical {
+  margin-left: 0.4rem;
+}
+
+/* A route with no clock times: the lines, then the typical ride. */
+.departure--route {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+/* --- Compact stats: icon beside its figure, not above it --- */
+.day-stats > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0.5rem 0.5rem 0.55rem;
+}
+
+.day-stats > div + div::before {
+  top: 0.55rem;
+  bottom: 0.55rem;
+}
+
+.day-stats dd {
+  margin: 0;
+  font-size: var(--fs-label);
+  line-height: 1.35;
+}
+
+.day-stats__name {
+  height: auto;
+  padding-top: 0.05rem;
+}
+
+.day-stats__name .mode-glyph {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+/* --- Hotel bands: a touch roomier, details as one icon line --- */
+.lodging-band__summary {
+  min-height: 5rem;
+  padding-block: 0.9rem 1rem;
+}
+
+.lodging-band__name {
+  font-size: calc(var(--fs-name) * 1.06);
+}
+
+.lodging-band__dates {
+  gap: 0.35rem 1.1rem;
+}
+
+.lodging-band__dates > div {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.lodging-band__dates dt {
+  display: flex;
+  color: var(--kind-lodging);
+}
+
+.lodging-band__dates dd {
+  margin: 0;
+}
+
+.lodging-band__where {
+  justify-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: var(--hairline);
+}
+
+.lodging-band__address {
+  flex: 1;
+  min-width: 0;
+  margin: 0 0.4rem 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  word-spacing: -0.3em;
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
+/* An icon that is a link: Maps, call, website. Tap-sized, quiet. */
+.icon-link {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  color: var(--ink-muted);
+}
+
+.icon-link:active {
+  background: rgb(var(--ink-rgb) / 8%);
+}
+
+.icon-link .mode-glyph,
+.icon-link .gmaps-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* In a stop's top row the contact icons sit tight against the rating. */
+.stop__top .icon-link {
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-inline: -0.15rem;
+}
+
+.stop__top .icon-link + .stop__disclose,
+.stop__rating + .icon-link {
+  margin-left: 0;
+}
+
+/* --- Flight card: one line of times and airports --- */
+.flight-legs {
+  grid-template-columns: auto auto minmax(1.5rem, 1fr) auto auto;
+  gap: 0.45rem;
+}
+
+.flight-cities {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.05rem;
+}
+
+.flight-cities > .flight-end__city:last-child {
+  text-align: right;
+}
+
+.flight-by {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.flight-by .mode-glyph {
+  width: 0.8rem;
+  height: 0.8rem;
+  color: var(--kind-flight);
+}
+
+.flight-by strong {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.flight-foot:empty {
+  display: none;
+}
+
+/* No rating to push them right: the first contact icon does. */
+.stop__top > :is(.stop__badge, .item-time) + .icon-link {
+  margin-left: auto;
 }

@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { join } from "node:path";
 import type {
   DepartureBoard,
   DepartureOption,
@@ -7,7 +7,8 @@ import type {
   Place,
   TripBundle,
 } from "../../trip-schema/src/index.js";
-import { englishHeadsign, englishLineName } from "./line-names.js";
+import { englishName, localHeadsign, localLineName, needsTranslation } from "./line-names.js";
+import { translateNames, type TranslationReport } from "./translate.js";
 
 /**
  * Departure options for the legs that need them, fetched at pull time and
@@ -31,13 +32,19 @@ export type DepartureRequest = {
   time: string;
 };
 
-export type DepartureKeys = { google?: string | undefined; navitime?: string | undefined };
+export type DepartureKeys = {
+  google?: string | undefined;
+  navitime?: string | undefined;
+  /** Google Cloud Translation, for names NAVITIME and Google give in Japanese or Korean. */
+  translate?: string | undefined;
+};
 
 export type DepartureReport = {
   boards: number;
   cached: number;
   requested: { google: number; navitime: number };
   skipped: number;
+  translation?: TranslationReport;
   errors: string[];
 };
 
@@ -47,12 +54,29 @@ type Cache = Record<string, CacheEntry>;
 const CACHE_DAYS = 7;
 /** Per run; the month allows 500. A full trip is about a dozen legs. */
 const NAVITIME_BUDGET = 40;
-const OPTIONS_KEPT = 5;
+const OPTIONS_KEPT = 8;
+/**
+ * One ask returns a handful of options clustered at the time asked. Asking
+ * again half an hour and an hour out (later to leave, earlier to arrive)
+ * fills out a board, so you can see how often things run and what the next
+ * one is if you miss yours.
+ *
+ * Google only. NAVITIME's marketplace plan has no timetable: its "departure"
+ * is the time asked plus an average wait, so asking at 19:30, 20:00 and
+ * 20:30 returns the same Skyliner exactly 30 minutes apart. One ask gives
+ * the route and a typical ride; more would invent a timetable.
+ */
+const SAMPLE_OFFSETS_MINUTES: Record<DepartureBoard["provider"], number[]> = {
+  google: [0, 30, 60],
+  navitime: [0],
+};
 /** Japan and Korea are both UTC+9, with no daylight saving. */
 const UTC_OFFSET_HOURS = 9;
 
-const cacheKey = (request: DepartureRequest) =>
-  [request.provider, request.fromPlaceId, request.toPlaceId, request.kind, `${request.date}T${request.time}`].join("|");
+type Sample = DepartureRequest & { time: string };
+
+const cacheKey = (sample: Sample) =>
+  [sample.provider, sample.fromPlaceId, sample.toPlaceId, sample.kind, `${sample.date}T${sample.time}`].join("|");
 
 async function readCache(path: string): Promise<Cache> {
   try {
@@ -65,11 +89,26 @@ async function readCache(path: string): Promise<Cache> {
 const fresh = (entry: CacheEntry | undefined, now: Date) =>
   Boolean(entry) && now.getTime() - Date.parse(entry!.fetchedAt) < CACHE_DAYS * 86_400_000;
 
+/** "HH:MM" moved by minutes, or undefined if that leaves the day. */
+function shifted(time: string, minutes: number): string | undefined {
+  const total = clockMinutes(time) + minutes;
+  if (total < 0 || total >= 1440) return undefined;
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
+
+function samplesOf(request: DepartureRequest): Sample[] {
+  const direction = request.kind === "depart" ? 1 : -1;
+  return SAMPLE_OFFSETS_MINUTES[request.provider].flatMap((offset) => {
+    const time = shifted(request.time, offset * direction);
+    return time ? [{ ...request, time }] : [];
+  });
+}
+
 export async function attachDepartures(
   bundle: TripBundle,
   requests: DepartureRequest[],
   keys: DepartureKeys,
-  cachePath: string,
+  cacheDir: string,
   now = new Date(),
 ): Promise<DepartureReport> {
   const report: DepartureReport = {
@@ -79,58 +118,86 @@ export async function attachDepartures(
     skipped: 0,
     errors: [],
   };
+  const cachePath = join(cacheDir, "departures-cache.json");
   const cache = await readCache(cachePath);
-  const boards: Record<string, DepartureBoard> = {};
 
-  for (const request of requests) {
-    const key = cacheKey(request);
-    let entry = fresh(cache[key], now) ? cache[key] : undefined;
-    if (entry) report.cached += 1;
-    else {
-      const apiKey = keys[request.provider];
-      const from = bundle.places[request.fromPlaceId];
-      const to = bundle.places[request.toPlaceId];
-      const spent = request.provider === "navitime" && report.requested.navitime >= NAVITIME_BUDGET;
-      if (!apiKey || !from || !to || spent) {
-        // A stale answer beats none: the timetable rarely moves.
-        entry = cache[key];
-        if (!entry) report.skipped += 1;
-      } else {
-        report.requested[request.provider] += 1;
-        try {
-          const options =
-            request.provider === "google"
-              ? parseGoogleRoutes(await fetchGoogle(request, from, to, apiKey))
-              : parseNavitime(await fetchNavitime(request, from, to, apiKey));
-          entry = {
-            fetchedAt: now.toISOString(),
-            ...(request.provider === "navitime" ? { approximate: true } : {}),
-            options,
-          };
-          cache[key] = entry;
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          if (report.errors.length < 5) report.errors.push(`${from.name} → ${to.name}: ${message}`);
-          entry = cache[key];
-        }
-      }
+  /** One provider answer, from the cache when fresh, else asked for. */
+  const answer = async (sample: Sample): Promise<CacheEntry | undefined> => {
+    const key = cacheKey(sample);
+    if (fresh(cache[key], now)) {
+      report.cached += 1;
+      return cache[key];
     }
-    if (!entry) continue;
-    const options = plausible(entry.options, request, bundle).map(retranslate);
+    const apiKey = keys[sample.provider];
+    const from = bundle.places[sample.fromPlaceId];
+    const to = bundle.places[sample.toPlaceId];
+    const spent = sample.provider === "navitime" && report.requested.navitime >= NAVITIME_BUDGET;
+    // A stale answer beats none: the timetable rarely moves.
+    if (!apiKey || !from || !to || spent) {
+      if (!cache[key]) report.skipped += 1;
+      return cache[key];
+    }
+    report.requested[sample.provider] += 1;
+    try {
+      const options =
+        sample.provider === "google"
+          ? parseGoogleRoutes(await fetchGoogle(sample, from, to, apiKey))
+          : parseNavitime(await fetchNavitime(sample, from, to, apiKey));
+      const entry: CacheEntry = {
+        fetchedAt: now.toISOString(),
+        ...(sample.provider === "navitime" ? { approximate: true } : {}),
+        options,
+      };
+      cache[key] = entry;
+      return entry;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (report.errors.length < 5) report.errors.push(`${from.name} → ${to.name} at ${sample.time}: ${message}`);
+      return cache[key];
+    }
+  };
+
+  const drafts: Record<string, DepartureBoard> = {};
+  for (const request of requests) {
+    const entries = (await Promise.all(samplesOf(request).map(answer))).filter(
+      (entry): entry is CacheEntry => Boolean(entry),
+    );
+    const options = tidy(plausible(entries.flatMap((entry) => entry.options), request, bundle));
     if (!options.length) continue;
-    boards[request.key] = {
+    drafts[request.key] = {
       provider: request.provider,
       target: { kind: request.kind, date: request.date, time: request.time },
-      fetchedAt: entry.fetchedAt,
-      ...(entry.approximate ? { approximate: true } : {}),
+      // The oldest answer is the one to doubt.
+      fetchedAt: entries.map((entry) => entry.fetchedAt).sort()[0]!,
+      ...(entries.some((entry) => entry.approximate) ? { approximate: true } : {}),
       options,
     };
-    report.boards += 1;
   }
 
-  if (report.boards) bundle.departures = boards;
-  await mkdir(dirname(cachePath), { recursive: true });
+  await mkdir(cacheDir, { recursive: true });
   await writeFile(cachePath, `${JSON.stringify(cache, null, 2)}\n`, "utf8");
+
+  // Names in Japanese or Korean, translated once and cached.
+  const locals = Object.values(drafts).flatMap((board) =>
+    board.options.flatMap((option) =>
+      option.segments.flatMap((segment) => [localOf(segment), segment.headsign ?? ""]),
+    ),
+  );
+  const { translations, report: translation } = await translateNames(
+    locals.filter(needsTranslation),
+    keys.translate,
+    join(cacheDir, "translations-cache.json"),
+  );
+  report.translation = translation;
+
+  const boards = Object.fromEntries(
+    Object.entries(drafts).map(([key, board]) => [
+      key,
+      { ...board, options: board.options.map((option) => named(option, translations)) },
+    ]),
+  );
+  report.boards = Object.keys(boards).length;
+  if (report.boards) bundle.departures = boards;
   return report;
 }
 
@@ -158,14 +225,24 @@ function plausible(
   );
 }
 
-/** Names from the provider's own text, so a new translation reaches cached boards. */
-function retranslate(option: DepartureOption): DepartureOption {
+/** The provider's own name for a segment, whatever an older cache stored. */
+const localOf = (segment: DepartureSegment) => localLineName(segment.nameLocal ?? segment.name);
+
+/** English names over the provider's own, which stay for the tooltip. */
+function named(option: DepartureOption, translations: Record<string, string>): DepartureOption {
   return {
     ...option,
     segments: option.segments.map((segment) => {
-      const { nameLocal: _old, ...rest } = segment;
-      const { name, nameLocal } = englishLineName(segment.nameLocal ?? segment.name);
-      return { ...rest, name, ...(nameLocal ? { nameLocal } : {}) };
+      const { nameLocal: _stored, headsign: _headsign, ...rest } = segment;
+      const local = localOf(segment);
+      const name = englishName(local, translations);
+      const headsign = segment.headsign && englishName(segment.headsign, translations);
+      return {
+        ...rest,
+        name,
+        ...(name !== local ? { nameLocal: local } : {}),
+        ...(headsign ? { headsign } : {}),
+      };
     }),
   };
 }
@@ -261,11 +338,9 @@ export function parseGoogleRoutes(response: GoogleRoutesResponse): DepartureOpti
       const arriveTime = localClock(transit?.stopDetails?.arrivalTime);
       if (!transit || !departTime || !arriveTime) continue;
       const line = transit.transitLine;
-      const { name, nameLocal } = englishLineName(line?.nameShort || line?.name || "Transit");
-      const headsign = englishHeadsign(transit.headsign);
+      const headsign = localHeadsign(transit.headsign);
       segments.push({
-        name,
-        ...(nameLocal ? { nameLocal } : {}),
+        name: localLineName(line?.nameShort || line?.name || "Transit"),
         kind: googleKind(line?.vehicle?.type),
         departTime,
         arriveTime,
@@ -348,10 +423,8 @@ export function parseNavitime(response: NavitimeResponse): DepartureOption[] {
       const arriveTime = section.to_time?.slice(11, 16);
       if (!departTime || !arriveTime) continue;
       // `transport.name` is the service; `line_name` may add the stretch ridden.
-      const { name, nameLocal } = englishLineName(section.transport?.name || section.line_name || "Train");
       segments.push({
-        name,
-        ...(nameLocal ? { nameLocal } : {}),
+        name: localLineName(section.transport?.name || section.line_name || "Train"),
         kind: navitimeKind(section),
         departTime,
         arriveTime,

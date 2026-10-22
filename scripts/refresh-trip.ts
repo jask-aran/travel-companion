@@ -1,5 +1,5 @@
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
 import { acquireWithApi, acquireWithBrowser, acquireWithCli, type AcquiredSource } from "../packages/wanderlog-import/src/acquire.js";
@@ -144,8 +144,9 @@ const departureReport = await attachDepartures(
   {
     google: googleApiKey,
     navitime: process.env.NAVITIME_API_KEY ?? config.navitime?.apiKey,
+    translate: googleApiKey,
   },
-  resolve(dirname(workingBundlePath), "departures-cache.json"),
+  dirname(workingBundlePath),
 );
 
 const bundle = parseTripBundle(result.bundle);
@@ -177,3 +178,8 @@ console.log(
     `${departureReport.skipped} skipped).`,
 );
 for (const message of departureReport.errors) console.warn(`  ! ${message}`);
+const translation = departureReport.translation;
+if (translation) {
+  console.log(`Line names: ${translation.translated} translated, ${translation.cached} cached.`);
+  if (translation.failed) console.warn(`  ! Translation unavailable, names left as given: ${translation.failed}`);
+}

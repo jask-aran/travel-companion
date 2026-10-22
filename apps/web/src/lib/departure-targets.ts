@@ -2,7 +2,7 @@ import type { DepartureBoard, Place, RouteLeg, TripBundle } from "@travel-compan
 import { collectStays } from "./lodging.js";
 import { indexRouteLegs } from "./route-legs.js";
 import { dayRouting, legOutOf } from "./day-routing.js";
-import { shiftClock } from "./day-times.js";
+import { isDomestic, shiftClock } from "./day-times.js";
 
 /**
  * Which legs get a departure board, and around what time. Only legs the day
@@ -20,8 +20,12 @@ export type DepartureTarget = {
   time: string;
 };
 
-/** Off the plane to on a train: bags, immigration, finding the platform. */
-export const ARRIVAL_MARGIN_MINUTES = 45;
+/**
+ * Off the plane to on a train. International adds immigration and customs
+ * on top of bags and finding the platform; an early board is cheap, missing
+ * the first suggestion is not.
+ */
+export const ARRIVAL_MARGIN_MINUTES = { international: 75, domestic: 30 };
 
 export const departureKey = (leg: Pick<RouteLeg, "fromPlaceId" | "toPlaceId">) =>
   `${leg.fromPlaceId}>${leg.toPlaceId}`;
@@ -70,7 +74,8 @@ export function departureTargets(bundle: TripBundle): DepartureTarget[] {
       add(ride, "arrive", flight.departDate ?? day.date, timing?.airportBy);
 
       const out = legOutOf(routing, flight.arrivePlaceId);
-      const after = flight.arriveTime && shiftClock(flight.arriveTime, ARRIVAL_MARGIN_MINUTES);
+      const margin = ARRIVAL_MARGIN_MINUTES[isDomestic(flight, bundle.places) ? "domestic" : "international"];
+      const after = flight.arriveTime && shiftClock(flight.arriveTime, margin);
       // A margin that wraps past midnight would ask for the wrong day.
       if (after && flight.arriveTime && after > flight.arriveTime) {
         add(out, "depart", flight.arriveDate ?? day.date, after);

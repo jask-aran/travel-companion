@@ -7,7 +7,12 @@ import {
   type GoogleRoutesResponse,
   type NavitimeResponse,
 } from "../packages/trip-normaliser/src/departures.js";
-import { englishHeadsign, englishLineName } from "../packages/trip-normaliser/src/line-names.js";
+import {
+  englishName,
+  localHeadsign,
+  localLineName,
+  needsTranslation,
+} from "../packages/trip-normaliser/src/line-names.js";
 import { departureTargets, providerFor } from "../apps/web/src/lib/departure-targets.js";
 
 const fixture = <T>(name: string) =>
@@ -19,11 +24,11 @@ describe("parseGoogleRoutes", () => {
     expect(options.map((option) => option.departTime)).toEqual(["11:29", "11:33", "11:41", "11:50"]);
     const [first] = options;
     expect(first).toMatchObject({ arriveTime: "11:43", minutes: 14 });
+    // Names stay as given; translation is a later, cached step.
     expect(first?.segments[0]).toMatchObject({
-      name: "AREX",
-      nameLocal: "공항철도",
+      name: "공항철도",
       kind: "subway",
-      headsign: "Seoul Station",
+      headsign: "서울역",
       color: "#0095d4",
     });
   });
@@ -35,50 +40,42 @@ describe("parseGoogleRoutes", () => {
 });
 
 describe("parseNavitime", () => {
-  it("names the Narita trains in English and keeps the Japanese", () => {
+  it("reads the Narita trains with their kinds and ride times", () => {
     const options = parseNavitime(fixture<NavitimeResponse>("navitime-narita-shinjuku.json"));
     expect(options[0]).toMatchObject({ departTime: "13:44", arriveTime: "14:54", minutes: 70 });
     expect(options[0]?.segments.map((segment) => [segment.name, segment.kind])).toEqual([
-      ["Keisei Skyliner", "express"],
-      ["Toei Oedo Line", "subway"],
+      ["京成スカイライナー", "express"],
+      ["都営大江戸線", "subway"],
     ]);
-    expect(options.flatMap((option) => option.segments.map((segment) => segment.name))).toContain(
-      "Narita Express",
-    );
   });
 
   it("keeps only the Hida when slower routes leave earlier and arrive later", () => {
     const options = parseNavitime(fixture<NavitimeResponse>("navitime-nagoya-takayama.json"));
     expect(options).toHaveLength(1);
     expect(options[0]).toMatchObject({ departTime: "08:34", arriveTime: "10:55" });
-    expect(options[0]?.segments[0]?.name).toBe("Hida");
+    expect(options[0]?.segments[0]?.name).toBe("ひだ");
   });
 });
 
 describe("line names", () => {
-  it("prefers the specific service over its operator", () => {
-    expect(englishLineName("京成スカイライナー").name).toBe("Keisei Skyliner");
-    expect(englishLineName("名鉄犬山線特急").name).toBe("Meitetsu Inuyama Line");
-  });
-
-  it("drops the stretch NAVITIME appends and folds full-width letters", () => {
-    expect(englishLineName("ＪＲ高山本線（岐阜-美濃太田）")).toEqual({
-      name: "JR Takayama Line",
-      nameLocal: "JR高山本線(岐阜-美濃太田)",
-    });
-  });
-
-  it("numbers Seoul Metro lines and passes unknown names through", () => {
-    expect(englishLineName("2호선").name).toBe("Line 2");
-    expect(englishLineName("058A(임진각)").name).toBe("058A (Imjingak)");
-    expect(englishLineName("某線")).toEqual({ name: "某線" });
+  it("folds full-width letters and drops the stretch NAVITIME appends", () => {
+    expect(localLineName("ＪＲ高山本線（岐阜-美濃太田）")).toBe("JR高山本線");
+    // A bus's place in brackets is part of its name, not a stretch.
+    expect(localLineName("058A(임진각)")).toBe("058A(임진각)");
   });
 
   it("reads a Korean headsign as its destination", () => {
-    expect(englishHeadsign("서울역 방면")).toBe("Seoul Station");
-    expect(englishHeadsign("Incheon International Airport T2-3FL")).toBe(
-      "Incheon International Airport T2-3FL",
-    );
+    expect(localHeadsign("서울역 방면")).toBe("서울역");
+    expect(localHeadsign("Incheon International Airport T2-3FL")).toBe("Incheon International Airport T2-3FL");
+  });
+
+  it("translates only local scripts, and numbers Seoul Metro lines by rule", () => {
+    expect(needsTranslation("京成スカイライナー")).toBe(true);
+    expect(needsTranslation("공항철도")).toBe(true);
+    expect(needsTranslation("6002")).toBe(false);
+    expect(englishName("2호선", {})).toBe("Line 2");
+    expect(englishName("공항철도", { 공항철도: "Airport Railroad" })).toBe("Airport Railroad");
+    expect(englishName("某線", {})).toBe("某線");
   });
 });
 
@@ -148,8 +145,8 @@ describe("departureTargets", () => {
       time,
     }));
     expect(targets).toEqual([
-      // Out of the arrival airport, 45 minutes after landing.
-      { key: "nrt>shinjuku", provider: "navitime", kind: "depart", date: "2026-12-06", time: "13:35" },
+      // Out of the arrival airport, 75 minutes after an international landing.
+      { key: "nrt>shinjuku", provider: "navitime", kind: "depart", date: "2026-12-06", time: "14:05" },
       // A journey leaves when the stop before it ends.
       { key: "shinjuku>nagoya", provider: "navitime", kind: "depart", date: "2026-12-06", time: "16:00" },
     ]);

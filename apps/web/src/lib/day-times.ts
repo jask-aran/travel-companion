@@ -66,10 +66,15 @@ export const DOMESTIC_BUFFER_MINUTES = 60;
 
 const country = (place?: Place) => place?.address?.split(",").at(-1)?.trim();
 
-function bufferMinutes(flight: FlightItem, places: Record<string, Place>): number {
+/** Both airports known and in one country; anything unsure counts as international. */
+export function isDomestic(flight: FlightItem, places: Record<string, Place>): boolean {
   const from = country(places[flight.departPlaceId ?? ""]);
   const to = country(places[flight.arrivePlaceId ?? ""]);
-  return from && from === to ? DOMESTIC_BUFFER_MINUTES : INTERNATIONAL_BUFFER_MINUTES;
+  return Boolean(from) && from === to;
+}
+
+function bufferMinutes(flight: FlightItem, places: Record<string, Place>): number {
+  return isDomestic(flight, places) ? DOMESTIC_BUFFER_MINUTES : INTERNATIONAL_BUFFER_MINUTES;
 }
 
 /** HH:MM moved by `minutes`, wrapping at midnight. */

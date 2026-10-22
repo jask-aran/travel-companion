@@ -1,6 +1,7 @@
 import { For, Show, createSignal, onCleanup, onMount, type JSX } from "solid-js";
 import type {
   DepartureBoard,
+  DepartureOption,
   DayItem,
   FlightItem,
   LodgingItem,
@@ -226,14 +227,56 @@ export function RouteLegRow(props: {
   );
 }
 
+const clockMinutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
+
 /**
- * The trains and buses around a leg's target time, folded under it. The one
- * to aim for is marked: for "arrive by", the last that still makes it; for
- * "leave at", the first after.
+ * How often a service runs, from the gaps between its departures on the
+ * board: "every ~8 min". Needs three departures to say anything.
+ */
+function frequencyOf(options: DepartureOption[], service: string | undefined): number | undefined {
+  if (!service) return undefined;
+  const times = options
+    .filter((option) => option.segments[0]?.name === service)
+    .map((option) => clockMinutes(option.departTime));
+  if (times.length < 3) return undefined;
+  const gaps = times.slice(1).map((time, index) => time - times[index]!).sort((a, b) => a - b);
+  return gaps[Math.floor(gaps.length / 2)];
+}
+
+/** "Skyliner › Oedo Line": the rides of an option, as one key. */
+const chainOf = (option: DepartureOption) => option.segments.map((segment) => segment.name).join(" › ");
+
+function LineChips(props: { option: DepartureOption }) {
+  return (
+    <span class="departure__lines">
+      <For each={props.option.segments}>
+        {(segment) => (
+          <span
+            class={`departure__line departure__line--${segment.kind}`}
+            title={[segment.nameLocal, segment.headsign && `towards ${segment.headsign}`].filter(Boolean).join(" · ")}
+            style={segment.color ? { "--line": segment.color } : undefined}
+          >
+            {segment.name}
+          </span>
+        )}
+      </For>
+    </span>
+  );
+}
+
+/**
+ * What runs on a leg around its target time, folded under it.
+ *
+ * Google's answers (Korea) are a timetable: real departures, the one to aim
+ * for marked (for "arrive by", the last that still makes it; for "leave at",
+ * the first after), and how often the line runs. NAVITIME's marketplace plan
+ * (Japan) has no timetable, only routes and typical ride times, so those are
+ * shown as routes with no clock times rather than as invented departures.
  */
 function DepartureBoardView(props: { board: DepartureBoard }) {
   const [open, setOpen] = createSignal(false);
   const target = () => props.board.target;
+  const timetable = () => !props.board.approximate;
   const pick = () => {
     const options = props.board.options;
     if (target().kind === "arrive") {
@@ -242,10 +285,29 @@ function DepartureBoardView(props: { board: DepartureBoard }) {
     }
     return options.find((option) => option.departTime >= target().time) ?? options.at(-1);
   };
-  const lead = () => pick() ?? props.board.options[0];
+  /** Routes for an untimed board: one per chain of lines, quickest first. */
+  const routes = () => {
+    const byChain = new Map<string, DepartureOption>();
+    for (const option of props.board.options) {
+      const seen = byChain.get(chainOf(option));
+      if (!seen || option.minutes < seen.minutes) byChain.set(chainOf(option), option);
+    }
+    return [...byChain.values()].sort((a, b) => a.minutes - b.minutes);
+  };
+  /**
+   * Three departures for the folded line, the pick among them: to arrive by
+   * a time, the pick and the two before it (the ones that also make it); to
+   * leave at one, the pick and the two after.
+   */
+  const upcoming = () => {
+    const options = props.board.options;
+    const at = Math.max(0, options.indexOf(pick()!));
+    return target().kind === "arrive"
+      ? options.slice(Math.max(0, at - 2), at + 1)
+      : options.slice(at, at + 3);
+  };
+  const every = () => frequencyOf(props.board.options, pick()?.segments[0]?.name);
   const targetLabel = () => `${target().kind === "arrive" ? "Arrive by" : "Leave from"} ${target().time}`;
-  const source = () =>
-    props.board.provider === "google" ? "Times: Google" : "Approximate times: NAVITIME";
 
   return (
     <div class="departures" classList={{ "is-open": open() }}>
@@ -255,53 +317,72 @@ function DepartureBoardView(props: { board: DepartureBoard }) {
         aria-expanded={open()}
         onClick={() => setOpen((value) => !value)}
       >
-        <Icon name="clock" />
-        <Show when={lead()}>
-          {(option) => (
-            <span class="departures__lead">
-              <strong>{option().departTime}</strong>
-              <span class="departures__arrow">→</span>
-              {option().arriveTime}
-              <span class="departures__line">{option().segments[0]?.name}</span>
-            </span>
-          )}
+        <Show
+          when={timetable()}
+          fallback={
+            <>
+              <Icon name="route" />
+              <span class="departures__lead">
+                <span class="departures__line">{routes()[0] && chainOf(routes()[0]!)}</span>
+                <span class="departures__typical">~{formatDurationShort((routes()[0]?.minutes ?? 0) * 60)}</span>
+              </span>
+            </>
+          }
+        >
+          <Icon name="clock" />
+          <span class="departures__lead">
+            <For each={upcoming()}>
+              {(option) => (
+                <span classList={{ "departures__next": option === pick() }}>{option.departTime}</span>
+              )}
+            </For>
+            <span class="departures__line">{pick()?.segments[0]?.name}</span>
+          </span>
+          <Show when={every()}>
+            {(minutes) => <span class="departures__every">every ~{minutes()} min</span>}
+          </Show>
         </Show>
-        <span class="departures__count">
-          {props.board.options.length > 1 ? `+${props.board.options.length - 1}` : ""}
-        </span>
         <span class="departures__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
       </button>
       <Show when={open()}>
         <div class="departures__body">
-          <p class="departures__target">{targetLabel()}</p>
-          <ol class="departures__list">
-            <For each={props.board.options}>
-              {(option) => (
-                <li class="departure" classList={{ "departure--pick": option === pick() }}>
-                  <span class="departure__times">
-                    <strong>{option.departTime}</strong>–{option.arriveTime}
-                  </span>
-                  <span class="departure__lines">
-                    <For each={option.segments}>
-                      {(segment) => (
-                        <span
-                          class={`departure__line departure__line--${segment.kind}`}
-                          title={[segment.nameLocal, segment.headsign && `towards ${segment.headsign}`]
-                            .filter(Boolean)
-                            .join(" · ")}
-                          style={segment.color ? { "--line": segment.color } : undefined}
-                        >
-                          {segment.name}
-                        </span>
-                      )}
-                    </For>
-                  </span>
-                  <span class="departure__minutes">{formatDurationShort(option.minutes * 60)}</span>
-                </li>
-              )}
-            </For>
-          </ol>
-          <p class="departures__source">{source()}</p>
+          <Show
+            when={timetable()}
+            fallback={
+              <>
+                <p class="departures__target">Typical routes · {targetLabel()}</p>
+                <ol class="departures__list">
+                  <For each={routes()}>
+                    {(option) => (
+                      <li class="departure departure--route">
+                        <LineChips option={option} />
+                        <span class="departure__minutes">~{formatDurationShort(option.minutes * 60)}</span>
+                      </li>
+                    )}
+                  </For>
+                </ol>
+                <p class="departures__source">
+                  NAVITIME: routes and typical ride times, not a timetable. Check times on the day.
+                </p>
+              </>
+            }
+          >
+            <p class="departures__target">{targetLabel()}</p>
+            <ol class="departures__list">
+              <For each={props.board.options}>
+                {(option) => (
+                  <li class="departure" classList={{ "departure--pick": option === pick() }}>
+                    <span class="departure__times">
+                      <strong>{option.departTime}</strong>–{option.arriveTime}
+                    </span>
+                    <LineChips option={option} />
+                    <span class="departure__minutes">{formatDurationShort(option.minutes * 60)}</span>
+                  </li>
+                )}
+              </For>
+            </ol>
+            <p class="departures__source">Times: Google</p>
+          </Show>
         </div>
       </Show>
     </div>
@@ -343,13 +424,34 @@ function PlacePhoto(props: { place: Place; mapFallback?: boolean | undefined }) 
   );
 }
 
+/** Call and website as icons, beside the rating rather than repeated below. */
+function ContactIcons(props: { phone?: string | undefined; website?: string | undefined }) {
+  return (
+    <>
+      <Show when={props.phone}>
+        {(phone) => (
+          <a class="icon-link" href={`tel:${phone().replace(/\s+/g, "")}`} aria-label={`Call ${phone()}`}>
+            <Icon name="phone" />
+          </a>
+        )}
+      </Show>
+      <Show when={props.website}>
+        {(site) => (
+          <a class="icon-link" href={site()} target="_blank" rel="noopener noreferrer" aria-label="Website">
+            <Icon name="globe" />
+          </a>
+        )}
+      </Show>
+    </>
+  );
+}
+
 /** True when Wanderlog scraped anything worth showing for this place. */
 export function hasPlaceDetail(place: Place): boolean {
   const d = place.details;
   if (!d) return false;
   return Boolean(
-    d.description || d.summary || d.openingPeriods?.length || d.visitMinutesMin ||
-      d.categories?.length || d.website || d.phone,
+    d.description || d.summary || d.openingPeriods?.length || d.visitMinutesMin || d.categories?.length,
   );
 }
 
@@ -400,22 +502,6 @@ function PlaceDetail(props: { place: Place; weekday: number; open: boolean }) {
                 <For each={categories()}>{(tag) => <li>{tag}</li>}</For>
               </ul>
             </Show>
-            <div class="detail__links">
-              <Show when={details()?.phone}>
-                {(phone) => (
-                  <a class="text-button" href={`tel:${phone().replace(/\s+/g, "")}`}>
-                    Call
-                  </a>
-                )}
-              </Show>
-              <Show when={details()?.website}>
-                {(site) => (
-                  <a class="text-button" href={site()} target="_blank" rel="noopener noreferrer">
-                    Website
-                  </a>
-                )}
-              </Show>
-            </div>
           </div>
         </Show>
       </div>
@@ -439,7 +525,7 @@ export function PlaceRow(props: {
 
   return (
     <li class="stop-item">
-      <article class="stop" classList={{ "stop--stay": props.isStay }}>
+      <article class="stop" classList={{ "stop--stay": props.isStay, "stop--open": detailOpen() }}>
         {/*
           * Fixed slots so nothing competes for width: a top row for the
           * marker, time and disclosure, then the name with the column to
@@ -465,6 +551,7 @@ export function PlaceRow(props: {
                 </span>
               )}
             </Show>
+            <ContactIcons phone={props.place.details?.phone} website={props.place.details?.website} />
             <Show when={hasPlaceDetail(props.place)}>
               <button
                 type="button"
@@ -551,8 +638,13 @@ export function FlightRow(props: {
   leaveLabel?: string | undefined;
 }) {
   const [open, setOpen] = createSignal(false);
-  const code = () =>
-    [props.item.airline, props.item.flightNumber].filter(Boolean).join(" ") || "Flight";
+  /** "Jetstar JQ34": the airline, then the flight as the boarding pass prints it. */
+  const code = () => {
+    const number = props.item.flightNumber
+      ? `${props.item.airlineCode ?? ""}${props.item.flightNumber}`
+      : undefined;
+    return [props.item.airline, number].filter(Boolean).join(" ") || "Flight";
+  };
   /** Wanderlog gives both ends a date; they differ on an overnight hop. */
   const overnight = () =>
     Boolean(
@@ -593,51 +685,50 @@ export function FlightRow(props: {
             </Show>
           </div>
 
+          {/* Times and airports on one line, as a departures board reads. */}
           <div class="flight-legs">
-            <div class="flight-end">
-              <span class="flight-end__time">{props.item.departTime ?? "—"}</span>
-              <span class="flight-end__code">{props.item.departAirport}</span>
-              <span class="flight-end__city">{props.item.departCity}</span>
-            </div>
-
+            <span class="flight-end__time">{props.item.departTime ?? "—"}</span>
+            <span class="flight-end__code">{props.item.departAirport}</span>
             <div class="flight-path" aria-hidden="true">
               <span class="flight-path__line" />
               <ModeGlyph mode="flight" />
               <span class="flight-path__line" />
             </div>
-
-            <div class="flight-end flight-end--arrive">
-              <span class="flight-end__time">
-                {props.item.arriveTime ?? "—"}
-                <Show when={overnight()}>
-                  <sup class="flight-end__plus" title="Arrives the next day">
-                    +1
-                  </sup>
-                </Show>
-              </span>
-              <span class="flight-end__code">{props.item.arriveAirport}</span>
-              <span class="flight-end__city">{props.item.arriveCity}</span>
-            </div>
+            <span class="flight-end__code">{props.item.arriveAirport}</span>
+            <span class="flight-end__time">
+              {props.item.arriveTime ?? "—"}
+              <Show when={overnight()}>
+                <sup class="flight-end__plus" title="Arrives the next day">
+                  +1
+                </sup>
+              </Show>
+            </span>
+          </div>
+          {/* The airport margin sits under the departure it belongs to. */}
+          <div class="flight-cities">
+            <span class="flight-end__city">
+              {props.item.departCity}
+              <Show when={props.timing}>
+                {(timing) => (
+                  <span class="flight-by">
+                    <Icon name="clock" />
+                    <Hidden>{`At ${props.item.departAirport ?? "the airport"} by `}</Hidden>
+                    <span aria-hidden="true">by </span>
+                    <strong>{timing().airportBy}</strong>
+                  </span>
+                )}
+              </Show>
+            </span>
+            <span class="flight-end__city">{props.item.arriveCity}</span>
           </div>
 
           <StatusPill status={props.item.status} />
 
-          {/* When to be there, with the booking beside it rather than below. */}
           <div class="flight-foot">
-            <Show when={props.timing}>
-              {(timing) => (
+            <Show when={props.leaveLabel && props.timing?.leaveBy}>
+              {(leaveBy) => (
                 <p class="leave-time">
-                  <Show when={props.leaveLabel && timing().leaveBy}>
-                    {(leaveBy) => (
-                      <>
-                        {props.leaveLabel ?? "Leave by"} <strong>{leaveBy()}</strong>
-                        {"\u00a0· "}
-                      </>
-                    )}
-                  </Show>
-                  <span class="nowrap">
-                    At {props.item.departAirport ?? "the airport"} by <strong>{timing().airportBy}</strong>
-                  </span>
+                  {props.leaveLabel} <strong>{leaveBy()}</strong>
                 </p>
               )}
             </Show>
@@ -739,6 +830,7 @@ export function LodgingBand(props: {
       classList={{
         "lodging-band--in": role() === "check-in",
         "lodging-band--out": role() === "check-out",
+        "lodging-band--open": open(),
       }}
     >
       <button
@@ -753,16 +845,8 @@ export function LodgingBand(props: {
         </span>
         <span class="lodging-band__eyebrow">
           <span class="lodging-band__phase">{phaseLabel()}</span>
-          <Show when={nights()}>
-            {(count) => (
-              <span class="with-icon">
-                <Icon name="moon" />
-                {count()}
-                <Hidden>{` night${count() === 1 ? "" : "s"}`}</Hidden>
-              </span>
-            )}
-          </Show>
-          {/* Last, so a long district is what gets cut short. */}
+          {/* Nights live in the details: the summary is about today. Last, so
+              a long district is what gets cut short. */}
           <Show when={props.place?.locality}>
             {(city) => <span class="lodging-band__city">{city()}</span>}
           </Show>
@@ -784,11 +868,15 @@ export function LodgingBand(props: {
 
       <Show when={open()}>
         <div class="lodging-band__detail">
+          {/* In, out and nights in one line, each named by its icon. */}
           <dl class="lodging-band__dates">
             <Show when={props.item.checkInDate}>
               {(date) => (
                 <div>
-                  <dt>Check in</dt>
+                  <dt>
+                    <Icon name="check-in" />
+                    <Hidden>Check in</Hidden>
+                  </dt>
                   <dd>{formatLodgingDate(date())}</dd>
                 </div>
               )}
@@ -796,7 +884,10 @@ export function LodgingBand(props: {
             <Show when={props.item.checkOutDate}>
               {(date) => (
                 <div>
-                  <dt>Check out</dt>
+                  <dt>
+                    <Icon name="check-out" />
+                    <Hidden>Check out</Hidden>
+                  </dt>
                   <dd>{formatLodgingDate(date())}</dd>
                 </div>
               )}
@@ -804,7 +895,10 @@ export function LodgingBand(props: {
             <Show when={nightsLabel()}>
               {(label) => (
                 <div>
-                  <dt>Stay</dt>
+                  <dt>
+                    <Icon name="moon" />
+                    <Hidden>Stay</Hidden>
+                  </dt>
                   <dd>{label()}</dd>
                 </div>
               )}
@@ -826,42 +920,22 @@ export function LodgingBand(props: {
               {props.item.travellerNames?.join(", ")}
             </p>
           </Show>
-          <Show when={cleanAddress(props.place?.address)}>
-            {(where) => (
-              <p class="card__detail-row">
-                <span class="card__detail-label">Where</span>
-                {where()}
-              </p>
-            )}
-          </Show>
-
           <Notes text={props.item.notes} />
 
-          <div class="lodging-band__actions">
+          {/* The address once, with the ways to reach the place beside it. */}
+          <div class="lodging-band__where">
+            <p class="lodging-band__address">{cleanAddress(props.place?.address) ?? props.item.name}</p>
+            <ContactIcons phone={props.item.phone} website={props.item.website} />
             <Show when={props.place}>
               {(place) => (
                 <a
-                  class="text-button with-icon"
+                  class="icon-link"
                   href={buildGoogleMapsUrl(place())}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`Open ${place().name} in Google Maps`}
                 >
                   <GoogleMapsIcon />
-                  Maps
-                </a>
-              )}
-            </Show>
-            <Show when={props.item.phone}>
-              {(phone) => (
-                <a class="text-button" href={`tel:${phone().replace(/\s+/g, "")}`}>
-                  Call
-                </a>
-              )}
-            </Show>
-            <Show when={props.item.website}>
-              {(site) => (
-                <a class="text-button" href={site()} target="_blank" rel="noopener noreferrer">
-                  Website
                 </a>
               )}
             </Show>
