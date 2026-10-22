@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { TripBundle } from "../packages/trip-schema/src/index.js";
 import {
+  closingLeg,
   dayTravelSeconds,
   indexRouteLegs,
   legsForDay,
@@ -64,6 +65,13 @@ describe("route leg pairing", () => {
 
   it("draws no leg when the day starts at its own first stop", () => {
     expect(legsForDay(items, index, "p1").get("i1")).toBeUndefined();
+  });
+
+  it("ends the day with the leg to tonight's hotel", () => {
+    expect(closingLeg(items.slice(0, 3), index, "p3")?.travelMode).toBe("transit");
+    // Already there, or nowhere to sleep: no leg.
+    expect(closingLeg(items, index, "p3")).toBeUndefined();
+    expect(closingLeg(items, index)).toBeUndefined();
   });
 
   it("omits pairs with no matching leg", () => {

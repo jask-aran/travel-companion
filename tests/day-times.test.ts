@@ -49,7 +49,7 @@ describe("flight timing", () => {
     expect(flightTiming(flight, items, legs, places)).toEqual({
       airportBy: "06:30",
       leaveBy: "05:30",
-      leaveFromPlaceId: "hotel",
+      leg: legs.get("s1"),
     });
   });
 

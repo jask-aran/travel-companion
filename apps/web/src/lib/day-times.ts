@@ -80,7 +80,8 @@ export type FlightTiming = {
   airportBy: string;
   /** Leave the previous stop by this time, when the day routes into the airport. */
   leaveBy?: string;
-  leaveFromPlaceId?: string;
+  /** The day's leg into the departure airport. */
+  leg?: RouteLeg;
 };
 
 /**
@@ -107,5 +108,5 @@ export function flightTiming(
   const [hours = 0, minutes = 0] = airportBy.split(":").map(Number);
   const leaveMinutes = hours * 60 + minutes - Math.ceil(leg.durationSeconds / 60);
   const leaveBy = shiftClock("00:00", Math.floor(leaveMinutes / 5) * 5);
-  return leaveBy ? { airportBy, leaveBy, leaveFromPlaceId: leg.fromPlaceId } : { airportBy };
+  return leaveBy ? { airportBy, leaveBy, leg } : { airportBy };
 }

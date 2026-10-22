@@ -69,6 +69,21 @@ export function legsForDay(
   return legs;
 }
 
+/**
+ * The leg home: last stop to the hotel you sleep in. Wanderlog ends each day
+ * there without listing the hotel as a stop.
+ */
+export function closingLeg(
+  items: DayItem[],
+  index: RouteLegIndex,
+  endPlaceId?: string,
+): RouteLeg | undefined {
+  const last = items.filter((item) => item.type === "place").at(-1);
+  if (!endPlaceId || last?.type !== "place" || last.placeId === endPlaceId) return undefined;
+  const leg = index.get(pairKey(last.placeId, endPlaceId));
+  return leg && !isBeyondDayScale(leg) ? leg : undefined;
+}
+
 /** Total time spent moving between a day's stops. */
 export function dayTravelSeconds(legs: Map<string, RouteLeg>): number {
   let total = 0;

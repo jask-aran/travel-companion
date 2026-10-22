@@ -17,7 +17,13 @@ import {
   type LodgingSlot,
 } from "../lib/lodging";
 import { bindFlights } from "../lib/flight-binding";
-import { dayTravelMetres, dayTravelSeconds, legsForDay, type RouteLegIndex } from "../lib/route-legs";
+import {
+  closingLeg,
+  dayTravelMetres,
+  dayTravelSeconds,
+  legsForDay,
+  type RouteLegIndex,
+} from "../lib/route-legs";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { flightTiming, sunsetTime } from "../lib/day-times";
 import { DayItemRow, FlightConnector, FlightRow, LodgingBand, RouteLegRow } from "./ItemCards";
@@ -91,17 +97,25 @@ export function DaySection(props: {
 
   const binding = createMemo(() => bindFlights(routeItems(), flights()));
   const sequences = createMemo(() => placeSequences(routeItems(), props.stayPlaceIds));
-  /** The hotel you woke in, where the first stop is routed from. */
-  const wokeIn = createMemo(
-    () => plan().start.find((slot) => slot.role === "check-out" || slot.role === "morning")?.stay,
+  /**
+   * Wanderlog starts each day at the hotel you woke in and ends it at the one
+   * you sleep in, routing to and from them without listing either as a stop.
+   */
+  const wokeInSlot = createMemo(() =>
+    plan().start.find((slot) => slot.role === "check-out" || slot.role === "morning"),
+  );
+  const wokeIn = () => wokeInSlot()?.stay;
+  const sleepsIn = createMemo(
+    () =>
+      (plan().start.find((slot) => slot.role === "check-in") ??
+        plan().end.find((slot) => slot.role === "evening"))?.stay,
   );
   const legs = createMemo(() => legsForDay(routeItems(), props.legIndex, wokeIn()?.placeId));
-  /** Names the origin of a leg that starts somewhere not shown as a stop. */
-  const legOrigin = (leg: { fromPlaceId: string }) => {
-    const stay = wokeIn();
-    if (!stay || leg.fromPlaceId !== stay.placeId) return undefined;
-    return stayPlace(props.bundle, stay)?.name ?? stay.name;
-  };
+  const endLeg = createMemo(() => closingLeg(routeItems(), props.legIndex, sleepsIn()?.placeId));
+  const placeName = (placeId: string) => props.bundle.places[placeId]?.name;
+  /** Names a hotel end of a leg, since the hotel is not a stop beside it. */
+  const legOrigin = (leg: { fromPlaceId: string }) =>
+    leg.fromPlaceId === wokeIn()?.placeId ? `from ${placeName(leg.fromPlaceId)}` : undefined;
   const timings = createMemo(
     () =>
       new Map(
@@ -111,13 +125,26 @@ export function DaySection(props: {
         ]),
       ),
   );
+  /** "Check out by" when the run to the airport starts at the hotel you leave today. */
+  const leaveLabel = (fromPlaceId: string | undefined) => {
+    if (!fromPlaceId) return undefined;
+    if (wokeInSlot()?.role === "check-out" && fromPlaceId === wokeIn()?.placeId) return "Check out by";
+    return `Leave ${placeName(fromPlaceId) ?? "for the airport"} by`;
+  };
 
   /** 0 = Sunday, matching Google's opening-hours numbering. */
   const weekday = createMemo(() => parseTripDate(props.day.date).getDay());
   const stopCount = createMemo(() => Math.max(0, ...sequences()));
-  const movingLabel = createMemo(() => formatDuration(dayTravelSeconds(legs())));
+  /** Every leg the day travels, including the run back to the hotel. */
+  const allLegs = createMemo(() => {
+    const all = new Map(legs());
+    const leg = endLeg();
+    if (leg) all.set("end", leg);
+    return all;
+  });
+  const movingLabel = createMemo(() => formatDuration(dayTravelSeconds(allLegs())));
   const distanceLabel = createMemo(() => {
-    const metres = dayTravelMetres(legs());
+    const metres = dayTravelMetres(allLegs());
     return metres > 0 ? formatDistance(metres) : undefined;
   });
   /** The town the day is based in, from where you sleep. Shown even folded. */
@@ -248,11 +275,28 @@ export function DaySection(props: {
                   <ol class="day-summary__flights">
                     <For each={flights()}>
                       {(item) => (
-                        <FlightRow
-                          item={item}
-                          timing={timings().get(item.id)}
-                          places={props.bundle.places}
-                        />
+                        <>
+                          {/* The run to the airport, so the summary alone gets you there. */}
+                          <Show when={timings().get(item.id)?.leg}>
+                            {(leg) => (
+                              <RouteLegRow
+                                leg={leg()}
+                                places={props.bundle.places}
+                                note={
+                                  // The hotel is the band just above; only name a stop.
+                                  leg().fromPlaceId === wokeIn()?.placeId
+                                    ? undefined
+                                    : `from ${placeName(leg().fromPlaceId)}`
+                                }
+                              />
+                            )}
+                          </Show>
+                          <FlightRow
+                            item={item}
+                            timing={timings().get(item.id)}
+                            leaveLabel={leaveLabel(timings().get(item.id)?.leg?.fromPlaceId)}
+                          />
+                        </>
                       )}
                     </For>
                   </ol>
@@ -277,7 +321,7 @@ export function DaySection(props: {
                       </Show>
                       <Show when={!binding().supersededLegs.has(item.id) && legs().get(item.id)}>
                         {(leg) => (
-                          <RouteLegRow leg={leg()} places={props.bundle.places} origin={legOrigin(leg())} />
+                          <RouteLegRow leg={leg()} places={props.bundle.places} note={legOrigin(leg())} />
                         )}
                       </Show>
                       <DayItemRow
@@ -293,6 +337,15 @@ export function DaySection(props: {
                     </>
                   )}
                 </For>
+                <Show when={endLeg()}>
+                  {(leg) => (
+                    <RouteLegRow
+                      leg={leg()}
+                      places={props.bundle.places}
+                      note={`to ${placeName(leg().toPlaceId)}`}
+                    />
+                  )}
+                </Show>
               </ol>
             </div>
           </Show>

@@ -105,8 +105,8 @@ function ModeGlyph(props: { mode: string }) {
 export function RouteLegRow(props: {
   leg: RouteLeg;
   places: TripBundle["places"];
-  /** Set when the leg starts somewhere not listed above it, like the hotel. */
-  origin?: string | undefined;
+  /** Names an end not listed beside it, like "from <hotel>". */
+  note?: string | undefined;
 }) {
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
@@ -114,7 +114,7 @@ export function RouteLegRow(props: {
     [
       formatDuration(props.leg.durationSeconds),
       formatDistance(props.leg.distanceMetres),
-      props.origin && `from ${props.origin}`,
+      props.note,
     ]
       .filter(Boolean)
       .join(" · ");
@@ -368,7 +368,8 @@ export function FlightConnector(props: { item: FlightItem }) {
 export function FlightRow(props: {
   item: FlightItem;
   timing?: FlightTiming | undefined;
-  places?: TripBundle["places"];
+  /** "Check out by" when the run to the airport starts at the hotel. */
+  leaveLabel?: string | undefined;
 }) {
   const [open, setOpen] = createSignal(false);
   const code = () =>
@@ -432,11 +433,7 @@ export function FlightRow(props: {
                 <Show when={timing().leaveBy}>
                   {(leaveBy) => (
                     <>
-                      Leave{" "}
-                      <Show when={props.places?.[timing().leaveFromPlaceId ?? ""]?.name}>
-                        {(name) => <>{name()} </>}
-                      </Show>
-                      by <strong>{leaveBy()}</strong>
+                      {props.leaveLabel ?? "Leave by"} <strong>{leaveBy()}</strong>
                       {" · "}
                     </>
                   )}
