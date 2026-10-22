@@ -13,18 +13,20 @@ import {
   cleanAddress,
   formatArrows,
   formatDistance,
+  formatCategory,
   formatDuration,
   formatLodgingDate,
-  formatRating,
+  formatRatingLabel,
   formatOpeningForDay,
   formatTravelMode,
   formatVisitLength,
   nightsBetween,
   noteRestatesNames,
 } from "../lib/format";
-import { buildGoogleMapsUrl, buildGooglePlaceUrl } from "../lib/maps";
+import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "../lib/maps";
 import { photoAttribution, placePhotoUrl } from "../lib/place-photo";
 import { LONG_LEG_SECONDS } from "../lib/route-legs";
+import type { FlightTiming } from "../lib/day-times";
 
 function StatusPill(props: { status?: DayItem["status"] | undefined }) {
   return (
@@ -100,11 +102,20 @@ function ModeGlyph(props: { mode: string }) {
  * block whose height grows with the duration so a long transfer *feels* long
  * when you scroll past it.
  */
-export function RouteLegRow(props: { leg: RouteLeg }) {
+export function RouteLegRow(props: {
+  leg: RouteLeg;
+  places: TripBundle["places"];
+  /** Set when the leg starts somewhere not listed above it, like the hotel. */
+  origin?: string | undefined;
+}) {
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
   const detail = () =>
-    [formatDuration(props.leg.durationSeconds), formatDistance(props.leg.distanceMetres)]
+    [
+      formatDuration(props.leg.durationSeconds),
+      formatDistance(props.leg.distanceMetres),
+      props.origin && `from ${props.origin}`,
+    ]
       .filter(Boolean)
       .join(" · ");
 
@@ -118,18 +129,46 @@ export function RouteLegRow(props: { leg: RouteLeg }) {
     return `${3.4 + ratio * 5}rem`;
   };
 
-  return (
-    <li
-      class="travel"
-      classList={{ "travel--long": long() }}
-      style={long() ? { "--travel-height": blockHeight() } : undefined}
-    >
+  /** Tapping a leg opens that hop, previous stop to next, in its own mode. */
+  const directions = () => {
+    const from = props.places[props.leg.fromPlaceId];
+    const to = props.places[props.leg.toPlaceId];
+    return from && to ? buildLegDirectionsUrl(from, to, props.leg.travelMode) : undefined;
+  };
+
+  const contents = () => (
+    <>
       <span class="travel__glyph">
         <ModeGlyph mode={props.leg.travelMode} />
       </span>
       <span class="travel__mode">{formatTravelMode(props.leg.travelMode)}</span>
       <Show when={detail()}>
         <span class="travel__detail">{detail()}</span>
+      </Show>
+    </>
+  );
+
+  return (
+    <li
+      class={`travel travel--${props.leg.travelMode}`}
+      classList={{ "travel--long": long() }}
+      style={long() ? { "--travel-height": blockHeight() } : undefined}
+    >
+      <Show when={directions()} fallback={<div class="travel__inner">{contents()}</div>}>
+        {(href) => (
+          <a
+            class="travel__inner travel__link"
+            href={href()}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${formatTravelMode(props.leg.travelMode)} directions, ${
+              props.places[props.leg.fromPlaceId]?.name
+            } to ${props.places[props.leg.toPlaceId]?.name}`}
+          >
+            {contents()}
+            <span class="travel__open" aria-hidden="true">Maps</span>
+          </a>
+        )}
       </Show>
     </li>
   );
@@ -247,47 +286,46 @@ export function PlaceRow(props: {
 }) {
   const [detailOpen, setDetailOpen] = createSignal(false);
   const meta = () =>
-    [props.place.category?.replace(/_/g, " "), formatRating(props.place.rating, props.place.ratingCount)]
+    [formatCategory(props.place.category), formatRatingLabel(props.place.rating, props.place.ratingCount)]
       .filter(Boolean)
-      .join("  ·  ");
+      .join(" · ");
 
   return (
     <li class="stop-item">
       <article class="stop" classList={{ "stop--stay": props.isStay }}>
-        <div class="stop__rail">
-          <div class="stop__badge">
-            <Show
-              when={props.isStay}
-              fallback={<span class="stop__num">{props.sequence}</span>}
-            >
-              <ModeGlyph mode="lodging" />
+        {/*
+          * Fixed slots so nothing competes for width: a top row for the
+          * marker, time and disclosure, then the name with the column to
+          * itself, then secondary lines. The photo is its own column.
+          */}
+        <div class="stop__body">
+          <div class="stop__top">
+            <span class="stop__badge">
+              <Show when={props.isStay} fallback={<span class="stop__num">{props.sequence}</span>}>
+                <ModeGlyph mode="lodging" />
+              </Show>
+            </span>
+            <TimeLabel start={props.item.startTime} end={props.item.endTime} />
+            <Show when={hasPlaceDetail(props.place)}>
+              <button
+                type="button"
+                class="stop__disclose"
+                aria-expanded={detailOpen()}
+                aria-label={detailOpen() ? "Hide details" : "Show details"}
+                onClick={() => setDetailOpen((v) => !v)}
+              >
+                <span class="stop__chevron" classList={{ "is-open": detailOpen() }} />
+              </button>
             </Show>
           </div>
-          <Show when={hasPlaceDetail(props.place)}>
-            <button
-              type="button"
-              class="stop__disclose"
-              aria-expanded={detailOpen()}
-              aria-label={detailOpen() ? "Hide details" : "Show details"}
-              onClick={() => setDetailOpen((v) => !v)}
-            >
-              <span class="stop__chevron" classList={{ "is-open": detailOpen() }} />
-            </button>
-          </Show>
-        </div>
-
-        <div class="stop__body">
-          <div class="stop__head">
-            <a
-              class="stop__name"
-              href={buildGoogleMapsUrl(props.place)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {props.place.name}
-            </a>
-            <TimeLabel start={props.item.startTime} end={props.item.endTime} />
-          </div>
+          <a
+            class="stop__name"
+            href={buildGoogleMapsUrl(props.place)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {props.place.name}
+          </a>
           <Show when={meta()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
           <Show when={cleanAddress(props.place.address)}>
             {(where) => <p class="stop__where">{where()}</p>}
@@ -312,20 +350,26 @@ export function FlightConnector(props: { item: FlightItem }) {
 
   return (
     <li class="travel travel--flight">
-      <span class="travel__glyph">
-        <ModeGlyph mode="flight" />
-      </span>
-      <span class="travel__mode">
-        {[props.item.airline, props.item.flightNumber].filter(Boolean).join(" ") || "Flight"}
-      </span>
-      <Show when={detail()}>
-        <span class="travel__detail">{detail()}</span>
-      </Show>
+      <div class="travel__inner">
+        <span class="travel__glyph">
+          <ModeGlyph mode="flight" />
+        </span>
+        <span class="travel__mode">
+          {[props.item.airline, props.item.flightNumber].filter(Boolean).join(" ") || "Flight"}
+        </span>
+        <Show when={detail()}>
+          <span class="travel__detail">{detail()}</span>
+        </Show>
+      </div>
     </li>
   );
 }
 
-export function FlightRow(props: { item: FlightItem }) {
+export function FlightRow(props: {
+  item: FlightItem;
+  timing?: FlightTiming | undefined;
+  places?: TripBundle["places"];
+}) {
   const [open, setOpen] = createSignal(false);
   const code = () =>
     [props.item.airline, props.item.flightNumber].filter(Boolean).join(" ") || "Flight";
@@ -344,66 +388,90 @@ export function FlightRow(props: { item: FlightItem }) {
   return (
     <li class="stop-item">
       <article class="card card--flight">
-        <div class="card__kind">
-          <ModeGlyph mode="flight" />
-          <span>{code()}</span>
-          <Show when={props.item.confirmationNumber}>
-            {(reference) => <span class="card__ref">{reference()}</span>}
+        <div class="card__body">
+          <div class="card__kind">
+            <span class="kind-badge kind-badge--flight" aria-hidden="true">
+              <ModeGlyph mode="flight" />
+            </span>
+            <span>{code()}</span>
+            <Show when={props.item.confirmationNumber}>
+              {(reference) => <span class="card__ref">{reference()}</span>}
+            </Show>
+          </div>
+
+          <div class="flight-legs">
+            <div class="flight-end">
+              <span class="flight-end__time">{props.item.departTime ?? "—"}</span>
+              <span class="flight-end__code">{props.item.departAirport}</span>
+              <span class="flight-end__city">{props.item.departCity}</span>
+            </div>
+
+            <div class="flight-path" aria-hidden="true">
+              <span class="flight-path__line" />
+              <ModeGlyph mode="flight" />
+              <span class="flight-path__line" />
+            </div>
+
+            <div class="flight-end flight-end--arrive">
+              <span class="flight-end__time">
+                {props.item.arriveTime ?? "—"}
+                <Show when={overnight()}>
+                  <sup class="flight-end__plus" title="Arrives the next day">
+                    +1
+                  </sup>
+                </Show>
+              </span>
+              <span class="flight-end__code">{props.item.arriveAirport}</span>
+              <span class="flight-end__city">{props.item.arriveCity}</span>
+            </div>
+          </div>
+
+          <Show when={props.timing}>
+            {(timing) => (
+              <p class="flight-timing">
+                <Show when={timing().leaveBy}>
+                  {(leaveBy) => (
+                    <>
+                      Leave{" "}
+                      <Show when={props.places?.[timing().leaveFromPlaceId ?? ""]?.name}>
+                        {(name) => <>{name()} </>}
+                      </Show>
+                      by <strong>{leaveBy()}</strong>
+                      {" · "}
+                    </>
+                  )}
+                </Show>
+                At {props.item.departAirport ?? "the airport"} by <strong>{timing().airportBy}</strong>
+              </p>
+            )}
+          </Show>
+
+          <StatusPill status={props.item.status} />
+
+          <Show when={hasDetail()}>
+            <button
+              type="button"
+              class="text-button"
+              aria-expanded={open()}
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open() ? "Less" : "Booking"}
+            </button>
+          </Show>
+          <Show when={open()}>
+            <div class="card__detail">
+              <Show when={props.item.travellerNames?.length}>
+                <p class="card__detail-row">
+                  <span class="card__detail-label">Travellers</span>
+                  {props.item.travellerNames?.join(", ")}
+                </p>
+              </Show>
+              <Show when={!noteRestatesNames(props.item.notes, props.item.travellerNames)}>
+                <Notes text={props.item.notes} />
+              </Show>
+            </div>
           </Show>
         </div>
-
-        <div class="flight-legs">
-          <div class="flight-end">
-            <span class="flight-end__time">{props.item.departTime ?? "—"}</span>
-            <span class="flight-end__code">{props.item.departAirport}</span>
-            <span class="flight-end__city">{props.item.departCity}</span>
-          </div>
-
-          <div class="flight-path" aria-hidden="true">
-            <span class="flight-path__line" />
-            <ModeGlyph mode="flight" />
-            <span class="flight-path__line" />
-          </div>
-
-          <div class="flight-end flight-end--arrive">
-            <span class="flight-end__time">
-              {props.item.arriveTime ?? "—"}
-              <Show when={overnight()}>
-                <sup class="flight-end__plus" title="Arrives the next day">
-                  +1
-                </sup>
-              </Show>
-            </span>
-            <span class="flight-end__code">{props.item.arriveAirport}</span>
-            <span class="flight-end__city">{props.item.arriveCity}</span>
-          </div>
-        </div>
-
-        <StatusPill status={props.item.status} />
-
-        <Show when={hasDetail()}>
-          <button
-            type="button"
-            class="text-button"
-            aria-expanded={open()}
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open() ? "Less" : "Booking"}
-          </button>
-        </Show>
-        <Show when={open()}>
-          <div class="card__detail">
-            <Show when={props.item.travellerNames?.length}>
-              <p class="card__detail-row">
-                <span class="card__detail-label">Travellers</span>
-                {props.item.travellerNames?.join(", ")}
-              </p>
-            </Show>
-            <Show when={!noteRestatesNames(props.item.notes, props.item.travellerNames)}>
-              <Notes text={props.item.notes} />
-            </Show>
-          </div>
-        </Show>
       </article>
     </li>
   );
@@ -483,14 +551,20 @@ export function LodgingBand(props: {
         disabled={!expandable()}
         onClick={() => setOpen((v) => !v)}
       >
-        <span class="lodging-band__phase">{phaseLabel()}</span>
-        <span class="lodging-band__name">{props.item.name}</span>
-        <Show when={nightsLabel()}>
-          {(label) => <span class="lodging-band__nights">{label()}</span>}
-        </Show>
+        <span class="kind-badge kind-badge--lodging" aria-hidden="true">
+          <ModeGlyph mode="lodging" />
+        </span>
+        <span class="lodging-band__eyebrow">
+          <span class="lodging-band__phase">{phaseLabel()}</span>
+          <Show when={props.place?.locality}>
+            {(city) => <span>{city()}</span>}
+          </Show>
+          <Show when={nightsLabel()}>{(label) => <span>{label()}</span>}</Show>
+        </span>
         <Show when={expandable()}>
           <span class="lodging-band__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
         </Show>
+        <span class="lodging-band__name">{props.item.name}</span>
       </button>
 
       <Show when={open()}>
@@ -613,7 +687,7 @@ export function DayItemRow(props: {
     case "transit": {
       const leg = item.routeLegId ? props.bundle.routeLegs[item.routeLegId] : undefined;
       return leg ? (
-        <RouteLegRow leg={leg} />
+        <RouteLegRow leg={leg} places={props.bundle.places} />
       ) : (
         <li class="note-item">
           <p class="note-text">{item.label ?? "Travel"}</p>

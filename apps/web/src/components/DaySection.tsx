@@ -3,6 +3,7 @@ import type { DayItem, FlightItem, TripBundle, TripDay } from "@travel-companion
 import {
   formatArrows,
   formatDayHeading,
+  formatDistance,
   formatDuration,
   parseTripDate,
 } from "../lib/format";
@@ -11,11 +12,14 @@ import {
   daySummarySlots,
   planDayLodging,
   slotToLodgingItem,
+  stayForDay,
   stayPlace,
   type LodgingSlot,
 } from "../lib/lodging";
 import { bindFlights } from "../lib/flight-binding";
-import { dayTravelSeconds, legsForDay, type RouteLegIndex } from "../lib/route-legs";
+import { dayTravelMetres, dayTravelSeconds, legsForDay, type RouteLegIndex } from "../lib/route-legs";
+import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
+import { flightTiming, sunsetTime } from "../lib/day-times";
 import { DayItemRow, FlightConnector, FlightRow, LodgingBand, RouteLegRow } from "./ItemCards";
 
 /**
@@ -66,9 +70,18 @@ export function DaySection(props: {
     ),
   );
 
-  /** Flights headline the day, so they are lifted out of the route list. */
+  /**
+   * Flights headline the day, so they are lifted out of the route list, in
+   * departure order: Wanderlog keeps them in the order they were added.
+   */
   const flights = createMemo(() =>
-    props.day.items.filter((item): item is FlightItem => item.type === "flight"),
+    props.day.items
+      .filter((item): item is FlightItem => item.type === "flight")
+      .sort((a, b) =>
+        `${a.departDate ?? ""} ${a.departTime ?? ""}`.localeCompare(
+          `${b.departDate ?? ""} ${b.departTime ?? ""}`,
+        ),
+      ),
   );
 
   /** Lodging bookends a day, flights headline it. What is left is the route. */
@@ -78,86 +91,211 @@ export function DaySection(props: {
 
   const binding = createMemo(() => bindFlights(routeItems(), flights()));
   const sequences = createMemo(() => placeSequences(routeItems(), props.stayPlaceIds));
-  const legs = createMemo(() => legsForDay(routeItems(), props.legIndex));
+  /** The hotel you woke in, where the first stop is routed from. */
+  const wokeIn = createMemo(
+    () => plan().start.find((slot) => slot.role === "check-out" || slot.role === "morning")?.stay,
+  );
+  const legs = createMemo(() => legsForDay(routeItems(), props.legIndex, wokeIn()?.placeId));
+  /** Names the origin of a leg that starts somewhere not shown as a stop. */
+  const legOrigin = (leg: { fromPlaceId: string }) => {
+    const stay = wokeIn();
+    if (!stay || leg.fromPlaceId !== stay.placeId) return undefined;
+    return stayPlace(props.bundle, stay)?.name ?? stay.name;
+  };
+  const timings = createMemo(
+    () =>
+      new Map(
+        flights().map((flight) => [
+          flight.id,
+          flightTiming(flight, routeItems(), legs(), props.bundle.places),
+        ]),
+      ),
+  );
 
   /** 0 = Sunday, matching Google's opening-hours numbering. */
   const weekday = createMemo(() => parseTripDate(props.day.date).getDay());
   const stopCount = createMemo(() => Math.max(0, ...sequences()));
   const movingLabel = createMemo(() => formatDuration(dayTravelSeconds(legs())));
+  const distanceLabel = createMemo(() => {
+    const metres = dayTravelMetres(legs());
+    return metres > 0 ? formatDistance(metres) : undefined;
+  });
+  /** The town the day is based in, from where you sleep. Shown even folded. */
+  const baseCity = createMemo(() => {
+    const stay = stayForDay(stays(), props.day.date);
+    return stay ? stayPlace(props.bundle, stay)?.locality : undefined;
+  });
 
   const summarySlots = createMemo(() => daySummarySlots(plan()));
-  const hasSummary = createMemo(() => summarySlots().length > 0 || flights().length > 0);
+  /**
+   * A day runs: leave the old place, fly, arrive at the new one, then the
+   * route. Wanderlog has no check-in/out times, so the role decides the order.
+   */
+  const leaving = createMemo(() =>
+    summarySlots().filter((slot) => slot.role === "check-out" || slot.role === "morning"),
+  );
+  const arriving = createMemo(() =>
+    summarySlots().filter((slot) => slot.role !== "check-out" && slot.role !== "morning"),
+  );
+  /**
+   * Sunset where you are that evening: tonight's hotel, else the last stop
+   * with coordinates. Every day carries one zone, which is right for Japan
+   * and Korea (both UTC+9).
+   */
+  const sunset = createMemo(() => {
+    const stay = stayForDay(stays(), props.day.date);
+    const hotel = stay ? stayPlace(props.bundle, stay) : undefined;
+    const lastStop = routeItems()
+      .flatMap((item) => (item.type === "place" ? [props.bundle.places[item.placeId]] : []))
+      .filter((place) => place?.latitude !== undefined && place.longitude !== undefined)
+      .at(-1);
+    const place = hotel?.latitude !== undefined ? hotel : lastStop;
+    if (place?.latitude === undefined || place.longitude === undefined) return undefined;
+    return sunsetTime(props.day.date, place.latitude, place.longitude, props.day.timezone);
+  });
+  const hasStats = createMemo(
+    () => stopCount() > 0 || Boolean(movingLabel()) || Boolean(distanceLabel()) || Boolean(sunset()),
+  );
+  const hasSummary = createMemo(
+    () => hasStats() || summarySlots().length > 0 || flights().length > 0,
+  );
+  const collapsed = () => isDayCollapsed(props.day.id, props.day.date);
+  const bodyId = () => `body-${props.day.id}`;
 
   return (
-    <section class="day-section" id={props.day.id} aria-labelledby={`heading-${props.day.id}`}>
-      <header class="day-section__header">
+    <section
+      class="day-section"
+      classList={{ "day-section--collapsed": collapsed() }}
+      id={props.day.id}
+      aria-labelledby={`heading-${props.day.id}`}
+    >
+      {/* The whole header is the fold control: a big target, and the title
+          stays the section's accessible name. */}
+      <button
+        type="button"
+        class="day-section__header"
+        aria-expanded={!collapsed()}
+        aria-controls={bodyId()}
+        onClick={() => setDayCollapsed(props.day.id, !collapsed())}
+      >
         <div class="day-section__index" aria-hidden="true">
           {String(props.index + 1).padStart(2, "0")}
         </div>
         <div class="day-section__headtext">
-          <p class="day-section__date">{formatDayHeading(props.day.date)}</p>
+          <p class="day-section__date">
+            {formatDayHeading(props.day.date)}
+            <Show when={baseCity()}>
+              {(city) => <span class="day-section__city">{city()}</span>}
+            </Show>
+          </p>
           <h2 class="day-section__title" id={`heading-${props.day.id}`}>
             {formatArrows(props.day.title)}
           </h2>
           <Show when={props.day.subtitle}>
             {(subtitle) => <p class="day-section__subtitle">{formatArrows(subtitle())}</p>}
           </Show>
-          <Show when={stopCount() > 0 || movingLabel()}>
-            <p class="day-section__count">
-              <Show when={stopCount() > 0}>
-                <span>
-                  {stopCount()} stop{stopCount() === 1 ? "" : "s"}
-                </span>
-              </Show>
-              <Show when={movingLabel()}>
-                {(label) => <span class="day-section__moving">{label()} moving</span>}
-              </Show>
-            </p>
+        </div>
+        <span class="day-section__chevron" classList={{ "is-open": !collapsed() }} aria-hidden="true" />
+      </button>
+
+      <Show when={!collapsed()}>
+        <div class="day-section__body" id={bodyId()}>
+          {/* The shape of the day up front: how much of it is moving, where
+              you sleep, whether you fly. An AI-written summary will sit
+              between the figures and the bookings. */}
+          <Show when={hasSummary()}>
+            <div class="day-part">
+              <p class="day-part__label">Day summary</p>
+              <div class="day-summary">
+                <Show when={hasStats()}>
+                  <dl class="day-stats">
+                    <Show when={stopCount() > 0}>
+                      <div>
+                        <dt>Stops</dt>
+                        <dd>{stopCount()}</dd>
+                      </div>
+                    </Show>
+                    <Show when={movingLabel()}>
+                      {(label) => (
+                        <div>
+                          <dt>Moving</dt>
+                          <dd>{label()}</dd>
+                        </div>
+                      )}
+                    </Show>
+                    <Show when={distanceLabel()}>
+                      {(label) => (
+                        <div>
+                          <dt>Distance</dt>
+                          <dd>{label()}</dd>
+                        </div>
+                      )}
+                    </Show>
+                    <Show when={sunset()}>
+                      {(time) => (
+                        <div>
+                          <dt>Sunset</dt>
+                          <dd>{time()}</dd>
+                        </div>
+                      )}
+                    </Show>
+                  </dl>
+                </Show>
+                <For each={leaving()}>
+                  {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} />}
+                </For>
+                <Show when={flights().length > 0}>
+                  <ol class="day-summary__flights">
+                    <For each={flights()}>
+                      {(item) => (
+                        <FlightRow
+                          item={item}
+                          timing={timings().get(item.id)}
+                          places={props.bundle.places}
+                        />
+                      )}
+                    </For>
+                  </ol>
+                </Show>
+                <For each={arriving()}>
+                  {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} />}
+                </For>
+              </div>
+            </div>
           </Show>
-        </div>
-      </header>
 
-      {/* Where you sleep and whether you fly — the shape of the day, up front. */}
-      <Show when={hasSummary()}>
-        <div class="day-part">
-          <p class="day-part__label">Day summary</p>
-          <For each={summarySlots()}>
-            {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} />}
-          </For>
-          <ol class="timeline">
-            <For each={flights()}>{(item) => <FlightRow item={item} />}</For>
-          </ol>
-        </div>
-      </Show>
-
-      <Show when={routeItems().length > 0}>
-        <div class="day-part">
-          <p class="day-part__label">Day route</p>
-          <ol class="timeline">
-            <For each={routeItems()}>
-              {(item, index) => (
-                <>
-                  {/* A bound flight replaces the ground route into this stop. */}
-                  <Show when={binding().before.get(item.id)}>
-                    {(flight) => <FlightConnector item={flight()} />}
-                  </Show>
-                  <Show when={!binding().supersededLegs.has(item.id) && legs().get(item.id)}>
-                    {(leg) => <RouteLegRow leg={leg()} />}
-                  </Show>
-                  <DayItemRow
-                    item={item}
-                    bundle={props.bundle}
-                    placeSequence={sequences()[index()] ?? 0}
-                    isStay={item.type === "place" && props.stayPlaceIds.has(item.placeId)}
-                    weekday={weekday()}
-                  />
-                  <Show when={binding().after.get(item.id)}>
-                    {(flight) => <FlightConnector item={flight()} />}
-                  </Show>
-                </>
-              )}
-            </For>
-          </ol>
+          <Show when={routeItems().length > 0}>
+            <div class="day-part">
+              <p class="day-part__label">Day route</p>
+              <ol class="timeline">
+                <For each={routeItems()}>
+                  {(item, index) => (
+                    <>
+                      {/* A bound flight replaces the ground route into this stop. */}
+                      <Show when={binding().before.get(item.id)}>
+                        {(flight) => <FlightConnector item={flight()} />}
+                      </Show>
+                      <Show when={!binding().supersededLegs.has(item.id) && legs().get(item.id)}>
+                        {(leg) => (
+                          <RouteLegRow leg={leg()} places={props.bundle.places} origin={legOrigin(leg())} />
+                        )}
+                      </Show>
+                      <DayItemRow
+                        item={item}
+                        bundle={props.bundle}
+                        placeSequence={sequences()[index()] ?? 0}
+                        isStay={item.type === "place" && props.stayPlaceIds.has(item.placeId)}
+                        weekday={weekday()}
+                      />
+                      <Show when={binding().after.get(item.id)}>
+                        {(flight) => <FlightConnector item={flight()} />}
+                      </Show>
+                    </>
+                  )}
+                </For>
+              </ol>
+            </div>
+          </Show>
         </div>
       </Show>
     </section>

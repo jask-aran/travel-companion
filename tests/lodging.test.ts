@@ -4,6 +4,7 @@ import {
   collectStays,
   daySummarySlots,
   planDayLodging,
+  stayForDay,
 } from "../apps/web/src/lib/lodging.js";
 
 function bundleWithStays(): TripBundle {
@@ -193,5 +194,26 @@ describe("day summary lodging slots", () => {
     });
 
     expect(slots.map((s) => s.role)).toEqual(["morning", "evening"]);
+  });
+});
+
+describe("day base", () => {
+  const stays = [
+    { key: "a", name: "A", checkInDate: "2026-11-21", checkOutDate: "2026-11-23" },
+    { key: "b", name: "B", checkInDate: "2026-11-23", checkOutDate: "2026-11-25" },
+  ];
+
+  it("is the stay you sleep in that night", () => {
+    expect(stayForDay(stays, "2026-11-22")?.key).toBe("a");
+    // Moving day: you sleep in the new one.
+    expect(stayForDay(stays, "2026-11-23")?.key).toBe("b");
+  });
+
+  it("is the stay you leave on the last day", () => {
+    expect(stayForDay(stays, "2026-11-25")?.key).toBe("b");
+  });
+
+  it("is nothing outside every stay", () => {
+    expect(stayForDay(stays, "2026-11-20")).toBeUndefined();
   });
 });

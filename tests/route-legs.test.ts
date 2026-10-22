@@ -9,7 +9,8 @@ import {
   cleanAddress,
   formatArrows,
   formatDuration,
-  formatRating,
+  formatCategory,
+  formatRatingLabel,
   noteRestatesNames,
 } from "../apps/web/src/lib/format.js";
 
@@ -55,6 +56,16 @@ describe("route leg pairing", () => {
     expect(legsForDay(items, index).get("i1")).toBeUndefined();
   });
 
+  it("routes the first stop from the hotel the day starts at", () => {
+    // Wanderlog draws this leg without listing the hotel as a stop.
+    const legs = legsForDay(items.slice(2), index, "p1");
+    expect(legs.get("i2")?.durationSeconds).toBe(843);
+  });
+
+  it("draws no leg when the day starts at its own first stop", () => {
+    expect(legsForDay(items, index, "p1").get("i1")).toBeUndefined();
+  });
+
   it("omits pairs with no matching leg", () => {
     const orphan = [
       { id: "x1", type: "place", placeId: "p9" },
@@ -72,10 +83,16 @@ describe("display formatting", () => {
   });
 
   it("formats ratings to one decimal with a compact count", () => {
-    expect(formatRating(4, 5080)).toBe("4.0 · 5.1k");
-    expect(formatRating(4.3, 29569)).toBe("4.3 · 29.6k");
-    expect(formatRating(4.2, 842)).toBe("4.2 · 842");
-    expect(formatRating(undefined, 10)).toBeUndefined();
+    expect(formatRatingLabel(4, 5080)).toBe("★ 4.0 (5.1k)");
+    expect(formatRatingLabel(4.3, 29569)).toBe("★ 4.3 (29.6k)");
+    expect(formatRatingLabel(4.2, 842)).toBe("★ 4.2 (842)");
+    expect(formatRatingLabel(4.2)).toBe("★ 4.2");
+    expect(formatRatingLabel(undefined, 10)).toBeUndefined();
+  });
+
+  it("turns Google place types into a phrase", () => {
+    expect(formatCategory("car_race_track")).toBe("Car race track");
+    expect(formatCategory(undefined)).toBeUndefined();
   });
 
   it("reduces a noisy Google address to a readable locality", () => {

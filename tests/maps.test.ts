@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Place } from "../packages/trip-schema/src/index.js";
-import { buildGoogleMapsUrl, buildGooglePlaceUrl } from "../apps/web/src/lib/maps.js";
+import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "../apps/web/src/lib/maps.js";
 import {
   formatOpeningForDay,
   formatVisitLength,
@@ -142,5 +142,35 @@ describe("opening hours and visit length", () => {
     expect(formatVisitLength(45, 45)).toBe("45 min");
     expect(formatVisitLength(60, 90)).toBe("1 h–90 min");
     expect(formatVisitLength(undefined, undefined)).toBeUndefined();
+  });
+});
+
+describe("route leg directions", () => {
+  const from: Place = {
+    id: "a",
+    name: "Nagoya Station",
+    googlePlaceId: "ChIJFrom",
+    latitude: 35.17,
+    longitude: 136.88,
+  };
+  const to: Place = { id: "b", name: "Takayama Station", address: "Takayama, Gifu" };
+
+  it("routes stop to stop in the leg's mode", () => {
+    const parsed = new URL(buildLegDirectionsUrl(from, to, "transit") ?? "");
+    expect(parsed.origin + parsed.pathname).toBe("https://www.google.com/maps/dir/");
+    expect(parsed.searchParams.get("origin")).toBe("35.17,136.88");
+    expect(parsed.searchParams.get("origin_place_id")).toBe("ChIJFrom");
+    expect(parsed.searchParams.get("destination")).toBe("Takayama, Gifu");
+    expect(parsed.searchParams.has("destination_place_id")).toBe(false);
+    expect(parsed.searchParams.get("travelmode")).toBe("transit");
+  });
+
+  it("uses Google's names for cycling and ferries", () => {
+    expect(new URL(buildLegDirectionsUrl(from, to, "cycling") ?? "").searchParams.get("travelmode")).toBe("bicycling");
+    expect(new URL(buildLegDirectionsUrl(from, to, "ferry") ?? "").searchParams.get("travelmode")).toBe("transit");
+  });
+
+  it("has no link for a flight", () => {
+    expect(buildLegDirectionsUrl(from, to, "flight")).toBeUndefined();
   });
 });

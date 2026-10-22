@@ -53,3 +53,42 @@ export function buildGooglePlaceUrl(place: Place): string {
 
   return `https://www.google.com/maps/search/?${params.toString()}`;
 }
+
+/** Google's `travelmode` values. A ferry is closest to transit; a flight has none. */
+const LEG_MODES: Record<string, MapsTravelMode | "bicycling" | undefined> = {
+  walking: "walking",
+  transit: "transit",
+  driving: "driving",
+  cycling: "bicycling",
+  ferry: "transit",
+};
+
+function placeParam(place: Place): string {
+  if (place.latitude != null && place.longitude != null) {
+    return `${place.latitude},${place.longitude}`;
+  }
+  return place.address ?? place.name;
+}
+
+/**
+ * Directions for one leg between two stops, in the leg's own mode. Unlike the
+ * card title's link, the origin is the previous stop, not the device, so it
+ * can be opened ahead of time to check the route.
+ */
+export function buildLegDirectionsUrl(
+  from: Place,
+  to: Place,
+  travelMode: string,
+): string | undefined {
+  const mode = LEG_MODES[travelMode];
+  if (!mode) return undefined;
+  const params = new URLSearchParams({
+    api: "1",
+    origin: placeParam(from),
+    destination: placeParam(to),
+    travelmode: mode,
+  });
+  if (from.googlePlaceId) params.set("origin_place_id", from.googlePlaceId);
+  if (to.googlePlaceId) params.set("destination_place_id", to.googlePlaceId);
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}

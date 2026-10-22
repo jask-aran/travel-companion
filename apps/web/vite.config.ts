@@ -9,8 +9,13 @@ import { localGoogleApiKey, localPassphrase, tripBundlePlugin } from "./vite/tri
  * With no key set, the app simply renders no photos.
  */
 const googleMapsKey = localGoogleApiKey();
-/** Dev always serves plaintext; a configured passphrase encrypts the build. */
-const tripEncrypted = localPassphrase().length > 0;
+/**
+ * Only the build encrypts. The dev server serves the working bundle as
+ * plaintext, so flagging dev as encrypted made the app fetch a trip.enc that
+ * does not exist there and sit behind a passphrase gate it could never pass.
+ */
+const isBuild = process.argv.includes("build");
+const tripEncrypted = isBuild && localPassphrase().length > 0;
 
 /**
  * Served from a path, not a host root, so every asset URL and the service
@@ -24,6 +29,8 @@ export default defineConfig({
     __GOOGLE_MAPS_KEY__: JSON.stringify(googleMapsKey),
     __TRIP_ENCRYPTED__: JSON.stringify(tripEncrypted),
     __TRIP_BASE__: JSON.stringify(base),
+    // Shown in the footer, so you can tell which shell a device is running.
+    __APP_BUILT_AT__: JSON.stringify(new Date().toISOString()),
   },
   plugins: [
     solid(),
@@ -68,6 +75,16 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2,json}"],
+        /*
+         * `registerType: "autoUpdate"` does not set these in vite-plugin-pwa
+         * 1.x: without them a new worker installs and then waits until every
+         * tab on the old one closes, which a reload does not do. A phone sat
+         * on one build through three deploys. With them, a new build takes
+         * over as soon as it installs and autoUpdate reloads onto it.
+         */
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         // The trip payload is deliberately NOT precached. Precaching it would
         // put ~430 KB of content into the app-shell revision, so every trip
         // edit would force a full service-worker update cycle before the app

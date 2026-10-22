@@ -187,11 +187,20 @@ export function tripBundlePlugin(): Plugin {
         devServer.ws.send({ type: "full-reload" });
       });
 
+      // The app requests the bundle relative to the configured base, so match
+      // both that and the bare path rather than assuming the app is at root.
+      const basePath = devServer.config.base || "/";
+      const tripPaths = new Set(["/trip.json", `${basePath}trip.json`.replace(/\/{2,}/g, "/")]);
+      const refreshPaths = new Set([
+        "/__trip/refresh",
+        `${basePath}__trip/refresh`.replace(/\/{2,}/g, "/"),
+      ]);
+
       devServer.middlewares.use((req, res, next) => {
         const path = req.url?.split("?")[0];
 
         // Dev-only hook so a refresh can be triggered without leaving the app.
-        if (path === "/__trip/refresh") {
+        if (path && refreshPaths.has(path)) {
           res.setHeader("Content-Type", "application/json; charset=utf-8");
           refreshOnce().then(
             () => res.end(JSON.stringify({ ok: true })),
@@ -208,7 +217,7 @@ export function tripBundlePlugin(): Plugin {
           return;
         }
 
-        if (path !== "/trip.json") {
+        if (!path || !tripPaths.has(path)) {
           next();
           return;
         }

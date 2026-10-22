@@ -44,14 +44,22 @@ const isBeyondDayScale = (leg: RouteLeg) =>
  * Map each place item to the leg that leads *into* it from the previous stop.
  * Notes and other non-place items sit between stops without breaking the
  * chain, which matches how the legs are generated upstream.
+ *
+ * `startPlaceId` is where the day begins, the hotel you woke in. Wanderlog
+ * routes the first stop from there ("56 mins from <hotel>") without listing
+ * the hotel as a stop.
  */
-export function legsForDay(items: DayItem[], index: RouteLegIndex): Map<string, RouteLeg> {
+export function legsForDay(
+  items: DayItem[],
+  index: RouteLegIndex,
+  startPlaceId?: string,
+): Map<string, RouteLeg> {
   const legs = new Map<string, RouteLeg>();
-  let previousPlaceId: string | undefined;
+  let previousPlaceId = startPlaceId;
 
   for (const item of items) {
     if (item.type !== "place") continue;
-    if (previousPlaceId) {
+    if (previousPlaceId && previousPlaceId !== item.placeId) {
       const leg = index.get(pairKey(previousPlaceId, item.placeId));
       if (leg && !isBeyondDayScale(leg)) legs.set(item.id, leg);
     }
@@ -65,6 +73,13 @@ export function legsForDay(items: DayItem[], index: RouteLegIndex): Map<string, 
 export function dayTravelSeconds(legs: Map<string, RouteLeg>): number {
   let total = 0;
   for (const leg of legs.values()) total += leg.durationSeconds ?? 0;
+  return total;
+}
+
+/** Ground distance covered by the day's legs, in metres. */
+export function dayTravelMetres(legs: Map<string, RouteLeg>): number {
+  let total = 0;
+  for (const leg of legs.values()) total += leg.distanceMetres ?? 0;
   return total;
 }
 

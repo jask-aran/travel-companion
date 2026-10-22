@@ -2,13 +2,16 @@
 import { render } from "solid-js/web";
 import { registerSW } from "virtual:pwa-register";
 import App from "./App";
+import { checkForUpdatesOnResume, rememberRegistration } from "./lib/app-update";
 import "./fonts.css";
 import "./styles.css";
 
 // Real installability needs a controlling service worker + HTTPS (Tailscale Serve).
 registerSW({
   immediate: true,
+  onRegisteredSW: rememberRegistration,
 });
+checkForUpdatesOnResume();
 
 const root = document.getElementById("root");
 if (!root) {

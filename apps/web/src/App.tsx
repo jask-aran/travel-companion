@@ -1,40 +1,77 @@
 import {
   For,
   Match,
+  Show,
   Switch,
   createEffect,
   createResource,
   createSignal,
   onCleanup,
+  onMount,
 } from "solid-js";
 import { DaySection } from "./components/DaySection";
 import { DayTabs } from "./components/DayTabs";
 import { observeActiveDay } from "./lib/active-day";
 import { formatArrows, formatTripRange } from "./lib/format";
 import { loadTripBundle, tripIsEncrypted } from "./lib/load-trip";
-import { readPassphrase, rememberPassphrase } from "./lib/passphrase";
+import { forgetPassphrase, readPassphrase, rememberPassphrase } from "./lib/passphrase";
+import { WrongPassphraseError } from "./lib/trip-crypto";
 import { Unlock } from "./components/Unlock";
 import { collectStays } from "./lib/lodging";
+import { AppUpdate } from "./components/AppUpdate";
+import { CollapseAll } from "./components/CollapseAll";
+import { RefreshTrip } from "./components/RefreshTrip";
+import { setDayCollapsed } from "./lib/collapsed-days";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { indexRouteLegs } from "./lib/route-legs";
 
 export default function App() {
   /*
-   * With an encrypted payload the passphrase is the key, so nothing loads
-   * until there is one. A remembered passphrase makes this invisible after
-   * the first visit.
+   * The passphrase is the decryption key, so nothing loads without one.
+   *
+   * A remembered passphrase is validated before it is adopted. Letting the
+   * resource discover it was stale instead meant `trip.error` lingered while
+   * the next fetch was in flight, and the clearing logic then wiped the
+   * passphrase the reader had just typed.
    */
   const [passphrase, setPassphrase] = createSignal<string | undefined>(
-    tripIsEncrypted ? readPassphrase() : "",
+    tripIsEncrypted ? undefined : "",
   );
+  const [checkingStored, setCheckingStored] = createSignal(
+    tripIsEncrypted && Boolean(readPassphrase()),
+  );
+  const [unlockError, setUnlockError] = createSignal("");
   const [trip] = createResource(passphrase, (secret) => loadTripBundle(secret));
+
+  const isWrongPassphrase = (error: unknown) =>
+    error instanceof WrongPassphraseError ||
+    (error instanceof Error && error.name === "WrongPassphraseError");
+
+  onMount(async () => {
+    const stored = tripIsEncrypted ? readPassphrase() : undefined;
+    if (!stored) return;
+    try {
+      await loadTripBundle(stored);
+      setPassphrase(stored);
+    } catch (error) {
+      // Republishing under a new passphrase invalidates every stored one.
+      if (isWrongPassphrase(error)) {
+        forgetPassphrase();
+        setUnlockError("That passphrase no longer opens this trip.");
+      }
+    } finally {
+      setCheckingStored(false);
+    }
+  });
 
   const unlock = async (candidate: string) => {
     // Decrypt before accepting it, so a wrong passphrase reports itself here.
     await loadTripBundle(candidate);
     rememberPassphrase(candidate);
+    setUnlockError("");
     setPassphrase(candidate);
   };
+
   const [activeDayId, setActiveDayId] = createSignal("");
   const [tabLocked, setTabLocked] = createSignal(false);
   let unlockTimer: ReturnType<typeof setTimeout> | undefined;
@@ -72,6 +109,8 @@ export default function App() {
   });
 
   const selectDay = (dayId: string) => {
+    // Jumping to a folded day should show it, not just its header.
+    setDayCollapsed(dayId, false);
     setActiveDayId(dayId);
     setTabLocked(true);
     if (unlockTimer) clearTimeout(unlockTimer);
@@ -81,8 +120,15 @@ export default function App() {
   return (
     <div class="app-shell">
       <Switch>
+        <Match when={checkingStored()}>
+          <div class="state-panel" role="status">
+            <p class="state-panel__eyebrow">Travel Companion</p>
+            <p class="state-panel__title">Opening itinerary…</p>
+          </div>
+        </Match>
+
         <Match when={tripIsEncrypted && !passphrase()}>
-          <Unlock onUnlock={unlock} />
+          <Unlock onUnlock={unlock} initialError={unlockError()} />
         </Match>
 
         <Match when={trip.loading}>
@@ -99,10 +145,8 @@ export default function App() {
               {trip.error instanceof Error ? trip.error.message : "Unknown error"}
             </p>
             <p class="state-panel__body">
-              Run <code>pnpm trip:refresh</code> after filling{" "}
-              <code>config/trip.local.yaml</code>. The app serves the local
-              normalised bundle only — nothing is fetched from Wanderlog at
-              runtime.
+              Check your connection and reload. The itinerary is stored on this
+              device, so this usually clears on its own.
             </p>
           </div>
         </Match>
@@ -124,7 +168,11 @@ export default function App() {
                   * away.
                   */}
                 <header class="trip-header">
-                  <ThemeToggle />
+                  <div class="trip-header__actions">
+                    <RefreshTrip passphrase={passphrase() ?? ""} />
+                    <CollapseAll days={data.days} />
+                    <ThemeToggle />
+                  </div>
                   <div class="trip-header__inner">
                     <p class="trip-header__eyebrow">Itinerary</p>
                     <h1 class="trip-header__title">{formatArrows(data.trip.title)}</h1>
@@ -156,6 +204,9 @@ export default function App() {
                     <p>
                       Revision <code>{data.revision}</code>
                     </p>
+                    <Show when={import.meta.env.PROD}>
+                      <AppUpdate />
+                    </Show>
                   </footer>
                 </main>
               </>

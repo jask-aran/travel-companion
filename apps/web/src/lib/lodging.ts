@@ -168,3 +168,14 @@ export function daySummarySlots(plan: DayLodgingPlan): LodgingSlot[] {
     return !(isSofterRole && edgeKeys.has(slot.stay.key));
   });
 }
+
+/**
+ * Where a day is based: the stay you sleep in that night, or on the last day
+ * the one you leave. Days with neither (a night flight) have no base.
+ */
+export function stayForDay(stays: Stay[], date: string): Stay | undefined {
+  return (
+    stays.find((stay) => stay.checkInDate <= date && date < stay.checkOutDate) ??
+    stays.find((stay) => stay.checkOutDate === date)
+  );
+}

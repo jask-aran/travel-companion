@@ -106,11 +106,18 @@ function compactCount(count: number): string {
 }
 
 /** "4.3 · 29.6k" — rating is only meaningful alongside how many rated it. */
-export function formatRating(rating?: number, ratingCount?: number): string | undefined {
+/** "★ 4.5 (12.9k)" for a card's meta line. */
+export function formatRatingLabel(rating?: number, ratingCount?: number): string | undefined {
   if (rating == null || !Number.isFinite(rating) || rating <= 0) return undefined;
-  const score = rating.toFixed(1);
-  if (ratingCount == null || ratingCount <= 0) return score;
-  return `${score} · ${compactCount(ratingCount)}`;
+  const score = `★ ${rating.toFixed(1)}`;
+  return ratingCount == null || ratingCount <= 0 ? score : `${score} (${compactCount(ratingCount)})`;
+}
+
+/** Google's place types are snake_case; a card shows them as a phrase. */
+export function formatCategory(category?: string): string | undefined {
+  if (!category) return undefined;
+  const words = category.replace(/_/g, " ").trim();
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : undefined;
 }
 
 /**

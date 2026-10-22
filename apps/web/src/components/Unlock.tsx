@@ -5,9 +5,13 @@ import { Show } from "solid-js";
  * First-run gate. It guards the *decryption key*, not the UI — without the
  * passphrase the payload on this device is ciphertext and stays that way.
  */
-export function Unlock(props: { onUnlock: (passphrase: string) => Promise<void> }) {
+export function Unlock(props: {
+  onUnlock: (passphrase: string) => Promise<void>;
+  /** Set when a remembered passphrase turned out to be stale. */
+  initialError?: string | undefined;
+}) {
   const [value, setValue] = createSignal("");
-  const [error, setError] = createSignal("");
+  const [error, setError] = createSignal(props.initialError ?? "");
   const [busy, setBusy] = createSignal(false);
 
   const submit = async (event: Event) => {
