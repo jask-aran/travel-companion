@@ -283,10 +283,8 @@ p {
 .day-section__date,
 .day-part__label,
 .day-stats dt,
-.lodging-band__eyebrow,
 .card__kind,
 .card__detail-label,
-.lodging-band__dates dt,
 .status-pill {
   font-family: var(--font-mono);
   font-size: var(--fs-label);
@@ -326,10 +324,8 @@ p {
 .day-section__date,
 .day-part__label,
 .day-stats dt,
-.lodging-band__eyebrow,
 .card__kind,
 .card__detail-label,
-.lodging-band__dates dt,
 .status-pill {
   word-spacing: -0.3em;
 }
@@ -820,96 +816,10 @@ p {
   color: var(--kind-travel);
 }
 
-/* Lodging row: badge, label line and chevron on top; the name beneath has
-   the full width, so a long Wanderlog name wraps instead of squeezing. */
-.lodging-band__summary {
-  width: 100%;
-  display: grid;
-  grid-template-columns: var(--badge) minmax(0, 1fr) auto;
-  column-gap: 0.6rem;
-  row-gap: 0.35rem;
-  align-items: center;
-  padding: 0.75rem var(--pad) 0.85rem;
-  border: 0;
-  background: none;
-  text-align: left;
-}
-
-.lodging-band__summary:disabled {
-  cursor: default;
-}
-
-.lodging-band__summary:focus-visible {
-  outline: 2px solid var(--sea);
-  outline-offset: -2px;
-}
-
 .lodging-band--out .kind-badge--lodging {
   background: none;
   color: var(--kind-lodging);
   box-shadow: inset 0 0 0 1.5px var(--kind-lodging);
-}
-
-.lodging-band__eyebrow {
-  min-width: 0;
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 0.4rem;
-  color: var(--ink-muted);
-}
-
-.lodging-band__eyebrow > span + span::before {
-  content: "·";
-  margin-right: 0.4rem;
-}
-
-.lodging-band__phase {
-  color: var(--kind-lodging);
-}
-
-.lodging-band__name {
-  grid-column: 1 / -1;
-  font-size: var(--fs-name);
-  font-weight: 650;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-  overflow-wrap: break-word;
-}
-
-.lodging-band__chevron {
-  width: 0.5rem;
-  height: 0.5rem;
-  margin-right: 0.25rem;
-  border-right: 1.5px solid var(--ink-muted);
-  border-bottom: 1.5px solid var(--ink-muted);
-  transform: rotate(45deg) translate(-2px, -2px);
-  transition: transform 160ms ease;
-}
-
-.lodging-band__chevron.is-open {
-  transform: rotate(225deg) translate(-2px, -2px);
-}
-
-.lodging-band__detail {
-  display: grid;
-  gap: 0.5rem;
-  justify-items: start;
-  padding: 0 var(--pad) 0.85rem;
-}
-
-.lodging-band__dates {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.4rem;
-}
-
-.lodging-band__dates dt {
-  color: var(--ink-muted);
-}
-
-.lodging-band__dates dd {
-  margin: 0.1rem 0 0;
 }
 
 
@@ -1020,11 +930,6 @@ p {
   color: var(--ink-muted);
 }
 
-.lodging-band__leave {
-  grid-column: 1 / -1;
-  margin: 0;
-}
-
 .leave-time strong {
   font-family: var(--font-mono);
   font-weight: 500;
@@ -1090,8 +995,48 @@ p {
   min-width: 0;
 }
 
-.stop:has(.stop__photo) {
+.stop:has(.stop__photo),
+.lodging-band:has(> .stop__photo) {
   min-height: 8rem;
+}
+
+/* A hotel is laid out as a stop: the band is the card, its body the column. */
+.lodging-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.lodging-band__phase {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--kind-lodging);
+}
+
+.stop__name--plain {
+  text-decoration: none;
+}
+
+.lodging-band__detail {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: start;
+  padding-top: 0.35rem;
+}
+
+.lodging-band__notes {
+  margin: 0;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  color: var(--ink-soft);
+}
+
+/* A last line with nothing more to open. */
+.stop__notes--static {
+  cursor: default;
 }
 
 .stop--stay {
@@ -1227,15 +1172,13 @@ p {
 }
 
 /* Text above the photo, clear of everything but its faded edge. */
-.stop__body,
-.lodging-band__summary,
-.lodging-band__detail {
+.stop__body {
   position: relative;
   z-index: 1;
 }
 
 .stop:has(> .stop__photo) > .stop__body,
-.lodging-band:has(> .stop__photo) > .lodging-band__summary {
+.lodging-band:has(> .stop__photo) > .stop__body {
   padding-right: var(--photo-w);
 }
 
@@ -1252,7 +1195,7 @@ p {
 }
 
 .stop.stop--open:has(> .stop__photo) > .stop__body,
-.lodging-band.lodging-band--open:has(> .stop__photo) > .lodging-band__summary {
+.lodging-band.lodging-band--open:has(> .stop__photo) > .stop__body {
   padding-right: var(--pad);
 }
 
@@ -1738,23 +1681,6 @@ p {
   white-space: nowrap;
 }
 
-/* One line: phase, nights, then the district, which truncates. */
-.lodging-band__eyebrow {
-  flex-wrap: nowrap;
-  white-space: nowrap;
-}
-
-.lodging-band__eyebrow > span {
-  flex: none;
-}
-
-.lodging-band__eyebrow > .lodging-band__city {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .flight-foot {
   display: flex;
   align-items: baseline;
@@ -1764,11 +1690,6 @@ p {
 
 .flight-foot > .leave-time {
   margin: 0;
-}
-
-.flight-foot > .text-button {
-  margin-left: auto;
-  flex: none;
 }
 
 /* In the summary a transfer is one line; the tall rail is for the route. */
@@ -1781,30 +1702,6 @@ p {
   font-size: var(--fs-label);
   color: var(--ink-muted);
   white-space: nowrap;
-}
-
-.card__ref--toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border: 0;
-  color: inherit;
-  font: inherit;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-}
-
-.card__ref-chevron {
-  width: 0.4rem;
-  height: 0.4rem;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: translateY(-1px) rotate(45deg);
-  transition: transform 160ms ease;
-}
-
-.card__ref-chevron.is-open {
-  transform: translateY(1px) rotate(225deg);
 }
 
 /* A journey in the summary names its ends, with the figures beneath. */
@@ -1916,7 +1813,6 @@ html {
 
 .day-tab,
 .header-button,
-.card__ref--toggle,
 .stop__notes,
 .text-button {
   transition-property: background, transform;
@@ -1925,7 +1821,6 @@ html {
 
 .day-tab:active,
 .header-button:active,
-.card__ref--toggle:active,
 .text-button:active {
   transform: scale(0.96);
 }
@@ -1936,10 +1831,6 @@ html {
 
 .day-section__header:active .day-section__index {
   transform: scale(0.92);
-}
-
-.lodging-band__summary:not(:disabled):active {
-  background: rgb(var(--ink-rgb) / 4%);
 }
 
 /* Small phones: a slightly narrower photo so a time range and rating share
@@ -2182,55 +2073,6 @@ html {
   height: 0.9rem;
 }
 
-/* --- Hotel bands: a touch roomier, details as one icon line --- */
-.lodging-band__summary {
-  min-height: 5rem;
-  padding-block: 0.9rem 1rem;
-}
-
-.lodging-band__name {
-  font-size: calc(var(--fs-name) * 1.06);
-}
-
-.lodging-band__dates {
-  gap: 0.35rem 1.1rem;
-}
-
-.lodging-band__dates > div {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.lodging-band__dates dt {
-  display: flex;
-  color: var(--kind-lodging);
-}
-
-.lodging-band__dates dd {
-  margin: 0;
-}
-
-.lodging-band__where {
-  justify-self: stretch;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding-top: 0.45rem;
-  border-top: var(--hairline);
-}
-
-.lodging-band__address {
-  flex: 1;
-  min-width: 0;
-  margin: 0 0.4rem 0 0;
-  font-family: var(--font-mono);
-  font-size: var(--fs-small);
-  word-spacing: -0.3em;
-  color: var(--ink-soft);
-  overflow-wrap: break-word;
-}
-
 /* An icon that is a link or a button: Maps, call, website, copy. Tap-sized, quiet. */
 .icon-link {
   flex: none;
@@ -2335,7 +2177,8 @@ html {
   color: var(--ink-muted);
 }
 
-.stop:has(> .stop__photo) .stop__when {
+.stop:has(> .stop__photo) .stop__when,
+.lodging-band:has(> .stop__photo) .stop__when {
   position: absolute;
   top: 0.55rem;
   right: 0.55rem;
@@ -2347,7 +2190,8 @@ html {
   backdrop-filter: blur(4px);
 }
 
-.stop:has(> .stop__photo) .stop__when > .mode-glyph {
+.stop:has(> .stop__photo) .stop__when > .mode-glyph,
+.lodging-band:has(> .stop__photo) .stop__when > .mode-glyph {
   color: rgb(255 255 255 / 80%);
 }
 
@@ -2411,11 +2255,30 @@ html {
 
 /* An opened stop keeps the planned-time pill in its top corner, so the
    photo's credit goes to the bottom one. */
-.stop--open > .stop__photo figcaption {
+.stop--open > .stop__photo figcaption,
+.lodging-band--open > .stop__photo figcaption {
   inset: auto 0 0 0;
   padding: 0.9rem 0.35rem 0.25rem;
 }
 
-.stop:has(> .stop__photo) .stop__when .item-time__sep {
+.stop:has(> .stop__photo) .stop__when .item-time__sep,
+.lodging-band:has(> .stop__photo) .stop__when .item-time__sep {
   color: rgb(255 255 255 / 70%);
+}
+
+/* The column lies over the photo, so it lets taps through to the photo's
+   Maps link; only its own links and buttons catch them. Opened, the photo
+   is a dim backdrop and the column takes taps again. */
+.stop:has(> .stop__photo):not(.stop--open) > .stop__body,
+.lodging-band:has(> .stop__photo):not(.lodging-band--open) > .stop__body {
+  pointer-events: none;
+}
+
+.stop__body a,
+.stop__body button {
+  pointer-events: auto;
+}
+
+.stop__notes--static > .stop__notes-text {
+  white-space: normal;
 }

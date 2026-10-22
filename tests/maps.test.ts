@@ -3,7 +3,6 @@ import type { Place } from "../packages/trip-schema/src/index.js";
 import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "../apps/web/src/lib/maps.js";
 import {
   formatOpeningForDay,
-  formatVisitLength,
   formatDistance,
   formatDuration,
   formatTripRange,
@@ -136,12 +135,6 @@ describe("opening hours and visit length", () => {
 
   it("recognises open-all-day", () => {
     expect(formatOpeningForDay([{ day: 2, open: "00:00" }], 2)).toBe("Open 24 hours");
-  });
-
-  it("formats visit length", () => {
-    expect(formatVisitLength(45, 45)).toBe("45 min");
-    expect(formatVisitLength(60, 90)).toBe("1 h–90 min");
-    expect(formatVisitLength(undefined, undefined)).toBeUndefined();
   });
 });
 

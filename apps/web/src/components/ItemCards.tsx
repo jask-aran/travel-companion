@@ -13,17 +13,15 @@ import type {
 } from "@travel-companion/trip-schema";
 import {
   areaOf,
-  cleanAddress,
   formatArrows,
   formatDistance,
   formatCategory,
   formatDuration,
   formatDurationShort,
-  formatLodgingDate,
+  formatTabDayMonth,
   formatRatingLabel,
   formatOpeningForDay,
   formatTravelMode,
-  formatVisitLength,
   nightsBetween,
   noteRestatesNames,
 } from "../lib/format";
@@ -483,9 +481,9 @@ function ContactIcons(props: { phone?: string | undefined; website?: string | un
 }
 
 /**
- * Opening hours for the day and the typical visit length, as one permanent
- * line: "Open 10:00–17:00 · ~45 min visit". Spelled out with "Open", so it
- * is not mistaken for the time you planned (the calendar pill).
+ * Today's opening hours as a permanent line: "Open 10:00–17:00". Spelled
+ * out with "Open", so it is not mistaken for the time you planned (the
+ * calendar pill).
  */
 function PlaceHours(props: { place: Place; weekday: number }) {
   const details = () => props.place.details;
@@ -493,14 +491,15 @@ function PlaceHours(props: { place: Place; weekday: number }) {
     const text = formatOpeningForDay(details()?.openingPeriods, props.weekday);
     return text && /^\d/.test(text) ? `Open ${text}` : text;
   };
-  const visit = () => formatVisitLength(details()?.visitMinutesMin, details()?.visitMinutesMax);
 
   return (
-    <Show when={hours() || visit()}>
-      <p class="stop__hours">
-        <Icon name="clock" />
-        <span>{[hours(), visit() && `~${visit()} visit`].filter(Boolean).join(" · ")}</span>
-      </p>
+    <Show when={hours()}>
+      {(text) => (
+        <p class="stop__hours">
+          <Icon name="clock" />
+          <span>{text()}</span>
+        </p>
+      )}
     </Show>
   );
 }
@@ -669,6 +668,15 @@ export function FlightRow(props: {
     noteRestatesNames(props.item.notes, props.item.travellerNames) ? undefined : props.item.notes;
   const hasDetail = () =>
     Boolean(props.item.confirmationNumber || props.item.travellerNames?.length || extraNotes());
+  /** "Booking QF7XKA · 2 travellers", or the note's first words without one. */
+  const bookingLine = () => {
+    const travellers = props.item.travellerNames?.length;
+    const parts = [
+      props.item.confirmationNumber && `Booking ${props.item.confirmationNumber}`,
+      travellers && `${travellers} traveller${travellers === 1 ? "" : "s"}`,
+    ].filter(Boolean);
+    return parts.length ? parts.join(" · ") : (extraNotes()?.trim() ?? "Booking");
+  };
 
   return (
     <li class="stop-item">
@@ -679,23 +687,6 @@ export function FlightRow(props: {
               <ModeGlyph mode="flight" />
             </span>
             <span>{code()}</span>
-            {/* The booking reference opens the booking: no separate button. */}
-            <Show when={props.item.confirmationNumber}>
-              {(reference) => (
-                <Show when={hasDetail()} fallback={<span class="card__ref">{reference()}</span>}>
-                  <button
-                    type="button"
-                    class="card__ref card__ref--toggle"
-                    aria-expanded={open()}
-                    aria-label={`Booking ${reference()}, ${open() ? "hide" : "show"} details`}
-                    onClick={() => setOpen((v) => !v)}
-                  >
-                    {reference()}
-                    <span class="card__ref-chevron" classList={{ "is-open": open() }} aria-hidden="true" />
-                  </button>
-                </Show>
-              )}
-            </Show>
           </div>
 
           {/* Times and airports on one line, as a departures board reads. */}
@@ -745,20 +736,29 @@ export function FlightRow(props: {
                 </p>
               )}
             </Show>
-            {/* Without a reference to tap, the booking still needs a way in. */}
-            <Show when={hasDetail() && !props.item.confirmationNumber}>
-              <button
-                type="button"
-                class="text-button"
-                aria-expanded={open()}
-                onClick={() => setOpen((v) => !v)}
-              >
-                {open() ? "Less" : "Booking"}
-              </button>
-            </Show>
           </div>
+          {/* The booking as the last line, opening to travellers and notes. */}
+          <Show when={hasDetail()}>
+            <button
+              type="button"
+              class="stop__notes"
+              aria-expanded={open()}
+              onClick={() => setOpen((v) => !v)}
+            >
+              <span class="stop__notes-text">{bookingLine()}</span>
+              <span class="stop__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
+            </button>
+          </Show>
           <Show when={open()}>
             <div class="card__detail">
+              <Show when={props.item.confirmationNumber}>
+                {(reference) => (
+                  <p class="card__detail-row">
+                    <span class="card__detail-label">Booking</span>
+                    <span class="card__ref card__ref--dark">{reference()}</span>
+                  </p>
+                )}
+              </Show>
               <Show when={props.item.travellerNames?.length}>
                 <p class="card__detail-row">
                   <span class="card__detail-label">Travellers</span>
@@ -827,15 +827,21 @@ export function LodgingBand(props: {
     const value = nights();
     return value === undefined ? undefined : `${value} night${value === 1 ? "" : "s"}`;
   };
-  const expandable = () =>
-    Boolean(
-      props.item.confirmationNumber ||
-        props.item.phone ||
-        props.item.website ||
-        props.item.notes ||
-        props.item.travellerNames?.length ||
-        props.place?.address,
-    );
+  /** Booking, travellers or notes: what the bottom line opens to. */
+  const hasDetail = () =>
+    Boolean(props.item.confirmationNumber || props.item.notes?.trim() || props.item.travellerNames?.length);
+  const stayLine = () =>
+    [
+      props.item.checkInDate && props.item.checkOutDate
+        ? `${formatTabDayMonth(props.item.checkInDate)} → ${formatTabDayMonth(props.item.checkOutDate)}`
+        : undefined,
+      nightsLabel(),
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  const rating = () => formatRatingLabel(props.place?.rating, props.place?.ratingCount);
+  const category = () => formatCategory(props.place?.category);
+  const area = () => areaOf(props.place?.address) ?? props.place?.locality;
 
   return (
     <div
@@ -846,115 +852,100 @@ export function LodgingBand(props: {
         "lodging-band--open": open(),
       }}
     >
-      <button
-        type="button"
-        class="lodging-band__summary"
-        aria-expanded={expandable() ? open() : undefined}
-        disabled={!expandable()}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span class="kind-badge kind-badge--lodging" aria-hidden="true">
-          <ModeGlyph mode="lodging" />
-        </span>
-        <span class="lodging-band__eyebrow">
+      {/* Laid out as a stop card: marker and contacts, the name, what and
+          where, then the stay as the last line, which opens the booking. */}
+      <div class="stop__body">
+        <div class="stop__top">
+          <span class="kind-badge kind-badge--lodging" aria-hidden="true">
+            <ModeGlyph mode="lodging" />
+          </span>
           <span class="lodging-band__phase">{phaseLabel()}</span>
-          {/* Nights live in the details: the summary is about today. Last, so
-              a long district is what gets cut short. */}
-          <Show when={props.place?.locality}>
-            {(city) => <span class="lodging-band__city">{city()}</span>}
-          </Show>
-        </span>
-        <Show when={expandable()}>
-          <span class="lodging-band__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
-        </Show>
-        <span class="lodging-band__name">{props.item.name}</span>
-        <Show when={props.checkOutBy}>
-          {(time) => (
-            <span class="leave-time lodging-band__leave">
-              Check out by <strong>{time()}</strong>
-            </span>
-          )}
-        </Show>
-      </button>
-      {/* The hotel's photo, or for an address-only stay the streets round it. */}
-      <Show when={props.place}>{(place) => <PlacePhoto place={place()} mapFallback />}</Show>
-
-      <Show when={open()}>
-        <div class="lodging-band__detail">
-          {/* In, out and nights in one line, each named by its icon. */}
-          <dl class="lodging-band__dates">
-            <Show when={props.item.checkInDate}>
-              {(date) => (
-                <div>
-                  <dt>
-                    <Icon name="check-in" />
-                    <Hidden>Check in</Hidden>
-                  </dt>
-                  <dd>{formatLodgingDate(date())}</dd>
-                </div>
+          <span class="stop__actions">
+            <Show when={rating() ? props.place?.rating : undefined}>
+              {(score) => (
+                <span class="stop__rating" title={rating()}>
+                  <span class="with-icon" aria-hidden="true">
+                    <Icon name="star" />
+                    {score().toFixed(1)}
+                  </span>
+                  <Hidden>{`Rated ${rating()?.replace("★ ", "")}`}</Hidden>
+                </span>
               )}
             </Show>
-            <Show when={props.item.checkOutDate}>
-              {(date) => (
-                <div>
-                  <dt>
-                    <Icon name="check-out" />
-                    <Hidden>Check out</Hidden>
-                  </dt>
-                  <dd>{formatLodgingDate(date())}</dd>
-                </div>
-              )}
-            </Show>
-            <Show when={nightsLabel()}>
-              {(label) => (
-                <div>
-                  <dt>
-                    <Icon name="moon" />
-                    <Hidden>Stay</Hidden>
-                  </dt>
-                  <dd>{label()}</dd>
-                </div>
-              )}
-            </Show>
-          </dl>
-
-          {/* Wanderlog carries no check-in/out times, so none are shown. */}
-          <Show when={props.item.confirmationNumber}>
-            {(reference) => (
-              <p class="card__detail-row">
-                <span class="card__detail-label">Booking</span>
-                <span class="card__ref card__ref--dark">{reference()}</span>
-              </p>
+            <ContactIcons phone={props.item.phone} website={props.item.website} />
+            <CopyAddress address={props.place?.address} />
+          </span>
+          {/* On the day you leave, when to be out, pinned like a planned time. */}
+          <Show when={props.checkOutBy}>
+            {(time) => (
+              <span class="stop__when" title="Check out by">
+                <Icon name="check-out" />
+                <Hidden>Check out </Hidden>
+                <span>by {time()}</span>
+              </span>
             )}
           </Show>
-          <Show when={props.item.travellerNames?.length}>
-            <p class="card__detail-row">
-              <span class="card__detail-label">Booked by</span>
-              {props.item.travellerNames?.join(", ")}
-            </p>
-          </Show>
-          <Notes text={props.item.notes} />
-
-          {/* The address once, with the ways to reach the place beside it. */}
-          <div class="lodging-band__where">
-            <p class="lodging-band__address">{cleanAddress(props.place?.address) ?? props.item.name}</p>
-            <ContactIcons phone={props.item.phone} website={props.item.website} />
-            <Show when={props.place}>
-              {(place) => (
-                <a
-                  class="icon-link"
-                  href={buildGoogleMapsUrl(place())}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Open ${place().name} in Google Maps`}
-                >
-                  <GoogleMapsIcon />
-                </a>
+        </div>
+        <Show
+          when={props.place}
+          fallback={<span class="stop__name stop__name--plain">{props.item.name}</span>}
+        >
+          {(place) => (
+            <a class="stop__name" href={buildGoogleMapsUrl(place())} target="_blank" rel="noopener noreferrer">
+              {props.item.name}
+            </a>
+          )}
+        </Show>
+        <Show when={category()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
+        <Show when={area()}>{(where) => <p class="stop__where">{where()}</p>}</Show>
+        <Show when={stayLine()}>
+          {(line) => (
+            <Show
+              when={hasDetail()}
+              fallback={
+                <p class="stop__notes stop__notes--static">
+                  <span class="stop__notes-text">{line()}</span>
+                </p>
+              }
+            >
+              <button
+                type="button"
+                class="stop__notes"
+                aria-expanded={open()}
+                aria-label={`${line()}, ${open() ? "hide" : "show"} booking`}
+                onClick={() => setOpen((v) => !v)}
+              >
+                <span class="stop__notes-text">{line()}</span>
+                <span class="stop__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
+              </button>
+            </Show>
+          )}
+        </Show>
+        <Show when={open()}>
+          <div class="lodging-band__detail">
+            {/* Wanderlog carries no check-in/out times, so none are shown. */}
+            <Show when={props.item.confirmationNumber}>
+              {(reference) => (
+                <p class="card__detail-row">
+                  <span class="card__detail-label">Booking</span>
+                  <span class="card__ref card__ref--dark">{reference()}</span>
+                </p>
               )}
             </Show>
+            <Show when={props.item.travellerNames?.length}>
+              <p class="card__detail-row">
+                <span class="card__detail-label">Booked by</span>
+                {props.item.travellerNames?.join(", ")}
+              </p>
+            </Show>
+            <Show when={props.item.notes?.trim()}>
+              {(text) => <p class="lodging-band__notes">{text()}</p>}
+            </Show>
           </div>
-        </div>
-      </Show>
+        </Show>
+      </div>
+      {/* The hotel's photo, or for an address-only stay the streets round it. */}
+      <Show when={props.place}>{(place) => <PlacePhoto place={place()} mapFallback />}</Show>
     </div>
   );
 }

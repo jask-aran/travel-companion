@@ -237,13 +237,3 @@ export function formatOpeningForDay(
     .map((period) => (period.close ? `${period.open}–${period.close}` : `from ${period.open}`))
     .join(", ");
 }
-
-/** "45 min" or "1–2 h" for Wanderlog's typical-visit estimate. */
-export function formatVisitLength(min?: number, max?: number): string | undefined {
-  const low = min ?? max;
-  const high = max ?? min;
-  if (low == null || high == null || low <= 0) return undefined;
-  const label = (minutes: number) =>
-    minutes >= 60 && minutes % 60 === 0 ? `${minutes / 60} h` : `${minutes} min`;
-  return low === high ? label(low) : `${label(low)}–${label(high)}`;
-}

@@ -77,12 +77,6 @@ export function attachPlaceDetails(bundle: TripBundle, source: unknown): number 
       ...(openingPeriods(meta.openingPeriods)
         ? { openingPeriods: openingPeriods(meta.openingPeriods) }
         : {}),
-      ...(asNumber(meta.minMinutesSpent) !== undefined
-        ? { visitMinutesMin: asNumber(meta.minMinutesSpent) }
-        : {}),
-      ...(asNumber(meta.maxMinutesSpent) !== undefined
-        ? { visitMinutesMax: asNumber(meta.maxMinutesSpent) }
-        : {}),
       ...(asString(meta.website) ? { website: asString(meta.website) } : {}),
       ...(asString(meta.internationalPhoneNumber)
         ? { phone: asString(meta.internationalPhoneNumber) }

@@ -59,8 +59,6 @@ export const PlaceDetailsSchema = v.object({
   description: optionalString,
   openingPeriods: v.optional(v.array(OpeningPeriodSchema)),
   /** Wanderlog's own estimate; user-contributed and occasionally implausible. */
-  visitMinutesMin: optionalNumber,
-  visitMinutesMax: optionalNumber,
   website: optionalString,
   phone: optionalString,
   /** e.g. OPERATIONAL, CLOSED_TEMPORARILY. */
