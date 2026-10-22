@@ -9,10 +9,17 @@
  *   --fs-figure  the numbers you came for: stats, flight times. 650 (500 mono).
  *   --fs-title   a day or the trip. 650.
  *
- * Capitals belong to --fs-label and nothing else. Mono is for what you read
- * character by character: times, airport codes, booking references. Colour is
- * either a kind (flight blue, lodging amber, travel slate) or "you can tap
- * this" (sea); secondary text is never coloured, just muted.
+ * Capitals belong to --fs-label and nothing else. Two voices: Sora says what
+ * a thing is (names, titles, notes); Paper Mono says what is known about it
+ * (labels, categories, addresses, times, distances).
+ *
+ * Colour is a kind or "you can tap this" (sea). Each kind owns a hue (flight
+ * blue, lodging amber, travel slate, places seal red) and tints the surfaces
+ * it fills, so a day reads as hotel, transfer, flight, transfer, hotel at a
+ * glance. Secondary text is never coloured, just muted.
+ *
+ * Icons stand in for a word only where the shape is unambiguous beside its
+ * value (a moon by a number of nights); the word stays for screen readers.
  */
 :root {
   color-scheme: light;
@@ -56,6 +63,7 @@
   --kind-flight: #1f4f68;
   --kind-lodging: #8a5a1a;
   --kind-travel: #5c6f7d;
+  --tint: 7%;
 
   --on-dark: #f7f1e6;
   --header-bg: linear-gradient(180deg, rgb(11 31 51 / 96%), rgb(11 31 51 / 88%));
@@ -115,6 +123,7 @@
   --kind-flight: #84bad6;
   --kind-lodging: #d6a34a;
   --kind-travel: #94a5b3;
+  --tint: 12%;
 
   --on-dark: #f0ece4;
   --header-bg: linear-gradient(180deg, #121b25, #16202b);
@@ -154,6 +163,7 @@
     --kind-flight: #84bad6;
     --kind-lodging: #d6a34a;
     --kind-travel: #94a5b3;
+    --tint: 12%;
 
     --on-dark: #f0ece4;
     --header-bg: linear-gradient(180deg, #121b25, #16202b);
@@ -538,9 +548,8 @@ p {
   color: var(--ink-muted);
 }
 
-.day-section__city::before {
-  content: "·";
-  margin: 0 0.4rem;
+.day-section__city {
+  margin-left: 0.7rem;
 }
 
 .day-section__title {
@@ -635,8 +644,9 @@ p {
   border-radius: 999px;
 }
 
+/* Places are the seal-red kind: the numbered stops carry the colour. */
 .stop__badge {
-  background: var(--ink);
+  background: var(--seal);
   color: var(--paper-elevated);
 }
 
@@ -693,7 +703,7 @@ p {
 
 .day-stats > div {
   position: relative;
-  padding: 0.6rem 0.75rem 0.65rem;
+  padding: 0.65rem 0.75rem 0.7rem;
 }
 
 .day-stats > div:first-child {
@@ -713,8 +723,31 @@ p {
   color: var(--ink-muted);
 }
 
+.day-stats__name {
+  display: flex;
+  height: 1rem;
+}
+
+.day-stats__name .mode-glyph {
+  width: 1rem;
+  height: 1rem;
+}
+
+.day-stats .day-stats__name--pin {
+  color: var(--seal);
+}
+
+.day-stats .day-stats__name--clock,
+.day-stats .day-stats__name--route {
+  color: var(--kind-travel);
+}
+
+.day-stats .day-stats__name--sunset {
+  color: var(--warn);
+}
+
 .day-stats dd {
-  margin: 0.25rem 0 0;
+  margin: 0.35rem 0 0;
   font-size: var(--fs-name);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
@@ -1378,8 +1411,9 @@ p {
   white-space: nowrap;
 }
 
-.travel__open::after {
-  content: " ↗";
+.travel__open .mode-glyph {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 /* An hour or more: a stretch of rail as long as the haul. */
@@ -1570,4 +1604,48 @@ p {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
+}
+
+/* --- Icons and kind tints --- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.with-icon,
+.detail__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.with-icon .mode-glyph,
+.detail__chip .mode-glyph {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+
+/* Each kind tints what it fills, layered over the card surface. */
+.lodging-band {
+  background-image: linear-gradient(
+    rgb(var(--lodging-rgb) / var(--tint)),
+    rgb(var(--lodging-rgb) / var(--tint))
+  );
+}
+
+.day-summary__flights {
+  background: rgb(var(--flight-rgb) / var(--tint));
+}
+
+.day-summary__transfer {
+  background: rgb(var(--travel-rgb) / var(--tint));
 }

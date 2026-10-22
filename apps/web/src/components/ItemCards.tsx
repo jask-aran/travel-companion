@@ -28,6 +28,7 @@ import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "
 import { photoAttribution, placePhotoUrl } from "../lib/place-photo";
 import { LONG_LEG_SECONDS } from "../lib/route-legs";
 import type { FlightTiming } from "../lib/day-times";
+import { Hidden, Icon } from "./Icon";
 
 function StatusPill(props: { status?: DayItem["status"] | undefined }) {
   return (
@@ -142,7 +143,8 @@ export function RouteLegRow(props: {
       <span class="travel__glyph">
         <ModeGlyph mode={props.leg.travelMode} />
       </span>
-      <span class="travel__mode">{formatTravelMode(props.leg.travelMode)}</span>
+      {/* The glyph names the mode; the word stays for screen readers. */}
+      <span class="travel__mode visually-hidden">{formatTravelMode(props.leg.travelMode)}</span>
       <Show when={detail()}>
         <span class="travel__detail">{detail()}</span>
       </Show>
@@ -167,7 +169,9 @@ export function RouteLegRow(props: {
             } to ${props.places[props.leg.toPlaceId]?.name}`}
           >
             {contents()}
-            <span class="travel__open" aria-hidden="true">Maps</span>
+            <span class="travel__open">
+              <Icon name="map" />
+            </span>
           </a>
         )}
       </Show>
@@ -237,10 +241,21 @@ function PlaceDetail(props: { place: Place; weekday: number; open: boolean }) {
         <Show when={hours() || visit()}>
           <div class="detail__glance">
             <Show when={hours()}>
-              {(text) => <span class="detail__chip detail__chip--hours">{text()}</span>}
+              {(text) => (
+                <span class="detail__chip detail__chip--hours">
+                  <Icon name="clock" />
+                  <Hidden>Open</Hidden>
+                  {text()}
+                </span>
+              )}
             </Show>
             <Show when={visit()}>
-              {(text) => <span class="detail__chip">~{text()} visit</span>}
+              {(text) => (
+                <span class="detail__chip">
+                  <Icon name="hourglass" />~{text()}
+                  <Hidden> typical visit</Hidden>
+                </span>
+              )}
             </Show>
           </div>
         </Show>
@@ -559,7 +574,15 @@ export function LodgingBand(props: {
           <Show when={props.place?.locality}>
             {(city) => <span>{city()}</span>}
           </Show>
-          <Show when={nightsLabel()}>{(label) => <span>{label()}</span>}</Show>
+          <Show when={nights()}>
+            {(count) => (
+              <span class="with-icon">
+                <Icon name="moon" />
+                {count()}
+                <Hidden>{` night${count() === 1 ? "" : "s"}`}</Hidden>
+              </span>
+            )}
+          </Show>
         </span>
         <Show when={expandable()}>
           <span class="lodging-band__chevron" classList={{ "is-open": open() }} aria-hidden="true" />

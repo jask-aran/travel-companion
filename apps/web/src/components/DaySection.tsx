@@ -27,6 +27,17 @@ import {
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { flightTiming, sunsetTime, type FlightTiming } from "../lib/day-times";
 import { DayItemRow, FlightConnector, FlightRow, LodgingBand, RouteLegRow } from "./ItemCards";
+import { Hidden, Icon, type IconName } from "./Icon";
+
+/** A stat's name as an icon, the word kept for screen readers. */
+function StatName(props: { icon: IconName; label: string }) {
+  return (
+    <dt class={`day-stats__name day-stats__name--${props.icon}`} title={props.label}>
+      <Icon name={props.icon} />
+      <Hidden>{props.label}</Hidden>
+    </dt>
+  );
+}
 
 /**
  * Number the sightseeing stops. A place stop that is one of the trip's own
@@ -239,7 +250,12 @@ export function DaySection(props: {
           <p class="day-section__date">
             {formatDayHeading(props.day.date)}
             <Show when={baseCity()}>
-              {(city) => <span class="day-section__city">{city()}</span>}
+              {(city) => (
+                <span class="day-section__city with-icon">
+                  <Icon name="pin" />
+                  {city()}
+                </span>
+              )}
             </Show>
           </p>
           <h2 class="day-section__title" id={`heading-${props.day.id}`}>
@@ -265,14 +281,14 @@ export function DaySection(props: {
                   <dl class="day-stats">
                     <Show when={stopCount() > 0}>
                       <div>
-                        <dt>Stops</dt>
+                        <StatName icon="pin" label="Stops" />
                         <dd>{stopCount()}</dd>
                       </div>
                     </Show>
                     <Show when={movingLabel()}>
                       {(label) => (
                         <div>
-                          <dt>Moving</dt>
+                          <StatName icon="clock" label="Moving" />
                           <dd>{label()}</dd>
                         </div>
                       )}
@@ -280,7 +296,7 @@ export function DaySection(props: {
                     <Show when={distanceLabel()}>
                       {(label) => (
                         <div>
-                          <dt>Distance</dt>
+                          <StatName icon="route" label="Distance" />
                           <dd>{label()}</dd>
                         </div>
                       )}
@@ -288,7 +304,7 @@ export function DaySection(props: {
                     <Show when={sunset()}>
                       {(time) => (
                         <div>
-                          <dt>Sunset</dt>
+                          <StatName icon="sunset" label="Sunset" />
                           <dd>{time()}</dd>
                         </div>
                       )}
