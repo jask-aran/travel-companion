@@ -632,19 +632,21 @@ p {
   border-top: var(--hairline);
 }
 
+/* The day's figures as one quiet line: value, then its label, wrapping on a
+   narrow screen rather than squeezing into boxed columns. */
 .day-stats {
   margin: 0;
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.25rem;
+  padding: 0.8rem var(--pad);
 }
 
 .day-stats > div {
-  padding: 0.7rem var(--pad) 0.75rem;
-}
-
-.day-stats > div + div {
-  border-left: var(--hairline);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: baseline;
+  gap: 0.35rem;
 }
 
 .day-stats dt {
@@ -652,10 +654,10 @@ p {
 }
 
 .day-stats dd {
-  margin: 0.15rem 0 0;
-  font-size: var(--fs-figure);
+  margin: 0;
+  font-size: var(--fs-name);
   font-weight: 650;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
