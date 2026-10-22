@@ -1333,30 +1333,6 @@ p {
   overflow: visible;
 }
 
-/* Scraped place detail */
-.detail {
-  margin-top: 0.45rem;
-}
-
-.detail__glance {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.detail__chip {
-  padding: 0.1rem 0.45rem;
-  border-radius: 6px;
-  background: rgb(var(--ink-rgb) / 7%);
-  color: var(--ink-soft);
-  font-variant-numeric: tabular-nums;
-}
-
-.detail__chip--hours {
-  background: rgb(var(--sea-rgb) / 14%);
-  color: var(--ink);
-}
-
 /* --- Buttons and pills --- */
 
 .text-button {
@@ -1711,15 +1687,13 @@ p {
   border: 0;
 }
 
-.with-icon,
-.detail__chip {
+.with-icon {
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
 }
 
-.with-icon .mode-glyph,
-.detail__chip .mode-glyph {
+.with-icon .mode-glyph {
   width: 1.1em;
   height: 1.1em;
   flex: none;
@@ -2324,17 +2298,7 @@ html {
   display: none;
 }
 
-/* What it is, then its rating and contacts, left-aligned like the words
-   before them; a long category wraps the icons to the next line. */
-.stop__meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 0.45rem;
-  row-gap: 0.1rem;
-  min-width: 0;
-}
-
+/* Rating and contacts, left-aligned after the stop's marker. */
 .stop__actions {
   display: flex;
   align-items: center;
@@ -2355,17 +2319,53 @@ html {
   height: 0.9rem;
 }
 
-/* The planned time, marked as a time by its clock. */
+/* The planned time: a calendar pill at the row's end, or pinned to the
+   photo's top corner, where it has a dark backing to read against. */
 .stop__when {
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  font-size: var(--fs-small);
 }
 
 .stop__when > .mode-glyph {
   width: 0.85rem;
   height: 0.85rem;
   color: var(--ink-muted);
+}
+
+.stop:has(> .stop__photo) .stop__when {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 2;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 55%);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.stop:has(> .stop__photo) .stop__when > .mode-glyph {
+  color: rgb(255 255 255 / 80%);
+}
+
+/* Today's hours, on a line of their own between what and where. */
+.stop__hours {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.stop__hours > .mode-glyph {
+  flex: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--kind-travel);
 }
 
 /* Your notes as the card's last line: one line, then all of it. */
@@ -2407,4 +2407,15 @@ html {
    draw a box across the faded edge; the credit itself sits right, on solid. */
 .stop__photo figcaption {
   mask-image: linear-gradient(to right, transparent 30%, #000 70%);
+}
+
+/* An opened stop keeps the planned-time pill in its top corner, so the
+   photo's credit goes to the bottom one. */
+.stop--open > .stop__photo figcaption {
+  inset: auto 0 0 0;
+  padding: 0.9rem 0.35rem 0.25rem;
+}
+
+.stop:has(> .stop__photo) .stop__when .item-time__sep {
+  color: rgb(255 255 255 / 70%);
 }

@@ -483,37 +483,24 @@ function ContactIcons(props: { phone?: string | undefined; website?: string | un
 }
 
 /**
- * Opening hours for the day and the typical visit length: the two things from
- * Wanderlog's scraped record that change what you would do, as chips.
+ * Opening hours for the day and the typical visit length, as one permanent
+ * line: "Open 10:00–17:00 · ~45 min visit". Spelled out with "Open", so it
+ * is not mistaken for the time you planned (the calendar pill).
  */
-function PlaceDetail(props: { place: Place; weekday: number }) {
+function PlaceHours(props: { place: Place; weekday: number }) {
   const details = () => props.place.details;
-  const hours = () => formatOpeningForDay(details()?.openingPeriods, props.weekday);
+  const hours = () => {
+    const text = formatOpeningForDay(details()?.openingPeriods, props.weekday);
+    return text && /^\d/.test(text) ? `Open ${text}` : text;
+  };
   const visit = () => formatVisitLength(details()?.visitMinutesMin, details()?.visitMinutesMax);
 
   return (
     <Show when={hours() || visit()}>
-      <div class="detail">
-        <div class="detail__glance">
-          <Show when={hours()}>
-            {(text) => (
-              <span class="detail__chip detail__chip--hours">
-                <Icon name="clock" />
-                <Hidden>Open</Hidden>
-                {text()}
-              </span>
-            )}
-          </Show>
-          <Show when={visit()}>
-            {(text) => (
-              <span class="detail__chip">
-                <Icon name="hourglass" />~{text()}
-                <Hidden> typical visit</Hidden>
-              </span>
-            )}
-          </Show>
-        </div>
-      </div>
+      <p class="stop__hours">
+        <Icon name="clock" />
+        <span>{[hours(), visit() && `~${visit()} visit`].filter(Boolean).join(" · ")}</span>
+      </p>
     </Show>
   );
 }
@@ -540,10 +527,10 @@ export function PlaceRow(props: {
     <li class="stop-item">
       <article class="stop" classList={{ "stop--stay": props.isStay, "stop--open": notesOpen() }}>
         {/*
-          * Top to bottom: marker and planned time; the name; what it is, with
-          * rating and contacts beside it; where it is; hours; then your notes,
-          * one line until opened. The photo sits behind, fading in from the
-          * right.
+          * Top to bottom: marker with rating and contacts (the planned time
+          * pinned on the photo); the name; what it is; today's hours; where
+          * it is; then your notes, one line until opened. The photo sits
+          * behind, fading in from the right.
           */}
         <div class="stop__body">
           <div class="stop__top">
@@ -552,25 +539,6 @@ export function PlaceRow(props: {
                 <ModeGlyph mode="lodging" />
               </Show>
             </span>
-            <Show when={timed()}>
-              <span class="stop__when" title="Planned time in Wanderlog">
-                <Icon name="clock" />
-                <Hidden>Planned </Hidden>
-                <TimeLabel start={props.item.startTime} end={props.item.endTime} />
-              </span>
-            </Show>
-          </div>
-          <a
-            class="stop__name"
-            href={buildGoogleMapsUrl(props.place)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {props.place.name}
-          </a>
-          {/* Left-aligned after the category, wrapping as a line of text does. */}
-          <div class="stop__meta-row">
-            <Show when={category()}>{(text) => <span class="stop__meta">{text()}</span>}</Show>
             <span class="stop__actions">
               <Show when={rating() ? props.place.rating : undefined}>
                 {(score) => (
@@ -586,10 +554,28 @@ export function PlaceRow(props: {
               <ContactIcons phone={props.place.details?.phone} website={props.place.details?.website} />
               <CopyAddress address={props.place.address} />
             </span>
+            {/* Your planned time, pinned on the photo's corner (or the row's
+                end without one), with a calendar so it reads as a plan. */}
+            <Show when={timed()}>
+              <span class="stop__when" title="Planned in Wanderlog">
+                <Icon name="calendar" />
+                <Hidden>Planned </Hidden>
+                <TimeLabel start={props.item.startTime} end={props.item.endTime} />
+              </span>
+            </Show>
           </div>
+          <a
+            class="stop__name"
+            href={buildGoogleMapsUrl(props.place)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {props.place.name}
+          </a>
+          <Show when={category()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
+          <PlaceHours place={props.place} weekday={props.weekday} />
           <Show when={area()}>{(where) => <p class="stop__where">{where()}</p>}</Show>
           <StatusPill status={props.item.status} />
-          <PlaceDetail place={props.place} weekday={props.weekday} />
           {/* Your notes, previewed in one line; the chevron says there is more. */}
           <Show when={notes()}>
             {(text) => (
