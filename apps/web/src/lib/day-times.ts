@@ -78,35 +78,75 @@ function shiftClock(time: string, minutes: number): string | undefined {
 export type FlightTiming = {
   /** Be at the departure airport by this local time. */
   airportBy: string;
-  /** Leave the previous stop by this time, when the day routes into the airport. */
+  /** Leave by this time, when the day routes into the airport. */
   leaveBy?: string;
-  /** The day's leg into the departure airport. */
-  leg?: RouteLeg;
+  /** The transfer to the airport, in travel order. Empty when nothing routes there. */
+  legs: RouteLeg[];
+  /** The transfer starts at the hotel, so `leaveBy` is when to check out. */
+  fromHotel: boolean;
 };
 
 /**
- * Work back from departure: the airport margin, then the day's own leg into
- * the airport stop (the one Wanderlog draws, often from the hotel). Leave-by
- * is rounded down to five minutes so it never reads tighter than it is.
+ * Wanderlog has no check-out times. A transfer traced back to the hotel only
+ * counts as the check-out when it starts by this standard checkout time;
+ * later than that you have left already and are out for the day.
+ */
+export const LATEST_CHECK_OUT = "11:00";
+
+/** A station or exit you pass through, not somewhere you spend time. */
+const isTransitPoint = (place?: Place) =>
+  /station|transit|transportation/.test(place?.category ?? "");
+
+function leaveTime(airportBy: string, legs: RouteLeg[]): string | undefined {
+  const [hours = 0, minutes = 0] = airportBy.split(":").map(Number);
+  const travel = legs.reduce((sum, leg) => sum + Math.ceil((leg.durationSeconds ?? 0) / 60), 0);
+  return shiftClock("00:00", Math.floor((hours * 60 + minutes - travel) / 5) * 5);
+}
+
+/**
+ * Work back from departure: the airport margin, then the day's leg into the
+ * airport stop. When stations sit between the hotel and the airport (walk to
+ * the station, then the train), the transfer is traced back through them to
+ * the hotel. Leave-by is rounded down to five minutes so it never reads
+ * tighter than it is.
  */
 export function flightTiming(
   flight: FlightItem,
   items: DayItem[],
   legs: Map<string, RouteLeg>,
   places: Record<string, Place>,
+  hotelPlaceId?: string,
 ): FlightTiming | undefined {
   if (!flight.departTime) return undefined;
   const airportBy = shiftClock(flight.departTime, -bufferMinutes(flight, places));
   if (!airportBy) return undefined;
 
-  const stop = items.find(
-    (item) => item.type === "place" && item.placeId === flight.departPlaceId,
-  );
-  const leg = stop ? legs.get(stop.id) : undefined;
-  if (!leg?.durationSeconds) return { airportBy };
+  const stops = items.filter((item) => item.type === "place");
+  const at = stops.findIndex((item) => item.placeId === flight.departPlaceId);
+  const direct = at >= 0 ? legs.get(stops[at]!.id) : undefined;
+  if (!direct?.durationSeconds) return { airportBy, legs: [], fromHotel: false };
 
-  const [hours = 0, minutes = 0] = airportBy.split(":").map(Number);
-  const leaveMinutes = hours * 60 + minutes - Math.ceil(leg.durationSeconds / 60);
-  const leaveBy = shiftClock("00:00", Math.floor(leaveMinutes / 5) * 5);
-  return leaveBy ? { airportBy, leaveBy, leg } : { airportBy };
+  const single: FlightTiming = {
+    airportBy,
+    legs: [direct],
+    fromHotel: Boolean(hotelPlaceId) && direct.fromPlaceId === hotelPlaceId,
+  };
+  const singleLeave = leaveTime(airportBy, [direct]);
+  if (singleLeave) single.leaveBy = singleLeave;
+  if (!hotelPlaceId || single.fromHotel) return single;
+
+  const chain = [direct];
+  for (let index = at - 1; index >= 0; index -= 1) {
+    const stop = stops[index]!;
+    if (stop.type !== "place" || !isTransitPoint(places[stop.placeId])) return single;
+    const leg = legs.get(stop.id);
+    if (!leg?.durationSeconds) return single;
+    chain.unshift(leg);
+    if (leg.fromPlaceId === hotelPlaceId) break;
+  }
+  if (chain[0]?.fromPlaceId !== hotelPlaceId) return single;
+
+  const leaveBy = leaveTime(airportBy, chain);
+  if (!leaveBy || leaveBy > LATEST_CHECK_OUT) return single;
+  return { airportBy, leaveBy, legs: chain, fromHotel: true };
 }

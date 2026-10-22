@@ -773,9 +773,11 @@ p {
   border-top: var(--hairline);
 }
 
-/* The run to the airport belongs to its flight: no rule between them. */
-.day-summary__flights > .travel + li {
-  border-top: 0;
+/* A transfer to or from an airport, its own section of the summary card. */
+.day-summary__transfer {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .card {
@@ -857,13 +859,18 @@ p {
 }
 
 /* Worked back from departure: the airport margin, then the leg into it. */
-.flight-timing {
+.leave-time {
   margin: 0.6rem 0 0;
   font-size: var(--fs-small);
   color: var(--ink-muted);
 }
 
-.flight-timing strong {
+.lodging-band__leave {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.leave-time strong {
   font-family: var(--font-mono);
   font-weight: 500;
   color: var(--ink);

@@ -25,7 +25,7 @@ import {
   type RouteLegIndex,
 } from "../lib/route-legs";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
-import { flightTiming, sunsetTime } from "../lib/day-times";
+import { flightTiming, sunsetTime, type FlightTiming } from "../lib/day-times";
 import { DayItemRow, FlightConnector, FlightRow, LodgingBand, RouteLegRow } from "./ItemCards";
 
 /**
@@ -44,12 +44,13 @@ function placeSequences(items: DayItem[], stayPlaceIds: Set<string>): number[] {
   });
 }
 
-function LodgingSlotView(props: { slot: LodgingSlot; bundle: TripBundle }) {
+function LodgingSlotView(props: { slot: LodgingSlot; bundle: TripBundle; checkOutBy?: string | undefined }) {
   return (
     <LodgingBand
       item={slotToLodgingItem(props.slot)}
       place={stayPlace(props.bundle, props.slot.stay)}
       role={props.slot.role}
+      checkOutBy={props.slot.role === "check-out" ? props.checkOutBy : undefined}
     />
   );
 }
@@ -121,16 +122,42 @@ export function DaySection(props: {
       new Map(
         flights().map((flight) => [
           flight.id,
-          flightTiming(flight, routeItems(), legs(), props.bundle.places),
+          flightTiming(flight, routeItems(), legs(), props.bundle.places, wokeIn()?.placeId),
         ]),
       ),
   );
-  /** "Check out by" when the run to the airport starts at the hotel you leave today. */
-  const leaveLabel = (fromPlaceId: string | undefined) => {
-    if (!fromPlaceId) return undefined;
-    if (wokeInSlot()?.role === "check-out" && fromPlaceId === wokeIn()?.placeId) return "Check out by";
-    return `Leave ${placeName(fromPlaceId) ?? "for the airport"} by`;
+  /** The run to the airport starts at the hotel you check out of today. */
+  const leavesFromCheckOut = (timing: FlightTiming | undefined) =>
+    Boolean(timing?.fromHotel) && wokeInSlot()?.role === "check-out";
+  /** Shown on the check-out band rather than the flight. */
+  const checkOutBy = createMemo(
+    () =>
+      flights()
+        .map((flight) => timings().get(flight.id))
+        .find(leavesFromCheckOut)?.leaveBy,
+  );
+  const leaveLabel = (timing: FlightTiming | undefined) => {
+    const from = timing?.legs[0]?.fromPlaceId;
+    if (!from || leavesFromCheckOut(timing)) return undefined;
+    return `Leave ${placeName(from) ?? "for the airport"} by`;
   };
+  /**
+   * The run out of the arrival airport: the leg into the next stop, or the
+   * leg to tonight's hotel when the airport ends the day.
+   */
+  const legOutOf = (placeId: string | undefined) => {
+    if (!placeId) return undefined;
+    const items = routeItems();
+    const at = items.findIndex((item) => item.type === "place" && item.placeId === placeId);
+    if (at < 0) return undefined;
+    const next = items.slice(at + 1).find((item) => item.type === "place");
+    return next ? legs().get(next.id) : endLeg();
+  };
+  /** Names a transfer's far end unless it is a hotel band beside it. */
+  const transferNote = (placeId: string, prefix: "from" | "to") =>
+    placeId === wokeIn()?.placeId || placeId === sleepsIn()?.placeId
+      ? undefined
+      : `${prefix} ${placeName(placeId)}`;
 
   /** 0 = Sunday, matching Google's opening-hours numbering. */
   const weekday = createMemo(() => parseTripDate(props.day.date).getDay());
@@ -269,38 +296,53 @@ export function DaySection(props: {
                   </dl>
                 </Show>
                 <For each={leaving()}>
-                  {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} />}
+                  {(slot) => (
+                    <LodgingSlotView slot={slot} bundle={props.bundle} checkOutBy={checkOutBy()} />
+                  )}
                 </For>
-                <Show when={flights().length > 0}>
-                  <ol class="day-summary__flights">
-                    <For each={flights()}>
-                      {(item) => (
-                        <>
-                          {/* The run to the airport, so the summary alone gets you there. */}
-                          <Show when={timings().get(item.id)?.leg}>
-                            {(leg) => (
+                {/* Each flight with its transfers either side, each its own section,
+                    so the summary alone gets you from hotel to hotel. */}
+                <For each={flights()}>
+                  {(item) => (
+                    <>
+                      <Show when={timings().get(item.id)?.legs.length}>
+                        <ol class="day-summary__transfer">
+                          <For each={timings().get(item.id)?.legs}>
+                            {(leg, index) => (
                               <RouteLegRow
-                                leg={leg()}
+                                leg={leg}
                                 places={props.bundle.places}
                                 note={
-                                  // The hotel is the band just above; only name a stop.
-                                  leg().fromPlaceId === wokeIn()?.placeId
-                                    ? undefined
-                                    : `from ${placeName(leg().fromPlaceId)}`
+                                  index() === 0
+                                    ? transferNote(leg.fromPlaceId, "from")
+                                    : undefined
                                 }
                               />
                             )}
-                          </Show>
-                          <FlightRow
-                            item={item}
-                            timing={timings().get(item.id)}
-                            leaveLabel={leaveLabel(timings().get(item.id)?.leg?.fromPlaceId)}
-                          />
-                        </>
-                      )}
-                    </For>
-                  </ol>
-                </Show>
+                          </For>
+                        </ol>
+                      </Show>
+                      <ol class="day-summary__flights">
+                        <FlightRow
+                          item={item}
+                          timing={timings().get(item.id)}
+                          leaveLabel={leaveLabel(timings().get(item.id))}
+                        />
+                      </ol>
+                      <Show when={legOutOf(item.arrivePlaceId)}>
+                        {(leg) => (
+                          <ol class="day-summary__transfer">
+                            <RouteLegRow
+                              leg={leg()}
+                              places={props.bundle.places}
+                              note={transferNote(leg().toPlaceId, "to")}
+                            />
+                          </ol>
+                        )}
+                      </Show>
+                    </>
+                  )}
+                </For>
                 <For each={arriving()}>
                   {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} />}
                 </For>

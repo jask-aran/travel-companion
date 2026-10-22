@@ -368,7 +368,7 @@ export function FlightConnector(props: { item: FlightItem }) {
 export function FlightRow(props: {
   item: FlightItem;
   timing?: FlightTiming | undefined;
-  /** "Check out by" when the run to the airport starts at the hotel. */
+  /** Names where you leave from; unset when the hotel band shows it instead. */
   leaveLabel?: string | undefined;
 }) {
   const [open, setOpen] = createSignal(false);
@@ -429,8 +429,8 @@ export function FlightRow(props: {
 
           <Show when={props.timing}>
             {(timing) => (
-              <p class="flight-timing">
-                <Show when={timing().leaveBy}>
+              <p class="leave-time">
+                <Show when={props.leaveLabel && timing().leaveBy}>
                   {(leaveBy) => (
                     <>
                       {props.leaveLabel ?? "Leave by"} <strong>{leaveBy()}</strong>
@@ -493,6 +493,8 @@ export function LodgingBand(props: {
   item: LodgingItem;
   place?: Place | undefined;
   role?: LodgingCardRole | undefined;
+  /** When to leave for the airport, on the day you check out. */
+  checkOutBy?: string | undefined;
 }) {
   const [open, setOpen] = createSignal(false);
 
@@ -562,6 +564,13 @@ export function LodgingBand(props: {
           <span class="lodging-band__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
         </Show>
         <span class="lodging-band__name">{props.item.name}</span>
+        <Show when={props.checkOutBy}>
+          {(time) => (
+            <span class="leave-time lodging-band__leave">
+              Check out by <strong>{time()}</strong>
+            </span>
+          )}
+        </Show>
       </button>
 
       <Show when={open()}>

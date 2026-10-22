@@ -46,15 +46,57 @@ describe("flight timing", () => {
 
   it("works back from departure through the leg into the airport", () => {
     // 08:30 − 2 h = 06:30, − 57 min = 05:33, rounded down to 05:30.
-    expect(flightTiming(flight, items, legs, places)).toEqual({
+    expect(flightTiming(flight, items, legs, places, "hotel")).toEqual({
       airportBy: "06:30",
       leaveBy: "05:30",
-      leg: legs.get("s1"),
+      legs: [legs.get("s1")],
+      fromHotel: true,
     });
   });
 
   it("gives only the airport time when nothing routes into it", () => {
-    expect(flightTiming(flight, [], legs, places)).toEqual({ airportBy: "06:30" });
+    expect(flightTiming(flight, [], legs, places)).toEqual({ airportBy: "06:30", legs: [], fromHotel: false });
+  });
+
+  describe("through a station on the way", () => {
+    // Hotel → walk to the station → train to the airport, as on 6 Dec.
+    const stationPlaces = {
+      ...places,
+      exit: { id: "exit", name: "Hongik University Station Exit 4", category: "transportation_service" },
+      mall: { id: "mall", name: "Coex Mall", category: "shopping_mall" },
+    } as Record<string, Place>;
+    const via = (stop: string) =>
+      [
+        { id: "s0", type: "place", placeId: stop },
+        { id: "s1", type: "place", placeId: "kix" },
+      ] as DayItem[];
+    const chainLegs = (stop: string) =>
+      new Map<string, RouteLeg>([
+        ["s0", { id: "a", fromPlaceId: "hotel", toPlaceId: stop, travelMode: "walking", durationSeconds: 240 }],
+        ["s1", { id: "b", fromPlaceId: stop, toPlaceId: "kix", travelMode: "transit", durationSeconds: 86 * 60 }],
+      ]);
+
+    it("traces the transfer back to the hotel", () => {
+      // 06:30 − 86 − 4 = 05:00.
+      const timing = flightTiming(flight, via("exit"), chainLegs("exit"), stationPlaces, "hotel");
+      expect(timing?.leaveBy).toBe("05:00");
+      expect(timing?.fromHotel).toBe(true);
+      expect(timing?.legs.map((leg) => leg.id)).toEqual(["a", "b"]);
+    });
+
+    it("stops at somewhere you spend time", () => {
+      const timing = flightTiming(flight, via("mall"), chainLegs("mall"), stationPlaces, "hotel");
+      expect(timing?.fromHotel).toBe(false);
+      expect(timing?.legs.map((leg) => leg.id)).toEqual(["b"]);
+    });
+
+    it("does not call an afternoon departure a check-out", () => {
+      // An evening flight: you left the hotel hours earlier, as on 11 Dec.
+      const evening = { ...flight, departTime: "20:10" };
+      const timing = flightTiming(evening, via("exit"), chainLegs("exit"), stationPlaces, "hotel");
+      expect(timing?.fromHotel).toBe(false);
+      expect(timing?.leaveBy).toBe("16:40");
+    });
   });
 
   it("uses the shorter margin only when both airports share a country", () => {
