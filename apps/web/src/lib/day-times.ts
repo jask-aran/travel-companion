@@ -87,8 +87,14 @@ export type FlightTiming = {
   leaveBy?: string;
   /** The transfer to the airport, in travel order. Empty when nothing routes there. */
   legs: RouteLeg[];
-  /** The transfer starts at the hotel, so `leaveBy` is when to check out. */
+  /** The transfer starts at the hotel. */
   fromHotel: boolean;
+  /**
+   * It starts at the hotel early enough to be the check-out. Later than
+   * LATEST_CHECK_OUT you checked out hours ago; `leaveBy` is then just when
+   * to set off.
+   */
+  checkOut: boolean;
 };
 
 /**
@@ -125,14 +131,16 @@ export function flightTiming(
   const stops = items.filter((item) => item.type === "place");
   const at = stops.findIndex((item) => item.placeId === flight.departPlaceId);
   const direct = at >= 0 ? legs.get(stops[at]!.id) : undefined;
-  if (!direct?.durationSeconds) return { airportBy, legs: [], fromHotel: false };
+  if (!direct?.durationSeconds) return { airportBy, legs: [], fromHotel: false, checkOut: false };
 
+  const singleLeave = leaveTime(airportBy, [direct]);
+  const fromHotel = Boolean(hotelPlaceId) && direct.fromPlaceId === hotelPlaceId;
   const single: FlightTiming = {
     airportBy,
     legs: [direct],
-    fromHotel: Boolean(hotelPlaceId) && direct.fromPlaceId === hotelPlaceId,
+    fromHotel,
+    checkOut: fromHotel && Boolean(singleLeave) && singleLeave! <= LATEST_CHECK_OUT,
   };
-  const singleLeave = leaveTime(airportBy, [direct]);
   if (singleLeave) single.leaveBy = singleLeave;
   if (!hotelPlaceId || single.fromHotel) return single;
 
@@ -149,5 +157,5 @@ export function flightTiming(
 
   const leaveBy = leaveTime(airportBy, chain);
   if (!leaveBy || leaveBy > LATEST_CHECK_OUT) return single;
-  return { airportBy, leaveBy, legs: chain, fromHotel: true };
+  return { airportBy, leaveBy, legs: chain, fromHotel: true, checkOut: true };
 }

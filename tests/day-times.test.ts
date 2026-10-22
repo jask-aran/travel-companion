@@ -61,11 +61,25 @@ describe("flight timing", () => {
       leaveBy: "05:30",
       legs: [legs.get("s1")],
       fromHotel: true,
+      checkOut: true,
     });
   });
 
   it("gives only the airport time when nothing routes into it", () => {
-    expect(flightTiming(flight, [], legs, places)).toEqual({ airportBy: "06:30", legs: [], fromHotel: false });
+    expect(flightTiming(flight, [], legs, places)).toEqual({
+      airportBy: "06:30",
+      legs: [],
+      fromHotel: false,
+      checkOut: false,
+    });
+  });
+
+  it("does not call an evening run from the hotel a check-out", () => {
+    // Straight from the hotel to the airport for a 20:10 flight.
+    const timing = flightTiming({ ...flight, departTime: "20:10" }, items, legs, places, "hotel");
+    expect(timing?.fromHotel).toBe(true);
+    expect(timing?.checkOut).toBe(false);
+    expect(timing?.leaveBy).toBe("17:10");
   });
 
   describe("through a station on the way", () => {
