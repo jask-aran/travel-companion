@@ -179,6 +179,47 @@ export const RouteLegSchema = v.object({
   encodedPolyline: optionalString,
 });
 
+const clockTime = v.pipe(v.string(), v.regex(/^\d{2}:\d{2}$/));
+
+/** One vehicle ride within a departure option. */
+export const DepartureSegmentSchema = v.object({
+  /** English where we know it (see line-names), else the operator's own. */
+  name: v.string(),
+  /** The name as the provider gave it, when that differs from `name`. */
+  nameLocal: optionalString,
+  kind: v.picklist(["shinkansen", "express", "rail", "subway", "bus", "ferry", "other"]),
+  departTime: clockTime,
+  arriveTime: clockTime,
+  /** Where the vehicle is headed, for picking the right platform. */
+  headsign: optionalString,
+  /** The line's own colour, "#rrggbb", as station signs use it. */
+  color: optionalString,
+});
+
+/** One way to make the trip: board at `departTime`, arrive at `arriveTime`. */
+export const DepartureOptionSchema = v.object({
+  departTime: clockTime,
+  arriveTime: clockTime,
+  /** Door to door, walking included. */
+  minutes: v.number(),
+  segments: v.array(DepartureSegmentSchema),
+});
+
+/**
+ * Departure options for one leg around a target time, fetched at pull time
+ * (Google in Korea, NAVITIME in Japan) and shipped with the trip so they
+ * work offline. Keyed in the bundle by `fromPlaceId>toPlaceId`.
+ */
+export const DepartureBoardSchema = v.object({
+  provider: v.picklist(["google", "navitime"]),
+  /** "arrive" by the time (a flight, a booked start) or "depart" at it. */
+  target: v.object({ kind: v.picklist(["arrive", "depart"]), date: isoDate, time: clockTime }),
+  fetchedAt: v.string(),
+  /** NAVITIME's marketplace plan gives averaged, not timetabled, times. */
+  approximate: v.optional(v.boolean()),
+  options: v.array(DepartureOptionSchema),
+});
+
 export const TripDaySchema = v.object({
   id: v.string(),
   date: isoDate,
@@ -205,6 +246,7 @@ export const TripBundleSchema = v.object({
   days: v.array(TripDaySchema),
   places: v.record(v.string(), PlaceSchema),
   routeLegs: v.record(v.string(), RouteLegSchema),
+  departures: v.optional(v.record(v.string(), DepartureBoardSchema)),
 });
 
 export type PlaceImage = v.InferOutput<typeof PlaceImageSchema>;
@@ -219,6 +261,9 @@ export type FlightItem = v.InferOutput<typeof FlightItemSchema>;
 export type LodgingItem = v.InferOutput<typeof LodgingItemSchema>;
 export type DayItem = v.InferOutput<typeof DayItemSchema>;
 export type RouteLeg = v.InferOutput<typeof RouteLegSchema>;
+export type DepartureSegment = v.InferOutput<typeof DepartureSegmentSchema>;
+export type DepartureOption = v.InferOutput<typeof DepartureOptionSchema>;
+export type DepartureBoard = v.InferOutput<typeof DepartureBoardSchema>;
 export type TripDay = v.InferOutput<typeof TripDaySchema>;
 export type TripBundle = v.InferOutput<typeof TripBundleSchema>;
 

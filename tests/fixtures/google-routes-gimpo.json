@@ -1,0 +1,641 @@
+{
+  "routes": [
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "transitDetails": {
+                "stopDetails": {
+                  "arrivalStop": {
+                    "name": "Hongik Univ. Entrance",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.557707,
+                        "longitude": 126.92661299999999
+                      }
+                    }
+                  },
+                  "arrivalTime": "2026-12-03T02:43:00Z",
+                  "departureStop": {
+                    "name": "김포공항",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.561709,
+                        "longitude": 126.802843
+                      }
+                    }
+                  },
+                  "departureTime": "2026-12-03T02:29:00Z"
+                },
+                "localizedValues": {
+                  "arrivalTime": {
+                    "time": {
+                      "text": "11:43 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  },
+                  "departureTime": {
+                    "time": {
+                      "text": "11:29 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  }
+                },
+                "headsign": "서울역 방면",
+                "transitLine": {
+                  "agencies": [
+                    {
+                      "name": "공항철도",
+                      "uri": "http://www.odsay.com/Subway/LineInfo.asp?CID=1000&LMenu=2/"
+                    }
+                  ],
+                  "name": "수도권전철",
+                  "color": "#0095d4",
+                  "nameShort": "공항철도",
+                  "textColor": "#ffffff",
+                  "vehicle": {
+                    "name": {
+                      "text": "Subway"
+                    },
+                    "type": "SUBWAY",
+                    "iconUri": "//maps.gstatic.com/mapfiles/transit/iw2/6/subway2.png"
+                  }
+                },
+                "stopCount": 3
+              },
+              "travelMode": "TRANSIT"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            }
+          ]
+        }
+      ],
+      "duration": "1657s"
+    },
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "transitDetails": {
+                "stopDetails": {
+                  "arrivalStop": {
+                    "name": "Hongik Univ. Entrance",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.557707,
+                        "longitude": 126.92661299999999
+                      }
+                    }
+                  },
+                  "arrivalTime": "2026-12-03T02:48:00Z",
+                  "departureStop": {
+                    "name": "김포공항",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.561709,
+                        "longitude": 126.802843
+                      }
+                    }
+                  },
+                  "departureTime": "2026-12-03T02:33:00Z"
+                },
+                "localizedValues": {
+                  "arrivalTime": {
+                    "time": {
+                      "text": "11:48 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  },
+                  "departureTime": {
+                    "time": {
+                      "text": "11:33 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  }
+                },
+                "headsign": "서울역 방면",
+                "transitLine": {
+                  "agencies": [
+                    {
+                      "name": "공항철도",
+                      "uri": "http://www.odsay.com/Subway/LineInfo.asp?CID=1000&LMenu=2/"
+                    }
+                  ],
+                  "name": "수도권전철",
+                  "color": "#0095d4",
+                  "nameShort": "공항철도",
+                  "textColor": "#ffffff",
+                  "vehicle": {
+                    "name": {
+                      "text": "Subway"
+                    },
+                    "type": "SUBWAY",
+                    "iconUri": "//maps.gstatic.com/mapfiles/transit/iw2/6/subway2.png"
+                  }
+                },
+                "stopCount": 3
+              },
+              "travelMode": "TRANSIT"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            }
+          ]
+        }
+      ],
+      "duration": "1717s"
+    },
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "transitDetails": {
+                "stopDetails": {
+                  "arrivalStop": {
+                    "name": "Hongik Univ. Entrance",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.557707,
+                        "longitude": 126.92661299999999
+                      }
+                    }
+                  },
+                  "arrivalTime": "2026-12-03T02:56:00Z",
+                  "departureStop": {
+                    "name": "김포공항",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.561709,
+                        "longitude": 126.802843
+                      }
+                    }
+                  },
+                  "departureTime": "2026-12-03T02:41:00Z"
+                },
+                "localizedValues": {
+                  "arrivalTime": {
+                    "time": {
+                      "text": "11:56 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  },
+                  "departureTime": {
+                    "time": {
+                      "text": "11:41 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  }
+                },
+                "headsign": "서울역 방면",
+                "transitLine": {
+                  "agencies": [
+                    {
+                      "name": "공항철도",
+                      "uri": "http://www.odsay.com/Subway/LineInfo.asp?CID=1000&LMenu=2/"
+                    }
+                  ],
+                  "name": "수도권전철",
+                  "color": "#0095d4",
+                  "nameShort": "공항철도",
+                  "textColor": "#ffffff",
+                  "vehicle": {
+                    "name": {
+                      "text": "Subway"
+                    },
+                    "type": "SUBWAY",
+                    "iconUri": "//maps.gstatic.com/mapfiles/transit/iw2/6/subway2.png"
+                  }
+                },
+                "stopCount": 3
+              },
+              "travelMode": "TRANSIT"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            }
+          ]
+        }
+      ],
+      "duration": "1717s"
+    },
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "transitDetails": {
+                "stopDetails": {
+                  "arrivalStop": {
+                    "name": "Hongik Univ. Entrance",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.557707,
+                        "longitude": 126.92661299999999
+                      }
+                    }
+                  },
+                  "arrivalTime": "2026-12-03T03:05:00Z",
+                  "departureStop": {
+                    "name": "김포공항",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.561709,
+                        "longitude": 126.802843
+                      }
+                    }
+                  },
+                  "departureTime": "2026-12-03T02:50:00Z"
+                },
+                "localizedValues": {
+                  "arrivalTime": {
+                    "time": {
+                      "text": "12:05 PM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  },
+                  "departureTime": {
+                    "time": {
+                      "text": "11:50 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  }
+                },
+                "headsign": "서울역 방면",
+                "transitLine": {
+                  "agencies": [
+                    {
+                      "name": "공항철도",
+                      "uri": "http://www.odsay.com/Subway/LineInfo.asp?CID=1000&LMenu=2/"
+                    }
+                  ],
+                  "name": "수도권전철",
+                  "color": "#0095d4",
+                  "nameShort": "공항철도",
+                  "textColor": "#ffffff",
+                  "vehicle": {
+                    "name": {
+                      "text": "Subway"
+                    },
+                    "type": "SUBWAY",
+                    "iconUri": "//maps.gstatic.com/mapfiles/transit/iw2/6/subway2.png"
+                  }
+                },
+                "stopCount": 3
+              },
+              "travelMode": "TRANSIT"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "travelMode": "WALK"
+            }
+          ]
+        }
+      ],
+      "duration": "1717s"
+    },
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "transitDetails": {
+                "stopDetails": {
+                  "arrivalStop": {
+                    "name": "Seodaemun Post Office",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.561918999999996,
+                        "longitude": 126.932016
+                      }
+                    }
+                  },
+                  "arrivalTime": "2026-12-03T03:04:35Z",
+                  "departureStop": {
+                    "name": "Gimpo International Airport International Terminal",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.565284,
+                        "longitude": 126.801065
+                      }
+                    }
+                  },
+                  "departureTime": "2026-12-03T02:28:28Z"
+                },
+                "localizedValues": {
+                  "arrivalTime": {
+                    "time": {
+                      "text": "12:04 PM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  },
+                  "departureTime": {
+                    "time": {
+                      "text": "11:28 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  }
+                },
+                "headsign": "혜화역",
+                "headway": "720s",
+                "transitLine": {
+                  "agencies": [
+                    {
+                      "name": "서울특별시버스운송사업조합",
+                      "uri": "http://www.odsay.com/Bus/Seoul_Main.asp?CID=1000&LMenu=1"
+                    }
+                  ],
+                  "name": "서울 간선버스",
+                  "color": "#374ff2",
+                  "nameShort": "601",
+                  "textColor": "#ffffff",
+                  "vehicle": {
+                    "name": {
+                      "text": "Bus"
+                    },
+                    "type": "BUS",
+                    "iconUri": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png"
+                  }
+                },
+                "stopCount": 20
+              },
+              "travelMode": "TRANSIT"
+            },
+            {
+              "travelMode": "WALK"
+            }
+          ]
+        }
+      ],
+      "duration": "3545s"
+    },
+    {
+      "legs": [
+        {
+          "steps": [
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "transitDetails": {
+                "stopDetails": {
+                  "arrivalStop": {
+                    "name": "Deungchon Middle School. Korea Forestry Promotion Institute",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.552949999999996,
+                        "longitude": 126.860198
+                      }
+                    }
+                  },
+                  "arrivalTime": "2026-12-03T02:38:11Z",
+                  "departureStop": {
+                    "name": "Gimpo International Airport International Terminal",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.565653999999995,
+                        "longitude": 126.801858
+                      }
+                    }
+                  },
+                  "departureTime": "2026-12-03T02:26:00Z"
+                },
+                "localizedValues": {
+                  "arrivalTime": {
+                    "time": {
+                      "text": "11:38 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  },
+                  "departureTime": {
+                    "time": {
+                      "text": "11:26 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  }
+                },
+                "headsign": "Daerim Station",
+                "transitLine": {
+                  "agencies": [
+                    {
+                      "name": "서울특별시버스운송사업조합",
+                      "uri": "http://www.odsay.com/Bus/Seoul_Main.asp?CID=1000&LMenu=1"
+                    }
+                  ],
+                  "name": "서울 공항버스",
+                  "color": "#8ddef2",
+                  "nameShort": "6003",
+                  "textColor": "#000000",
+                  "vehicle": {
+                    "name": {
+                      "text": "Bus"
+                    },
+                    "type": "BUS",
+                    "iconUri": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png"
+                  }
+                },
+                "stopCount": 9
+              },
+              "travelMode": "TRANSIT"
+            },
+            {
+              "travelMode": "WALK"
+            },
+            {
+              "transitDetails": {
+                "stopDetails": {
+                  "arrivalStop": {
+                    "name": "Hongik Univ. Station",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.557263000000006,
+                        "longitude": 126.924318
+                      }
+                    }
+                  },
+                  "arrivalTime": "2026-12-03T03:10:03Z",
+                  "departureStop": {
+                    "name": "Deungchon Middle School, Baekseok Elementary School",
+                    "location": {
+                      "latLng": {
+                        "latitude": 37.552952999999995,
+                        "longitude": 126.86055999999999
+                      }
+                    }
+                  },
+                  "departureTime": "2026-12-03T02:48:12Z"
+                },
+                "localizedValues": {
+                  "arrivalTime": {
+                    "time": {
+                      "text": "12:10 PM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  },
+                  "departureTime": {
+                    "time": {
+                      "text": "11:48 AM"
+                    },
+                    "timeZone": "Asia/Seoul"
+                  }
+                },
+                "headsign": "Hongik Univ. Station",
+                "headway": "540s",
+                "transitLine": {
+                  "agencies": [
+                    {
+                      "name": "서울특별시버스운송사업조합",
+                      "uri": "http://www.odsay.com/Bus/Seoul_Main.asp?CID=1000&LMenu=1"
+                    }
+                  ],
+                  "name": "서울 지선버스",
+                  "color": "#0abb0c",
+                  "nameShort": "5712",
+                  "textColor": "#ffffff",
+                  "vehicle": {
+                    "name": {
+                      "text": "Bus"
+                    },
+                    "type": "BUS",
+                    "iconUri": "//maps.gstatic.com/mapfiles/transit/iw2/6/bus2.png"
+                  }
+                },
+                "stopCount": 10
+              },
+              "travelMode": "TRANSIT"
+            },
+            {
+              "travelMode": "WALK"
+            }
+          ]
+        }
+      ],
+      "duration": "3099s"
+    }
+  ]
+}

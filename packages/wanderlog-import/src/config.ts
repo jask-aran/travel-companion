@@ -38,6 +38,11 @@ const IngestionConfigSchema = v.object({
     }),
   ),
   /**
+   * RapidAPI key for NAVITIME Route (totalnavi): departure times in Japan,
+   * which Google's API does not cover. Without it Japan legs get no board.
+   */
+  navitime: v.optional(v.object({ apiKey: v.optional(v.string()) })),
+  /**
    * Passphrase used to encrypt the published trip payload. Optional — with no
    * passphrase the build publishes plaintext, which is only safe privately.
    */

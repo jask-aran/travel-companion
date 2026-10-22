@@ -11,6 +11,11 @@ import { decryptTrip, encryptTrip, type EncryptedPayload } from "../../apps/web/
  * Google photo names are copied from the previous payload. Refetching them
  * would be one subrequest per place and can kill the invocation on the free
  * plan. A local `pnpm ship` still refreshes photos.
+ *
+ * Departure boards are carried the same way, for every leg that still
+ * exists: NAVITIME's plan counts each request, and a phone tap must not
+ * spend it. A board keeps its own target time, so a moved stop shows what it
+ * was fetched for until the next local pull.
  */
 
 const OBJECT_KEY = "trip.enc";
@@ -56,6 +61,14 @@ function carryPhotos(next: TripBundle, previous: TripBundle | undefined): number
     copied += 1;
   }
   return copied;
+}
+
+function carryDepartures(next: TripBundle, previous: TripBundle | undefined): number {
+  if (!previous?.departures) return 0;
+  const legs = new Set(Object.values(next.routeLegs).map((leg) => `${leg.fromPlaceId}>${leg.toPlaceId}`));
+  const kept = Object.entries(previous.departures).filter(([key]) => legs.has(key));
+  if (kept.length) next.departures = Object.fromEntries(kept);
+  return kept.length;
 }
 
 /**
@@ -114,6 +127,7 @@ async function refresh(request: Request, env: RefreshEnv): Promise<Response> {
   const detailCount = attachPlaceDetails(result.bundle, parsed.data);
   const previous = await previousBundle(env, passphrase);
   const photosCopied = carryPhotos(result.bundle, previous);
+  const departuresCopied = carryDepartures(result.bundle, previous);
   const bundle = parseTripBundle(result.bundle);
   if (previous && sameTrip(bundle, previous)) {
     console.log(JSON.stringify({ message: "trip unchanged" }));
@@ -129,6 +143,7 @@ async function refresh(request: Request, env: RefreshEnv): Promise<Response> {
     places: result.report.counts.places,
     details: detailCount,
     photosCopied,
+    departuresCopied,
   }));
 
   return Response.json({

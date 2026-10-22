@@ -9,6 +9,8 @@ import { parseTripBundle } from "../packages/trip-schema/src/index.js";
 import { normaliseCompleteWanderlog } from "../packages/trip-normaliser/src/complete.js";
 import { attachPlacePhotos } from "../packages/trip-normaliser/src/place-photos.js";
 import { attachPlaceDetails } from "../packages/trip-normaliser/src/place-details.js";
+import { attachDepartures } from "../packages/trip-normaliser/src/departures.js";
+import { departureTargets } from "../apps/web/src/lib/departure-targets.js";
 import type { ImportOverrides } from "../packages/trip-normaliser/src/index.js";
 
 const { values } = parseArgs({
@@ -129,8 +131,24 @@ const detailCount = attachPlaceDetails(result.bundle, parsed.data);
 const googleApiKey = process.env.GOOGLE_MAPS_API_KEY ?? config.google?.apiKey;
 const photoReport = await attachPlacePhotos(result.bundle, googleApiKey);
 
-const bundle = parseTripBundle(result.bundle);
 const workingBundlePath = loaded.resolvePath(config.paths.workingBundle);
+
+/*
+ * Departure times for flight transfers and timed journeys: Google in Korea,
+ * NAVITIME in Japan. Cached beside the bundle for a week, since NAVITIME's
+ * plan allows 500 requests a month.
+ */
+const departureReport = await attachDepartures(
+  result.bundle,
+  departureTargets(result.bundle),
+  {
+    google: googleApiKey,
+    navitime: process.env.NAVITIME_API_KEY ?? config.navitime?.apiKey,
+  },
+  resolve(dirname(workingBundlePath), "departures-cache.json"),
+);
+
+const bundle = parseTripBundle(result.bundle);
 const reportPath = loaded.resolvePath(config.paths.report);
 const markdownReportPath = reportPath.replace(/\.json$/i, ".md");
 
@@ -153,3 +171,9 @@ if (photoReport.skipped && !photoReport.requested) {
   );
   for (const message of photoReport.errors) console.warn(`  ! ${message}`);
 }
+console.log(
+  `Departures: ${departureReport.boards} boards (${departureReport.cached} cached; ` +
+    `requested ${departureReport.requested.google} Google, ${departureReport.requested.navitime} NAVITIME; ` +
+    `${departureReport.skipped} skipped).`,
+);
+for (const message of departureReport.errors) console.warn(`  ! ${message}`);

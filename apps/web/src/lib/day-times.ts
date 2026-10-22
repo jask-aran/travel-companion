@@ -73,7 +73,7 @@ function bufferMinutes(flight: FlightItem, places: Record<string, Place>): numbe
 }
 
 /** HH:MM moved by `minutes`, wrapping at midnight. */
-function shiftClock(time: string, minutes: number): string | undefined {
+export function shiftClock(time: string, minutes: number): string | undefined {
   const match = /^(\d{1,2}):(\d{2})$/.exec(time);
   if (!match) return undefined;
   const total = (Number(match[1]) * 60 + Number(match[2]) + minutes + 1440 * 2) % 1440;

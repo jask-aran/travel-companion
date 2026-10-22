@@ -2009,3 +2009,161 @@ html {
 .lodging-band > :not(.lodging-band__summary, .stop__photo) {
   grid-column: 1 / -1;
 }
+
+/* --- Departure boards --- */
+
+/* Under a summary leg, indented to its text; the leg's rail runs on past it. */
+.departures {
+  padding: 0 var(--pad) 0.55rem var(--text-x);
+  margin-top: -0.25rem;
+}
+
+.departures__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  min-height: 2rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--paper-elevated);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  text-align: left;
+  cursor: pointer;
+}
+
+.departures__toggle > .mode-glyph {
+  flex: none;
+  color: var(--kind-travel);
+}
+
+.departures__lead {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.departures__arrow {
+  color: var(--ink-muted);
+}
+
+.departures__lead .departures__line {
+  margin-left: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink-soft);
+  font-family: var(--font-sans);
+}
+
+.departures__count {
+  margin-left: auto;
+  color: var(--ink-muted);
+  font-size: var(--fs-label);
+}
+
+.departures__chevron {
+  flex: none;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin: 0 0.15rem 0.15rem 0.1rem;
+  border-right: 1.5px solid var(--ink-muted);
+  border-bottom: 1.5px solid var(--ink-muted);
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.departures__chevron.is-open {
+  transform: translateY(0.2rem) rotate(225deg);
+}
+
+.departures__body {
+  margin-top: 0.35rem;
+}
+
+.departures__target,
+.departures__source {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+.departures__target {
+  text-transform: uppercase;
+}
+
+.departures__source {
+  margin-top: 0.3rem;
+}
+
+.departures__list {
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.departure {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 0.6rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 6px;
+}
+
+.departure + .departure {
+  border-top: var(--hairline);
+}
+
+/* The one to aim for. */
+.departure--pick {
+  background: rgb(var(--travel-rgb) / 10%);
+}
+
+.departure--pick + .departure {
+  border-top-color: transparent;
+}
+
+.departure__times,
+.departure__minutes {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}
+
+.departure__minutes {
+  color: var(--ink-muted);
+}
+
+.departure__lines {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+/* A line chip edged in the line's own colour, as station signs use it. */
+.departure__line {
+  max-width: 100%;
+  padding: 0.05rem 0.4rem 0.05rem 0.35rem;
+  border-left: 3px solid var(--line, var(--kind-travel));
+  border-radius: 3px;
+  background: rgb(var(--ink-rgb) / 6%);
+  font-size: var(--fs-label);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.departure__line--express,
+.departure__line--shinkansen {
+  font-weight: 600;
+}

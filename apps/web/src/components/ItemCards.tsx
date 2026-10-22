@@ -1,5 +1,6 @@
 import { For, Show, createSignal, onCleanup, onMount, type JSX } from "solid-js";
 import type {
+  DepartureBoard,
   DayItem,
   FlightItem,
   LodgingItem,
@@ -138,6 +139,8 @@ export function RouteLegRow(props: {
    * summary, where no stop beside it says where it runs.
    */
   showEnds?: boolean;
+  /** Departure times fetched for this leg, shown beneath it. */
+  board?: DepartureBoard | undefined;
 }) {
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
@@ -218,7 +221,90 @@ export function RouteLegRow(props: {
           </a>
         )}
       </Show>
+      <Show when={props.board}>{(board) => <DepartureBoardView board={board()} />}</Show>
     </li>
+  );
+}
+
+/**
+ * The trains and buses around a leg's target time, folded under it. The one
+ * to aim for is marked: for "arrive by", the last that still makes it; for
+ * "leave at", the first after.
+ */
+function DepartureBoardView(props: { board: DepartureBoard }) {
+  const [open, setOpen] = createSignal(false);
+  const target = () => props.board.target;
+  const pick = () => {
+    const options = props.board.options;
+    if (target().kind === "arrive") {
+      const fits = options.filter((option) => option.arriveTime <= target().time);
+      return fits.at(-1) ?? options[0];
+    }
+    return options.find((option) => option.departTime >= target().time) ?? options.at(-1);
+  };
+  const lead = () => pick() ?? props.board.options[0];
+  const targetLabel = () => `${target().kind === "arrive" ? "Arrive by" : "Leave from"} ${target().time}`;
+  const source = () =>
+    props.board.provider === "google" ? "Times: Google" : "Approximate times: NAVITIME";
+
+  return (
+    <div class="departures" classList={{ "is-open": open() }}>
+      <button
+        type="button"
+        class="departures__toggle"
+        aria-expanded={open()}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <Icon name="clock" />
+        <Show when={lead()}>
+          {(option) => (
+            <span class="departures__lead">
+              <strong>{option().departTime}</strong>
+              <span class="departures__arrow">→</span>
+              {option().arriveTime}
+              <span class="departures__line">{option().segments[0]?.name}</span>
+            </span>
+          )}
+        </Show>
+        <span class="departures__count">
+          {props.board.options.length > 1 ? `+${props.board.options.length - 1}` : ""}
+        </span>
+        <span class="departures__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
+      </button>
+      <Show when={open()}>
+        <div class="departures__body">
+          <p class="departures__target">{targetLabel()}</p>
+          <ol class="departures__list">
+            <For each={props.board.options}>
+              {(option) => (
+                <li class="departure" classList={{ "departure--pick": option === pick() }}>
+                  <span class="departure__times">
+                    <strong>{option.departTime}</strong>–{option.arriveTime}
+                  </span>
+                  <span class="departure__lines">
+                    <For each={option.segments}>
+                      {(segment) => (
+                        <span
+                          class={`departure__line departure__line--${segment.kind}`}
+                          title={[segment.nameLocal, segment.headsign && `towards ${segment.headsign}`]
+                            .filter(Boolean)
+                            .join(" · ")}
+                          style={segment.color ? { "--line": segment.color } : undefined}
+                        >
+                          {segment.name}
+                        </span>
+                      )}
+                    </For>
+                  </span>
+                  <span class="departure__minutes">{formatDurationShort(option.minutes * 60)}</span>
+                </li>
+              )}
+            </For>
+          </ol>
+          <p class="departures__source">{source()}</p>
+        </div>
+      </Show>
+    </div>
   );
 }
 

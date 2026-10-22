@@ -62,6 +62,8 @@ On `changed: false` the button says "Already up to date." and does nothing else.
 
 This path does not run `wanderlog-cli`, Playwright, or Vite. It does not call Google. Photo names are carried forward so a refresh stays inside the Workers subrequest limit. They go stale until the next `pnpm ship`, which still calls `attachPlacePhotos`.
 
+Departure boards (train and bus times for flight transfers and timed journeys) are carried forward the same way, for every leg that still exists. They are fetched only by a local pull: Google Routes for Korea, NAVITIME (via RapidAPI, key in `config/trip.local.yaml` under `navitime.apiKey`) for Japan, since Google's API has no Japanese transit. NAVITIME's plan allows 500 requests a month, so answers are cached for a week in `public-data/trips/<trip>/departures-cache.json`.
+
 **From the laptop.** `pnpm ship` rebuilds the shell, encrypts `working.json` into the static `trip.enc`, and uploads a new Pages deployment. Use that when the app itself changed, or when photo names need a fresh Google fetch. `pnpm trip:pull` and `pnpm trip:refresh` only update the local bundle. They do not touch the live site.
 
 ## Encryption
