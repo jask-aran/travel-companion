@@ -24,7 +24,7 @@
   --fs-title: 1.5rem;
 
   --font-sans: "Sora", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-mono: "Paper Mono", ui-monospace, monospace;
 
   --ink-rgb: 11 31 51;
   --line-rgb: 154 143 122;
@@ -247,10 +247,59 @@ p {
 .card__detail-label,
 .lodging-band__dates dt,
 .status-pill {
+  font-family: var(--font-mono);
   font-size: var(--fs-label);
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/*
+ * Two voices: Sora for what a thing is (names, titles, notes), Paper Mono for
+ * what is said about it (labels, categories, addresses, times, distances).
+ */
+.stop__meta,
+.stop__where,
+.travel__mode,
+.travel__detail,
+.flight-end__city,
+.leave-time,
+.card__detail-row,
+.day-stats dd {
+  font-family: var(--font-mono);
+}
+
+/* A mono space is a full cell wide; pull words together so "Check out by"
+   reads as a phrase, not three tokens. */
+.stop__meta,
+.stop__where,
+.travel__mode,
+.travel__detail,
+.flight-end__city,
+.leave-time,
+.card__detail-row,
+.day-stats dd,
+.trip-header__eyebrow,
+.state-panel__eyebrow,
+.unlock__eyebrow,
+.day-section__date,
+.day-part__label,
+.day-stats dt,
+.lodging-band__eyebrow,
+.card__kind,
+.card__detail-label,
+.lodging-band__dates dt,
+.status-pill {
+  word-spacing: -0.3em;
+}
+
+.stop__meta,
+.stop__where,
+.travel__mode,
+.travel__detail,
+.flight-end__city,
+.card__detail-row {
+  font-size: var(--fs-small);
 }
 
 .mode-glyph {

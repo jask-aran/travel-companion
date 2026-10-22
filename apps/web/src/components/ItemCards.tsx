@@ -15,6 +15,7 @@ import {
   formatDistance,
   formatCategory,
   formatDuration,
+  formatDurationShort,
   formatLodgingDate,
   formatRatingLabel,
   formatOpeningForDay,
@@ -112,7 +113,7 @@ export function RouteLegRow(props: {
 
   const detail = () =>
     [
-      formatDuration(props.leg.durationSeconds),
+      formatDurationShort(props.leg.durationSeconds),
       formatDistance(props.leg.distanceMetres),
       props.note,
     ]

@@ -1,5 +1,5 @@
 /**
- * Vendor the two webfonts into public/fonts so the PWA has zero third-party
+ * Vendor the webfonts into public/fonts so the PWA has zero third-party
  * origins at first paint and works fully offline.
  *
  * Google Fonts' css2 endpoint serves different faces per User-Agent; the modern
@@ -19,9 +19,20 @@ const MODERN_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
 /** Sora carries the UI weights (400/600/650/700) as one variable face. */
-const FAMILIES = [
-  { slug: "sora", css: "family=Sora:wght@400..700" },
-  { slug: "ibm-plex-mono", css: "family=IBM+Plex+Mono:wght@400;500" },
+const FAMILIES = [{ slug: "sora", css: "family=Sora:wght@400..700" }];
+
+/**
+ * Paper Mono is not on Google Fonts, so its variable woff2 comes straight
+ * from the repo, pinned to a commit. OFL 1.1, built on Geist Mono.
+ */
+const PAPER_MONO_COMMIT = "e6eaeceaef02e77e3db997711e07a16378de2bd7";
+const DIRECT = [
+  {
+    family: "Paper Mono",
+    name: "paper-mono-variable.woff2",
+    weight: "100 800",
+    url: `https://raw.githubusercontent.com/paper-design/paper-mono/${PAPER_MONO_COMMIT}/fonts/webfonts/PaperMono%5Bwght%5D.woff2`,
+  },
 ];
 
 type Face = {
@@ -96,6 +107,22 @@ for (const family of FAMILIES) {
     );
     void index;
   }
+}
+
+for (const font of DIRECT) {
+  const bytes = Buffer.from(await (await get(font.url)).arrayBuffer());
+  await writeFile(resolve(outDir, font.name), bytes);
+  console.log(`${font.name.padEnd(34)} ${(bytes.length / 1024).toFixed(1)} KB  weight ${font.weight}`);
+  rules.push(
+    "@font-face {",
+    `  font-family: "${font.family}";`,
+    "  font-style: normal;",
+    `  font-weight: ${font.weight};`,
+    "  font-display: swap;",
+    `  src: url("./fonts/${font.name}") format("woff2");`,
+    "}",
+    "",
+  );
 }
 
 await writeFile(resolve(appDir, "src/fonts.css"), rules.join("\n"), "utf8");
