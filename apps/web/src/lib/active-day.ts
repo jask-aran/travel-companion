@@ -1,6 +1,11 @@
 /**
- * Observe day sections and report the one that owns the upper itinerary band.
- * Single observer, root-relative margins — no per-frame scroll math.
+ * Scroll-spy for day sections: the active day is the first one crossing a
+ * band just under the sticky tabs. Sections are contiguous, so the topmost
+ * section in the band is the one you are reading. Ranking by visible ratio
+ * instead let a short folded day beat a long open one that filled the screen.
+ *
+ * The last days can be too short to ever reach the band, so reaching the
+ * bottom of the page selects the last day.
  */
 export function observeActiveDay(
   sectionIds: string[],
@@ -13,67 +18,31 @@ export function observeActiveDay(
     return () => undefined;
   }
 
-  const root = options?.root ?? null;
   const topOffset = options?.topOffsetPx ?? 96;
-  const ratios = new Map<string, number>();
-  let current = sectionIds[0] ?? "";
+  const inBand = new Set<string>();
+  let current = "";
+  let atBottom = false;
 
-  const emit = (next: string) => {
+  const emit = (next: string | undefined) => {
     if (!next || next === current) return;
     current = next;
     onChange(next);
   };
 
   const pick = () => {
-    let bestId = current;
-    let bestRatio = -1;
-    for (const id of sectionIds) {
-      const ratio = ratios.get(id) ?? 0;
-      if (ratio > bestRatio) {
-        bestRatio = ratio;
-        bestId = id;
-      }
-    }
-    if (bestRatio > 0) {
-      emit(bestId);
-      return;
-    }
-
-    // Fallback: nearest section whose top is at or above the observation band.
-    const rootTop =
-      root instanceof Element ? root.getBoundingClientRect().top : 0;
-    const band = rootTop + topOffset;
-    let nearestId = sectionIds[0] ?? current;
-    let nearestDistance = Number.POSITIVE_INFINITY;
-
-    for (const id of sectionIds) {
-      const el = document.getElementById(id);
-      if (!el) continue;
-      const top = el.getBoundingClientRect().top;
-      const distance = Math.abs(top - band);
-      if (top <= band + 8 && distance < nearestDistance) {
-        nearestDistance = distance;
-        nearestId = id;
-      }
-    }
-    emit(nearestId);
+    if (atBottom) return emit(sectionIds.at(-1));
+    emit(sectionIds.find((id) => inBand.has(id)));
   };
 
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        if (entry.isIntersecting) inBand.add(entry.target.id);
+        else inBand.delete(entry.target.id);
       }
       pick();
     },
-    {
-      root,
-      // Bias toward the upper portion of the itinerary pane under the sticky tabs.
-      rootMargin: `-${topOffset}px 0px -45% 0px`,
-      // Three thresholds are enough to rank sections; six fired the callback
-      // (and the O(sections) `pick`) far more often during momentum scroll.
-      threshold: [0, 0.25, 0.6],
-    },
+    { root: options?.root ?? null, rootMargin: `-${topOffset}px 0px -55% 0px`, threshold: 0 },
   );
 
   for (const id of sectionIds) {
@@ -81,9 +50,26 @@ export function observeActiveDay(
     if (el) observer.observe(el);
   }
 
-  if (current) onChange(current);
+  let frame = 0;
+  const onScroll = () => {
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      const doc = document.documentElement;
+      const bottom = window.innerHeight + window.scrollY >= doc.scrollHeight - 4;
+      if (bottom !== atBottom) {
+        atBottom = bottom;
+        pick();
+      }
+    });
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
 
-  return () => observer.disconnect();
+  return () => {
+    observer.disconnect();
+    window.removeEventListener("scroll", onScroll);
+    cancelAnimationFrame(frame);
+  };
 }
 
 export function scrollToDay(dayId: string, behavior?: ScrollBehavior): void {

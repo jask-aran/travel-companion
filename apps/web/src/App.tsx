@@ -8,6 +8,7 @@ import {
   createSignal,
   onCleanup,
   onMount,
+  untrack,
 } from "solid-js";
 import { DaySection } from "./components/DaySection";
 import { DayTabs } from "./components/DayTabs";
@@ -82,7 +83,9 @@ export default function App() {
     if (!bundle) return;
 
     const ids = bundle.days.map((day) => day.id);
-    if (!activeDayId() && ids[0]) setActiveDayId(ids[0]);
+    // Untracked: reading it here re-ran this effect on every scroll update,
+    // rebuilding the observer, which then reported day one again.
+    if (!untrack(activeDayId) && ids[0]) setActiveDayId(ids[0]);
 
     stopObserver?.();
     stopObserver = undefined;
