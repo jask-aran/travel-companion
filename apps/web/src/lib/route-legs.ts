@@ -1,4 +1,4 @@
-import type { DayItem, RouteLeg, TripBundle } from "@travel-companion/trip-schema";
+import type { DayItem, Place, RouteLeg, TripBundle } from "@travel-companion/trip-schema";
 
 /**
  * Wanderlog stores travel between stops as standalone route legs keyed by
@@ -89,6 +89,45 @@ export function dayTravelSeconds(legs: Map<string, RouteLeg>): number {
   let total = 0;
   for (const leg of legs.values()) total += leg.durationSeconds ?? 0;
   return total;
+}
+
+/** Time and distance on foot across the day's legs. */
+export function dayWalking(legs: Iterable<RouteLeg>): { seconds: number; metres: number } {
+  let seconds = 0;
+  let metres = 0;
+  for (const leg of legs) {
+    if (leg.travelMode !== "walking") continue;
+    seconds += leg.durationSeconds ?? 0;
+    metres += leg.distanceMetres ?? 0;
+  }
+  return { seconds, metres };
+}
+
+/** Straight-line kilometres between two places, when both have coordinates. */
+export function crowKm(from?: Place, to?: Place): number | undefined {
+  if (from?.latitude == null || from.longitude == null) return undefined;
+  if (to?.latitude == null || to.longitude == null) return undefined;
+  const rad = Math.PI / 180;
+  const dLat = (to.latitude - from.latitude) * rad;
+  const dLon = (to.longitude - from.longitude) * rad;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(from.latitude * rad) * Math.cos(to.latitude * rad) * Math.sin(dLon / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * A leg worth calling out in the day summary: it changes town (20 km as the
+ * crow flies, since transit routes inflate road distance) or it is simply
+ * long. On this trip that is Nagoya to Takayama, the airport runs and the
+ * legs out and back on day trips, but not a long ride across one city.
+ */
+export const JOURNEY_KM = 20;
+export const JOURNEY_SECONDS = 75 * 60;
+
+export function isJourney(leg: RouteLeg, places: Record<string, Place>): boolean {
+  if ((leg.durationSeconds ?? 0) >= JOURNEY_SECONDS) return true;
+  return (crowKm(places[leg.fromPlaceId], places[leg.toPlaceId]) ?? 0) >= JOURNEY_KM;
 }
 
 /** Ground distance covered by the day's legs, in metres. */

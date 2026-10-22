@@ -7,20 +7,21 @@ const UNIX_EPOCH_JD = 2_440_587.5;
 const J2000 = 2_451_545;
 
 /**
- * Sunset for a date and place, as the local clock reads it in `timeZone`.
+ * Sunrise and sunset for a date and place, as the local clock reads them in
+ * `timeZone`.
  *
  * The standard sunrise equation, good to a minute or two away from the poles.
  * The −0.833° altitude allows for refraction and the sun's radius, matching
- * published tables.
+ * published tables. Either is undefined in polar day or night.
  */
-export function sunsetTime(
+export function sunTimes(
   isoDate: string,
   latitude: number,
   longitude: number,
   timeZone: string,
-): string | undefined {
+): { sunrise?: string; sunset?: string } {
   const midnightUtc = Date.parse(`${isoDate}T00:00:00Z`);
-  if (Number.isNaN(midnightUtc)) return undefined;
+  if (Number.isNaN(midnightUtc)) return {};
 
   const day = Math.ceil(midnightUtc / DAY_MS + UNIX_EPOCH_JD - J2000 + 0.0008);
   const meanNoon = day - longitude / 360;
@@ -39,17 +40,20 @@ export function sunsetTime(
   const cosHourAngle =
     (Math.sin(-0.833 * RAD) - Math.sin(latitude * RAD) * Math.sin(declination)) /
     (Math.cos(latitude * RAD) * Math.cos(declination));
-  // Polar day or night: the sun does not set.
-  if (cosHourAngle < -1 || cosHourAngle > 1) return undefined;
+  if (cosHourAngle < -1 || cosHourAngle > 1) return {};
 
-  const setJd = transit + Math.acos(cosHourAngle) / RAD / 360;
-  return new Intl.DateTimeFormat("en-GB", {
+  const halfDay = Math.acos(cosHourAngle) / RAD / 360;
+  const clock = new Intl.DateTimeFormat("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
     timeZone,
-  }).format(new Date((setJd - UNIX_EPOCH_JD) * DAY_MS));
+  });
+  const at = (julian: number) => clock.format(new Date((julian - UNIX_EPOCH_JD) * DAY_MS));
+  return { sunrise: at(transit - halfDay), sunset: at(transit + halfDay) };
 }
+
+export const sunsetTime = (...args: Parameters<typeof sunTimes>) => sunTimes(...args).sunset;
 
 /**
  * How long before departure to be at the airport. Domestic only when both

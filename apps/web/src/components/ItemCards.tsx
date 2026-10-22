@@ -110,6 +110,11 @@ export function RouteLegRow(props: {
   places: TripBundle["places"];
   /** Names an end not listed beside it, like "from <hotel>". */
   note?: string | undefined;
+  /**
+   * Name both ends on a line of their own: for a journey shown in the
+   * summary, where no stop beside it says where it runs.
+   */
+  showEnds?: boolean;
 }) {
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
@@ -146,8 +151,22 @@ export function RouteLegRow(props: {
       </span>
       {/* The glyph names the mode; the word stays for screen readers. */}
       <span class="travel__mode visually-hidden">{formatTravelMode(props.leg.travelMode)}</span>
-      <Show when={detail()}>
-        <span class="travel__detail">{detail()}</span>
+      <Show
+        when={props.showEnds}
+        fallback={
+          <Show when={detail()}>
+            <span class="travel__detail">{detail()}</span>
+          </Show>
+        }
+      >
+        <span class="travel__text">
+          <span class="travel__ends">
+            {props.places[props.leg.fromPlaceId]?.name} → {props.places[props.leg.toPlaceId]?.name}
+          </span>
+          <Show when={detail()}>
+            <span class="travel__detail">{detail()}</span>
+          </Show>
+        </span>
       </Show>
     </>
   );

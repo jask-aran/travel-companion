@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DayItem, FlightItem, Place, RouteLeg } from "../packages/trip-schema/src/index.js";
-import { flightTiming, sunsetTime } from "../apps/web/src/lib/day-times.js";
+import { flightTiming, sunTimes, sunsetTime } from "../apps/web/src/lib/day-times.js";
 
 const minutes = (time: string | undefined) => {
   const [hours = 0, mins = 0] = (time ?? "").split(":").map(Number);
@@ -16,6 +16,16 @@ describe("sunset", () => {
     ["2026-06-21", 51.48, 0, "Europe/London", "21:21"],
   ])("%s at %f,%f is within two minutes of the reference", (date, lat, lng, zone, expected) => {
     const actual = sunsetTime(date, lat, lng, zone);
+    expect(Math.abs(minutes(actual) - minutes(expected))).toBeLessThanOrEqual(2);
+  });
+
+  it.each([
+    ["2026-12-03", 35.68, 139.77, "Asia/Tokyo", "06:33"],
+    ["2026-12-04", 37.57, 126.98, "Asia/Seoul", "07:30"],
+    ["2026-11-21", -37.81, 144.96, "Australia/Melbourne", "05:56"],
+    ["2026-06-21", 51.48, 0, "Europe/London", "04:43"],
+  ])("sunrise %s at %f,%f is within two minutes of the reference", (date, lat, lng, zone, expected) => {
+    const actual = sunTimes(date, lat, lng, zone).sunrise;
     expect(Math.abs(minutes(actual) - minutes(expected))).toBeLessThanOrEqual(2);
   });
 

@@ -19,14 +19,15 @@ import {
 import { bindFlights } from "../lib/flight-binding";
 import {
   closingLeg,
-  dayTravelMetres,
   dayTravelSeconds,
+  dayWalking,
+  isJourney,
   legsForDay,
   type RouteLegIndex,
 } from "../lib/route-legs";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { fold, unfold } from "../lib/fold-motion";
-import { flightTiming, sunsetTime, type FlightTiming } from "../lib/day-times";
+import { flightTiming, sunTimes, type FlightTiming } from "../lib/day-times";
 import { DayItemRow, FlightConnector, FlightRow, LodgingBand, RouteLegRow } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
@@ -184,9 +185,28 @@ export function DaySection(props: {
     return all;
   });
   const movingLabel = createMemo(() => formatDurationShort(dayTravelSeconds(allLegs())));
-  const distanceLabel = createMemo(() => {
-    const metres = dayTravelMetres(allLegs());
-    return metres > 0 ? formatDistance(metres) : undefined;
+  /** On foot, time over distance: total distance mixed trains in and meant little. */
+  const walking = createMemo(() => {
+    const walk = dayWalking(allLegs().values());
+    const time = formatDurationShort(walk.seconds);
+    const distance = formatDistance(walk.metres);
+    return time && distance ? { time, distance } : undefined;
+  });
+
+  /**
+   * Long journeys of the day in route order, shown in the summary like the
+   * airport transfers. Those already shown beside a flight are not repeated.
+   */
+  const journeys = createMemo(() => {
+    const shown = new Set<string>();
+    for (const flight of flights()) {
+      for (const leg of timings().get(flight.id)?.legs ?? []) shown.add(leg.id);
+      const out = legOutOf(flight.arrivePlaceId);
+      if (out) shown.add(out.id);
+    }
+    return [...allLegs().values()].filter(
+      (leg) => !shown.has(leg.id) && isJourney(leg, props.bundle.places),
+    );
   });
   /** The town the day is based in, from where you sleep. Shown even folded. */
   const baseCity = createMemo(() => {
@@ -199,18 +219,17 @@ export function DaySection(props: {
    * A day runs: leave the old place, fly, arrive at the new one, then the
    * route. Wanderlog has no check-in/out times, so the role decides the order.
    */
-  const leaving = createMemo(() =>
-    summarySlots().filter((slot) => slot.role === "check-out" || slot.role === "morning"),
-  );
-  const arriving = createMemo(() =>
-    summarySlots().filter((slot) => slot.role !== "check-out" && slot.role !== "morning"),
-  );
+  /** Where the day starts: the hotel you leave, or the one you stay on in. */
+  const startsHere = (slot: LodgingSlot) =>
+    slot.role === "check-out" || slot.role === "morning" || slot.role === "stay";
+  const leaving = createMemo(() => summarySlots().filter(startsHere));
+  const arriving = createMemo(() => summarySlots().filter((slot) => !startsHere(slot)));
   /**
    * Sunset where you are that evening: tonight's hotel, else the last stop
    * with coordinates. Every day carries one zone, which is right for Japan
    * and Korea (both UTC+9).
    */
-  const sunset = createMemo(() => {
+  const sun = createMemo(() => {
     const stay = stayForDay(stays(), props.day.date);
     const hotel = stay ? stayPlace(props.bundle, stay) : undefined;
     const lastStop = routeItems()
@@ -219,10 +238,11 @@ export function DaySection(props: {
       .at(-1);
     const place = hotel?.latitude !== undefined ? hotel : lastStop;
     if (place?.latitude === undefined || place.longitude === undefined) return undefined;
-    return sunsetTime(props.day.date, place.latitude, place.longitude, props.day.timezone);
+    const times = sunTimes(props.day.date, place.latitude, place.longitude, props.day.timezone);
+    return times.sunrise && times.sunset ? { rise: times.sunrise, set: times.sunset } : undefined;
   });
   const hasStats = createMemo(
-    () => stopCount() > 0 || Boolean(movingLabel()) || Boolean(distanceLabel()) || Boolean(sunset()),
+    () => stopCount() > 0 || Boolean(movingLabel()) || Boolean(walking()) || Boolean(sun()),
   );
   const hasSummary = createMemo(
     () => hasStats() || summarySlots().length > 0 || flights().length > 0,
@@ -325,19 +345,33 @@ export function DaySection(props: {
                         </div>
                       )}
                     </Show>
-                    <Show when={distanceLabel()}>
-                      {(label) => (
+                    <Show when={walking()}>
+                      {(walk) => (
                         <div>
-                          <StatName icon="route" label="Distance" />
-                          <dd>{label()}</dd>
+                          <StatName icon="walk" label="Walking" />
+                          <dd class="day-stats__pair">
+                            <span>{walk().time}</span>
+                            <span>{walk().distance}</span>
+                          </dd>
                         </div>
                       )}
                     </Show>
-                    <Show when={sunset()}>
-                      {(time) => (
+                    <Show when={sun()}>
+                      {(times) => (
                         <div>
-                          <StatName icon="sunset" label="Sunset" />
-                          <dd>{time()}</dd>
+                          <StatName icon="sunset" label="Sunrise and sunset" />
+                          <dd class="day-stats__pair">
+                            <span>
+                              <span aria-hidden="true">↑</span>
+                              <Hidden>Sunrise </Hidden>
+                              {times().rise}
+                            </span>
+                            <span>
+                              <span aria-hidden="true">↓</span>
+                              <Hidden>Sunset </Hidden>
+                              {times().set}
+                            </span>
+                          </dd>
                         </div>
                       )}
                     </Show>
@@ -389,6 +423,13 @@ export function DaySection(props: {
                         )}
                       </Show>
                     </>
+                  )}
+                </For>
+                <For each={journeys()}>
+                  {(leg) => (
+                    <ol class="day-summary__transfer">
+                      <RouteLegRow leg={leg} places={props.bundle.places} showEnds />
+                    </ol>
                   )}
                 </For>
                 <For each={arriving()}>

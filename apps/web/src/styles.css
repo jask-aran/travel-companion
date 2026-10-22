@@ -772,10 +772,19 @@ p {
 
 .day-stats dd {
   margin: 0.35rem 0 0;
-  font-size: var(--fs-name);
-  font-weight: 500;
+  font-size: var(--fs-small);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* Two figures in one cell: walking time over distance, sunrise over sunset. */
+.day-stats__pair {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.day-stats .day-stats__name--walk {
+  color: var(--kind-travel);
 }
 
 /* Lodging row: badge, label line and chevron on top; the name beneath has
@@ -1772,4 +1781,23 @@ p {
 
 .card__ref-chevron.is-open {
   transform: translateY(1px) rotate(225deg);
+}
+
+/* A journey in the summary names its ends, with the figures beneath. */
+.travel__text {
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+/* Wraps rather than truncating: the destination is the point. */
+.travel__ends {
+  overflow-wrap: break-word;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.day-summary__transfer .travel__inner:has(.travel__text) {
+  padding-block: 0.55rem;
 }

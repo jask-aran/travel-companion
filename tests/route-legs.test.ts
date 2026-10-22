@@ -3,6 +3,8 @@ import type { TripBundle } from "../packages/trip-schema/src/index.js";
 import {
   closingLeg,
   dayTravelSeconds,
+  dayWalking,
+  isJourney,
   indexRouteLegs,
   legsForDay,
 } from "../apps/web/src/lib/route-legs.js";
@@ -230,5 +232,38 @@ describe("passenger list de-duplication", () => {
   it("keeps a note when the names are absent", () => {
     expect(noteRestatesNames("Window seats booked", names)).toBe(false);
     expect(noteRestatesNames(undefined, names)).toBe(false);
+  });
+});
+
+describe("journeys worth a place in the summary", () => {
+  const places = {
+    nagoya: { id: "nagoya", name: "Nagoya Station", latitude: 35.1709, longitude: 136.8815 },
+    takayama: { id: "takayama", name: "Takayama Station", latitude: 36.1407, longitude: 137.2512 },
+    coex: { id: "coex", name: "Starfield Coex Mall", latitude: 37.5116, longitude: 127.0595 },
+    yeonhui: { id: "yeonhui", name: "30-3 Yeonhui-ro 1-gil", latitude: 37.5663, longitude: 126.9297 },
+  } as unknown as TripBundle["places"];
+  const leg = (from: string, to: string, minutes: number) =>
+    ({ id: `${from}-${to}`, fromPlaceId: from, toPlaceId: to, travelMode: "transit", durationSeconds: minutes * 60 }) as const;
+
+  it("calls out a change of town", () => {
+    expect(isJourney(leg("nagoya", "takayama", 155), places)).toBe(true);
+  });
+
+  it("leaves a long ride within one city alone", () => {
+    // 66 minutes, but only 13 km across Seoul.
+    expect(isJourney(leg("coex", "yeonhui", 66), places)).toBe(false);
+  });
+
+  it("calls out anything long enough on its own", () => {
+    expect(isJourney(leg("coex", "yeonhui", 80), places)).toBe(true);
+  });
+
+  it("totals only the walking", () => {
+    const walk = dayWalking([
+      { id: "a", fromPlaceId: "x", toPlaceId: "y", travelMode: "walking", durationSeconds: 600, distanceMetres: 800 },
+      { id: "b", fromPlaceId: "y", toPlaceId: "z", travelMode: "transit", durationSeconds: 3000, distanceMetres: 40000 },
+      { id: "c", fromPlaceId: "z", toPlaceId: "w", travelMode: "walking", durationSeconds: 300, distanceMetres: 400 },
+    ]);
+    expect(walk).toEqual({ seconds: 900, metres: 1200 });
   });
 });
