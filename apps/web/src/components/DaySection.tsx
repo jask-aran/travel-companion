@@ -173,11 +173,6 @@ export function DaySection(props: {
     const next = items.slice(at + 1).find((item) => item.type === "place");
     return next ? legs().get(next.id) : endLeg();
   };
-  /** Names a transfer's far end unless it is a hotel band beside it. */
-  const transferNote = (placeId: string, prefix: "from" | "to") =>
-    placeId === wokeIn()?.placeId || placeId === sleepsIn()?.placeId
-      ? undefined
-      : `${prefix} ${placeName(placeId)}`;
 
   /** 0 = Sunday, matching Google's opening-hours numbering. */
   const weekday = createMemo(() => parseTripDate(props.day.date).getDay());
@@ -416,24 +411,15 @@ export function DaySection(props: {
                   )}
                 </For>
                 {/* Each flight with its transfers either side, each its own section,
-                    so the summary alone gets you from hotel to hotel. */}
+                    so the summary alone gets you from hotel to hotel. A
+                    transfer is drawn exactly like a journey: both ends named. */}
                 <For each={flights()}>
                   {(item) => (
                     <>
                       <Show when={timings().get(item.id)?.legs.length}>
                         <ol class="day-summary__transfer">
                           <For each={timings().get(item.id)?.legs}>
-                            {(leg, index) => (
-                              <RouteLegRow
-                                leg={leg}
-                                places={props.bundle.places}
-                                note={
-                                  index() === 0
-                                    ? transferNote(leg.fromPlaceId, "from")
-                                    : undefined
-                                }
-                              />
-                            )}
+                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} showEnds />}
                           </For>
                         </ol>
                       </Show>
@@ -447,11 +433,7 @@ export function DaySection(props: {
                       <Show when={legOutOf(item.arrivePlaceId)}>
                         {(leg) => (
                           <ol class="day-summary__transfer">
-                            <RouteLegRow
-                              leg={leg()}
-                              places={props.bundle.places}
-                              note={transferNote(leg().toPlaceId, "to")}
-                            />
+                            <RouteLegRow leg={leg()} places={props.bundle.places} showEnds />
                           </ol>
                         )}
                       </Show>

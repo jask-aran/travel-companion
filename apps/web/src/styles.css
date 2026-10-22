@@ -1055,8 +1055,10 @@ p {
 .flight-path .mode-glyph {
   flex: none;
   fill: currentColor;
-  stroke: none;
-  transform: rotate(90deg);
+  stroke: currentColor;
+  stroke-width: 0.8;
+  /* The glyph flies up-right; level it to fly along the line. */
+  transform: rotate(45deg);
 }
 
 .card__detail {
@@ -1495,7 +1497,8 @@ p {
 }
 
 .travel--long .travel__glyph,
-.travel--flight .travel__glyph {
+.travel--flight .travel__glyph,
+.day-summary__transfer .travel__glyph {
   background: var(--kind-travel);
   color: var(--paper-elevated);
   box-shadow: none;
@@ -1879,6 +1882,7 @@ p {
 
 .flight-pill__route {
   font-family: var(--font-mono);
+  font-size: var(--fs-small);
   font-weight: 500;
   letter-spacing: 0.06em;
   color: var(--kind-flight);
@@ -1888,6 +1892,7 @@ p {
 .flight-pill__detail {
   margin-left: auto;
   display: flex;
+  align-items: baseline;
   gap: 0.6rem;
   font-family: var(--font-mono);
   font-size: var(--fs-small);
@@ -1960,4 +1965,17 @@ html {
   .stop:has(.stop__photo) {
     grid-template-columns: minmax(0, 1fr) 6.75rem;
   }
+}
+
+/* "+1" rides above the time without growing the line box, so the pill's
+   route and times share one baseline. */
+.flight-pill .flight-end__plus {
+  line-height: 0;
+  vertical-align: 0.45em;
+}
+
+.kind-badge--flight .mode-glyph,
+.travel--flight .mode-glyph {
+  stroke: currentColor;
+  stroke-width: 0.8;
 }
