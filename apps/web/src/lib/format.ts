@@ -49,6 +49,11 @@ export function formatDuration(seconds?: number): string | undefined {
   return `${hours} h ${minutes} m`;
 }
 
+/** "6h 14m": the tight form for a stat column, where "6 h 14 m" overflows. */
+export function formatDurationShort(seconds?: number): string | undefined {
+  return formatDuration(seconds)?.replace(/ (h|m)\b/g, "$1");
+}
+
 export function formatDistance(metres?: number): string | undefined {
   if (metres == null || !Number.isFinite(metres) || metres <= 0) return undefined;
   if (metres < 1000) return `${Math.round(metres)} m`;

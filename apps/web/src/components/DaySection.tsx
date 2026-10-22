@@ -4,7 +4,7 @@ import {
   formatArrows,
   formatDayHeading,
   formatDistance,
-  formatDuration,
+  formatDurationShort,
   parseTripDate,
 } from "../lib/format";
 import {
@@ -169,7 +169,7 @@ export function DaySection(props: {
     if (leg) all.set("end", leg);
     return all;
   });
-  const movingLabel = createMemo(() => formatDuration(dayTravelSeconds(allLegs())));
+  const movingLabel = createMemo(() => formatDurationShort(dayTravelSeconds(allLegs())));
   const distanceLabel = createMemo(() => {
     const metres = dayTravelMetres(allLegs());
     return metres > 0 ? formatDistance(metres) : undefined;

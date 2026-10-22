@@ -632,21 +632,32 @@ p {
   border-top: var(--hairline);
 }
 
-/* The day's figures as one quiet line: value, then its label, wrapping on a
-   narrow screen rather than squeezing into boxed columns. */
+/* The day's figures: equal columns, a small label over a medium-weight
+   value, divided by short rules that stop clear of the card edges. */
 .day-stats {
   margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem 1.25rem;
-  padding: 0.8rem var(--pad);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  padding: 0.2rem 0;
 }
 
 .day-stats > div {
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: baseline;
-  gap: 0.35rem;
+  position: relative;
+  padding: 0.6rem 0.75rem 0.65rem;
+}
+
+.day-stats > div:first-child {
+  padding-left: var(--pad);
+}
+
+.day-stats > div + div::before {
+  content: "";
+  position: absolute;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  left: 0;
+  border-left: var(--hairline);
 }
 
 .day-stats dt {
@@ -654,10 +665,9 @@ p {
 }
 
 .day-stats dd {
-  margin: 0;
+  margin: 0.25rem 0 0;
   font-size: var(--fs-name);
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
