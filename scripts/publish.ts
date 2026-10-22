@@ -23,4 +23,4 @@ await cp(dist, target, { recursive: true });
 
 console.log(`Staged ${dist}`);
 console.log(`     -> ${target}`);
-console.log(`Deploy with: npx wrangler pages deploy apps/web/.publish --project-name jask-aran`);
+console.log(`Deploy with: wrangler pages deploy apps/web/.publish --project-name jask-aran --branch main --commit-dirty`);

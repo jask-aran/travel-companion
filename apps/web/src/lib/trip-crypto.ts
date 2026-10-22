@@ -5,7 +5,7 @@
  * separate request, so anyone could fetch it directly and read every booking
  * reference without running our code. So the payload itself is encrypted at
  * build time and decrypted in the browser — what crosses the network is
- * ciphertext, and the passphrase never leaves the device.
+ * ciphertext. Reading the trip does not send the passphrase. A remote refresh does, over HTTPS, so the worker can check it against the copy it already holds.
  *
  * AES-GCM for authenticated encryption (a wrong passphrase fails loudly rather
  * than yielding garbage), keyed by PBKDF2-SHA256. Runs unmodified in Node and
@@ -21,8 +21,12 @@ export type EncryptedPayload = {
   data: string;
 };
 
-/** High enough to make offline guessing expensive; ~0.3 s on a phone. */
-export const DEFAULT_ITERATIONS = 310_000;
+/**
+ * Workers Web Crypto rejects PBKDF2 above 100000, and the remote refresh
+ * has to decrypt the previous payload to keep photo names. The count is
+ * stored in each payload, so older 310000 files still open.
+ */
+export const DEFAULT_ITERATIONS = 100_000;
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -41,14 +45,14 @@ async function deriveKey(
   salt: Uint8Array,
   iterations: number,
 ): Promise<CryptoKey> {
-  const material = await crypto.subtle.importKey(
+  const material = await subtle().importKey(
     "raw",
     encoder.encode(passphrase),
     "PBKDF2",
     false,
     ["deriveKey"],
   );
-  return crypto.subtle.deriveKey(
+  return subtle().deriveKey(
     { name: "PBKDF2", salt: salt as BufferSource, iterations, hash: "SHA-256" },
     material,
     { name: "AES-GCM", length: 256 },
@@ -62,10 +66,13 @@ export async function encryptTrip(
   passphrase: string,
   iterations: number = DEFAULT_ITERATIONS,
 ): Promise<EncryptedPayload> {
+  // Checked up front: a browser withholding Web Crypto should say so rather
+  // than fail partway through on whichever call happens to run first.
+  subtle();
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await deriveKey(passphrase, salt, iterations);
-  const data = await crypto.subtle.encrypt(
+  const data = await subtle().encrypt(
     { name: "AES-GCM", iv: iv as BufferSource },
     key,
     encoder.encode(plaintext),
@@ -78,6 +85,24 @@ export async function encryptTrip(
     iv: toBase64(iv),
     data: toBase64(new Uint8Array(data)),
   };
+}
+
+/**
+ * Thrown when the page is not a secure context. Web Crypto is withheld on
+ * plain HTTP unless the host is localhost, so a LAN or Tailscale IP over
+ * http:// has no `crypto.subtle` at all and every call fails obscurely.
+ */
+export class InsecureContextError extends Error {
+  constructor() {
+    super("Open this page over https to unlock the trip.");
+    this.name = "InsecureContextError";
+  }
+}
+
+function subtle(): SubtleCrypto {
+  const available = globalThis.crypto?.subtle;
+  if (!available) throw new InsecureContextError();
+  return available;
 }
 
 /** Thrown for a wrong passphrase, so callers can distinguish it from a network fault. */
@@ -98,13 +123,14 @@ export async function decryptTrip(
     payload.iterations ?? DEFAULT_ITERATIONS,
   );
   try {
-    const plaintext = await crypto.subtle.decrypt(
+    const plaintext = await subtle().decrypt(
       { name: "AES-GCM", iv: fromBase64(payload.iv) as BufferSource },
       key,
       fromBase64(payload.data) as BufferSource,
     );
     return decoder.decode(plaintext);
-  } catch {
+  } catch (error) {
+    if (error instanceof InsecureContextError) throw error;
     // AES-GCM authentication failure is indistinguishable from a bad key.
     throw new WrongPassphraseError();
   }

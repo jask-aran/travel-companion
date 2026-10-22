@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   decryptTrip,
   encryptTrip,
+  InsecureContextError,
   WrongPassphraseError,
 } from "../apps/web/src/lib/trip-crypto.js";
 
@@ -48,5 +49,32 @@ describe("trip payload encryption", () => {
     await expect(decryptTrip(tampered, "correct horse")).rejects.toBeInstanceOf(
       WrongPassphraseError,
     );
+  });
+});
+
+describe("insecure context", () => {
+  // Browsers withhold crypto.subtle on plain http:// unless the host is
+  // localhost, so a LAN or Tailscale IP has no Web Crypto at all.
+  it("reports a missing secure context instead of failing obscurely", async () => {
+    const real = Object.getOwnPropertyDescriptor(globalThis, "crypto");
+    Object.defineProperty(globalThis, "crypto", { value: {}, configurable: true });
+    try {
+      await expect(encryptTrip("x", "y", 1000)).rejects.toBeInstanceOf(InsecureContextError);
+    } finally {
+      if (real) Object.defineProperty(globalThis, "crypto", real);
+    }
+  });
+
+  it("does not mistake a missing secure context for a wrong passphrase", async () => {
+    const encrypted = await encryptTrip("payload", "phrase", 1000);
+    const real = Object.getOwnPropertyDescriptor(globalThis, "crypto");
+    Object.defineProperty(globalThis, "crypto", { value: {}, configurable: true });
+    try {
+      await expect(decryptTrip(encrypted, "phrase")).rejects.toBeInstanceOf(
+        InsecureContextError,
+      );
+    } finally {
+      if (real) Object.defineProperty(globalThis, "crypto", real);
+    }
   });
 });

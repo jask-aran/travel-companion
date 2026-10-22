@@ -5,12 +5,12 @@ A fast, mobile-first PWA for viewing a shared trip itinerary.
 The operator pipeline is local and semi-deterministic:
 
 ```text
-Wanderlog CLI (primary)  ─┐
+Wanderlog API (primary)  ─┐
                           ├─→ normaliser → TripBundle (gitignored) → local PWA build
 Playwright HTML fallback ─┘
 ```
 
-Raw Wanderlog output never belongs in git. The Wanderlog trip id lives only in a gitignored local config. Hosting/sharing privacy is deferred until you actually need to publish.
+Raw Wanderlog output never belongs in git. The Wanderlog trip id lives only in a gitignored local config. How the live site is served, and how a phone can refresh it, is in [docs/hosting.md](docs/hosting.md).
 
 ## One-time setup
 
@@ -22,37 +22,35 @@ cp config/trip.example.yaml config/trip.local.yaml
 # edit trip.local.yaml: wanderlogId, publicId, wanderlog.web.url, paths.workingBundle
 ```
 
-CLI notes:
+The pull is a plain `GET https://wanderlog.com/api/tripPlans/<wanderlogId>?clientSchemaVersion=2`, the same call the Pages refresh function makes. No login is needed: the plan-URL key is the credential, so treat it as a secret.
 
-- Use **`wanderlog trips show <id> --output json`** (modern subcommand).
-- Do **not** use the legacy `wanderlog trip` singular alias — it mishandles flags.
-- Scripts spawn the binary directly, so shell aliases are ignored. Set `wanderlog.cli.command` in `trip.local.yaml` to the real binary name on your PATH (often `wanderlog-cli` if installed from Go).
-- Read-only export of a shared trip can work without login.
+`wanderlog-cli` is no longer needed for a pull. See [When to use wanderlog-cli](docs/ingestion.md#when-to-use-wanderlog-cli) for editing the trip and other account work.
 
 ## Operator loop
 
 ```bash
-pnpm trip:refresh    # CLI first, HTML scraper on CLI failure
+pnpm trip:refresh    # API first, HTML scraper on API failure
 pnpm dev             # serves the generated working.json as /trip.json
 ```
 
 Forced sources:
 
 ```bash
-pnpm trip:pull             # CLI only
+pnpm trip:pull             # API only
+pnpm trip:pull:cli         # wanderlog-cli only
 pnpm trip:scrape           # browser scraper only, headless
 pnpm trip:scrape:headed    # visible browser (auth if needed)
 ```
 
 `trip:refresh` reads **`config/trip.local.yaml`** (gitignored). It:
 
-1. runs `wanderlog-cli trips show <configured-id> --output json`;
+1. fetches the trip JSON from the Wanderlog API;
 2. validates and saves raw JSON under `private-import/` (gitignored);
-3. falls back to Playwright when CLI acquisition fails;
+3. falls back to Playwright when API acquisition fails;
 4. normalises through the shared allow-listed pipeline;
 5. writes `public-data/trips/<publicId>/working.json` (gitignored) plus private reports.
 
-The web app never talks to Wanderlog. Vite serves that local `working.json` as `/trip.json` in dev and embeds it into `dist/` on `pnpm build`.
+Viewing the itinerary never talks to Wanderlog. Vite serves that local `working.json` as `/trip.json` in dev and embeds it into `dist/` on `pnpm build`. The production refresh button asks the Pages function to pull Wanderlog. See [docs/hosting.md](docs/hosting.md).
 
 ```bash
 pnpm build
@@ -73,7 +71,7 @@ pnpm test
 | Path | Role |
 |------|------|
 | `config/trip.local.yaml` | Wanderlog trip id, plan URL, local paths |
-| `private-import/` | Raw CLI JSON, scraped HTML, browser profile, overrides, reports |
+| `private-import/` | Raw trip JSON, scraped HTML, browser profile, overrides, reports |
 | `public-data/**/working.json` | Normalised TripBundle used by the PWA |
 | `apps/web/dist/` | Local build output (may contain the bundle) |
 
@@ -85,10 +83,11 @@ Committed: `config/trip.example.yaml` (placeholders only), schema, normaliser, P
 apps/web                 SolidJS itinerary PWA
 packages/trip-schema     Canonical TripBundle schema
 packages/trip-normaliser Wanderlog → TripBundle
-packages/wanderlog-import CLI/HTML acquisition adapters
+packages/wanderlog-import API/CLI/HTML acquisition adapters
 config/trip.example.yaml Template for local config
 config/trip.local.yaml   Your trip id (gitignored)
-docs/                    Product spec and ingestion notes
+docs/                    Product spec, ingestion, and hosting
+workers/refresh          Pages function: serve trip.enc from KV, refresh from Wanderlog
 ```
 
 ## Tracking

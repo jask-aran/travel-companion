@@ -25,3 +25,4 @@ private-import/
 public-data/
 apps/web/public/trip.json
 apps/web/dist/
+apps/web/.publish/

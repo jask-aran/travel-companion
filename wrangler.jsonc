@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "jask-aran",
+  "pages_build_output_dir": "apps/web/.publish",
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "limits": { "cpu_ms": 30000 },
+  "kv_namespaces": [
+    { "binding": "TRIP", "id": "24c73aa9cc8d47a2aab5fdfab10516a4" }
+  ],
+  "vars": {
+    "PUBLIC_ID": "japan-korea-2026"
+  }
+}
