@@ -25,7 +25,7 @@ import {
   noteRestatesNames,
 } from "../lib/format";
 import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "../lib/maps";
-import { photoAttribution, placePhotoUrl } from "../lib/place-photo";
+import { photoAttribution, placePhotoUrl, staticMapUrl } from "../lib/place-photo";
 import { LONG_LEG_SECONDS } from "../lib/route-legs";
 import type { FlightTiming } from "../lib/day-times";
 import { GoogleMapsIcon } from "./GoogleMapsIcon";
@@ -227,14 +227,17 @@ export function RouteLegRow(props: {
  * local copy and nothing to show offline. A failed load removes the slot
  * entirely rather than leaving a broken frame.
  */
-function PlacePhoto(props: { place: Place }) {
+function PlacePhoto(props: { place: Place; mapFallback?: boolean | undefined }) {
   const [failed, setFailed] = createSignal(false);
-  const url = () => placePhotoUrl(props.place);
+  const photo = () => placePhotoUrl(props.place);
+  /** A stay without a photo shows its streets instead. */
+  const map = () => (!photo() && props.mapFallback ? staticMapUrl(props.place) : undefined);
+  const url = () => photo() ?? map();
 
   return (
     <Show when={!failed() && url()}>
       {(src) => (
-        <figure class="stop__photo">
+        <figure class="stop__photo" classList={{ "stop__photo--map": Boolean(map()) }}>
           {/* The title links to directions; the photo opens the place itself. */}
           <a
             class="stop__photo-link"
@@ -404,7 +407,7 @@ export function PlaceRow(props: {
           <Notes text={props.item.notes} />
           <PlaceDetail place={props.place} weekday={props.weekday} open={detailOpen()} />
         </div>
-        <PlacePhoto place={props.place} />
+        <PlacePhoto place={props.place} mapFallback={props.isStay} />
       </article>
     </li>
   );

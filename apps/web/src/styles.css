@@ -1979,3 +1979,20 @@ html {
   stroke: currentColor;
   stroke-width: 0.8;
 }
+
+/* A stay's street map in the photo column. Google's tiles are light only;
+   in dark mode they are inverted and turned back to their own hues, so the
+   column does not glare. The marker keeps a warm red either way. */
+.stop__photo--map img {
+  object-position: center;
+}
+
+:root[data-theme="dark"] .stop__photo--map img {
+  filter: invert(0.9) hue-rotate(180deg) saturate(0.6) brightness(0.95);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .stop__photo--map img {
+    filter: invert(0.9) hue-rotate(180deg) saturate(0.6) brightness(0.95);
+  }
+}
