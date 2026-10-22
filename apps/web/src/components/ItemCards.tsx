@@ -616,10 +616,10 @@ export function FlightConnector(props: { item: FlightItem }) {
 export function HotelPill(props: {
   name: string;
   place?: Place | undefined;
-  /** What today means for this stay: checking out (by when) or in. */
-  phase?: "check-out" | "check-in" | undefined;
-  /** When to leave, on a check-out morning before a flight. */
-  by?: string | undefined;
+  /** When to leave the hotel: for a flight, or for the day's first planned stop. */
+  leaveBy?: string | undefined;
+  /** Tonight is the first night here. */
+  checkIn?: boolean | undefined;
 }) {
   return (
     <li class="flight-pill hotel-pill">
@@ -634,13 +634,20 @@ export function HotelPill(props: {
             </a>
           )}
         </Show>
-        <Show when={props.phase}>
-          {(phase) => (
-            <span class="flight-pill__detail hotel-pill__phase">
-              <Icon name={phase()} />
-              <span>{phase() === "check-in" ? "Check in" : props.by ? `Out by ${props.by}` : "Check out"}</span>
+        <Show when={props.leaveBy}>
+          {(time) => (
+            <span class="flight-pill__detail hotel-pill__phase" title="Leave by">
+              <Icon name="check-out" />
+              <Hidden>Leave by </Hidden>
+              <span>{time()}</span>
             </span>
           )}
+        </Show>
+        <Show when={props.checkIn}>
+          <span class="flight-pill__detail hotel-pill__phase">
+            <Icon name="check-in" />
+            <span>Check in</span>
+          </span>
         </Show>
       </div>
     </li>

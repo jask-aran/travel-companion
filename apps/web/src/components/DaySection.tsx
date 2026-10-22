@@ -21,7 +21,7 @@ import { dayRouting, legOutOf as legOutOfDay } from "../lib/day-routing";
 import { departureKey } from "../lib/departure-targets";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { fold, unfold } from "../lib/fold-motion";
-import { sunTimes, type FlightTiming } from "../lib/day-times";
+import { shiftClock, sunTimes, type FlightTiming } from "../lib/day-times";
 import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
@@ -94,11 +94,21 @@ export function DaySection(props: {
   const endLeg = () => routing().endLeg;
   const placeName = (placeId: string) => props.bundle.places[placeId]?.name;
   /** Today's role for the hotel at each end of the route, for its pill. */
-  const startPhase = () => (wokeInSlot()?.role === "check-out" ? "check-out" : undefined);
-  const endPhase = () =>
-    routing().plan.start.some((slot) => slot.role === "check-in" && slot.stay.key === sleepsIn()?.key)
-      ? "check-in"
-      : undefined;
+  /**
+   * When to leave the hotel you woke in: for the airport on a flight day,
+   * otherwise in time for the first stop you gave a time in Wanderlog.
+   */
+  const leaveHotelBy = () => {
+    if (checkOutBy()) return checkOutBy();
+    // Notes can sit above the first stop; the leg runs to the first place.
+    const first = routeItems().find((item) => item.type === "place");
+    const start = first?.type === "place" ? first.startTime : undefined;
+    const leg = first ? legs().get(first.id) : undefined;
+    if (!start || !leg?.durationSeconds || leg.fromPlaceId !== wokeIn()?.placeId) return undefined;
+    return shiftClock(start, -Math.ceil(leg.durationSeconds / 60));
+  };
+  const checksInTonight = () =>
+    routing().plan.start.some((slot) => slot.role === "check-in" && slot.stay.key === sleepsIn()?.key);
   const timings = () => routing().timings;
   /** The run to the airport starts at the hotel you check out of today. */
   const leavesFromCheckOut = (timing: FlightTiming | undefined) =>
@@ -404,8 +414,7 @@ export function DaySection(props: {
                     <HotelPill
                       name={stay().name}
                       place={stayPlace(props.bundle, stay())}
-                      phase={startPhase()}
-                      by={checkOutBy()}
+                      leaveBy={leaveHotelBy()}
                     />
                   )}
                 </Show>
@@ -439,7 +448,7 @@ export function DaySection(props: {
                 </Show>
                 <Show when={sleepsIn()}>
                   {(stay) => (
-                    <HotelPill name={stay().name} place={stayPlace(props.bundle, stay())} phase={endPhase()} />
+                    <HotelPill name={stay().name} place={stayPlace(props.bundle, stay())} checkIn={checksInTonight()} />
                   )}
                 </Show>
               </ol>

@@ -2333,14 +2333,16 @@ html {
 }
 
 .hotel-pill__phase {
+  flex: none;
   align-items: center;
   gap: 0.3rem;
   word-spacing: -0.3em;
 }
 
 .hotel-pill__phase > .mode-glyph {
-  width: 0.9rem;
-  height: 0.9rem;
+  flex: none;
+  width: 1rem;
+  height: 1rem;
   color: var(--kind-lodging);
 }
 
