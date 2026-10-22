@@ -61,8 +61,14 @@ function TimeLabel(props: { start?: string | undefined; end?: string | undefined
  * Notes clamp by line, not by character count: the old `length > 110` heuristic
  * left the identical six-name passenger list expanded on every flight.
  */
-function Notes(props: { text?: string | undefined; label?: string | undefined }) {
-  const [open, setOpen] = createSignal(false);
+function Notes(props: {
+  text?: string | undefined;
+  label?: string | undefined;
+  /** Opened by the card's own chevron instead of a "More" link. */
+  open?: boolean | undefined;
+}) {
+  const [ownOpen, setOpen] = createSignal(false);
+  const open = () => props.open ?? ownOpen();
   /** "More" only when the clamp actually hides something. */
   const [clamped, setClamped] = createSignal(false);
   let paragraph: HTMLParagraphElement | undefined;
@@ -89,7 +95,7 @@ function Notes(props: { text?: string | undefined; label?: string | undefined })
           >
             {text()}
           </p>
-          <Show when={clamped() || open()}>
+          <Show when={props.open === undefined && (clamped() || open())}>
             <button type="button" class="text-button" onClick={() => setOpen((v) => !v)}>
               {open() ? "Less" : (props.label ?? "More")}
             </button>
@@ -446,64 +452,37 @@ function ContactIcons(props: { phone?: string | undefined; website?: string | un
   );
 }
 
-/** True when Wanderlog scraped anything worth showing for this place. */
-export function hasPlaceDetail(place: Place): boolean {
-  const d = place.details;
-  if (!d) return false;
-  return Boolean(
-    d.description || d.summary || d.openingPeriods?.length || d.visitMinutesMin || d.categories?.length,
-  );
-}
-
 /**
- * Wanderlog's scraped POI record. Opening hours and visit length stay on the
- * card because they change what you would do; the rest is reference material,
- * revealed by the chevron on the card's rail rather than a full-width button.
+ * Opening hours for the day and the typical visit length: the two things from
+ * Wanderlog's scraped record that change what you would do, as chips.
  */
-function PlaceDetail(props: { place: Place; weekday: number; open: boolean }) {
+function PlaceDetail(props: { place: Place; weekday: number }) {
   const details = () => props.place.details;
-
   const hours = () => formatOpeningForDay(details()?.openingPeriods, props.weekday);
-  const visit = () =>
-    formatVisitLength(details()?.visitMinutesMin, details()?.visitMinutesMax);
-  const blurb = () => details()?.description ?? details()?.summary;
-  const categories = () => details()?.categories?.slice(0, 4);
+  const visit = () => formatVisitLength(details()?.visitMinutesMin, details()?.visitMinutesMax);
 
   return (
-    <Show when={hasPlaceDetail(props.place)}>
+    <Show when={hours() || visit()}>
       <div class="detail">
-        <Show when={hours() || visit()}>
-          <div class="detail__glance">
-            <Show when={hours()}>
-              {(text) => (
-                <span class="detail__chip detail__chip--hours">
-                  <Icon name="clock" />
-                  <Hidden>Open</Hidden>
-                  {text()}
-                </span>
-              )}
-            </Show>
-            <Show when={visit()}>
-              {(text) => (
-                <span class="detail__chip">
-                  <Icon name="hourglass" />~{text()}
-                  <Hidden> typical visit</Hidden>
-                </span>
-              )}
-            </Show>
-          </div>
-        </Show>
-
-        <Show when={props.open}>
-          <div class="detail__body">
-            <Show when={blurb()}>{(text) => <p class="detail__blurb">{text()}</p>}</Show>
-            <Show when={categories()?.length}>
-              <ul class="detail__tags">
-                <For each={categories()}>{(tag) => <li>{tag}</li>}</For>
-              </ul>
-            </Show>
-          </div>
-        </Show>
+        <div class="detail__glance">
+          <Show when={hours()}>
+            {(text) => (
+              <span class="detail__chip detail__chip--hours">
+                <Icon name="clock" />
+                <Hidden>Open</Hidden>
+                {text()}
+              </span>
+            )}
+          </Show>
+          <Show when={visit()}>
+            {(text) => (
+              <span class="detail__chip">
+                <Icon name="hourglass" />~{text()}
+                <Hidden> typical visit</Hidden>
+              </span>
+            )}
+          </Show>
+        </div>
       </div>
     </Show>
   );
@@ -522,14 +501,59 @@ export function PlaceRow(props: {
   const category = () => formatCategory(props.place.category);
   /** Full rating with its review count, for the tooltip and screen readers. */
   const rating = () => formatRatingLabel(props.place.rating, props.place.ratingCount);
+  const contacts = () => Boolean(props.place.details?.phone || props.place.details?.website);
+  /**
+   * A time range plus rating, call and website will not fit the top row
+   * beside a photo on a phone, so then the rating and contacts move to the
+   * name row rather than wrapping under the time; the chevron stays on top,
+   * where it has room. Everywhere else the whole group stays on top, which
+   * leaves the name its full width.
+   */
+  const crowded = () =>
+    Boolean(props.item.startTime && props.item.endTime && props.item.endTime !== props.item.startTime) &&
+    contacts();
+
+  /** Score and contacts, and the chevron with them unless crowded apart. */
+  const actions = (withDisclose: boolean) => (
+    <span class="stop__actions">
+      <Show when={rating() ? props.place.rating : undefined}>
+        {(score) => (
+          <span class="stop__rating" title={rating()}>
+            <span class="with-icon" aria-hidden="true">
+              <Icon name="star" />
+              {score().toFixed(1)}
+            </span>
+            <Hidden>{`Rated ${rating()?.replace("★ ", "")}`}</Hidden>
+          </span>
+        )}
+      </Show>
+      <ContactIcons phone={props.place.details?.phone} website={props.place.details?.website} />
+      <Show when={withDisclose}>{disclose()}</Show>
+    </span>
+  );
+
+  /** Only your own notes open the card: Google's blurb and tags were reference nobody read. */
+  const disclose = () => (
+    <Show when={props.item.notes?.trim()}>
+      <button
+        type="button"
+        class="stop__disclose"
+        aria-expanded={detailOpen()}
+        aria-label={detailOpen() ? "Hide notes" : "Show notes"}
+        onClick={() => setDetailOpen((v) => !v)}
+      >
+        <span class="stop__chevron" classList={{ "is-open": detailOpen() }} />
+      </button>
+    </Show>
+  );
 
   return (
     <li class="stop-item">
       <article class="stop" classList={{ "stop--stay": props.isStay, "stop--open": detailOpen() }}>
         {/*
           * Fixed slots so nothing competes for width: a top row for the
-          * marker, time and disclosure, then the name with the column to
-          * itself, then secondary lines. The photo is its own column.
+          * marker and time, the name row with its actions at the right, then
+          * secondary lines. The photo sits behind, fading in from the right.
           */}
         <div class="stop__body">
           <div class="stop__top">
@@ -539,50 +563,28 @@ export function PlaceRow(props: {
               </Show>
             </span>
             <TimeLabel start={props.item.startTime} end={props.item.endTime} />
-            {/* The score and contacts ride the top row, so the category below
-                fits on one line. They move as one group: when the time leaves
-                no room, the group drops beneath it rather than onto the photo. */}
-            <span class="stop__actions">
-            <Show when={rating() ? props.place.rating : undefined}>
-              {(score) => (
-                <span class="stop__rating" title={rating()}>
-                  <span class="with-icon" aria-hidden="true">
-                    <Icon name="star" />
-                    {score().toFixed(1)}
-                  </span>
-                  <Hidden>{`Rated ${rating()?.replace("★ ", "")}`}</Hidden>
-                </span>
-              )}
+            <Show when={!crowded()} fallback={<span class="stop__actions">{disclose()}</span>}>
+              {actions(true)}
             </Show>
-            <ContactIcons phone={props.place.details?.phone} website={props.place.details?.website} />
-            <Show when={hasPlaceDetail(props.place)}>
-              <button
-                type="button"
-                class="stop__disclose"
-                aria-expanded={detailOpen()}
-                aria-label={detailOpen() ? "Hide details" : "Show details"}
-                onClick={() => setDetailOpen((v) => !v)}
-              >
-                <span class="stop__chevron" classList={{ "is-open": detailOpen() }} />
-              </button>
-            </Show>
-            </span>
           </div>
-          <a
-            class="stop__name"
-            href={buildGoogleMapsUrl(props.place)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {props.place.name}
-          </a>
+          <div class="stop__name-row">
+            <a
+              class="stop__name"
+              href={buildGoogleMapsUrl(props.place)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {props.place.name}
+            </a>
+            <Show when={crowded()}>{actions(false)}</Show>
+          </div>
           <Show when={category()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
           <Show when={cleanAddress(props.place.address)}>
             {(where) => <p class="stop__where">{where()}</p>}
           </Show>
           <StatusPill status={props.item.status} />
-          <Notes text={props.item.notes} />
-          <PlaceDetail place={props.place} weekday={props.weekday} open={detailOpen()} />
+          <Notes text={props.item.notes} open={detailOpen()} />
+          <PlaceDetail place={props.place} weekday={props.weekday} />
         </div>
         <PlacePhoto place={props.place} mapFallback={props.isStay} />
       </article>
