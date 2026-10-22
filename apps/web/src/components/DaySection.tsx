@@ -276,7 +276,7 @@ export function DaySection(props: {
         }}
       >
         <div class="day-section__index" aria-hidden="true">
-          {String(props.index + 1).padStart(2, "0")}
+          <span class="day-section__num">{String(props.index + 1).padStart(2, "0")}</span>
         </div>
         <div class="day-section__headtext">
           <p class="day-section__date">

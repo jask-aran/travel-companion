@@ -504,20 +504,33 @@ p {
   contain-intrinsic-size: auto 900px;
 }
 
+/* The rule between days spans the cards, not the section's overhang room. */
 .day-section + .day-section {
-  border-top: 1px dashed rgb(var(--line-rgb) / 45%);
   padding-top: 1.2rem;
 }
 
-/* The whole header folds the day. The index circle is centred on the rail. */
+.day-section + .day-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline: 0.75rem;
+  border-top: 1px dashed rgb(var(--line-rgb) / 45%);
+}
+
+/*
+ * The header sits on the page grid: the day circle flush with the card edges
+ * (and the trip title and section labels above), the title on --text-x where
+ * card text starts beside its badge, the chevron in line with card chevrons.
+ */
 .day-section__header {
+  --index: 2.3rem;
   width: 100%;
   display: grid;
-  grid-template-columns: 2.3rem minmax(0, 1fr) auto;
-  gap: 0.75rem;
+  grid-template-columns: var(--index) minmax(0, 1fr) auto;
+  column-gap: calc(var(--text-x) - var(--index));
   align-items: center;
   margin: 0 0 0.9rem;
-  padding: 0.2rem 0 0.2rem calc(var(--rail-x) - 1.15rem);
+  padding: 0.2rem 0;
   border: 0;
   background: none;
   text-align: left;
@@ -530,15 +543,16 @@ p {
 }
 
 .day-section__index {
-  width: 2.3rem;
-  height: 2.3rem;
+  width: var(--index);
+  height: var(--index);
   display: grid;
   place-items: center;
   border-radius: 999px;
   background: var(--ink);
   color: var(--paper);
   font-family: var(--font-mono);
-  font-size: var(--fs-label);
+  font-size: var(--fs-small);
+  font-weight: 500;
 }
 
 .day-section__headtext {
@@ -570,7 +584,7 @@ p {
 .day-section__chevron {
   width: 0.6rem;
   height: 0.6rem;
-  margin-right: 0.35rem;
+  margin-right: calc(var(--pad) + 0.3rem);
   border-right: 2px solid var(--ink-muted);
   border-bottom: 2px solid var(--ink-muted);
   transform: rotate(-45deg);
@@ -655,6 +669,15 @@ p {
   font-family: var(--font-mono);
   font-size: var(--fs-label);
   font-weight: 500;
+}
+
+/* Numerals in circles: centre the digits themselves. A plain line box keeps
+   descender room under them, which sits the digits visibly high. */
+.day-section__num,
+.stop__num {
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-box: trim-both cap alphabetic;
 }
 
 .kind-badge {
