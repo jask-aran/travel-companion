@@ -1,6 +1,9 @@
 import { parseTripBundle, type Place } from "@travel-companion/trip-schema";
 import {
+  localityFrom,
   normaliseWanderlog,
+  resourcesFrom,
+  routesFrom,
   type ImportOverrides,
   type ImportReport,
 } from "./index.js";
@@ -85,6 +88,8 @@ function addGlobalLodging(
     };
     if (googlePlaceId) place.googlePlaceId = googlePlaceId;
     if ((placeOverride?.publishAddress ?? true) && address) place.address = address;
+    const locality = localityFrom(rawPlace.address_components);
+    if ((placeOverride?.publishAddress ?? true) && locality) place.locality = locality;
     if (latitude !== undefined) place.latitude = latitude;
     if (longitude !== undefined) place.longitude = longitude;
     if (placeOverride?.imageUrl) place.image = { source: "manual", url: placeOverride.imageUrl };
@@ -162,6 +167,15 @@ export function normaliseCompleteWanderlog(
 ): ReturnType<typeof normaliseWanderlog> {
   const result = normaliseWanderlog(source, options);
   addGlobalLodging(source, result.bundle, result.report, options.overrides);
+  // Legs are matched by place, and hotels only become places above, so the
+  // first pass dropped every leg out of a hotel (the morning run to the
+  // airport, say). Match again now they exist. Warnings came from pass one.
+  result.bundle.routeLegs = routesFrom(
+    resourcesFrom(source),
+    result.bundle.places,
+    [],
+  );
+  result.report.counts.routeLegs = Object.keys(result.bundle.routeLegs).length;
   result.bundle = parseTripBundle(result.bundle);
   return result;
 }

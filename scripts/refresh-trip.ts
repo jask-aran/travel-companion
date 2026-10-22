@@ -2,7 +2,7 @@ import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
-import { acquireWithBrowser, acquireWithCli, type AcquiredSource } from "../packages/wanderlog-import/src/acquire.js";
+import { acquireWithApi, acquireWithBrowser, acquireWithCli, type AcquiredSource } from "../packages/wanderlog-import/src/acquire.js";
 import { loadIngestionConfig } from "../packages/wanderlog-import/src/config.js";
 import { parseWanderlogSource } from "../packages/wanderlog-import/src/index.js";
 import { parseTripBundle } from "../packages/trip-schema/src/index.js";
@@ -20,8 +20,8 @@ const { values } = parseArgs({
 });
 
 if (!values.config) throw new Error("Missing config path");
-if (!values.source || !["auto", "cli", "html"].includes(values.source)) {
-  throw new Error("--source must be auto, cli, or html");
+if (!values.source || !["auto", "api", "cli", "html"].includes(values.source)) {
+  throw new Error("--source must be auto, api, cli, or html");
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -84,22 +84,24 @@ const rawHtmlPath = loaded.resolvePath(config.paths.rawHtml);
 const profilePath = loaded.resolvePath(config.wanderlog.web.browserProfileDir);
 
 let acquired: AcquiredSource;
-if (values.source === "cli") {
+if (values.source === "api") {
+  acquired = await acquireWithApi(config);
+} else if (values.source === "cli") {
   acquired = await acquireWithCli(config);
 } else if (values.source === "html") {
   acquired = await acquireWithBrowser(config, profilePath, { headless: !values.headed });
 } else {
   try {
-    acquired = await acquireWithCli(config);
-  } catch (cliError) {
-    console.warn(`Wanderlog CLI acquisition failed: ${cliError instanceof Error ? cliError.message : String(cliError)}`);
+    acquired = await acquireWithApi(config);
+  } catch (apiError) {
+    console.warn(`Wanderlog API acquisition failed: ${apiError instanceof Error ? apiError.message : String(apiError)}`);
     console.warn("Falling back to browser scraping.");
     acquired = await acquireWithBrowser(config, profilePath, { headless: !values.headed });
-    acquired.diagnostics.unshift(`CLI fallback reason: ${cliError instanceof Error ? cliError.message : String(cliError)}`);
+    acquired.diagnostics.unshift(`API fallback reason: ${apiError instanceof Error ? apiError.message : String(apiError)}`);
   }
 }
 
-const rawPath = acquired.source === "cli" ? rawJsonPath : rawHtmlPath;
+const rawPath = acquired.source === "html" ? rawHtmlPath : rawJsonPath;
 await writeAtomic(rawPath, acquired.contents);
 
 const parsed = parseWanderlogSource(acquired.contents);

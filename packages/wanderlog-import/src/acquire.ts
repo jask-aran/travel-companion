@@ -5,7 +5,7 @@ import { chromium } from "playwright";
 import type { IngestionConfig } from "./config.js";
 import { parseWanderlogSource } from "./index.js";
 
-export type AcquisitionSource = "cli" | "html";
+export type AcquisitionSource = "api" | "cli" | "html";
 
 export interface AcquiredSource {
   source: AcquisitionSource;
@@ -20,6 +20,29 @@ export interface BrowserAcquisitionOptions {
 function commandFailure(command: string, stderr: string, code: number | null): Error {
   const detail = stderr.trim() || `process exited with code ${String(code)}`;
   return new Error(`${command} failed: ${detail}`);
+}
+
+/**
+ * The plan-URL key is enough for Wanderlog to return the whole trip, so a
+ * plain GET replaces the CLI for reads. The Pages refresh function calls the
+ * same endpoint, which keeps a local pull and a phone refresh on one source.
+ */
+export async function acquireWithApi(config: IngestionConfig): Promise<AcquiredSource> {
+  const url = `https://wanderlog.com/api/tripPlans/${encodeURIComponent(config.trip.wanderlogId)}?clientSchemaVersion=2`;
+  const response = await fetch(url, { signal: AbortSignal.timeout(config.wanderlog.api.timeoutMs) });
+  if (!response.ok) throw new Error(`Wanderlog API returned ${response.status}`);
+  const contents = await response.text();
+  try {
+    const parsed = parseWanderlogSource(contents);
+    if (parsed.kind !== "cli-json") throw new Error("API returned a non-JSON source");
+  } catch (error) {
+    throw new Error("Wanderlog API returned invalid trip JSON", { cause: error });
+  }
+  return {
+    source: "api",
+    contents,
+    diagnostics: ["GET wanderlog.com/api/tripPlans/<wanderlogId>?clientSchemaVersion=2"],
+  };
 }
 
 export async function acquireWithCli(config: IngestionConfig): Promise<AcquiredSource> {

@@ -21,7 +21,7 @@ cp config/trip.example.yaml config/trip.local.yaml
 - Wanderlog trip ID (from the plan URL)
 - public trip slug (local output path + `TripBundle.tripId` only)
 - canonical Wanderlog URL (scraper fallback)
-- CLI command and timeouts
+- API, CLI and scraper timeouts, and the CLI command name
 - persistent browser-profile directory
 - raw-source, override, working-bundle, and report paths
 
@@ -33,33 +33,47 @@ cp config/trip.example.yaml config/trip.local.yaml
 
 ```text
 configured Wanderlog trip ID (from trip.local.yaml)
-→ wanderlog-cli trips show <id> --output json
-→ validate CLI JSON
-→ browser scraper on CLI failure
+→ GET https://wanderlog.com/api/tripPlans/<id>?clientSchemaVersion=2
+→ validate trip JSON
+→ browser scraper on API failure
 → validate scraped MobX state
 → shared normaliser
 → TripBundle + reports
 ```
 
-The primary acquisition command is executed **without a shell**:
+The API call needs no login. The plan-URL key is enough for Wanderlog to return the full trip, flights and confirmation numbers included, so treat it as a bearer token. The Pages refresh function makes the same call (see [hosting.md](hosting.md)), so a local pull and a phone refresh read one source.
+
+The body is parsed and validated before the previous raw export is replaced. A non-2xx status, timeout (`wanderlog.api.timeoutMs`, default 60 s), or malformed response triggers the browser fallback.
+
+Forced modes:
+
+```bash
+pnpm trip:pull             # API only
+pnpm trip:pull:cli         # wanderlog-cli only
+pnpm trip:scrape           # browser only, headless
+pnpm trip:scrape:headed    # browser with visible persistent profile
+```
+
+## When to use wanderlog-cli
+
+[`wanderlog-cli`](https://github.com/denysvitali/wanderlog-cli) wraps the same web API and covers far more of it: logging in, listing your trips and invites, and changing a trip. Reach for it when the project needs to write to Wanderlog or act as your account, not just read one plan. Reading does not need it.
+
+Its read output is not byte-for-byte the API response. Measured against one trip (2026-10-21):
+
+- It re-encodes through Go structs, so it writes empty values for fields it models (`confirmationNumber: ""` on most blocks) and drops fields it does not (`endTime`, `emailId`, `guests`, cancellation policy, place website, phone and ratings).
+- Object keys come out sorted, which reorders `distancesBetweenPlaces` and so each day's `routeLegIds`.
+- A few place visit-time estimates and opening hours differed from the API's. Two API calls a minute apart agreed, so this looks CLI-side, but the cause was not traced.
+- Speed is the same. Both take about 3 s, nearly all of it Wanderlog's server time.
+
+The normalised bundle was otherwise identical, so `trip:pull:cli` still works as a fallback. To use it:
 
 ```text
 <wanderlog.cli.command> trips show <trip.wanderlogId> --output json
 ```
 
-Default command name is `wanderlog-cli`. Shell aliases (e.g. `alias wanderlog=wanderlog-cli`) are **not** visible to `spawn`, so set the real binary name in config and keep it on `PATH`.
-
-Do **not** use the legacy singular `trip` subcommand — it mishandles flags. Always use `trips show … --output json`.
-
-Stdout is captured directly, parsed, and validated before the previous raw export is replaced. A missing executable, timeout, non-zero exit code, or malformed response triggers the browser fallback.
-
-Forced modes:
-
-```bash
-pnpm trip:pull             # CLI only
-pnpm trip:scrape           # browser only, headless
-pnpm trip:scrape:headed    # browser with visible persistent profile
-```
+- Executed **without a shell**. Shell aliases (e.g. `alias wanderlog=wanderlog-cli`) are **not** visible to `spawn`, so set the real binary name in `wanderlog.cli.command` and keep it on `PATH`. The default is `wanderlog-cli`.
+- Do **not** use the legacy singular `trip` subcommand. It mishandles flags.
+- `trips show` does not authenticate. Listing trips and any edit do, via the CLI's own login.
 
 ## Browser scraper
 
@@ -82,7 +96,7 @@ Gitignored. Never copy into deployment artefacts.
 ## Shared source boundary
 
 ```text
-CLI JSON ─────────┐
+API / CLI JSON ───┐
                   ├─> WanderlogSourceData ─> allow-listed normaliser
 HTML/MobX state ──┘
 ```
@@ -129,7 +143,7 @@ cp config/trip.example.yaml config/trip.local.yaml
 
 ## Raw and generated outputs
 
-Successful CLI acquisition writes:
+Successful API or CLI acquisition writes:
 
 ```text
 private-import/wanderlog-trip.json
@@ -188,4 +202,4 @@ pnpm typecheck
 pnpm test
 ```
 
-Unit tests use synthetic fixtures only — never real trip exports. Next test expansion: mock child-process and Playwright acquisition (CLI fail → browser fallback, timeouts, atomic writes) without contacting Wanderlog.
+Unit tests use synthetic fixtures only — never real trip exports. Next test expansion: mock fetch, child-process and Playwright acquisition (API fail → browser fallback, timeouts, atomic writes) without contacting Wanderlog.

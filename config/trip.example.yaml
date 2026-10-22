@@ -9,7 +9,11 @@ trip:
   publicId: my-trip
 
 wanderlog:
+  api:
+    # Default source: GET wanderlog.com/api/tripPlans/<wanderlogId>. No login.
+    timeoutMs: 60000
   cli:
+    # Only for `pnpm trip:pull:cli`, or editing the trip (docs/ingestion.md).
     # Modern shape: wanderlog-cli trips show <wanderlogId> --output json
     # Do not use the legacy singular `trip` command — it mishandles flags.
     # Scripts spawn the binary directly (shell aliases like `wanderlog=...` are ignored).

@@ -126,7 +126,7 @@ function tripPlanFrom(source: JsonRecord): JsonRecord {
   throw new Error("Source does not contain a tripPlan object");
 }
 
-function resourcesFrom(source: JsonRecord): JsonRecord {
+export function resourcesFrom(source: JsonRecord): JsonRecord {
   return asRecord(source.resources) ?? asRecord(asRecord(source.data)?.resources) ?? {};
 }
 
@@ -177,6 +177,8 @@ function placeFromBlock(
   const category = firstType(rawPlace.types);
   if (category) place.category = category;
   if ((override?.publishAddress ?? true) && address) place.address = address;
+  const locality = localityFrom(rawPlace.address_components);
+  if ((override?.publishAddress ?? true) && locality) place.locality = locality;
   if (latitude !== undefined) place.latitude = latitude;
   if (longitude !== undefined) place.longitude = longitude;
   const rating = asNumber(rawPlace.rating);
@@ -316,7 +318,7 @@ function addGlobalFlights(
   }
 }
 
-function routesFrom(
+export function routesFrom(
   resources: JsonRecord,
   places: Record<string, Place>,
   warnings: ImportWarning[],
@@ -357,6 +359,23 @@ function routesFrom(
     warnings.push({ code: "no-route-legs", message: "No cached route legs matched imported places" });
   }
   return result;
+}
+
+/**
+ * The town a place is in, from Google's typed address components rather than
+ * by splitting the formatted address, whose order varies by country. Google's
+ * `locality` is a ward inside Tokyo ("Shinjuku City"), so the first-level
+ * area is appended when it differs ("Shinjuku City, Tokyo").
+ */
+export function localityFrom(addressComponents: unknown): string | undefined {
+  const components = asRecords(addressComponents);
+  const named = (type: string) =>
+    components.find((component) => Array.isArray(component.types) && component.types.includes(type))
+      ?.long_name;
+  const locality = asString(named("locality")) ?? asString(named("postal_town"));
+  const region = asString(named("administrative_area_level_1"));
+  if (!locality) return region;
+  return region && region !== locality ? `${locality}, ${region}` : locality;
 }
 
 export function normaliseWanderlog(

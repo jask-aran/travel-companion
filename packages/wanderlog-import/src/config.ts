@@ -11,6 +11,12 @@ const IngestionConfigSchema = v.object({
     publicId: v.pipe(v.string(), v.minLength(1)),
   }),
   wanderlog: v.object({
+    api: v.optional(
+      v.object({
+        timeoutMs: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1000)), 60000),
+      }),
+      {},
+    ),
     cli: v.object({
       command: v.optional(v.string(), "wanderlog-cli"),
       timeoutMs: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1000)), 60000),

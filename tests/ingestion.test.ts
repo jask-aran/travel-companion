@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { extractMobxState, parseWanderlogSource } from "../packages/wanderlog-import/src/index.js";
-import { normaliseWanderlog } from "../packages/trip-normaliser/src/index.js";
+import { localityFrom, normaliseWanderlog } from "../packages/trip-normaliser/src/index.js";
 
 const source = {
   success: true,
@@ -119,5 +119,34 @@ describe("normaliser", () => {
     expect(place?.name).toBe("Central Station");
     expect(place?.address).toBeUndefined();
     expect(bundle.days[0]?.items[0]).toMatchObject({ startTime: "10:00", status: "tentative" });
+  });
+});
+
+describe("place locality", () => {
+  const component = (long_name: string, ...types: string[]) => ({ long_name, types: [...types, "political"] });
+
+  it("uses Google's locality", () => {
+    expect(localityFrom([component("Kanazawa", "locality"), component("Japan", "country")])).toBe("Kanazawa");
+  });
+
+  it("adds the first-level area when the locality is a ward inside it", () => {
+    expect(
+      localityFrom([
+        component("Shinjuku City", "locality"),
+        component("Tokyo", "administrative_area_level_1"),
+        component("Japan", "country"),
+      ]),
+    ).toBe("Shinjuku City, Tokyo");
+  });
+
+  it("does not repeat a locality that is its own region", () => {
+    expect(
+      localityFrom([component("Osaka", "locality"), component("Osaka", "administrative_area_level_1")]),
+    ).toBe("Osaka");
+  });
+
+  it("has nothing to say without components", () => {
+    expect(localityFrom(undefined)).toBeUndefined();
+    expect(localityFrom([component("Japan", "country")])).toBeUndefined();
   });
 });

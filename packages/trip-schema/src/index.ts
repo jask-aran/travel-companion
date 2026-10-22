@@ -75,6 +75,8 @@ export const PlaceSchema = v.object({
   name: v.string(),
   category: optionalString,
   address: optionalString,
+  /** Google's own locality, plus the prefecture or state when it differs. */
+  locality: optionalString,
   latitude: optionalNumber,
   longitude: optionalNumber,
   rating: optionalNumber,
