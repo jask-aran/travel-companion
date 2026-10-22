@@ -61,25 +61,11 @@ describe("flight timing", () => {
       leaveBy: "05:30",
       legs: [legs.get("s1")],
       fromHotel: true,
-      checkOut: true,
     });
   });
 
   it("gives only the airport time when nothing routes into it", () => {
-    expect(flightTiming(flight, [], legs, places)).toEqual({
-      airportBy: "06:30",
-      legs: [],
-      fromHotel: false,
-      checkOut: false,
-    });
-  });
-
-  it("does not call an evening run from the hotel a check-out", () => {
-    // Straight from the hotel to the airport for a 20:10 flight.
-    const timing = flightTiming({ ...flight, departTime: "20:10" }, items, legs, places, "hotel");
-    expect(timing?.fromHotel).toBe(true);
-    expect(timing?.checkOut).toBe(false);
-    expect(timing?.leaveBy).toBe("17:10");
+    expect(flightTiming(flight, [], legs, places)).toEqual({ airportBy: "06:30", legs: [], fromHotel: false });
   });
 
   describe("through a station on the way", () => {
@@ -114,11 +100,11 @@ describe("flight timing", () => {
       expect(timing?.legs.map((leg) => leg.id)).toEqual(["b"]);
     });
 
-    it("does not call an afternoon departure a check-out", () => {
-      // An evening flight: you left the hotel hours earlier, as on 11 Dec.
+    it("traces an evening departure back to the hotel too", () => {
+      // Whether 16:40 suits the hotel's own check-out is for the traveller.
       const evening = { ...flight, departTime: "20:10" };
       const timing = flightTiming(evening, via("exit"), chainLegs("exit"), stationPlaces, "hotel");
-      expect(timing?.fromHotel).toBe(false);
+      expect(timing?.fromHotel).toBe(true);
       expect(timing?.leaveBy).toBe("16:40");
     });
   });

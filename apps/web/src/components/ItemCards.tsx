@@ -557,7 +557,7 @@ export function LodgingBand(props: {
   place?: Place | undefined;
   role?: LodgingCardRole | undefined;
   /** When to leave for the airport, on the day you check out. */
-  leave?: { label: string; time: string } | undefined;
+  checkOutBy?: string | undefined;
 }) {
   const [open, setOpen] = createSignal(false);
 
@@ -636,10 +636,10 @@ export function LodgingBand(props: {
           <span class="lodging-band__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
         </Show>
         <span class="lodging-band__name">{props.item.name}</span>
-        <Show when={props.leave}>
-          {(leave) => (
+        <Show when={props.checkOutBy}>
+          {(time) => (
             <span class="leave-time lodging-band__leave">
-              {leave().label} <strong>{leave().time}</strong>
+              Check out by <strong>{time()}</strong>
             </span>
           )}
         </Show>

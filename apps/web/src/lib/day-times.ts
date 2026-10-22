@@ -87,22 +87,12 @@ export type FlightTiming = {
   leaveBy?: string;
   /** The transfer to the airport, in travel order. Empty when nothing routes there. */
   legs: RouteLeg[];
-  /** The transfer starts at the hotel. */
-  fromHotel: boolean;
   /**
-   * It starts at the hotel early enough to be the check-out. Later than
-   * LATEST_CHECK_OUT you checked out hours ago; `leaveBy` is then just when
-   * to set off.
+   * The transfer starts at the hotel, so `leaveBy` is when to check out. When
+   * that is against the hotel's own check-out time is for the traveller.
    */
-  checkOut: boolean;
+  fromHotel: boolean;
 };
-
-/**
- * Wanderlog has no check-out times. A transfer traced back to the hotel only
- * counts as the check-out when it starts by this standard checkout time;
- * later than that you have left already and are out for the day.
- */
-export const LATEST_CHECK_OUT = "11:00";
 
 function leaveTime(airportBy: string, legs: RouteLeg[]): string | undefined {
   const [hours = 0, minutes = 0] = airportBy.split(":").map(Number);
@@ -131,16 +121,14 @@ export function flightTiming(
   const stops = items.filter((item) => item.type === "place");
   const at = stops.findIndex((item) => item.placeId === flight.departPlaceId);
   const direct = at >= 0 ? legs.get(stops[at]!.id) : undefined;
-  if (!direct?.durationSeconds) return { airportBy, legs: [], fromHotel: false, checkOut: false };
+  if (!direct?.durationSeconds) return { airportBy, legs: [], fromHotel: false };
 
-  const singleLeave = leaveTime(airportBy, [direct]);
-  const fromHotel = Boolean(hotelPlaceId) && direct.fromPlaceId === hotelPlaceId;
   const single: FlightTiming = {
     airportBy,
     legs: [direct],
-    fromHotel,
-    checkOut: fromHotel && Boolean(singleLeave) && singleLeave! <= LATEST_CHECK_OUT,
+    fromHotel: Boolean(hotelPlaceId) && direct.fromPlaceId === hotelPlaceId,
   };
+  const singleLeave = leaveTime(airportBy, [direct]);
   if (singleLeave) single.leaveBy = singleLeave;
   if (!hotelPlaceId || single.fromHotel) return single;
 
@@ -156,6 +144,6 @@ export function flightTiming(
   if (chain[0]?.fromPlaceId !== hotelPlaceId) return single;
 
   const leaveBy = leaveTime(airportBy, chain);
-  if (!leaveBy || leaveBy > LATEST_CHECK_OUT) return single;
-  return { airportBy, leaveBy, legs: chain, fromHotel: true, checkOut: true };
+  if (!leaveBy) return single;
+  return { airportBy, leaveBy, legs: chain, fromHotel: true };
 }

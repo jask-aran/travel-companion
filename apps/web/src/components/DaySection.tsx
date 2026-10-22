@@ -61,14 +61,14 @@ function placeSequences(items: DayItem[], stayPlaceIds: Set<string>): number[] {
 function LodgingSlotView(props: {
   slot: LodgingSlot;
   bundle: TripBundle;
-  leave?: { label: string; time: string } | undefined;
+  checkOutBy?: string | undefined;
 }) {
   return (
     <LodgingBand
       item={slotToLodgingItem(props.slot)}
       place={stayPlace(props.bundle, props.slot.stay)}
       role={props.slot.role}
-      leave={props.slot.role === "check-out" ? props.leave : undefined}
+      checkOutBy={props.slot.role === "check-out" ? props.checkOutBy : undefined}
     />
   );
 }
@@ -149,22 +149,13 @@ export function DaySection(props: {
   /** The run to the airport starts at the hotel you check out of today. */
   const leavesFromCheckOut = (timing: FlightTiming | undefined) =>
     Boolean(timing?.fromHotel) && wokeInSlot()?.role === "check-out";
-  /**
-   * Shown on the check-out band rather than the flight: "Check out by" in the
-   * morning, "Leave for NRT by" for an evening flight, when you checked out
-   * hours earlier and only set off from the hotel.
-   */
-  const hotelLeave = createMemo(() => {
-    for (const flight of flights()) {
-      const timing = timings().get(flight.id);
-      if (!leavesFromCheckOut(timing) || !timing?.leaveBy) continue;
-      const label = timing.checkOut
-        ? "Check out by"
-        : `Leave for ${flight.departAirport ?? "the airport"} by`;
-      return { label, time: timing.leaveBy };
-    }
-    return undefined;
-  });
+  /** Shown on the check-out band rather than the flight. */
+  const checkOutBy = createMemo(
+    () =>
+      flights()
+        .map((flight) => timings().get(flight.id))
+        .find(leavesFromCheckOut)?.leaveBy,
+  );
   const leaveLabel = (timing: FlightTiming | undefined) => {
     const from = timing?.legs[0]?.fromPlaceId;
     if (!from || leavesFromCheckOut(timing)) return undefined;
@@ -421,7 +412,7 @@ export function DaySection(props: {
                 </Show>
                 <For each={leaving()}>
                   {(slot) => (
-                    <LodgingSlotView slot={slot} bundle={props.bundle} leave={hotelLeave()} />
+                    <LodgingSlotView slot={slot} bundle={props.bundle} checkOutBy={checkOutBy()} />
                   )}
                 </For>
                 {/* Each flight with its transfers either side, each its own section,
