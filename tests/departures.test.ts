@@ -61,7 +61,7 @@ describe("parseNavitime", () => {
     expect(options[0]?.segments[0]).toMatchObject({ name: "ひだ", from: "名古屋", to: "高山" });
   });
 
-  it("uses the published Hida times and keeps only trains that arrive by the target", () => {
+  it("uses published Hida times and keeps the first train even when it misses the target", () => {
     const options = parseNavitime(fixture<NavitimeResponse>("navitime-nagoya-takayama.json"));
     const board = (time: string): DepartureBoard => ({
       provider: "navitime",
@@ -83,11 +83,79 @@ describe("parseNavitime", () => {
           minutes: 153,
           segments: [{ name: "Hida 1", from: "Nagoya", to: "Takayama" }],
         },
+        {
+          departTime: "08:43",
+          arriveTime: "11:03",
+          segments: [{ name: "Hida 3" }],
+        },
+        {
+          departTime: "09:39",
+          arriveTime: "12:20",
+          segments: [{ name: "Hida 5" }],
+        },
       ],
     });
 
     const missesTarget = curateDepartureBoard(board("09:30"));
-    expect(missesTarget).toEqual({ matched: true });
+    expect(missesTarget.board).toMatchObject({
+      approximate: false,
+      source: { type: "curated", operator: "JR Central" },
+      options: [
+        {
+          departTime: "07:43",
+          arriveTime: "10:16",
+          segments: [{ name: "Hida 1" }],
+        },
+        {
+          departTime: "08:43",
+          arriveTime: "11:03",
+          segments: [{ name: "Hida 3" }],
+        },
+        {
+          departTime: "09:39",
+          arriveTime: "12:20",
+          segments: [{ name: "Hida 5" }],
+        },
+      ],
+    });
+  });
+
+  it("matches composite Skyliner names and ignores terminal detail in station names", () => {
+    const result = curateDepartureBoard({
+      provider: "navitime",
+      target: { kind: "depart", date: "2026-11-21", time: "19:30" },
+      fetchedAt: "2026-10-23T00:00:00.000Z",
+      approximate: true,
+      options: [
+        {
+          departTime: "19:30",
+          arriveTime: "20:10",
+          minutes: 40,
+          segments: [
+            {
+              name: "京成スカイライナー 空港第2ビル(成田第2・第3ターミナル)→日暮里",
+              kind: "express",
+              departTime: "19:30",
+              arriveTime: "20:10",
+              from: "空港第2ビル(成田第2・第3ターミナル)",
+              to: "日暮里",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.board).toMatchObject({
+      approximate: false,
+      source: { type: "curated", operator: "Keisei" },
+      options: [
+        {
+          departTime: "19:43",
+          arriveTime: "20:20",
+          segments: [{ name: "Skyliner 68", from: "Narita Airport Terminal 2,3", to: "Nippori" }],
+        },
+      ],
+    });
   });
 
   it("shifts a connecting ride to follow a curated Skyliner arrival", () => {
@@ -100,7 +168,8 @@ describe("parseNavitime", () => {
       options: [option!],
     });
 
-    expect(result.board?.options[0]).toMatchObject({
+    const skyliner = result.board?.options.find((candidate) => candidate.segments[0]?.name === "Skyliner 136");
+    expect(skyliner).toMatchObject({
       departTime: "14:18",
       arriveTime: "15:35",
       segments: [

@@ -1,150 +1,127 @@
 [
   {
-    "id": "keisei-skyliner-narita-keisei-ueno",
+    "id": "keisei-skyliner-narita-city",
     "operator": "Keisei",
     "service": "Skyliner",
     "serviceNames": ["京成スカイライナー"],
     "kind": "express",
-    "fromStations": ["成田空港"],
-    "toStations": ["京成上野"],
-    "stationNames": {
-      "from": { "ja": "成田空港", "en": "Narita Airport" },
-      "to": { "ja": "京成上野", "en": "Keisei Ueno" }
-    },
+    "stationNames": {"成田空港": "Narita Airport", "空港第2ビル": "Narita Airport Terminal 2,3", "新鎌ヶ谷": "Shin-Kamagaya", "青砥": "Aoto", "日暮里": "Nippori", "京成上野": "Keisei Ueno"},
     "source": {
-      "url": "https://www.keisei.co.jp/keisei/tetudou/skyliner/jp/traffic/skyliner_timetable_1121.php",
+      "urls": ["https://new-www.keisei.co.jp/keisei/tetudou/skyliner/jp/traffic/skyliner_timetable_1121.php"],
       "retrieved": "2026-10-23",
-      "note": "Official timetable effective 2026-11-21. Times below use the Saturday/holiday table, which applies on 2026-11-21 and 2026-12-06."
+      "note": "Official schedule effective 2026-11-21. Weekend/holiday times apply on 2026-11-21 and 2026-12-06. Stop times are copied from the published columns."
     },
     "departures": [
-      { "train": "Skyliner 68", "depart": "19:40", "arrive": "20:25", "days": "weekends" },
-      { "train": "Skyliner 70", "depart": "20:00", "arrive": "20:44", "days": "weekends" },
-      { "train": "Skyliner 172", "depart": "20:20", "arrive": "21:08", "days": "weekends" },
-      { "train": "Skyliner 74", "depart": "20:40", "arrive": "21:24", "days": "weekends" },
-      { "train": "Skyliner 76", "depart": "21:00", "arrive": "21:45", "days": "weekends" },
-      { "train": "Skyliner 178", "depart": "21:20", "arrive": "22:08", "days": "weekends" },
-      { "train": "Skyliner 80", "depart": "21:40", "arrive": "22:26", "days": "weekends" },
-      { "train": "Skyliner 136", "depart": "14:18", "arrive": "15:10", "days": "weekends" },
-      { "train": "Skyliner 38", "depart": "14:38", "arrive": "15:23", "days": "weekends" },
-      { "train": "Skyliner 40", "depart": "14:59", "arrive": "15:43", "days": "weekends" },
-      { "train": "Skyliner 142", "depart": "15:18", "arrive": "16:09", "days": "weekends" },
-      { "train": "Skyliner 44", "depart": "15:38", "arrive": "16:23", "days": "weekends" },
-      { "train": "Skyliner 46", "depart": "15:58", "arrive": "16:43", "days": "weekends" },
-      { "train": "Skyliner 148", "depart": "16:18", "arrive": "17:09", "days": "weekends" },
-      { "train": "Skyliner 50", "depart": "16:38", "arrive": "17:23", "days": "weekends" },
-      { "train": "Skyliner 52", "depart": "16:59", "arrive": "17:43", "days": "weekends" }
+      {"train": "Skyliner 16", "days": "weekends", "stops": {"成田空港": "10:59", "空港第2ビル": "11:02", "日暮里": "11:38", "京成上野": "11:43"}},
+      {"train": "Skyliner 118", "days": "weekends", "stops": {"成田空港": "11:18", "空港第2ビル": "11:22", "新鎌ヶ谷": "11:41", "青砥": "11:54", "日暮里": "12:04", "京成上野": "12:09"}},
+      {"train": "Skyliner 20", "days": "weekends", "stops": {"成田空港": "11:38", "空港第2ビル": "11:42", "日暮里": "12:18", "京成上野": "12:23"}},
+      {"train": "Skyliner 22", "days": "weekends", "stops": {"成田空港": "11:58", "空港第2ビル": "12:02", "日暮里": "12:38", "京成上野": "12:43"}},
+      {"train": "Skyliner 124", "days": "weekends", "stops": {"成田空港": "12:18", "空港第2ビル": "12:22", "新鎌ヶ谷": "12:41", "青砥": "12:54", "日暮里": "13:04", "京成上野": "13:09"}},
+      {"train": "Skyliner 26", "days": "weekends", "stops": {"成田空港": "12:38", "空港第2ビル": "12:42", "日暮里": "13:18", "京成上野": "13:23"}},
+      {"train": "Skyliner 28", "days": "weekends", "stops": {"成田空港": "12:59", "空港第2ビル": "13:02", "日暮里": "13:38", "京成上野": "13:43"}},
+      {"train": "Skyliner 130", "days": "weekends", "stops": {"成田空港": "13:18", "空港第2ビル": "13:22", "新鎌ヶ谷": "13:41", "青砥": "13:54", "日暮里": "14:04", "京成上野": "14:09"}},
+      {"train": "Skyliner 32", "days": "weekends", "stops": {"成田空港": "13:38", "空港第2ビル": "13:42", "日暮里": "14:18", "京成上野": "14:23"}},
+      {"train": "Skyliner 34", "days": "weekends", "stops": {"成田空港": "13:58", "空港第2ビル": "14:02", "日暮里": "14:38", "京成上野": "14:43"}},
+      {"train": "Skyliner 136", "days": "weekends", "stops": {"成田空港": "14:18", "空港第2ビル": "14:22", "新鎌ヶ谷": "14:41", "青砥": "14:54", "日暮里": "15:05", "京成上野": "15:10"}},
+      {"train": "Skyliner 38", "days": "weekends", "stops": {"成田空港": "14:38", "空港第2ビル": "14:42", "日暮里": "15:18", "京成上野": "15:23"}},
+      {"train": "Skyliner 40", "days": "weekends", "stops": {"成田空港": "14:59", "空港第2ビル": "15:02", "日暮里": "15:38", "京成上野": "15:43"}},
+      {"train": "Skyliner 142", "days": "weekends", "stops": {"成田空港": "15:18", "空港第2ビル": "15:22", "新鎌ヶ谷": "15:41", "青砥": "15:54", "日暮里": "16:04", "京成上野": "16:09"}},
+      {"train": "Skyliner 44", "days": "weekends", "stops": {"成田空港": "15:38", "空港第2ビル": "15:42", "日暮里": "16:18", "京成上野": "16:23"}},
+      {"train": "Skyliner 46", "days": "weekends", "stops": {"成田空港": "15:58", "空港第2ビル": "16:02", "日暮里": "16:38", "京成上野": "16:43"}},
+      {"train": "Skyliner 148", "days": "weekends", "stops": {"成田空港": "16:18", "空港第2ビル": "16:22", "新鎌ヶ谷": "16:41", "青砥": "16:54", "日暮里": "17:04", "京成上野": "17:09"}},
+      {"train": "Skyliner 50", "days": "weekends", "stops": {"成田空港": "16:38", "空港第2ビル": "16:42", "日暮里": "17:18", "京成上野": "17:23"}},
+      {"train": "Skyliner 52", "days": "weekends", "stops": {"成田空港": "16:59", "空港第2ビル": "17:02", "日暮里": "17:38", "京成上野": "17:43"}},
+      {"train": "Skyliner 154", "days": "weekends", "stops": {"成田空港": "17:18", "空港第2ビル": "17:22", "新鎌ヶ谷": "17:41", "青砥": "17:54", "日暮里": "18:04", "京成上野": "18:09"}},
+      {"train": "Skyliner 56", "days": "weekends", "stops": {"成田空港": "17:38", "空港第2ビル": "17:42", "日暮里": "18:18", "京成上野": "18:23"}},
+      {"train": "Skyliner 58", "days": "weekends", "stops": {"成田空港": "17:58", "空港第2ビル": "18:02", "日暮里": "18:38", "京成上野": "18:43"}},
+      {"train": "Skyliner 160", "days": "weekends", "stops": {"成田空港": "18:18", "空港第2ビル": "18:22", "新鎌ヶ谷": "18:42", "青砥": "18:54", "日暮里": "19:04", "京成上野": "19:09"}},
+      {"train": "Skyliner 62", "days": "weekends", "stops": {"成田空港": "18:38", "空港第2ビル": "18:42", "日暮里": "19:18", "京成上野": "19:24"}},
+      {"train": "Skyliner 64", "days": "weekends", "stops": {"成田空港": "19:00", "空港第2ビル": "19:03", "日暮里": "19:39", "京成上野": "19:44"}},
+      {"train": "Skyliner 166", "days": "weekends", "stops": {"成田空港": "19:20", "空港第2ビル": "19:23", "新鎌ヶ谷": "19:42", "青砥": "19:54", "日暮里": "20:03", "京成上野": "20:08"}},
+      {"train": "Skyliner 68", "days": "weekends", "stops": {"成田空港": "19:40", "空港第2ビル": "19:43", "日暮里": "20:20", "京成上野": "20:25"}},
+      {"train": "Skyliner 70", "days": "weekends", "stops": {"成田空港": "20:00", "空港第2ビル": "20:03", "日暮里": "20:39", "京成上野": "20:44"}},
+      {"train": "Skyliner 172", "days": "weekends", "stops": {"成田空港": "20:20", "空港第2ビル": "20:23", "新鎌ヶ谷": "20:42", "青砥": "20:54", "日暮里": "21:03", "京成上野": "21:08"}},
+      {"train": "Skyliner 74", "days": "weekends", "stops": {"成田空港": "20:40", "空港第2ビル": "20:43", "日暮里": "21:19", "京成上野": "21:24"}},
+      {"train": "Skyliner 76", "days": "weekends", "stops": {"成田空港": "21:00", "空港第2ビル": "21:03", "日暮里": "21:40", "京成上野": "21:45"}},
+      {"train": "Skyliner 178", "days": "weekends", "stops": {"成田空港": "21:20", "空港第2ビル": "21:23", "新鎌ヶ谷": "21:42", "青砥": "21:53", "日暮里": "22:03", "京成上野": "22:08"}},
+      {"train": "Skyliner 80", "days": "weekends", "stops": {"成田空港": "21:40", "空港第2ビル": "21:43", "日暮里": "22:21", "京成上野": "22:26"}},
+      {"train": "Skyliner 182", "days": "weekends", "stops": {"成田空港": "22:00", "空港第2ビル": "22:03", "新鎌ヶ谷": "22:22", "青砥": "22:34", "日暮里": "22:44", "京成上野": "22:50"}},
+      {"train": "Skyliner 184", "days": "weekends", "stops": {"成田空港": "22:20", "空港第2ビル": "22:23", "新鎌ヶ谷": "22:42", "青砥": "22:54", "日暮里": "23:04", "京成上野": "23:09"}}
     ]
   },
   {
-    "id": "keisei-skyliner-keisei-ueno-narita",
+    "id": "keisei-skyliner-city-narita",
     "operator": "Keisei",
     "service": "Skyliner",
     "serviceNames": ["京成スカイライナー"],
     "kind": "express",
-    "fromStations": ["京成上野"],
-    "toStations": ["成田空港"],
-    "stationNames": {
-      "from": { "ja": "京成上野", "en": "Keisei Ueno" },
-      "to": { "ja": "成田空港", "en": "Narita Airport" }
-    },
+    "stationNames": {"京成上野": "Keisei Ueno", "日暮里": "Nippori", "青砥": "Aoto", "新鎌ヶ谷": "Shin-Kamagaya", "空港第2ビル": "Narita Airport Terminal 2,3", "成田空港": "Narita Airport"},
     "source": {
-      "url": "https://www.keisei.co.jp/keisei/tetudou/skyliner/jp/traffic/skyliner_timetable_1121.php",
+      "urls": ["https://new-www.keisei.co.jp/keisei/tetudou/skyliner/jp/traffic/skyliner_timetable_1121.php"],
       "retrieved": "2026-10-23",
-      "note": "Official timetable effective 2026-11-21. These are weekday trains for the 2026-12-11 return."
+      "note": "Official schedule effective 2026-11-21. Weekday times apply on 2026-12-11. Stop times are copied from the published columns."
     },
     "departures": [
-      { "train": "Skyliner 59", "depart": "15:20", "arrive": "16:03", "days": "weekdays" },
-      { "train": "Skyliner 163", "depart": "15:37", "arrive": "16:27", "days": "weekdays" },
-      { "train": "Skyliner 63", "depart": "16:00", "arrive": "16:44", "days": "weekdays" },
-      { "train": "Skyliner 65", "depart": "16:20", "arrive": "17:04", "days": "weekdays" },
-      { "train": "Skyliner 67", "depart": "16:40", "arrive": "17:25", "days": "weekdays" },
-      { "train": "Skyliner 69", "depart": "17:00", "arrive": "17:45", "days": "weekdays" },
-      { "train": "Skyliner 71", "depart": "17:20", "arrive": "18:03", "days": "weekdays" },
-      { "train": "Skyliner 73", "depart": "17:40", "arrive": "18:29", "days": "weekdays" }
+      {"train": "Skyliner 55", "days": "weekdays", "stops": {"京成上野": "14:20", "日暮里": "14:25", "空港第2ビル": "15:01", "成田空港": "15:03"}},
+      {"train": "Skyliner 157", "days": "weekdays", "stops": {"京成上野": "14:35", "日暮里": "14:40", "青砥": "14:50", "新鎌ヶ谷": "15:02", "空港第2ビル": "15:21", "成田空港": "15:23"}},
+      {"train": "Skyliner 59", "days": "weekdays", "stops": {"京成上野": "15:00", "日暮里": "15:05", "空港第2ビル": "15:41", "成田空港": "15:44"}},
+      {"train": "Skyliner 61", "days": "weekdays", "stops": {"京成上野": "15:20", "日暮里": "15:25", "空港第2ビル": "16:01", "成田空港": "16:04"}},
+      {"train": "Skyliner 163", "days": "weekdays", "stops": {"京成上野": "15:35", "日暮里": "15:40", "青砥": "15:50", "新鎌ヶ谷": "16:02", "空港第2ビル": "16:21", "成田空港": "16:23"}},
+      {"train": "Skyliner 65", "days": "weekdays", "stops": {"京成上野": "16:00", "日暮里": "16:05", "空港第2ビル": "16:41", "成田空港": "16:44"}},
+      {"train": "Skyliner 67", "days": "weekdays", "stops": {"京成上野": "16:20", "日暮里": "16:25", "空港第2ビル": "17:01", "成田空港": "17:03"}},
+      {"train": "Skyliner 69", "days": "weekdays", "stops": {"京成上野": "16:40", "日暮里": "16:45", "空港第2ビル": "17:21", "成田空港": "17:23"}},
+      {"train": "Skyliner 71", "days": "weekdays", "stops": {"京成上野": "17:00", "日暮里": "17:05", "空港第2ビル": "17:41", "成田空港": "17:44"}},
+      {"train": "Skyliner 73", "days": "weekdays", "stops": {"京成上野": "17:20", "日暮里": "17:25", "空港第2ビル": "18:01", "成田空港": "18:03"}},
+      {"train": "Skyliner 75", "days": "weekdays", "stops": {"京成上野": "17:40", "日暮里": "17:45", "空港第2ビル": "18:21", "成田空港": "18:23"}},
+      {"train": "Skyliner 77", "days": "weekdays", "stops": {"京成上野": "18:00", "日暮里": "18:05", "空港第2ビル": "18:41", "成田空港": "18:43"}},
+      {"train": "Skyliner 79", "days": "weekdays", "stops": {"京成上野": "18:20", "日暮里": "18:25", "空港第2ビル": "19:01", "成田空港": "19:04"}},
+      {"train": "Skyliner 81", "days": "weekdays", "stops": {"京成上野": "19:00", "日暮里": "19:05", "空港第2ビル": "19:41", "成田空港": "19:44"}},
+      {"train": "Skyliner 183", "days": "weekdays", "stops": {"京成上野": "19:37", "日暮里": "19:42", "青砥": "19:52", "新鎌ヶ谷": "20:04", "空港第2ビル": "20:23", "成田空港": "20:25"}},
+      {"train": "Skyliner 185", "days": "weekdays", "stops": {"京成上野": "20:17", "日暮里": "20:22", "青砥": "20:32", "新鎌ヶ谷": "20:44", "空港第2ビル": "21:02", "成田空港": "21:05"}}
     ]
   },
   {
-    "id": "jr-east-narita-express-narita-tokyo",
+    "id": "jr-east-narita-express-50",
     "operator": "JR East",
-    "service": "Narita Express 50",
+    "service": "Narita Express",
     "serviceNames": ["成田エクスプレス"],
     "kind": "express",
-    "fromStations": ["成田空港"],
-    "toStations": ["東京"],
-    "stationNames": {
-      "from": { "ja": "成田空港", "en": "Narita Airport" },
-      "to": { "ja": "東京", "en": "Tokyo" }
-    },
-    "source": {
-      "url": "https://timetables.jreast.co.jp/en/2610/train/180/184921.html",
-      "retrieved": "2026-10-23",
-      "note": "Official JR East Oct 2026 issue timetable; check service notices for the travel date."
-    },
+    "stationNames": {"成田空港": "Narita Airport Terminal 1", "空港第2ビル": "Narita Airport Terminal 2,3", "千葉": "Chiba", "東京": "Tokyo"},
+    "source": {"urls": ["https://timetables.jreast.co.jp/en/2610/train/180/184921.html"], "retrieved": "2026-10-23", "note": "Official JR East October 2026 timetable, with dates through December 2026. Check service notices before travel."},
     "departures": [
-      { "train": "Narita Express 50", "depart": "19:49", "arrive": "20:51", "days": "daily" }
+      {"train": "Narita Express 50", "days": "daily", "stops": {"成田空港": {"depart": "19:49"}, "空港第2ビル": {"arrive": "19:51", "depart": "19:53"}, "千葉": {"arrive": "20:21", "depart": "20:22"}, "東京": {"arrive": "20:51"}}}
     ]
   },
   {
-    "id": "jr-east-narita-express-narita-shinjuku",
+    "id": "jr-east-narita-express-30",
     "operator": "JR East",
-    "service": "Narita Express 30",
+    "service": "Narita Express",
     "serviceNames": ["成田エクスプレス"],
     "kind": "express",
-    "fromStations": ["成田空港"],
-    "toStations": ["新宿"],
-    "stationNames": {
-      "from": { "ja": "成田空港", "en": "Narita Airport" },
-      "to": { "ja": "新宿", "en": "Shinjuku" }
-    },
-    "source": {
-      "url": "https://timetables.jreast.co.jp/en/2610/train/030/031491.html",
-      "retrieved": "2026-10-23",
-      "note": "Official JR East Oct 2026 issue timetable; check service notices for the travel date."
-    },
+    "stationNames": {"成田空港": "Narita Airport Terminal 1", "空港第2ビル": "Narita Airport Terminal 2,3", "千葉": "Chiba", "東京": "Tokyo", "品川": "Shinagawa", "武蔵小杉": "Musashi-Kosugi", "横浜": "Yokohama", "戸塚": "Totsuka", "大船": "Ofuna", "渋谷": "Shibuya", "新宿": "Shinjuku"},
+    "source": {"urls": ["https://timetables.jreast.co.jp/en/2610/train/030/031491.html"], "retrieved": "2026-10-23", "note": "Official JR East October 2026 timetable, with dates through December 2026. The Shinjuku-bound portion leaves Tokyo at 15:49 and reaches Shinjuku at 16:11. Check service notices before travel."},
     "departures": [
-      { "train": "Narita Express 30", "depart": "14:45", "arrive": "16:11", "days": "daily" }
+      {"train": "Narita Express 30", "days": "daily", "stops": {"成田空港": {"depart": "14:45"}, "空港第2ビル": {"arrive": "14:47", "depart": "14:49"}, "千葉": {"arrive": "15:19", "depart": "15:20"}, "東京": {"arrive": "15:45", "depart": "15:49"}, "渋谷": {"arrive": "16:05", "depart": "16:06"}, "新宿": {"arrive": "16:11"}}}
     ]
   },
   {
-    "id": "jr-east-narita-express-41-shinjuku-narita",
+    "id": "jr-east-narita-express-shinjuku-narita",
     "operator": "JR East",
-    "service": "Narita Express 41",
+    "service": "Narita Express",
     "serviceNames": ["成田エクスプレス"],
     "kind": "express",
-    "fromStations": ["新宿"],
-    "toStations": ["成田空港"],
-    "stationNames": {
-      "from": { "ja": "新宿", "en": "Shinjuku" },
-      "to": { "ja": "成田空港", "en": "Narita Airport" }
-    },
+    "stationNames": {"新宿": "Shinjuku", "渋谷": "Shibuya", "品川": "Shinagawa", "東京": "Tokyo", "空港第2ビル": "Narita Airport Terminal 2,3", "成田空港": "Narita Airport Terminal 1"},
     "source": {
-      "url": "https://timetables.jreast.co.jp/en/2610/train/075/076571.html",
+      "urls": ["https://timetables.jreast.co.jp/en/2610/train/075/076571.html", "https://timetables.jreast.co.jp/en/2610/train/030/031211.html", "https://timetables.jreast.co.jp/en/2610/train/075/076581.html", "https://timetables.jreast.co.jp/en/2610/train/030/031521.html", "https://timetables.jreast.co.jp/en/2610/train/060/063321.html"],
       "retrieved": "2026-10-23",
-      "note": "Official JR East Oct 2026 issue timetable; check service notices for the travel date."
+      "note": "Official JR East October 2026 timetables. Weekday trains 41, 43, 45, 47 and 49 are listed for Friday 2026-12-11. Arrival and departure times at split/join stations are recorded separately. Check service notices before travel."
     },
     "departures": [
-      { "train": "Narita Express 41", "depart": "16:08", "arrive": "17:29", "days": "weekdays" }
-    ]
-  },
-  {
-    "id": "jr-east-narita-express-43-shinjuku-narita",
-    "operator": "JR East",
-    "service": "Narita Express 43",
-    "serviceNames": ["成田エクスプレス"],
-    "kind": "express",
-    "fromStations": ["新宿"],
-    "toStations": ["成田空港"],
-    "stationNames": {
-      "from": { "ja": "新宿", "en": "Shinjuku" },
-      "to": { "ja": "成田空港", "en": "Narita Airport" }
-    },
-    "source": {
-      "url": "https://timetables.jreast.co.jp/en/2610/train/030/031211.html",
-      "retrieved": "2026-10-23",
-      "note": "Official JR East Oct 2026 issue timetable; check service notices for the travel date."
-    },
-    "departures": [
-      { "train": "Narita Express 43", "depart": "16:38", "arrive": "17:58", "days": "weekdays" }
+      {"train": "Narita Express 41", "days": "weekdays", "stops": {"新宿": {"depart": "16:08"}, "渋谷": {"arrive": "16:13", "depart": "16:14"}, "品川": {"arrive": "16:23", "depart": "16:24"}, "東京": {"arrive": "16:31", "depart": "16:33"}, "空港第2ビル": {"arrive": "17:25", "depart": "17:27"}, "成田空港": {"arrive": "17:29"}}},
+      {"train": "Narita Express 43", "days": "weekdays", "stops": {"新宿": {"depart": "16:38"}, "渋谷": {"arrive": "16:43", "depart": "16:44"}, "品川": {"arrive": "16:48", "depart": "16:49"}, "東京": {"arrive": "17:00", "depart": "17:03"}, "空港第2ビル": {"arrive": "17:54", "depart": "17:56"}, "成田空港": {"arrive": "17:58"}}},
+      {"train": "Narita Express 45", "days": "weekdays", "stops": {"新宿": {"depart": "17:09"}, "渋谷": {"arrive": "17:14", "depart": "17:15"}, "品川": {"arrive": "17:23", "depart": "17:24"}, "東京": {"arrive": "17:31", "depart": "17:33"}, "空港第2ビル": {"arrive": "18:25", "depart": "18:27"}, "成田空港": {"arrive": "18:29"}}},
+      {"train": "Narita Express 47", "days": "weekdays", "stops": {"新宿": {"depart": "17:39"}, "渋谷": {"arrive": "17:44", "depart": "17:45"}, "東京": {"arrive": "18:00", "depart": "18:03"}, "空港第2ビル": {"arrive": "19:02", "depart": "19:04"}, "成田空港": {"arrive": "19:06"}}},
+      {"train": "Narita Express 49", "days": "weekdays", "stops": {"新宿": {"depart": "18:09"}, "渋谷": {"arrive": "18:14", "depart": "18:15"}, "品川": {"arrive": "18:23", "depart": "18:24"}, "東京": {"arrive": "18:31", "depart": "18:33"}, "空港第2ビル": {"arrive": "19:33", "depart": "19:35"}, "成田空港": {"arrive": "19:36"}}}
     ]
   },
   {
@@ -153,19 +130,10 @@
     "service": "Kintetsu Nagoya Line Limited Express",
     "serviceNames": ["近鉄名古屋線特急"],
     "kind": "express",
-    "fromStations": ["近鉄名古屋"],
-    "toStations": ["白子"],
-    "stationNames": {
-      "from": { "ja": "近鉄名古屋", "en": "Kintetsu-Nagoya" },
-      "to": { "ja": "白子", "en": "Shiroko" }
-    },
-    "source": {
-      "url": "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0710&tx=1-9004",
-      "retrieved": "2026-10-23",
-      "note": "Official weekends/holiday timetable: Kintetsu-Nagoya 07:10, Shiroko 07:49. The page does not state a 2026 effective date."
-    },
+    "stationNames": {"近鉄名古屋": "Kintetsu-Nagoya", "桑名": "Kuwana", "近鉄四日市": "Kintetsu-Yokkaichi", "白子": "Shiroko", "津": "Tsu", "伊勢中川": "Ise-Nakagawa", "松阪": "Matsusaka", "伊勢市": "Iseshi", "宇治山田": "Ujiyamada", "五十鈴川": "Isuzugawa", "鳥羽": "Toba", "志摩磯部": "Shima-Isobe", "鵜方": "Ugata", "賢島": "Kashikojima"},
+    "source": {"urls": ["https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0710&tx=1-9004"], "retrieved": "2026-10-23", "note": "Official Kintetsu weekend/holiday train detail. The English page says current timetable but does not state a 2026 effective date."},
     "departures": [
-      { "train": "Kintetsu Limited Express", "depart": "07:10", "arrive": "07:49", "days": "weekends" }
+      {"train": "Kintetsu Limited Express", "days": "weekends", "stops": {"近鉄名古屋": "07:10", "桑名": "07:26", "近鉄四日市": "07:38", "白子": "07:49", "津": "07:59", "伊勢中川": "08:10", "松阪": "08:17", "伊勢市": "08:30", "宇治山田": "08:33", "五十鈴川": "08:36", "鳥羽": "08:45", "志摩磯部": "09:04", "鵜方": "09:10", "賢島": "09:16"}}
     ]
   },
   {
@@ -174,22 +142,106 @@
     "service": "Hida",
     "serviceNames": ["ひだ"],
     "kind": "express",
-    "fromStations": ["名古屋"],
-    "toStations": ["高山"],
-    "stationNames": {
-      "from": { "ja": "名古屋", "en": "Nagoya" },
-      "to": { "ja": "高山", "en": "Takayama" }
-    },
+    "stationNames": {"名古屋": "Nagoya", "尾張一宮": "Owari-Ichinomiya", "岐阜": "Gifu", "鵜沼": "Unuma", "美濃太田": "Mino-Ota", "白川口": "Shirakawaguchi", "飛騨金山": "Hida-Kanayama", "下呂": "Gero", "飛騨萩原": "Hida-Hagiwara", "飛騨小坂": "Hida-Osaka", "久々野": "Kuguno", "高山": "Takayama", "飛騨古川": "Hida-Furukawa", "猪谷": "Inotani", "越中八尾": "Etchu-Yatsuo", "速星": "Hayahoshi", "富山": "Toyama"},
     "source": {
-      "url": "https://www.snowmonkeyresorts.com/access/limited-express-hida-timetable/",
+      "urls": ["https://www.snowmonkeyresorts.com/access/limited-express-hida-timetable/"],
       "retrieved": "2026-10-23",
-      "note": "Published regular timetable last updated 2026-10-10. The page says selected dates may have extra services and does not state exact validity dates; recheck for winter 2026 changes."
+      "note": "Published regular timetable last updated 2026-10-10. The publisher says extra trains or stopping-pattern changes may apply on selected dates; recheck JR Central for winter 2026 changes."
     },
     "departures": [
-      { "train": "Hida 1", "depart": "07:43", "arrive": "10:16", "days": "daily" },
-      { "train": "Hida 3", "depart": "08:43", "arrive": "11:03", "days": "daily" },
-      { "train": "Hida 5", "depart": "09:39", "arrive": "12:20", "days": "daily" },
-      { "train": "Hida 7", "depart": "10:48", "arrive": "13:17", "days": "daily" }
+      {"train": "Hida 1", "days": "daily", "stops": {"名古屋": "07:43", "尾張一宮": "07:54", "岐阜": "08:05", "鵜沼": "08:17", "美濃太田": "08:27", "白川口": "08:48", "飛騨金山": "09:05", "下呂": "09:27", "飛騨萩原": "09:35", "飛騨小坂": "09:47", "久々野": "10:03", "高山": "10:16"}},
+      {"train": "Hida 3", "days": "daily", "stops": {"名古屋": "08:43", "岐阜": "09:03", "美濃太田": "09:23", "下呂": "10:15", "高山": "11:03", "飛騨古川": "11:18", "猪谷": "11:57", "越中八尾": "12:15", "富山": "12:32"}},
+      {"train": "Hida 5", "days": "daily", "stops": {"名古屋": "09:39", "岐阜": "10:11", "美濃太田": "10:31", "下呂": "11:30", "高山": "12:20", "飛騨古川": "12:35"}}
+    ]
+  },
+  {
+    "id": "jr-central-tokaido-tokyo-nagoya",
+    "operator": "JR Central",
+    "service": "Tokaido Shinkansen",
+    "serviceNames": ["のぞみ(東海道)", "ひかり(東海道)"],
+    "kind": "shinkansen",
+    "stationNames": {"東京": "Tokyo", "品川": "Shinagawa", "新横浜": "Shin-Yokohama", "静岡": "Shizuoka", "浜松": "Hamamatsu", "豊橋": "Toyohashi", "名古屋": "Nagoya", "京都": "Kyoto", "新大阪": "Shin-Osaka"},
+    "source": {
+      "urls": ["https://timetables.jreast.co.jp/2610/train/175/177351.html", "https://timetables.jreast.co.jp/2610/train/095/098091.html"],
+      "retrieved": "2026-10-23",
+      "note": "Official JR East train-by-train timetables for the October 2026 issue. Nozomi 507 is listed for 2026-11-21; Hikari 665 is listed in the same current issue. Recheck the operating calendar before travel."
+    },
+    "departures": [
+      {"train": "Nozomi 507", "dates": ["2026-11-21"], "stops": {"東京": "20:30", "品川": "20:36", "新横浜": "20:47", "名古屋": "22:06", "京都": "22:42", "新大阪": "22:57"}},
+      {"train": "Hikari 665", "days": "daily", "stops": {"東京": "21:06", "品川": "21:12", "新横浜": "21:23", "静岡": "22:02", "浜松": "22:26", "豊橋": "22:44", "名古屋": "23:04"}}
+    ]
+  },
+  {
+    "id": "kintetsu-suzuka-hiratacho-ise-wakamatsu",
+    "operator": "Kintetsu",
+    "service": "Suzuka Line Local",
+    "serviceNames": ["近鉄鈴鹿線"],
+    "kind": "rail",
+    "stationNames": {"平田町": "Hiratacho", "三日市": "Mikkaichi", "鈴鹿市": "Suzukashi", "柳": "Yanagi", "伊勢若松": "Ise-Wakamatsu"},
+    "source": {
+      "urls": ["https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4576&time=1720&tx=1-9262", "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4576&time=1730&tx=1-9263"],
+      "retrieved": "2026-10-23",
+      "note": "Official Kintetsu weekend/holiday train details. The English pages say current timetable but do not state a 2026 effective date. Only rows with a published time at both stations are included."
+    },
+    "departures": [
+      {"train": "Suzuka Line Local", "days": "weekends", "stops": {"平田町": "17:20", "三日市": "17:22", "鈴鹿市": "17:25", "柳": "17:28", "伊勢若松": "17:31"}},
+      {"train": "Suzuka Line Local", "days": "weekends", "stops": {"平田町": "17:35", "三日市": "17:37", "鈴鹿市": "17:40", "柳": "17:43", "伊勢若松": "17:46"}}
+    ]
+  },
+  {
+    "id": "kintetsu-nagoya-line-ise-wakamatsu-nagoya",
+    "operator": "Kintetsu",
+    "service": "Nagoya Line Express",
+    "serviceNames": ["近鉄名古屋線急行"],
+    "kind": "express",
+    "stationNames": {"伊勢若松": "Ise-Wakamatsu", "塩浜": "Shiohama", "近鉄四日市": "Kintetsu-Yokkaichi", "近鉄富田": "Kintetsu-Tomida", "桑名": "Kuwana", "近鉄弥富": "Kintetsu-Yatomi", "近鉄蟹江": "Kintetsu-Kanie", "近鉄名古屋": "Kintetsu-Nagoya"},
+    "source": {
+      "urls": ["https://eki.kintetsu.co.jp/english/T7?dw=1&sf=3859&time=1720&tx=1-10170", "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=3859&time=1730&tx=1-10168", "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=3859&time=1750&tx=1-10202"],
+      "retrieved": "2026-10-23",
+      "note": "Official Kintetsu weekend/holiday train details. The English pages say current timetable but do not state a 2026 effective date."
+    },
+    "departures": [
+      {"train": "Nagoya Line Express", "days": "weekends", "stops": {"伊勢若松": "17:20", "塩浜": "17:26", "近鉄四日市": "17:30", "近鉄富田": "17:36", "桑名": "17:43", "近鉄弥富": "17:51", "近鉄蟹江": "17:56", "近鉄名古屋": "18:07"}},
+      {"train": "Nagoya Line Express", "days": "weekends", "stops": {"伊勢若松": "17:32", "塩浜": "17:38", "近鉄四日市": "17:44", "近鉄富田": "17:50", "桑名": "17:57", "近鉄弥富": "18:05", "近鉄蟹江": "18:13", "近鉄名古屋": "18:23"}},
+      {"train": "Nagoya Line Express", "days": "weekends", "stops": {"伊勢若松": "17:51", "塩浜": "17:57", "近鉄四日市": "18:01", "近鉄富田": "18:08", "桑名": "18:16", "近鉄弥富": "18:24", "近鉄蟹江": "18:33", "近鉄名古屋": "18:44"}}
+    ]
+  },
+  {
+    "id": "jr-west-hokuriku-kanazawa-tsuruga",
+    "operator": "JR West",
+    "service": "Hokuriku Shinkansen",
+    "serviceNames": ["つるぎ", "かがやき"],
+    "kind": "shinkansen",
+    "stationNames": {"富山": "Toyama", "新高岡": "Shin-Takaoka", "金沢": "Kanazawa", "小松": "Komatsu", "加賀温泉": "Kagaonsen", "芦原温泉": "Awaraonsen", "福井": "Fukui", "越前たけふ": "Echizen-Takefu", "敦賀": "Tsuruga", "東京": "Tokyo", "上野": "Ueno", "大宮": "Omiya", "長野": "Nagano"},
+    "source": {
+      "urls": ["https://timetable.jr-odekake.net/train-timetable/248921?date=20261101", "https://timetable.jr-odekake.net/train-timetable/248611?date=20261101"],
+      "retrieved": "2026-10-23",
+      "note": "JR West provides these official train pages and states the times use the 2026 October issue of JR Timetable. Both trains run daily; the 2026-11-27 target is a Friday. Check the operating calendar and service notices before travel."
+    },
+    "departures": [
+      {"train": "Tsurugi 17", "days": "daily", "stops": {"富山": "09:40", "新高岡": "09:49", "金沢": "10:05", "小松": "10:16", "加賀温泉": "10:24", "芦原温泉": "10:32", "福井": "10:41", "越前たけふ": "10:49", "敦賀": "11:01"}},
+      {"train": "Kagayaki 505", "days": "daily", "stops": {"東京": "08:11", "上野": "08:17", "大宮": "08:36", "長野": "09:40", "富山": "10:26", "金沢": "10:47", "福井": "11:10", "敦賀": "11:26"}}
+    ]
+  },
+  {
+    "id": "nankai-rapit-namba-kansai-airport",
+    "operator": "Nankai",
+    "service": "Rapi:t",
+    "serviceNames": ["南海特急ラピートβ", "南海特急ラピートα", "南海特急ラピート"],
+    "kind": "express",
+    "stationNames": {"なんば": "Namba", "新今宮": "Shin-Imamiya", "天下茶屋": "Tengachaya", "堺": "Sakai", "岸和田": "Kishiwada", "泉佐野": "Izumisano", "りんくうタウン": "Rinku-Town", "関西空港": "Kansai Airport"},
+    "source": {
+      "urls": ["https://www.nankai.co.jp/lib/traffic/express/rapit/pdf/rairt_down.pdf", "https://kensaku.nankai.co.jp/sp/T5?USR=PC&d=1&dw=0&slCode=306-0"],
+      "retrieved": "2026-10-23",
+      "note": "Official Nankai timetable PDF dated 2024-12-21; its active weekday station timetable was also fetched on 2026-10-23 and showed the same 06:00, 06:30, 07:00 and later Rapi:t departures. The first Rapi:t reaches the airport at 06:35, after the 06:30 target. Verify winter 2026 notices."
+    },
+    "departures": [
+      {"train": "Rapi:t α 1", "days": "weekdays", "stops": {"なんば": "06:00", "新今宮": "06:02", "天下茶屋": "06:04", "泉佐野": "06:26", "りんくうタウン": "06:29", "関西空港": "06:35"}},
+      {"train": "Rapi:t α 3", "days": "weekdays", "stops": {"なんば": "06:30", "新今宮": "06:32", "天下茶屋": "06:34", "泉佐野": "07:00", "りんくうタウン": "07:02", "関西空港": "07:08"}},
+      {"train": "Rapi:t α 5", "days": "weekdays", "stops": {"なんば": "07:00", "新今宮": "07:02", "天下茶屋": "07:04", "泉佐野": "07:26", "りんくうタウン": "07:29", "関西空港": "07:34"}},
+      {"train": "Rapi:t α 7", "days": "weekdays", "stops": {"なんば": "07:30", "新今宮": "07:32", "天下茶屋": "07:34", "泉佐野": "08:02", "りんくうタウン": "08:05", "関西空港": "08:10"}},
+      {"train": "Rapi:t α 9", "days": "weekdays", "stops": {"なんば": "08:00", "新今宮": "08:02", "天下茶屋": "08:04", "泉佐野": "08:31", "りんくうタウン": "08:34", "関西空港": "08:39"}},
+      {"train": "Rapi:t α 11", "days": "weekdays", "stops": {"なんば": "08:30", "新今宮": "08:32", "天下茶屋": "08:34", "泉佐野": "09:01", "りんくうタウン": "09:03", "関西空港": "09:09"}}
     ]
   }
 ]

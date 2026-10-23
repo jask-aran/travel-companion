@@ -315,9 +315,20 @@ function DepartureBoardView(props: { board: DepartureBoard }) {
   const choices = () => (timed() ? props.board.options : routes());
   const shown = () => chosen() ?? (timed() ? pick() : routes()[0]);
   const every = () => frequencyOf(props.board.options, shown()?.segments[0]?.name);
+  const missedTarget = () => {
+    const option = pick();
+    if (props.board.source?.type !== "curated" || !option) return undefined;
+    if (target().kind === "arrive" && option.arriveTime > target().time) {
+      return `Nothing arrives by ${target().time} · first in ${option.arriveTime}`;
+    }
+    if (target().kind === "depart" && option.departTime < target().time) {
+      return `Nothing departs after ${target().time} · last at ${option.departTime}`;
+    }
+    return undefined;
+  };
   const heading = () =>
     [
-      `${target().kind === "arrive" ? "Arrive by" : "Leave from"} ${target().time}`,
+      missedTarget() ?? `${target().kind === "arrive" ? "Arrive by" : "Leave from"} ${target().time}`,
       timed() && every() ? `every ~${every()} min` : undefined,
     ]
       .filter(Boolean)
