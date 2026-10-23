@@ -94,6 +94,9 @@ describe("normaliser", () => {
   ])("reads place and day UTC offset %i with zone %s", (offset, timezone) => {
     const input = {
       tripPlan: {
+        title: "Offsets",
+        startDate: "2026-11-20",
+        endDate: "2026-11-22",
         itinerary: {
           sections: [
             { date: "2026-11-20", blocks: [{ id: 1, type: "place", place: { place_id: "unknown", name: "Unknown" } }] },
