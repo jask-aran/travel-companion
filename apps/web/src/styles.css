@@ -1863,9 +1863,14 @@ html {
 
 /* --- Departure boards --- */
 
-/* Under a route leg, indented to its text; the leg's rail runs on past it. */
+/*
+ * Under a route leg, from just right of its rail to the cards' edge: a
+ * timetable needs the width more than it needs to line up with the leg's
+ * text, and the rail runs on past it.
+ */
 .departures {
-  padding: 0 var(--pad) 0.55rem var(--text-x);
+  --step-time: 2.6rem;
+  padding: 0 0 0.6rem calc(var(--rail-x) + 0.7rem);
   margin-top: -0.25rem;
 }
 
@@ -2003,9 +2008,14 @@ html {
 .departure-steps__ride,
 .departure-steps__end {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr);
+  grid-template-columns: var(--step-time) minmax(0, 1fr);
   align-items: start;
-  column-gap: 0.55rem;
+  column-gap: 0.5rem;
+}
+
+/* An untimed route shows each ride's length ("~1h 42m") in that column. */
+.departure-steps--untimed {
+  --step-time: 3.6rem;
 }
 
 .departure-steps__time {
@@ -2026,7 +2036,7 @@ html {
 
 /* Change notes sit in the text column, with a dotted link between rides. */
 .departure-steps__change {
-  margin: 0.05rem 0 0.05rem 5.05rem;
+  margin: 0.05rem 0 0.05rem calc(var(--step-time) + 0.5rem);
   padding: 0.1rem 0 0.1rem 0.55rem;
   border-left: 1px dotted rgb(var(--travel-rgb) / 70%);
   color: var(--ink-muted);

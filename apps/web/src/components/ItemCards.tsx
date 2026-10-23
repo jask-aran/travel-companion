@@ -234,7 +234,7 @@ function LineChip(props: { segment: DepartureSegment }) {
 function DepartureSteps(props: { option: DepartureOption; timed: boolean }) {
   const last = () => props.option.segments.at(-1);
   return (
-    <ol class="departure-steps">
+    <ol class="departure-steps" classList={{ "departure-steps--untimed": !props.timed }}>
       <For each={props.option.segments}>
         {(segment, index) => {
           const previous = () => props.option.segments[index() - 1];
