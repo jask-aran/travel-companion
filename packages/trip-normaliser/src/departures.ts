@@ -199,7 +199,7 @@ export async function attachDepartures(
       ...(entries.some((entry) => entry.approximate) ? { approximate: true } : {}),
       options,
     };
-    const curated = request.provider === "navitime" ? curateDepartureBoard(board) : { matched: false, board };
+    const curated = request.provider === "navitime" ? curateDepartureBoard(board, bundle.tripId) : { matched: false, board };
     if (curated.matched) {
       // Same dominance rule as provider answers: the 17:20 that arrives 18:44
       // goes when the 17:20 into 18:23 is on the board.

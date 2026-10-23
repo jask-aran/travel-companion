@@ -19,9 +19,25 @@ type CuratedTimetable = {
   departures: TimetableDeparture[];
 };
 
-const timetables = JSON.parse(
-  readFileSync(new URL("../../../data/timetables.json", import.meta.url), "utf8"),
-) as CuratedTimetable[];
+const timetablesByTrip = new Map<string, CuratedTimetable[]>();
+
+function loadTimetables(tripId: string): CuratedTimetable[] {
+  if (/^[a-z0-9-]+$/.exec(tripId)?.[0] !== tripId) return [];
+  const cached = timetablesByTrip.get(tripId);
+  if (cached) return cached;
+
+  let timetables: CuratedTimetable[];
+  try {
+    timetables = JSON.parse(
+      readFileSync(new URL(`../../../data/trips/${tripId}/timetables.json`, import.meta.url), "utf8"),
+    ) as CuratedTimetable[];
+  } catch (error) {
+    if (!(error instanceof Error) || !("code" in error) || error.code !== "ENOENT") throw error;
+    timetables = [];
+  }
+  timetablesByTrip.set(tripId, timetables);
+  return timetables;
+}
 
 const clockMinutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
 
@@ -164,7 +180,7 @@ function canConnect(option: DepartureOption, rides: ScheduledRide[]): boolean {
   });
 }
 
-function rideChoices(option: DepartureOption, board: DepartureBoard, index: number) {
+function rideChoices(option: DepartureOption, board: DepartureBoard, index: number, timetables: CuratedTimetable[]) {
   const segment = option.segments[index]!;
   const choices: ScheduledRide[] = [];
   let matched = false;
@@ -188,14 +204,15 @@ export type CuratedBoardResult = {
 };
 
 /** Replace matching NAVITIME estimates with published station times. */
-export function curateDepartureBoard(board: DepartureBoard): CuratedBoardResult {
+export function curateDepartureBoard(board: DepartureBoard, tripId: string): CuratedBoardResult {
   if (board.provider !== "navitime") return { matched: false, board };
+  const timetables = loadTimetables(tripId);
 
   let matched = false;
   const curated: Array<{ option: DepartureOption; operator: string }> = [];
 
   for (const option of board.options) {
-    const byIndex = option.segments.map((_, index) => rideChoices(option, board, index));
+    const byIndex = option.segments.map((_, index) => rideChoices(option, board, index, timetables));
     if (!byIndex.some((entry) => entry.matched)) continue;
     matched = true;
 

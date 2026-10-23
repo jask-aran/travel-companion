@@ -99,7 +99,7 @@ describe("parseNavitime", () => {
       options,
     });
 
-    const onTime = curateDepartureBoard(board("10:30"));
+    const onTime = curateDepartureBoard(board("10:30"), "japan-korea-2026");
     expect(onTime.matched).toBe(true);
     expect(onTime.board).toMatchObject({
       approximate: false,
@@ -124,7 +124,7 @@ describe("parseNavitime", () => {
       ],
     });
 
-    const missesTarget = curateDepartureBoard(board("09:30"));
+    const missesTarget = curateDepartureBoard(board("09:30"), "japan-korea-2026");
     expect(missesTarget.board).toMatchObject({
       approximate: false,
       source: { type: "curated", operator: "JR Central" },
@@ -141,6 +141,19 @@ describe("parseNavitime", () => {
         },
       ],
     });
+  });
+
+  it("leaves the board unchanged for a trip without curated timetables", () => {
+    const board: DepartureBoard = {
+      provider: "navitime",
+      target: { kind: "arrive", date: "2026-11-23", time: "10:30" },
+      fetchedAt: "2026-10-23T00:00:00.000Z",
+      approximate: true,
+      options: parseNavitime(fixture<NavitimeResponse>("navitime-nagoya-takayama.json")),
+    };
+    const result = curateDepartureBoard(board, "unknown-trip");
+    expect(result.matched).toBe(false);
+    expect(result.board).toBe(board);
   });
 
   it("matches composite Skyliner names and ignores terminal detail in station names", () => {
@@ -166,7 +179,7 @@ describe("parseNavitime", () => {
           ],
         },
       ],
-    });
+    }, "japan-korea-2026");
 
     expect(result.board).toMatchObject({ approximate: false, source: { type: "curated", operator: "Keisei" } });
     // Leaving at 19:30, the first train after it leads the board.
@@ -185,7 +198,7 @@ describe("parseNavitime", () => {
       fetchedAt: "2026-10-23T00:00:00.000Z",
       approximate: true,
       options: [option!],
-    });
+    }, "japan-korea-2026");
 
     const skyliner = result.board?.options.find((candidate) => candidate.segments[0]?.name === "Skyliner 136");
     expect(skyliner).toMatchObject({
