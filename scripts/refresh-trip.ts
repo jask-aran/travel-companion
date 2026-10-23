@@ -23,8 +23,8 @@ const { values } = parseArgs({
 });
 
 if (!values.config) throw new Error("Missing config path");
-if (!values.source || !["auto", "api", "cli", "html"].includes(values.source)) {
-  throw new Error("--source must be auto, api, cli, or html");
+if (!values.source || !["auto", "api", "cli", "html", "saved"].includes(values.source)) {
+  throw new Error("--source must be auto, api, cli, html, or saved");
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -87,7 +87,15 @@ const rawHtmlPath = loaded.resolvePath(config.paths.rawHtml);
 const profilePath = loaded.resolvePath(config.wanderlog.web.browserProfileDir);
 
 let acquired: AcquiredSource;
-if (values.source === "api") {
+if (values.source === "saved") {
+  // The last download, processed again: for a change to the import or the
+  // curated timetables while Wanderlog is down, or without spending a fetch.
+  acquired = {
+    source: "api",
+    contents: await readFile(rawJsonPath, "utf8"),
+    diagnostics: ["Reprocessed the last saved download"],
+  };
+} else if (values.source === "api") {
   acquired = await acquireWithApi(config);
 } else if (values.source === "cli") {
   acquired = await acquireWithCli(config);

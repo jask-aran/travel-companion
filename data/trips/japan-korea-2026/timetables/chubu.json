@@ -1,0 +1,821 @@
+[
+  {
+    "id": "chubu-jr-central-hida-nagoya-takayama",
+    "operator": "JR Central",
+    "service": "Hida",
+    "serviceNames": [
+      "ひだ",
+      "特急ひだ",
+      "ＪＲ特急ひだ"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "名古屋": "Nagoya",
+      "尾張一宮": "Owari-Ichinomiya",
+      "岐阜": "Gifu",
+      "鵜沼": "Unuma",
+      "美濃太田": "Mino-Ota",
+      "白川口": "Shirakawaguchi",
+      "飛騨金山": "Hida-Kanayama",
+      "下呂": "Gero",
+      "飛騨萩原": "Hida-Hagiwara",
+      "飛騨小坂": "Hida-Osaka",
+      "久々野": "Kuguno",
+      "高山": "Takayama"
+    },
+    "source": {
+      "urls": [
+        "https://timetable.jr-odekake.net/line-timetable/2363?arv_node=&day=17&dep_node=&hour=&index=&min=&month=10&year=2026",
+        "https://timetable.jr-odekake.net/train-timetable/77451?date=20260616",
+        "https://timetable.jr-odekake.net/train-timetable/75801?date=20260629",
+        "https://timetable.jr-odekake.net/train-timetable/76781?date=20260930",
+        "https://timetable.jr-odekake.net/train-timetable/75801?date=20260819",
+        "https://timetable.jr-odekake.net/train-timetable/76941?date=20260928"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official JR West October 2026 JR Timetable route table supplies every stop time below. Official individual train pages identify these five regular trains as daily; Hida 5 has a calendar through December 2026. Target: Monday 2026-11-23, a Japanese national holiday. Intermediate times are departures; Takayama is arrival, including for through trains. The exact-date November route page could not be fetched. Extra Hida 81 operating dates on 2026-11-23 could not be verified and it is omitted. No reverse-direction trains are included."
+    },
+    "departures": [
+      {
+        "train": "Hida 1",
+        "stops": {
+          "名古屋": "07:43",
+          "尾張一宮": "07:54",
+          "岐阜": "08:05",
+          "鵜沼": "08:17",
+          "美濃太田": "08:27",
+          "白川口": "08:49",
+          "飛騨金山": "09:05",
+          "下呂": "09:27",
+          "飛騨萩原": "09:35",
+          "飛騨小坂": "09:47",
+          "久々野": "10:03",
+          "高山": "10:16"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Hida 3",
+        "stops": {
+          "名古屋": "08:43",
+          "岐阜": "09:03",
+          "美濃太田": "09:23",
+          "下呂": "10:15",
+          "高山": "10:58"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Hida 5",
+        "stops": {
+          "名古屋": "09:39",
+          "岐阜": "10:12",
+          "美濃太田": "10:32",
+          "下呂": "11:30",
+          "高山": "12:14"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Hida 7",
+        "stops": {
+          "名古屋": "10:48",
+          "岐阜": "11:08",
+          "美濃太田": "11:30",
+          "下呂": "12:29",
+          "高山": "13:12"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Hida 9",
+        "stops": {
+          "名古屋": "11:43",
+          "尾張一宮": "11:54",
+          "岐阜": "12:05",
+          "美濃太田": "12:25",
+          "飛騨金山": "13:01",
+          "下呂": "13:28",
+          "高山": "14:14"
+        },
+        "days": "daily"
+      }
+    ]
+  },
+  {
+    "id": "chubu-kintetsu-suzuka-hiratacho-ise-wakamatsu",
+    "operator": "Kintetsu",
+    "service": "Suzuka Line Local",
+    "serviceNames": [
+      "近鉄鈴鹿線",
+      "近鉄鈴鹿線普通"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "平田町": "Hiratacho",
+      "三日市": "Mikkaichi",
+      "鈴鹿市": "Suzukashi",
+      "柳": "Yanagi",
+      "伊勢若松": "Ise-Wakamatsu"
+    },
+    "source": {
+      "urls": [
+        "https://eki.kintetsu.co.jp/english/T5?USR=PC&d=1&dw=1&slCode=415-5",
+        "https://eki.kintetsu.co.jp/norikae/T5?USR=PC&d=1&dir=36&dmode=&dw=1&path=20260919225536299&slCode=413-29&uid=0",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4576&time=1650&tx=1-9261",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4576&time=1720&tx=1-9262",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4576&time=1730&tx=1-9263",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4576&time=1750&tx=1-9264",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4576&time=1810&tx=1-9265",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4576&time=1830&tx=1-9266",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4576&time=1840&tx=1-9267",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4576&time=1940&tx=1-9270"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official current weekend/holiday timetable, for Sunday 2026-11-22. The Japanese Ise-Wakamatsu station page dates the timetable to 2026-03-14; the English pages say Current Timetable. Intermediate times are departures and the final station is arrival. Future service notices were not independently verified. INCOMPLETE: station timetable lists 11 departures in 16:30-20:00. Detail pages for 16:32, 19:06 and 19:22 returned Cache miss, so those three trains are omitted."
+    },
+    "departures": [
+      {
+        "train": "Suzuka Line Local 9261",
+        "stops": {
+          "平田町": "16:57",
+          "三日市": "17:00",
+          "鈴鹿市": "17:03",
+          "柳": "17:05",
+          "伊勢若松": "17:08"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Suzuka Line Local 9262",
+        "stops": {
+          "平田町": "17:20",
+          "三日市": "17:23",
+          "鈴鹿市": "17:26",
+          "柳": "17:28",
+          "伊勢若松": "17:31"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Suzuka Line Local 9263",
+        "stops": {
+          "平田町": "17:35",
+          "三日市": "17:38",
+          "鈴鹿市": "17:41",
+          "柳": "17:43",
+          "伊勢若松": "17:46"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Suzuka Line Local 9264",
+        "stops": {
+          "平田町": "17:56",
+          "三日市": "17:58",
+          "鈴鹿市": "18:01",
+          "柳": "18:04",
+          "伊勢若松": "18:06"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Suzuka Line Local 9265",
+        "stops": {
+          "平田町": "18:13",
+          "三日市": "18:15",
+          "鈴鹿市": "18:18",
+          "柳": "18:21",
+          "伊勢若松": "18:23"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Suzuka Line Local 9266",
+        "stops": {
+          "平田町": "18:30",
+          "三日市": "18:33",
+          "鈴鹿市": "18:36",
+          "柳": "18:38",
+          "伊勢若松": "18:41"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Suzuka Line Local 9267",
+        "stops": {
+          "平田町": "18:45",
+          "三日市": "18:47",
+          "鈴鹿市": "18:50",
+          "柳": "18:53",
+          "伊勢若松": "18:55"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Suzuka Line Local 9270",
+        "stops": {
+          "平田町": "19:45",
+          "三日市": "19:47",
+          "鈴鹿市": "19:50",
+          "柳": "19:53",
+          "伊勢若松": "19:55"
+        },
+        "days": "weekends"
+      }
+    ]
+  },
+  {
+    "id": "chubu-kintetsu-nagoya-line-shiroko-ise-wakamatsu-nagoya-express",
+    "operator": "Kintetsu",
+    "service": "Nagoya Line Express",
+    "serviceNames": [
+      "近鉄名古屋線急行",
+      "近鉄名古屋線急行(近鉄名古屋行)"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "白子": "Shiroko",
+      "伊勢若松": "Ise-Wakamatsu",
+      "塩浜": "Shiohama",
+      "近鉄四日市": "Kintetsu-Yokkaichi",
+      "近鉄富田": "Kintetsu-Tomida",
+      "桑名": "Kuwana",
+      "近鉄弥富": "Kintetsu-Yatomi",
+      "近鉄蟹江": "Kintetsu-Kanie",
+      "近鉄名古屋": "Kintetsu-Nagoya"
+    },
+    "source": {
+      "urls": [
+        "https://eki.kintetsu.co.jp/norikae/T5?USR=PC&d=1&dir=36&dmode=&dw=1&path=20260919225536299&slCode=413-29&uid=0",
+        "https://eki.kintetsu.co.jp/english/T5?USR=PC&d=1&dw=1&slCode=413-31",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1630&tx=1-10166",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1650&tx=1-10206",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1710&tx=1-10170",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1720&tx=1-10168",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1740&tx=1-10202",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1810&tx=1-10171",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1830&tx=1-10198",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1850&tx=1-10197",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1910&tx=1-10163",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1940&tx=1-10211"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official current weekend/holiday timetable, for Sunday 2026-11-22. The Japanese Ise-Wakamatsu station page dates the timetable to 2026-03-14; the English pages say Current Timetable. Intermediate times are departures and the final station is arrival. Future service notices were not independently verified. All ten express trains departing either Shiroko or Ise-Wakamatsu in 16:30-20:00 are included in this single table. The Ise-Wakamatsu station timetable shows no limited express stops."
+    },
+    "departures": [
+      {
+        "train": "Nagoya Line Express 10166",
+        "stops": {
+          "白子": "16:39",
+          "伊勢若松": "16:43",
+          "塩浜": "16:50",
+          "近鉄四日市": "16:54",
+          "近鉄富田": "16:59",
+          "桑名": "17:06",
+          "近鉄弥富": "17:14",
+          "近鉄蟹江": "17:20",
+          "近鉄名古屋": "17:30"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10206",
+        "stops": {
+          "白子": "16:51",
+          "伊勢若松": "16:55",
+          "塩浜": "17:06",
+          "近鉄四日市": "17:10",
+          "近鉄富田": "17:16",
+          "桑名": "17:23",
+          "近鉄弥富": "17:33",
+          "近鉄蟹江": "17:39",
+          "近鉄名古屋": "17:49"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10170",
+        "stops": {
+          "白子": "17:16",
+          "伊勢若松": "17:20",
+          "塩浜": "17:27",
+          "近鉄四日市": "17:31",
+          "近鉄富田": "17:36",
+          "桑名": "17:43",
+          "近鉄弥富": "17:51",
+          "近鉄蟹江": "17:57",
+          "近鉄名古屋": "18:07"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10168",
+        "stops": {
+          "白子": "17:28",
+          "伊勢若松": "17:32",
+          "塩浜": "17:40",
+          "近鉄四日市": "17:46",
+          "近鉄富田": "17:51",
+          "桑名": "17:58",
+          "近鉄弥富": "18:08",
+          "近鉄蟹江": "18:14",
+          "近鉄名古屋": "18:23"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10202",
+        "stops": {
+          "白子": "17:47",
+          "伊勢若松": "17:51",
+          "塩浜": "17:58",
+          "近鉄四日市": "18:04",
+          "近鉄富田": "18:09",
+          "桑名": "18:16",
+          "近鉄弥富": "18:28",
+          "近鉄蟹江": "18:33",
+          "近鉄名古屋": "18:44"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10171",
+        "stops": {
+          "白子": "18:12",
+          "伊勢若松": "18:17",
+          "塩浜": "18:23",
+          "近鉄四日市": "18:29",
+          "近鉄富田": "18:34",
+          "桑名": "18:41",
+          "近鉄弥富": "18:49",
+          "近鉄蟹江": "18:54",
+          "近鉄名古屋": "19:04"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10198",
+        "stops": {
+          "白子": "18:33",
+          "伊勢若松": "18:37",
+          "塩浜": "18:47",
+          "近鉄四日市": "18:52",
+          "近鉄富田": "18:57",
+          "桑名": "19:05",
+          "近鉄弥富": "19:13",
+          "近鉄蟹江": "19:20",
+          "近鉄名古屋": "19:29"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10197",
+        "stops": {
+          "白子": "18:52",
+          "伊勢若松": "18:56",
+          "塩浜": "19:04",
+          "近鉄四日市": "19:09",
+          "近鉄富田": "19:14",
+          "桑名": "19:21",
+          "近鉄弥富": "19:32",
+          "近鉄蟹江": "19:37",
+          "近鉄名古屋": "19:47"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10163",
+        "stops": {
+          "白子": "19:12",
+          "伊勢若松": "19:18",
+          "塩浜": "19:24",
+          "近鉄四日市": "19:28",
+          "近鉄富田": "19:33",
+          "桑名": "19:41",
+          "近鉄弥富": "19:49",
+          "近鉄蟹江": "19:54",
+          "近鉄名古屋": "20:02"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Nagoya Line Express 10211",
+        "stops": {
+          "白子": "19:40",
+          "伊勢若松": "19:44",
+          "塩浜": "19:51",
+          "近鉄四日市": "19:55",
+          "近鉄富田": "20:00",
+          "桑名": "20:08",
+          "近鉄弥富": "20:19",
+          "近鉄蟹江": "20:24",
+          "近鉄名古屋": "20:34"
+        },
+        "days": "weekends"
+      }
+    ]
+  },
+  {
+    "id": "chubu-kintetsu-nagoya-line-shiroko-nagoya-limited-express",
+    "operator": "Kintetsu",
+    "service": "Nagoya Line Limited Express",
+    "serviceNames": [
+      "近鉄名古屋線特急",
+      "近鉄特急",
+      "近鉄名阪特急",
+      "近鉄名古屋線特急アーバンライナー",
+      "近鉄名古屋線特急伊勢志摩ライナー"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "白子": "Shiroko",
+      "近鉄四日市": "Kintetsu-Yokkaichi",
+      "桑名": "Kuwana",
+      "近鉄名古屋": "Kintetsu-Nagoya"
+    },
+    "source": {
+      "urls": [
+        "https://eki.kintetsu.co.jp/english/T5?USR=PC&d=1&dw=1&slCode=413-31",
+        "https://eki.kintetsu.co.jp/norikae/T5?USR=PC&d=1&dir=36&dmode=&dw=1&path=20260919225536299&slCode=413-29&uid=0",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1630&tx=1-9078",
+        "https://eki.kintetsu.co.jp/norikae/T7?dw=1&sf=4240&time=1650&tx=1-9138",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1700&tx=1-5733",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1730&tx=1-9076",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1750&tx=1-9139",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1810&tx=1-5734",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1830&tx=1-9074",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1850&tx=1-9140",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1910&tx=1-5735",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1930&tx=1-9075",
+        "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4240&time=1950&tx=1-9141"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official current weekend/holiday timetable, for Sunday 2026-11-22. The Japanese Ise-Wakamatsu station page dates the timetable to 2026-03-14; the English pages say Current Timetable. Intermediate times are departures and the final station is arrival. Future service notices were not independently verified. All 11 limited express departures in 16:30-20:00 are included. None stops at Ise-Wakamatsu."
+    },
+    "departures": [
+      {
+        "train": "Urban Liner 9078",
+        "stops": {
+          "白子": "16:36",
+          "近鉄四日市": "16:48",
+          "桑名": "17:01",
+          "近鉄名古屋": "17:18"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Limited Express 9138",
+        "stops": {
+          "白子": "16:57",
+          "近鉄四日市": "17:08",
+          "桑名": "17:20",
+          "近鉄名古屋": "17:38"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Urban Liner 5733",
+        "stops": {
+          "白子": "17:09",
+          "近鉄四日市": "17:23",
+          "桑名": "17:35",
+          "近鉄名古屋": "17:52"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Urban Liner 9076",
+        "stops": {
+          "白子": "17:36",
+          "近鉄四日市": "17:49",
+          "桑名": "18:01",
+          "近鉄名古屋": "18:20"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Vista Car 9139",
+        "stops": {
+          "白子": "17:57",
+          "近鉄四日市": "18:08",
+          "桑名": "18:20",
+          "近鉄名古屋": "18:37"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Urban Liner 5734",
+        "stops": {
+          "白子": "18:10",
+          "近鉄四日市": "18:23",
+          "桑名": "18:34",
+          "近鉄名古屋": "18:52"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Limited Express 9074",
+        "stops": {
+          "白子": "18:37",
+          "近鉄四日市": "18:49",
+          "桑名": "19:01",
+          "近鉄名古屋": "19:17"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Ise-Shima Liner 9140",
+        "stops": {
+          "白子": "18:59",
+          "近鉄四日市": "19:12",
+          "桑名": "19:25",
+          "近鉄名古屋": "19:43"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Urban Liner 5735",
+        "stops": {
+          "白子": "19:10",
+          "近鉄四日市": "19:23",
+          "桑名": "19:34",
+          "近鉄名古屋": "19:52"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Urban Liner 9075",
+        "stops": {
+          "白子": "19:37",
+          "近鉄四日市": "19:49",
+          "桑名": "20:01",
+          "近鉄名古屋": "20:19"
+        },
+        "days": "weekends"
+      },
+      {
+        "train": "Ise-Shima Liner 9141",
+        "stops": {
+          "白子": "19:57",
+          "近鉄四日市": "20:08",
+          "桑名": "20:20",
+          "近鉄名古屋": "20:38"
+        },
+        "days": "weekends"
+      }
+    ]
+  },
+  {
+    "id": "chubu-jr-west-tsurugi-kanazawa-tsuruga",
+    "operator": "JR West",
+    "service": "Tsurugi",
+    "serviceNames": [
+      "つるぎ",
+      "つるぎ(北陸新幹線)",
+      "北陸新幹線つるぎ"
+    ],
+    "kind": "shinkansen",
+    "stationNames": {
+      "富山": "Toyama",
+      "新高岡": "Shin-Takaoka",
+      "金沢": "Kanazawa",
+      "小松": "Komatsu",
+      "加賀温泉": "Kagaonsen",
+      "芦原温泉": "Awaraonsen",
+      "福井": "Fukui",
+      "越前たけふ": "Echizen-Takefu",
+      "敦賀": "Tsuruga"
+    },
+    "source": {
+      "urls": [
+        "https://timetable.jr-odekake.net/station-timetable/2663006002?date=20261101",
+        "https://timetable.jr-odekake.net/train-timetable/278291?date=20261101",
+        "https://timetable.jr-odekake.net/train-timetable/248911?date=20261101",
+        "https://timetable.jr-odekake.net/train-timetable/249291?date=20260902",
+        "https://timetable.jr-odekake.net/train-timetable/248921?date=20261101",
+        "https://timetable.jr-odekake.net/train-timetable/249081?date=20261031"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official JR West station and train timetables. Five departures from Kanazawa in 08:30-12:00. Target: Friday 2026-11-27. Intermediate times are departures; Tsuruga is arrival. Tsurugi 19 source says it does not run on November 23, so that train is restricted to the requested November 27 date. The exact-date station page could not be fetched. November station-to-train links sometimes resolve to a different train; train name and stops were checked on each detail page. Extra services on November 27 could not be independently ruled out."
+    },
+    "departures": [
+      {
+        "train": "Tsurugi 11",
+        "stops": {
+          "富山": "08:16",
+          "新高岡": "08:24",
+          "金沢": "08:40",
+          "福井": "09:08",
+          "敦賀": "09:25"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Tsurugi 13",
+        "stops": {
+          "富山": "08:40",
+          "新高岡": "08:49",
+          "金沢": "09:05",
+          "小松": "09:16",
+          "加賀温泉": "09:24",
+          "芦原温泉": "09:32",
+          "福井": "09:41",
+          "越前たけふ": "09:50",
+          "敦賀": "10:01"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Tsurugi 15",
+        "stops": {
+          "金沢": "09:55",
+          "福井": "10:19",
+          "敦賀": "10:36"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Tsurugi 17",
+        "stops": {
+          "富山": "09:40",
+          "新高岡": "09:49",
+          "金沢": "10:05",
+          "小松": "10:16",
+          "加賀温泉": "10:24",
+          "芦原温泉": "10:32",
+          "福井": "10:41",
+          "越前たけふ": "10:49",
+          "敦賀": "11:01"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Tsurugi 19",
+        "stops": {
+          "金沢": "11:05",
+          "小松": "11:16",
+          "加賀温泉": "11:24",
+          "芦原温泉": "11:32",
+          "福井": "11:41",
+          "越前たけふ": "11:50",
+          "敦賀": "12:02"
+        },
+        "dates": [
+          "2026-11-27"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chubu-jr-west-kagayaki-kanazawa-tsuruga",
+    "operator": "JR West",
+    "service": "Kagayaki",
+    "serviceNames": [
+      "かがやき",
+      "かがやき(北陸新幹線)",
+      "北陸新幹線かがやき"
+    ],
+    "kind": "shinkansen",
+    "stationNames": {
+      "金沢": "Kanazawa",
+      "小松": "Komatsu",
+      "加賀温泉": "Kagaonsen",
+      "芦原温泉": "Awaraonsen",
+      "福井": "Fukui",
+      "越前たけふ": "Echizen-Takefu",
+      "敦賀": "Tsuruga"
+    },
+    "source": {
+      "urls": [
+        "https://timetable.jr-odekake.net/station-timetable/2663006002?date=20261101",
+        "https://timetable.jr-odekake.net/train-timetable/248591?date=20261101",
+        "https://timetable.jr-odekake.net/train-timetable/248601?date=20261101",
+        "https://timetable.jr-odekake.net/train-timetable/248611?date=20261101",
+        "https://timetable.jr-odekake.net/train-timetable/248621?date=20261101"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official JR West October 2026 JR Timetable train pages show daily operation and calendars through December 2026. Four regular departures in 08:30-12:00. Target: Friday 2026-11-27. Intermediate times are departures; Tsuruga is arrival. Stops before Kanazawa are outside this table. The exact-date station page could not be fetched; extra services on November 27 could not be independently ruled out."
+    },
+    "departures": [
+      {
+        "train": "Kagayaki 501",
+        "stops": {
+          "金沢": "08:45",
+          "小松": "08:56",
+          "福井": "09:13",
+          "越前たけふ": "09:22",
+          "敦賀": "09:34"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Kagayaki 503",
+        "stops": {
+          "金沢": "09:46",
+          "福井": "10:10",
+          "敦賀": "10:26"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Kagayaki 505",
+        "stops": {
+          "金沢": "10:47",
+          "福井": "11:10",
+          "敦賀": "11:26"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Kagayaki 507",
+        "stops": {
+          "金沢": "11:54",
+          "加賀温泉": "12:09",
+          "芦原温泉": "12:17",
+          "福井": "12:26",
+          "敦賀": "12:42"
+        },
+        "days": "daily"
+      }
+    ]
+  },
+  {
+    "id": "chubu-jr-west-thunderbird-tsuruga-kyoto",
+    "operator": "JR West",
+    "service": "Thunderbird",
+    "serviceNames": [
+      "サンダーバード",
+      "ＪＲ特急サンダーバード",
+      "特急サンダーバード"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "敦賀": "Tsuruga",
+      "京都": "Kyoto"
+    },
+    "source": {
+      "urls": [
+        "https://timetable.jr-odekake.net/station-timetable/2635014001?date=20261019",
+        "https://timetable.jr-odekake.net/train-timetable/258021?date=20261001",
+        "https://timetable.jr-odekake.net/train-timetable/258031?date=20261019",
+        "https://timetable.jr-odekake.net/train-timetable/258051?date=20261001",
+        "https://timetable.jr-odekake.net/train-timetable/258061?date=20261019",
+        "https://timetable.jr-odekake.net/train-timetable/258071?date=20261019",
+        "https://timetable.jr-odekake.net/train-timetable/258081?date=20261019"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official JR West October 2026 JR Timetable train pages show calendars through December 2026. Six regular departures from Tsuruga in 09:30-13:30. Target: Friday 2026-11-27. Tsuruga is departure; Kyoto is arrival. Thunderbird 14 detail says it does not run on Saturdays or holidays, so it uses weekdays. No intermediate passenger stops between Tsuruga and Kyoto are shown. The exact-date station page could not be fetched; seasonal Thunderbird 80/82/84 operating dates on November 27 could not be verified and those trains are omitted."
+    },
+    "departures": [
+      {
+        "train": "Thunderbird 12",
+        "stops": {
+          "敦賀": "09:39",
+          "京都": "10:35"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Thunderbird 14",
+        "stops": {
+          "敦賀": "10:14",
+          "京都": "11:09"
+        },
+        "days": "weekdays"
+      },
+      {
+        "train": "Thunderbird 16",
+        "stops": {
+          "敦賀": "10:44",
+          "京都": "11:39"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Thunderbird 18",
+        "stops": {
+          "敦賀": "11:14",
+          "京都": "12:09"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Thunderbird 20",
+        "stops": {
+          "敦賀": "12:14",
+          "京都": "13:09"
+        },
+        "days": "daily"
+      },
+      {
+        "train": "Thunderbird 22",
+        "stops": {
+          "敦賀": "13:14",
+          "京都": "14:09"
+        },
+        "days": "daily"
+      }
+    ]
+  }
+]

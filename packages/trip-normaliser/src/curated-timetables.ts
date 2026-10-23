@@ -192,16 +192,58 @@ function canConnect(option: DepartureOption, rides: ScheduledRide[]): boolean {
   });
 }
 
+/**
+ * Minutes to change trains at one station. Timetabled connections are often
+ * cross-platform and a minute apart (Kintetsu at Ise-Wakamatsu: in 17:31,
+ * out 17:32), so anything tighter than that is the only thing ruled out.
+ */
+const TRANSFER_MINUTES = 1;
+
+/**
+ * Whole journeys from the curated rides: each first ride, then for every
+ * later ride the first train you can actually catch after it. Pairing every
+ * train with every later one would fill the board with journeys nobody
+ * takes (the 17:20 local followed by the 19:29 express).
+ */
+function connections(option: DepartureOption, choicesByIndex: ScheduledRide[][]): ScheduledRide[][] {
+  const curated = choicesByIndex.map((choices, index) => ({ choices, index })).filter((entry) => entry.choices.length);
+  const [first, ...rest] = curated;
+  if (!first) return [];
+  const between = (from: number, to: number) =>
+    option.segments
+      .slice(from + 1, to)
+      .reduce((sum, segment) => sum + durationBetween(segment.departTime, segment.arriveTime), 0);
+  return first.choices.flatMap((start) => {
+    const chain = [start];
+    for (const next of rest) {
+      const previous = chain.at(-1)!;
+      const ready = clockMinutes(previous.arrive) + between(previous.index, next.index) + TRANSFER_MINUTES;
+      const caught = next.choices
+        .filter((choice) => clockMinutes(choice.depart) >= ready)
+        .sort((a, b) => clockMinutes(a.depart) - clockMinutes(b.depart))[0];
+      if (!caught) return [];
+      chain.push(caught);
+    }
+    return [chain];
+  });
+}
+
 function rideChoices(option: DepartureOption, board: DepartureBoard, index: number, timetables: CuratedTimetable[]) {
   const segment = option.segments[index]!;
   const choices: ScheduledRide[] = [];
   let matched = false;
+  // The service NAVITIME suggested, and any other curated service between
+  // the same two stations: NAVITIME offers Namba to Kansai Airport only by
+  // Rapi:t, but the airport express runs there too, earlier in the morning.
+  // City subways are left out: their hops are short and run every few minutes.
+  const alternatives = segment.kind !== "subway";
   for (const table of timetables) {
-    if (!serviceMatches(segment, table)) continue;
+    if (!serviceMatches(segment, table) && !(alternatives && table.kind !== "subway")) continue;
     for (const train of table.departures) {
       const depart = stationTime(train.stops, segment.from, "depart");
       const arrive = stationTime(train.stops, segment.to, "arrive");
-      if (!depart || !arrive) continue;
+      // Both stations on the train, in the direction of travel.
+      if (!depart || !arrive || clockMinutes(arrive) <= clockMinutes(depart)) continue;
       matched = true;
       const ride = { index, table, train, depart, arrive };
       if (dayMatches(board.target.date, train) && withinWindow(ride, board)) choices.push(ride);
@@ -221,35 +263,41 @@ export function curateDepartureBoard(board: DepartureBoard, tripId: string): Cur
   const timetables = loadTimetables(tripId);
 
   let matched = false;
-  const curated: Array<{ option: DepartureOption; operator: string }> = [];
+  const curated: Array<{ option: DepartureOption; operator: string; estimatedRail: boolean }> = [];
 
   for (const option of board.options) {
     const byIndex = option.segments.map((_, index) => rideChoices(option, board, index, timetables));
     if (!byIndex.some((entry) => entry.matched)) continue;
     matched = true;
 
-    let combinations: ScheduledRide[][] = [[]];
-    for (const { choices } of byIndex) {
-      if (!choices.length) continue;
-      combinations = combinations.flatMap((combination) => choices.map((choice) => [...combination, choice]));
-    }
+    const combinations = connections(option, byIndex.map((entry) => entry.choices));
     for (const rides of combinations) {
       if (!rides.length || !canConnect(option, rides)) continue;
       const result = scheduledOption(option, rides);
+      // A journey that starts on NAVITIME's estimate for a train (a local
+      // that runs twice an hour) gives a departure time nobody can rely on.
+      // Estimates after a real train are fine: the Yamanote hop on from the
+      // Skyliner runs every few minutes, and a subway start does too.
+      const curatedIndexes = new Set(rides.map((ride) => ride.index));
+      const firstRide = option.segments[0];
+      const estimatedRail =
+        !curatedIndexes.has(0) && firstRide !== undefined && firstRide.kind !== "subway" && firstRide.kind !== "bus";
       curated.push({
         option: result,
         operator: [...new Set(rides.map((ride) => ride.table.operator))].join(" / "),
+        estimatedRail,
       });
     }
   }
 
   if (!matched || !curated.length) return { matched, board };
 
+  // Journeys with every train on a timetable beat ones half on estimates;
+  // the same trains listed twice (two sources) are one journey.
+  const whole = curated.filter((entry) => !entry.estimatedRail);
   const unique = new Map<string, { option: DepartureOption; operator: string }>();
-  for (const entry of curated) {
-    const key = entry.option.segments
-      .map((segment) => `${segment.name}|${segment.departTime}|${segment.arriveTime}`)
-      .join(";");
+  for (const entry of whole.length ? whole : curated) {
+    const key = entry.option.segments.map((segment) => `${segment.departTime}|${segment.arriveTime}`).join(";");
     if (!unique.has(key)) unique.set(key, entry);
   }
 

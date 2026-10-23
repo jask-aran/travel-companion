@@ -1,0 +1,2003 @@
+[
+  {
+    "id": "kansai-nankai-koya-out",
+    "operator": "Nankai",
+    "service": "Koya",
+    "serviceNames": [
+      "こうや",
+      "南海特急こうや",
+      "南海高野線特急こうや",
+      "南海高野線特急"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "なんば": "Namba",
+      "新今宮": "Shin-Imamiya",
+      "天下茶屋": "Tengachaya",
+      "堺東": "Sakaihigashi",
+      "金剛": "Kongo",
+      "河内長野": "Kawachinagano",
+      "林間田園都市": "Rinkan-den-en-toshi",
+      "橋本": "Hashimoto",
+      "極楽橋": "Gokurakubashi"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-98-0801&dw=0&tm=1000&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. No through 急行 or 快速急行 leaves 極楽橋 for なんば in 12:30–17:30; local trains require a change at 橋本."
+    },
+    "departures": [
+      {
+        "train": "Koya 1",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "10:00",
+          "新今宮": "10:02",
+          "天下茶屋": "10:05",
+          "堺東": "10:13",
+          "金剛": "10:23",
+          "河内長野": "10:29",
+          "林間田園都市": "10:39",
+          "橋本": "10:46",
+          "極楽橋": "11:31"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-koya-return",
+    "operator": "Nankai",
+    "service": "Koya",
+    "serviceNames": [
+      "こうや",
+      "南海特急こうや",
+      "南海高野線特急こうや",
+      "南海高野線特急"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "極楽橋": "Gokurakubashi",
+      "橋本": "Hashimoto",
+      "林間田園都市": "Rinkan-den-en-toshi",
+      "河内長野": "Kawachinagano",
+      "金剛": "Kongo",
+      "堺東": "Sakaihigashi",
+      "天下茶屋": "Tengachaya",
+      "新今宮": "Shin-Imamiya",
+      "なんば": "Namba"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-41",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-697-0804&dw=0&tm=1647&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. No through 急行 or 快速急行 leaves 極楽橋 for なんば in 12:30–17:30; local trains require a change at 橋本."
+    },
+    "departures": [
+      {
+        "train": "Koya 4",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "16:47",
+          "橋本": "17:24",
+          "林間田園都市": "17:29",
+          "河内長野": "17:40",
+          "金剛": "17:46",
+          "堺東": "17:58",
+          "天下茶屋": "18:05",
+          "新今宮": "18:07",
+          "なんば": "18:10"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-koya-rapid-express-out",
+    "operator": "Nankai",
+    "service": "Koya Line Rapid Express",
+    "serviceNames": [
+      "南海高野線快速急行",
+      "南海高野線快急",
+      "南海高野線快速急行(難波-極楽橋)"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "なんば": "Namba",
+      "新今宮": "Shin-Imamiya",
+      "天下茶屋": "Tengachaya",
+      "堺東": "Sakaihigashi",
+      "北野田": "Kitanoda",
+      "金剛": "Kongo",
+      "河内長野": "Kawachinagano",
+      "三日市町": "Mikkaichicho",
+      "美加の台": "Mikanodai",
+      "林間田園都市": "Rinkan-den-en-toshi",
+      "御幸辻": "Miyukitsuji",
+      "橋本": "Hashimoto",
+      "紀伊清水": "Kii-Shimizu",
+      "学文路": "Kamuro",
+      "九度山": "Kudoyama",
+      "高野下": "Koyashita",
+      "下古沢": "Shimo-Kosawa",
+      "上古沢": "Kami-Kosawa",
+      "紀伊細川": "Kii-Hosokawa",
+      "紀伊神谷": "Kii-Kamiya",
+      "極楽橋": "Gokurakubashi"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-79-1901&dw=0&tm=0902&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. No through 急行 or 快速急行 leaves 極楽橋 for なんば in 12:30–17:30; local trains require a change at 橋本."
+    },
+    "departures": [
+      {
+        "train": "Rapid Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "09:02",
+          "新今宮": "09:05",
+          "天下茶屋": "09:08",
+          "堺東": "09:16",
+          "北野田": "09:25",
+          "金剛": "09:28",
+          "河内長野": "09:33",
+          "三日市町": "09:36",
+          "美加の台": "09:38",
+          "林間田園都市": "09:46",
+          "御幸辻": "09:49",
+          "橋本": "09:55",
+          "紀伊清水": "10:00",
+          "学文路": "10:03",
+          "九度山": "10:06",
+          "高野下": "10:15",
+          "下古沢": "10:19",
+          "上古沢": "10:22",
+          "紀伊細川": "10:33",
+          "紀伊神谷": "10:38",
+          "極楽橋": "10:41"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-koya-express-out",
+    "operator": "Nankai",
+    "service": "Koya Line Express",
+    "serviceNames": [
+      "南海高野線急行",
+      "南海高野線急行(難波-極楽橋)"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "なんば": "Namba",
+      "新今宮": "Shin-Imamiya",
+      "天下茶屋": "Tengachaya",
+      "堺東": "Sakaihigashi",
+      "北野田": "Kitanoda",
+      "金剛": "Kongo",
+      "河内長野": "Kawachinagano",
+      "三日市町": "Mikkaichicho",
+      "美加の台": "Mikanodai",
+      "千早口": "Chihayaguchi",
+      "天見": "Amami",
+      "紀見峠": "Kimitoge",
+      "林間田園都市": "Rinkan-den-en-toshi",
+      "御幸辻": "Miyukitsuji",
+      "橋本": "Hashimoto",
+      "紀伊清水": "Kii-Shimizu",
+      "学文路": "Kamuro",
+      "九度山": "Kudoyama",
+      "高野下": "Koyashita",
+      "下古沢": "Shimo-Kosawa",
+      "上古沢": "Kami-Kosawa",
+      "紀伊細川": "Kii-Hosokawa",
+      "紀伊神谷": "Kii-Kamiya",
+      "極楽橋": "Gokurakubashi"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-107-2903&dw=0&tm=1024&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. No through 急行 or 快速急行 leaves 極楽橋 for なんば in 12:30–17:30; local trains require a change at 橋本."
+    },
+    "departures": [
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "10:24",
+          "新今宮": "10:26",
+          "天下茶屋": "10:29",
+          "堺東": "10:37",
+          "北野田": "10:44",
+          "金剛": "10:48",
+          "河内長野": "10:53",
+          "三日市町": "10:55",
+          "美加の台": "10:57",
+          "千早口": "11:00",
+          "天見": "11:02",
+          "紀見峠": "11:06",
+          "林間田園都市": "11:09",
+          "御幸辻": "11:11",
+          "橋本": "11:18",
+          "紀伊清水": "11:24",
+          "学文路": "11:27",
+          "九度山": "11:37",
+          "高野下": "11:40",
+          "下古沢": "11:45",
+          "上古沢": "11:49",
+          "紀伊細川": "11:55",
+          "紀伊神谷": "12:01",
+          "極楽橋": "12:04"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-cable-out",
+    "operator": "Nankai",
+    "service": "Koyasan Cable",
+    "serviceNames": [
+      "南海高野山ケーブル",
+      "南海高野山ケーブルカー",
+      "高野山ケーブル",
+      "高野山ケーブルカー",
+      "南海鋼索線"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "極楽橋": "Gokurakubashi",
+      "高野山": "Koyasan"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=683-0",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1031-7809&dw=0&tm=0640&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1032-7811&dw=0&tm=0649&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1033-7813&dw=0&tm=0705&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1034-7815&dw=0&tm=0714&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1035-7817&dw=0&tm=0738&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1036-7819&dw=0&tm=0802&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1037-7821&dw=0&tm=0811&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1038-7823&dw=0&tm=0835&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1039-7825&dw=0&tm=0909&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1040-7827&dw=0&tm=0934&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1041-7829&dw=0&tm=0943&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1042-7831&dw=0&tm=1001&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1043-7833&dw=0&tm=1010&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. Excludes Wednesday suspensions at 10:30, 14:31 and 14:40. Every retained cable arrival was fetched separately; no duration was added to a departure."
+    },
+    "departures": [
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "06:40",
+          "高野山": "06:45"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "06:49",
+          "高野山": "06:54"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "07:05",
+          "高野山": "07:10"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "07:14",
+          "高野山": "07:19"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "07:38",
+          "高野山": "07:43"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "08:02",
+          "高野山": "08:07"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "08:11",
+          "高野山": "08:16"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "08:35",
+          "高野山": "08:40"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "09:09",
+          "高野山": "09:14"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "09:34",
+          "高野山": "09:39"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "09:43",
+          "高野山": "09:48"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "10:01",
+          "高野山": "10:06"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "10:10",
+          "高野山": "10:15"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-cable-return",
+    "operator": "Nankai",
+    "service": "Koyasan Cable",
+    "serviceNames": [
+      "南海高野山ケーブル",
+      "南海高野山ケーブルカー",
+      "高野山ケーブル",
+      "高野山ケーブルカー",
+      "南海鋼索線"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "高野山": "Koyasan",
+      "極楽橋": "Gokurakubashi"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=683-1",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1101-7852&dw=0&tm=1258&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1102-7854&dw=0&tm=1312&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1103-7856&dw=0&tm=1347&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1104-7858&dw=0&tm=1419&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1107-7864&dw=0&tm=1454&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1108-7866&dw=0&tm=1505&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1109-7868&dw=0&tm=1526&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1110-7870&dw=0&tm=1558&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1111-7872&dw=0&tm=1624&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1112-7874&dw=0&tm=1634&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1113-7876&dw=0&tm=1652&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. Excludes Wednesday suspensions at 10:30, 14:31 and 14:40. Every retained cable arrival was fetched separately; no duration was added to a departure."
+    },
+    "departures": [
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "12:58",
+          "極楽橋": "13:03"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "13:12",
+          "極楽橋": "13:17"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "13:47",
+          "極楽橋": "13:52"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "14:19",
+          "極楽橋": "14:24"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "14:54",
+          "極楽橋": "14:59"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "15:05",
+          "極楽橋": "15:10"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "15:26",
+          "極楽橋": "15:31"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "15:58",
+          "極楽橋": "16:03"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "16:24",
+          "極楽橋": "16:29"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "16:34",
+          "極楽橋": "16:39"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "days": "weekdays",
+        "stops": {
+          "高野山": "16:52",
+          "極楽橋": "16:57"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-rapit-airport",
+    "operator": "Nankai",
+    "service": "Rapi:t Alpha",
+    "serviceNames": [
+      "南海特急ラピートα",
+      "ラピートα",
+      "南海特急ラピート",
+      "ラピート"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "なんば": "Namba",
+      "新今宮": "Shin-Imamiya",
+      "天下茶屋": "Tengachaya",
+      "泉佐野": "Izumisano",
+      "りんくうタウン": "Rinku-town",
+      "関西空港": "Kansai Airport"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=306-0",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-11-0701&dw=0&tm=0600&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-17-0703&dw=0&tm=0630&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-24-0705&dw=0&tm=0700&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-33-0707&dw=0&tm=0730&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2024-12-21, still the published official schedule on retrieval. All four limited expresses in the window are α; no β runs in this window. α does not stop at 堺 or 岸和田."
+    },
+    "departures": [
+      {
+        "train": "Rapi:t α 1",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "06:00",
+          "新今宮": "06:02",
+          "天下茶屋": "06:04",
+          "泉佐野": "06:26",
+          "りんくうタウン": "06:29",
+          "関西空港": "06:35"
+        }
+      },
+      {
+        "train": "Rapi:t α 3",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "06:30",
+          "新今宮": "06:32",
+          "天下茶屋": "06:34",
+          "泉佐野": "07:00",
+          "りんくうタウン": "07:02",
+          "関西空港": "07:08"
+        }
+      },
+      {
+        "train": "Rapi:t α 5",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "07:00",
+          "新今宮": "07:02",
+          "天下茶屋": "07:04",
+          "泉佐野": "07:26",
+          "りんくうタウン": "07:29",
+          "関西空港": "07:34"
+        }
+      },
+      {
+        "train": "Rapi:t α 7",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "07:30",
+          "新今宮": "07:32",
+          "天下茶屋": "07:34",
+          "泉佐野": "08:02",
+          "りんくうタウン": "08:05",
+          "関西空港": "08:10"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-airport-express",
+    "operator": "Nankai",
+    "service": "Airport Express",
+    "serviceNames": [
+      "南海空港急行",
+      "南海本線空港急行",
+      "南海空港線空港急行",
+      "南海線空港急行"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "なんば": "Namba",
+      "新今宮": "Shin-Imamiya",
+      "天下茶屋": "Tengachaya",
+      "堺": "Sakai",
+      "羽衣": "Hagoromo",
+      "泉大津": "Izumiotsu",
+      "春木": "Haruki",
+      "岸和田": "Kishiwada",
+      "貝塚": "Kaizuka",
+      "泉佐野": "Izumisano",
+      "りんくうタウン": "Rinku-town",
+      "関西空港": "Kansai Airport"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=306-0",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-3-2101&dw=0&tm=0515&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-5-2103&dw=0&tm=0528&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-9-2105&dw=0&tm=0545&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-12-2107&dw=0&tm=0602&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-16-2109&dw=0&tm=0626&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-22-2111&dw=0&tm=0649&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-27-2113&dw=0&tm=0710&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2320100-32-2115&dw=0&tm=0727&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2024-12-21, still the published official schedule on retrieval. All four limited expresses in the window are α; no β runs in this window. α does not stop at 堺 or 岸和田."
+    },
+    "departures": [
+      {
+        "train": "Airport Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "05:15",
+          "新今宮": "05:17",
+          "天下茶屋": "05:19",
+          "堺": "05:25",
+          "羽衣": "05:30",
+          "泉大津": "05:34",
+          "春木": "05:38",
+          "岸和田": "05:41",
+          "貝塚": "05:44",
+          "泉佐野": "05:49",
+          "りんくうタウン": "05:52",
+          "関西空港": "05:58"
+        }
+      },
+      {
+        "train": "Airport Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "05:28",
+          "新今宮": "05:30",
+          "天下茶屋": "05:32",
+          "堺": "05:39",
+          "羽衣": "05:44",
+          "泉大津": "05:48",
+          "春木": "05:52",
+          "岸和田": "05:55",
+          "貝塚": "05:59",
+          "泉佐野": "06:07",
+          "りんくうタウン": "06:10",
+          "関西空港": "06:16"
+        }
+      },
+      {
+        "train": "Airport Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "05:45",
+          "新今宮": "05:47",
+          "天下茶屋": "05:49",
+          "堺": "05:56",
+          "羽衣": "06:01",
+          "泉大津": "06:05",
+          "春木": "06:08",
+          "岸和田": "06:11",
+          "貝塚": "06:14",
+          "泉佐野": "06:20",
+          "りんくうタウン": "06:22",
+          "関西空港": "06:28"
+        }
+      },
+      {
+        "train": "Airport Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "06:02",
+          "新今宮": "06:04",
+          "天下茶屋": "06:06",
+          "堺": "06:12",
+          "羽衣": "06:17",
+          "泉大津": "06:22",
+          "春木": "06:26",
+          "岸和田": "06:29",
+          "貝塚": "06:32",
+          "泉佐野": "06:40",
+          "りんくうタウン": "06:43",
+          "関西空港": "06:49"
+        }
+      },
+      {
+        "train": "Airport Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "06:26",
+          "新今宮": "06:29",
+          "天下茶屋": "06:31",
+          "堺": "06:37",
+          "羽衣": "06:42",
+          "泉大津": "06:49",
+          "春木": "06:52",
+          "岸和田": "06:55",
+          "貝塚": "06:58",
+          "泉佐野": "07:05",
+          "りんくうタウン": "07:08",
+          "関西空港": "07:14"
+        }
+      },
+      {
+        "train": "Airport Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "06:49",
+          "新今宮": "06:52",
+          "天下茶屋": "06:54",
+          "堺": "07:00",
+          "羽衣": "07:05",
+          "泉大津": "07:09",
+          "春木": "07:13",
+          "岸和田": "07:15",
+          "貝塚": "07:22",
+          "泉佐野": "07:30",
+          "りんくうタウン": "07:33",
+          "関西空港": "07:39"
+        }
+      },
+      {
+        "train": "Airport Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "07:10",
+          "新今宮": "07:12",
+          "天下茶屋": "07:14",
+          "堺": "07:21",
+          "羽衣": "07:26",
+          "泉大津": "07:30",
+          "春木": "07:34",
+          "岸和田": "07:37",
+          "貝塚": "07:41",
+          "泉佐野": "07:47",
+          "りんくうタウン": "07:50",
+          "関西空港": "07:56"
+        }
+      },
+      {
+        "train": "Airport Express",
+        "days": "weekdays",
+        "stops": {
+          "なんば": "07:27",
+          "新今宮": "07:29",
+          "天下茶屋": "07:31",
+          "堺": "07:40",
+          "羽衣": "07:44",
+          "泉大津": "07:51",
+          "春木": "07:54",
+          "岸和田": "07:57",
+          "貝塚": "08:00",
+          "泉佐野": "08:06",
+          "りんくうタウン": "08:09",
+          "関西空港": "08:15"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-jr-west-kyoto-osaka-special-rapid",
+    "operator": "JR West",
+    "service": "Kyoto Line Special Rapid",
+    "serviceNames": [
+      "JR京都線新快速",
+      "ＪＲ京都線新快速",
+      "JR東海道本線新快速",
+      "ＪＲ東海道本線新快速",
+      "東海道本線新快速",
+      "JR京都線新快速(Aシート連結)",
+      "JR京都線Ａ新快速"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "京都": "Kyoto",
+      "高槻": "Takatsuki",
+      "新大阪": "Shin-Osaka",
+      "大阪": "Osaka"
+    },
+    "source": {
+      "urls": [
+        "https://timetable.jr-odekake.net/station-timetable/2784011001?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/145241?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/379491?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/206581?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/173911?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/145252?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/208221?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/147351?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/173921?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/145262?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/206601?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/147371?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/173932?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/145272?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/173942?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/147391?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/173952?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/145282?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/173962?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/259531?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/209332?date=20261129",
+        "https://timetable.jr-odekake.net/train-timetable/238861?date=20261129"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official station timetable explicitly displaying Sunday 2026-11-29, based on the November 2026 JR timetable. All train detail pages were fetched. Weekend/holiday service applies. Kyoto, Takatsuki and Shin-Osaka use departure times; Osaka uses arrival. Train numbers can change before Kyoto; all published number columns are recorded."
+    },
+    "departures": [
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "14:00",
+          "高槻": "14:13",
+          "新大阪": "14:24",
+          "大阪": "14:28"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "14:15",
+          "高槻": "14:28",
+          "新大阪": "14:39",
+          "大阪": "14:43"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "14:30",
+          "高槻": "14:43",
+          "新大阪": "14:54",
+          "大阪": "14:58"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "14:45",
+          "高槻": "14:58",
+          "新大阪": "15:09",
+          "大阪": "15:13"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "15:00",
+          "高槻": "15:13",
+          "新大阪": "15:24",
+          "大阪": "15:28"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "15:15",
+          "高槻": "15:28",
+          "新大阪": "15:39",
+          "大阪": "15:43"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "15:30",
+          "高槻": "15:43",
+          "新大阪": "15:54",
+          "大阪": "15:58"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "15:45",
+          "高槻": "15:58",
+          "新大阪": "16:09",
+          "大阪": "16:13"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "16:00",
+          "高槻": "16:13",
+          "新大阪": "16:24",
+          "大阪": "16:28"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "16:15",
+          "高槻": "16:28",
+          "新大阪": "16:39",
+          "大阪": "16:43"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "16:29",
+          "高槻": "16:42",
+          "新大阪": "16:53",
+          "大阪": "16:57"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "16:44",
+          "高槻": "16:57",
+          "新大阪": "17:08",
+          "大阪": "17:12"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "16:59",
+          "高槻": "17:12",
+          "新大阪": "17:23",
+          "大阪": "17:27"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "17:14",
+          "高槻": "17:27",
+          "新大阪": "17:38",
+          "大阪": "17:42"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "17:29",
+          "高槻": "17:42",
+          "新大阪": "17:53",
+          "大阪": "17:57"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "17:44",
+          "高槻": "17:57",
+          "新大阪": "18:08",
+          "大阪": "18:12"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "17:59",
+          "高槻": "18:12",
+          "新大阪": "18:23",
+          "大阪": "18:27"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "18:14",
+          "高槻": "18:27",
+          "新大阪": "18:38",
+          "大阪": "18:42"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "18:29",
+          "高槻": "18:42",
+          "新大阪": "18:53",
+          "大阪": "18:57"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "18:44",
+          "高槻": "18:57",
+          "新大阪": "19:08",
+          "大阪": "19:13"
+        }
+      },
+      {
+        "train": "Special Rapid",
+        "days": "weekends",
+        "stops": {
+          "京都": "18:59",
+          "高槻": "19:12",
+          "新大阪": "19:23",
+          "大阪": "19:28"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-keihan-gion-shijo-yodoyabashi-limited-express",
+    "operator": "Keihan",
+    "service": "Main Line Limited Express",
+    "serviceNames": [
+      "京阪本線特急",
+      "京阪鴨東線特急",
+      "京阪本線・鴨東線特急",
+      "京阪特急"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "出町柳": "Demachiyanagi",
+      "三条": "Sanjo",
+      "祇園四条": "Gion-shijo",
+      "七条": "Shichijo",
+      "丹波橋": "Tambabashi",
+      "中書島": "Chushojima",
+      "樟葉": "Kuzuha",
+      "枚方市": "Hirakatashi",
+      "京橋": "Kyobashi",
+      "天満橋": "Temmabashi",
+      "北浜": "Kitahama",
+      "淀屋橋": "Yodoyabashi"
+    },
+    "source": {
+      "urls": [
+        "https://www.keihan.co.jp/traffic/time-fare/time.html",
+        "https://www.keihan.co.jp/traffic/time-fare/pdf/time01-4.pdf",
+        "https://www.keihan.co.jp/traffic/premiumcar/about/index.html",
+        "https://www.keihan.co.jp/traffic/premiumcar/js/index.js?21082401",
+        "https://www.keihan.co.jp/traffic/premiumcar/js/data/timetable-down-holiday-aug2026.json"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekend/holiday timetable effective 2026-08-22. 2026-11-29 is Sunday. Every regular 特急 in 14:00–19:00 at 祇園四条 is included; 快速特急 洛楽 is a different service and is excluded. Intermediate departure times and train numbers come from the operator JSON; 淀屋橋 arrivals are copied from the full timetable PDF pages 6–9, matched to its 北浜 departure row. Station spacing in the JSON is removed. No travel time was calculated."
+    },
+    "departures": [
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "14:01",
+          "三条": "14:04",
+          "祇園四条": "14:06",
+          "七条": "14:08",
+          "丹波橋": "14:15",
+          "中書島": "14:17",
+          "樟葉": "14:28",
+          "枚方市": "14:34",
+          "京橋": "14:49",
+          "天満橋": "14:52",
+          "北浜": "14:53",
+          "淀屋橋": "14:55"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "14:13",
+          "三条": "14:16",
+          "祇園四条": "14:18",
+          "七条": "14:20",
+          "丹波橋": "14:27",
+          "中書島": "14:29",
+          "樟葉": "14:40",
+          "枚方市": "14:45",
+          "京橋": "15:00",
+          "天満橋": "15:03",
+          "北浜": "15:05",
+          "淀屋橋": "15:07"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "14:25",
+          "三条": "14:28",
+          "祇園四条": "14:30",
+          "七条": "14:32",
+          "丹波橋": "14:39",
+          "中書島": "14:41",
+          "樟葉": "14:52",
+          "枚方市": "14:58",
+          "京橋": "15:13",
+          "天満橋": "15:16",
+          "北浜": "15:17",
+          "淀屋橋": "15:19"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "14:37",
+          "三条": "14:40",
+          "祇園四条": "14:42",
+          "七条": "14:44",
+          "丹波橋": "14:51",
+          "中書島": "14:53",
+          "樟葉": "15:04",
+          "枚方市": "15:09",
+          "京橋": "15:24",
+          "天満橋": "15:27",
+          "北浜": "15:29",
+          "淀屋橋": "15:31"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "14:49",
+          "三条": "14:52",
+          "祇園四条": "14:54",
+          "七条": "14:56",
+          "丹波橋": "15:03",
+          "中書島": "15:05",
+          "樟葉": "15:16",
+          "枚方市": "15:22",
+          "京橋": "15:37",
+          "天満橋": "15:40",
+          "北浜": "15:41",
+          "淀屋橋": "15:43"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "15:00",
+          "三条": "15:03",
+          "祇園四条": "15:05",
+          "七条": "15:07",
+          "丹波橋": "15:15",
+          "中書島": "15:17",
+          "樟葉": "15:28",
+          "枚方市": "15:33",
+          "京橋": "15:48",
+          "天満橋": "15:51",
+          "北浜": "15:53",
+          "淀屋橋": "15:55"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "15:12",
+          "三条": "15:15",
+          "祇園四条": "15:17",
+          "七条": "15:19",
+          "丹波橋": "15:27",
+          "中書島": "15:30",
+          "樟葉": "15:40",
+          "枚方市": "15:46",
+          "京橋": "16:00",
+          "天満橋": "16:03",
+          "北浜": "16:05",
+          "淀屋橋": "16:07"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "15:23",
+          "三条": "15:27",
+          "祇園四条": "15:28",
+          "七条": "15:31",
+          "丹波橋": "15:38",
+          "中書島": "15:41",
+          "樟葉": "15:52",
+          "枚方市": "15:58",
+          "京橋": "16:12",
+          "天満橋": "16:15",
+          "北浜": "16:17",
+          "淀屋橋": "16:19"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "15:35",
+          "三条": "15:38",
+          "祇園四条": "15:40",
+          "七条": "15:42",
+          "丹波橋": "15:49",
+          "中書島": "15:52",
+          "樟葉": "16:02",
+          "枚方市": "16:08",
+          "京橋": "16:24",
+          "天満橋": "16:27",
+          "北浜": "16:29",
+          "淀屋橋": "16:31"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "15:46",
+          "三条": "15:49",
+          "祇園四条": "15:51",
+          "七条": "15:53",
+          "丹波橋": "16:00",
+          "中書島": "16:02",
+          "樟葉": "16:13",
+          "枚方市": "16:19",
+          "京橋": "16:36",
+          "天満橋": "16:39",
+          "北浜": "16:40",
+          "淀屋橋": "16:42"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "15:58",
+          "三条": "16:01",
+          "祇園四条": "16:03",
+          "七条": "16:05",
+          "丹波橋": "16:12",
+          "中書島": "16:14",
+          "樟葉": "16:25",
+          "枚方市": "16:31",
+          "京橋": "16:46",
+          "天満橋": "16:49",
+          "北浜": "16:51",
+          "淀屋橋": "16:53"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "16:10",
+          "三条": "16:14",
+          "祇園四条": "16:15",
+          "七条": "16:18",
+          "丹波橋": "16:25",
+          "中書島": "16:28",
+          "樟葉": "16:39",
+          "枚方市": "16:44",
+          "京橋": "17:00",
+          "天満橋": "17:03",
+          "北浜": "17:05",
+          "淀屋橋": "17:07"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "16:22",
+          "三条": "16:26",
+          "祇園四条": "16:27",
+          "七条": "16:30",
+          "丹波橋": "16:37",
+          "中書島": "16:40",
+          "樟葉": "16:51",
+          "枚方市": "16:57",
+          "京橋": "17:12",
+          "天満橋": "17:15",
+          "北浜": "17:16",
+          "淀屋橋": "17:18"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "16:32",
+          "三条": "16:36",
+          "祇園四条": "16:38",
+          "七条": "16:41",
+          "丹波橋": "16:48",
+          "中書島": "16:51",
+          "樟葉": "17:03",
+          "枚方市": "17:09",
+          "京橋": "17:23",
+          "天満橋": "17:26",
+          "北浜": "17:28",
+          "淀屋橋": "17:30"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "16:48",
+          "三条": "16:51",
+          "祇園四条": "16:53",
+          "七条": "16:56",
+          "丹波橋": "17:03",
+          "中書島": "17:06",
+          "樟葉": "17:16",
+          "枚方市": "17:22",
+          "京橋": "17:38",
+          "天満橋": "17:41",
+          "北浜": "17:42",
+          "淀屋橋": "17:44"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "16:59",
+          "三条": "17:03",
+          "祇園四条": "17:04",
+          "七条": "17:07",
+          "丹波橋": "17:14",
+          "中書島": "17:16",
+          "樟葉": "17:27",
+          "枚方市": "17:33",
+          "京橋": "17:49",
+          "天満橋": "17:52",
+          "北浜": "17:53",
+          "淀屋橋": "17:55"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "17:10",
+          "三条": "17:14",
+          "祇園四条": "17:15",
+          "七条": "17:18",
+          "丹波橋": "17:25",
+          "中書島": "17:28",
+          "樟葉": "17:39",
+          "枚方市": "17:45",
+          "京橋": "18:00",
+          "天満橋": "18:03",
+          "北浜": "18:04",
+          "淀屋橋": "18:06"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "17:23",
+          "三条": "17:27",
+          "祇園四条": "17:28",
+          "七条": "17:31",
+          "丹波橋": "17:38",
+          "中書島": "17:41",
+          "樟葉": "17:51",
+          "枚方市": "17:57",
+          "京橋": "18:12",
+          "天満橋": "18:15",
+          "北浜": "18:16",
+          "淀屋橋": "18:18"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "17:37",
+          "三条": "17:40",
+          "祇園四条": "17:42",
+          "七条": "17:44",
+          "丹波橋": "17:51",
+          "中書島": "17:54",
+          "樟葉": "18:04",
+          "枚方市": "18:10",
+          "京橋": "18:26",
+          "天満橋": "18:29",
+          "北浜": "18:30",
+          "淀屋橋": "18:32"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "17:48",
+          "三条": "17:51",
+          "祇園四条": "17:53",
+          "七条": "17:56",
+          "丹波橋": "18:03",
+          "中書島": "18:05",
+          "樟葉": "18:16",
+          "枚方市": "18:22",
+          "京橋": "18:37",
+          "天満橋": "18:40",
+          "北浜": "18:41",
+          "淀屋橋": "18:43"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "17:59",
+          "三条": "18:02",
+          "祇園四条": "18:04",
+          "七条": "18:07",
+          "丹波橋": "18:14",
+          "中書島": "18:16",
+          "樟葉": "18:27",
+          "枚方市": "18:33",
+          "京橋": "18:48",
+          "天満橋": "18:51",
+          "北浜": "18:52",
+          "淀屋橋": "18:54"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "18:13",
+          "三条": "18:16",
+          "祇園四条": "18:18",
+          "七条": "18:21",
+          "丹波橋": "18:28",
+          "中書島": "18:31",
+          "樟葉": "18:41",
+          "枚方市": "18:47",
+          "京橋": "19:02",
+          "天満橋": "19:05",
+          "北浜": "19:06",
+          "淀屋橋": "19:08"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "18:24",
+          "三条": "18:27",
+          "祇園四条": "18:29",
+          "七条": "18:32",
+          "丹波橋": "18:38",
+          "中書島": "18:41",
+          "樟葉": "18:52",
+          "枚方市": "18:58",
+          "京橋": "19:13",
+          "天満橋": "19:16",
+          "北浜": "19:17",
+          "淀屋橋": "19:19"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "18:36",
+          "三条": "18:39",
+          "祇園四条": "18:41",
+          "七条": "18:44",
+          "丹波橋": "18:50",
+          "中書島": "18:53",
+          "樟葉": "19:03",
+          "枚方市": "19:09",
+          "京橋": "19:24",
+          "天満橋": "19:27",
+          "北浜": "19:28",
+          "淀屋橋": "19:30"
+        }
+      },
+      {
+        "train": "Keihan Limited Express",
+        "days": "weekends",
+        "stops": {
+          "出町柳": "18:49",
+          "三条": "18:52",
+          "祇園四条": "18:54",
+          "七条": "18:56",
+          "丹波橋": "19:03",
+          "中書島": "19:06",
+          "樟葉": "19:16",
+          "枚方市": "19:22",
+          "京橋": "19:37",
+          "天満橋": "19:40",
+          "北浜": "19:41",
+          "淀屋橋": "19:43"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-koya-local-return",
+    "operator": "Nankai",
+    "service": "Koya Line Local",
+    "serviceNames": [
+      "南海高野線",
+      "南海高野線各停",
+      "南海高野線各駅停車",
+      "南海高野線(橋本-極楽橋)"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "極楽橋": "Gokurakubashi",
+      "紀伊神谷": "Kii-Kamiya",
+      "紀伊細川": "Kii-Hosokawa",
+      "上古沢": "Kami-Kosawa",
+      "下古沢": "Shimo-Kosawa",
+      "高野下": "Koyashita",
+      "九度山": "Kudoyama",
+      "学文路": "Kamuro",
+      "紀伊清水": "Kii-Shimizu",
+      "橋本": "Hashimoto"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-41",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-601-7522&dw=0&tm=1239&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-613-7524&dw=0&tm=1316&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-631-7526&dw=0&tm=1402&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-643-7528&dw=0&tm=1434&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-658-7530&dw=0&tm=1508&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-669-7306&dw=0&tm=1540&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-681-7532&dw=0&tm=1613&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-692-7534&dw=0&tm=1633&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-705-7536&dw=0&tm=1709&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable effective 2026-03-28. 2026-12-02 is Wednesday. These are separate rides for the return via 橋本, not through services to なんば. Intermediate stops use departures; the final stop uses arrival. All times were fetched from official individual train pages. No connection time or transfer duration is assumed."
+    },
+    "departures": [
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "12:39",
+          "紀伊神谷": "12:43",
+          "紀伊細川": "12:56",
+          "上古沢": "13:03",
+          "下古沢": "13:07",
+          "高野下": "13:11",
+          "九度山": "13:14",
+          "学文路": "13:17",
+          "紀伊清水": "13:21",
+          "橋本": "13:25"
+        }
+      },
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "13:16",
+          "紀伊神谷": "13:20",
+          "紀伊細川": "13:26",
+          "上古沢": "13:33",
+          "下古沢": "13:37",
+          "高野下": "13:42",
+          "九度山": "13:45",
+          "学文路": "13:48",
+          "紀伊清水": "13:52",
+          "橋本": "13:56"
+        }
+      },
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "14:02",
+          "紀伊神谷": "14:05",
+          "紀伊細川": "14:11",
+          "上古沢": "14:18",
+          "下古沢": "14:22",
+          "高野下": "14:28",
+          "九度山": "14:31",
+          "学文路": "14:38",
+          "紀伊清水": "14:42",
+          "橋本": "14:46"
+        }
+      },
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "14:34",
+          "紀伊神谷": "14:38",
+          "紀伊細川": "14:44",
+          "上古沢": "14:51",
+          "下古沢": "14:55",
+          "高野下": "15:00",
+          "九度山": "15:03",
+          "学文路": "15:12",
+          "紀伊清水": "15:16",
+          "橋本": "15:20"
+        }
+      },
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "15:08",
+          "紀伊神谷": "15:12",
+          "紀伊細川": "15:17",
+          "上古沢": "15:24",
+          "下古沢": "15:29",
+          "高野下": "15:33",
+          "九度山": "15:36",
+          "学文路": "15:46",
+          "紀伊清水": "15:50",
+          "橋本": "15:55"
+        }
+      },
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "15:40",
+          "紀伊神谷": "15:45",
+          "紀伊細川": "15:50",
+          "上古沢": "15:57",
+          "下古沢": "16:01",
+          "高野下": "16:05",
+          "九度山": "16:08",
+          "学文路": "16:11",
+          "紀伊清水": "16:15",
+          "橋本": "16:19"
+        }
+      },
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "16:13",
+          "紀伊神谷": "16:17",
+          "紀伊細川": "16:27",
+          "上古沢": "16:34",
+          "下古沢": "16:38",
+          "高野下": "16:42",
+          "九度山": "16:45",
+          "学文路": "16:48",
+          "紀伊清水": "16:52",
+          "橋本": "16:56"
+        }
+      },
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "16:33",
+          "紀伊神谷": "16:36",
+          "紀伊細川": "16:42",
+          "上古沢": "16:49",
+          "下古沢": "16:53",
+          "高野下": "16:58",
+          "九度山": "17:01",
+          "学文路": "17:04",
+          "紀伊清水": "17:10",
+          "橋本": "17:14"
+        }
+      },
+      {
+        "train": "Local",
+        "days": "weekdays",
+        "stops": {
+          "極楽橋": "17:09",
+          "紀伊神谷": "17:12",
+          "紀伊細川": "17:18",
+          "上古沢": "17:25",
+          "下古沢": "17:29",
+          "高野下": "17:34",
+          "九度山": "17:37",
+          "学文路": "17:42",
+          "紀伊清水": "17:46",
+          "橋本": "17:50"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-hashimoto-express-return",
+    "operator": "Nankai",
+    "service": "Koya Line Express",
+    "serviceNames": [
+      "南海高野線急行",
+      "南海高野線急行(難波-極楽橋)"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "橋本": "Hashimoto",
+      "御幸辻": "Miyukitsuji",
+      "林間田園都市": "Rinkan-den-en-toshi",
+      "紀見峠": "Kimitoge",
+      "天見": "Amami",
+      "千早口": "Chihayaguchi",
+      "美加の台": "Mikanodai",
+      "三日市町": "Mikkaichicho",
+      "河内長野": "Kawachinagano",
+      "金剛": "Kongo",
+      "北野田": "Kitanoda",
+      "堺東": "Sakaihigashi",
+      "天下茶屋": "Tengachaya",
+      "新今宮": "Shin-Imamiya",
+      "なんば": "Namba"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&slCode=309-32&d=1&dw=0",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-620-2740&dw=0&tm=1336&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-633-2742&dw=0&tm=1406&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-644-2744&dw=0&tm=1436&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-655-2746&dw=0&tm=1506&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-665-2748&dw=0&tm=1536&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-689-2750&dw=0&tm=1632&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-696-2752&dw=0&tm=1646&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-704-2754&dw=0&tm=1705&date=20261023&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-727-2756&dw=0&tm=1756&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable effective 2026-03-28. 2026-12-02 is Wednesday. These are separate rides for the return via 橋本, not through services to なんば. Intermediate stops use departures; the final stop uses arrival. All times were fetched from official individual train pages. No connection time or transfer duration is assumed. Supplemental onward departure range covers all express departures from the earliest to the latest local arrival at 橋本 and the first following express. A listed departure is not a verified transfer recommendation."
+    },
+    "departures": [
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "13:36",
+          "御幸辻": "13:39",
+          "林間田園都市": "13:42",
+          "紀見峠": "13:44",
+          "天見": "13:48",
+          "千早口": "13:50",
+          "美加の台": "13:53",
+          "三日市町": "13:55",
+          "河内長野": "13:57",
+          "金剛": "14:02",
+          "北野田": "14:06",
+          "堺東": "14:13",
+          "天下茶屋": "14:20",
+          "新今宮": "14:23",
+          "なんば": "14:26"
+        }
+      },
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "14:06",
+          "御幸辻": "14:09",
+          "林間田園都市": "14:12",
+          "紀見峠": "14:14",
+          "天見": "14:18",
+          "千早口": "14:20",
+          "美加の台": "14:23",
+          "三日市町": "14:25",
+          "河内長野": "14:27",
+          "金剛": "14:32",
+          "北野田": "14:36",
+          "堺東": "14:43",
+          "天下茶屋": "14:50",
+          "新今宮": "14:53",
+          "なんば": "14:56"
+        }
+      },
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "14:36",
+          "御幸辻": "14:39",
+          "林間田園都市": "14:42",
+          "紀見峠": "14:44",
+          "天見": "14:48",
+          "千早口": "14:50",
+          "美加の台": "14:53",
+          "三日市町": "14:55",
+          "河内長野": "14:57",
+          "金剛": "15:02",
+          "北野田": "15:06",
+          "堺東": "15:13",
+          "天下茶屋": "15:20",
+          "新今宮": "15:23",
+          "なんば": "15:26"
+        }
+      },
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "15:06",
+          "御幸辻": "15:09",
+          "林間田園都市": "15:12",
+          "紀見峠": "15:14",
+          "天見": "15:18",
+          "千早口": "15:20",
+          "美加の台": "15:23",
+          "三日市町": "15:25",
+          "河内長野": "15:27",
+          "金剛": "15:32",
+          "北野田": "15:36",
+          "堺東": "15:43",
+          "天下茶屋": "15:50",
+          "新今宮": "15:53",
+          "なんば": "15:56"
+        }
+      },
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "15:36",
+          "御幸辻": "15:39",
+          "林間田園都市": "15:42",
+          "紀見峠": "15:44",
+          "天見": "15:48",
+          "千早口": "15:50",
+          "美加の台": "15:53",
+          "三日市町": "15:55",
+          "河内長野": "15:57",
+          "金剛": "16:02",
+          "北野田": "16:06",
+          "堺東": "16:13",
+          "天下茶屋": "16:21",
+          "新今宮": "16:23",
+          "なんば": "16:26"
+        }
+      },
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "16:32",
+          "御幸辻": "16:35",
+          "林間田園都市": "16:38",
+          "紀見峠": "16:40",
+          "天見": "16:44",
+          "千早口": "16:46",
+          "美加の台": "16:49",
+          "三日市町": "16:51",
+          "河内長野": "16:53",
+          "金剛": "16:58",
+          "北野田": "17:02",
+          "堺東": "17:10",
+          "天下茶屋": "17:17",
+          "新今宮": "17:20",
+          "なんば": "17:23"
+        }
+      },
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "16:46",
+          "御幸辻": "16:49",
+          "林間田園都市": "16:52",
+          "紀見峠": "16:54",
+          "天見": "16:58",
+          "千早口": "17:00",
+          "美加の台": "17:03",
+          "三日市町": "17:05",
+          "河内長野": "17:07",
+          "金剛": "17:12",
+          "北野田": "17:16",
+          "堺東": "17:23",
+          "天下茶屋": "17:31",
+          "新今宮": "17:33",
+          "なんば": "17:37"
+        }
+      },
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "17:05",
+          "御幸辻": "17:09",
+          "林間田園都市": "17:11",
+          "紀見峠": "17:13",
+          "天見": "17:17",
+          "千早口": "17:20",
+          "美加の台": "17:22",
+          "三日市町": "17:24",
+          "河内長野": "17:27",
+          "金剛": "17:32",
+          "北野田": "17:35",
+          "堺東": "17:46",
+          "天下茶屋": "17:52",
+          "新今宮": "17:55",
+          "なんば": "17:57"
+        }
+      },
+      {
+        "train": "Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "17:56",
+          "御幸辻": "17:59",
+          "林間田園都市": "18:02",
+          "紀見峠": "18:04",
+          "天見": "18:08",
+          "千早口": "18:10",
+          "美加の台": "18:13",
+          "三日市町": "18:15",
+          "河内長野": "18:17",
+          "金剛": "18:22",
+          "北野田": "18:26",
+          "堺東": "18:37",
+          "天下茶屋": "18:44",
+          "新今宮": "18:47",
+          "なんば": "18:50"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-nankai-hashimoto-rapid-express-return",
+    "operator": "Nankai",
+    "service": "Koya Line Rapid Express",
+    "serviceNames": [
+      "南海高野線快速急行",
+      "南海高野線快速急行(難波-極楽橋)"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "橋本": "Hashimoto",
+      "御幸辻": "Miyukitsuji",
+      "林間田園都市": "Rinkan-den-en-toshi",
+      "美加の台": "Mikanodai",
+      "三日市町": "Mikkaichicho",
+      "河内長野": "Kawachinagano",
+      "金剛": "Kongo",
+      "北野田": "Kitanoda",
+      "堺東": "Sakaihigashi",
+      "天下茶屋": "Tengachaya",
+      "新今宮": "Shin-Imamiya",
+      "なんば": "Namba"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&slCode=309-32&d=1&dw=0",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-717-1706&dw=0&tm=1732&date=20261023&USR=PC"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday timetable effective 2026-03-28. 2026-12-02 is Wednesday. These are separate rides for the return via 橋本, not through services to なんば. Intermediate stops use departures; the final stop uses arrival. All times were fetched from official individual train pages. No connection time or transfer duration is assumed. Supplemental onward departure range covers all express departures from the earliest to the latest local arrival at 橋本 and the first following express. A listed departure is not a verified transfer recommendation."
+    },
+    "departures": [
+      {
+        "train": "Rapid Express",
+        "days": "weekdays",
+        "stops": {
+          "橋本": "17:32",
+          "御幸辻": "17:35",
+          "林間田園都市": "17:38",
+          "美加の台": "17:46",
+          "三日市町": "17:48",
+          "河内長野": "17:51",
+          "金剛": "17:55",
+          "北野田": "17:59",
+          "堺東": "18:07",
+          "天下茶屋": "18:14",
+          "新今宮": "18:17",
+          "なんば": "18:20"
+        }
+      }
+    ]
+  }
+]

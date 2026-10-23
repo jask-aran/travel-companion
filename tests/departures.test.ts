@@ -132,12 +132,12 @@ describe("parseNavitime", () => {
         },
         {
           departTime: "08:43",
-          arriveTime: "11:03",
+          arriveTime: "10:58",
           segments: [{ name: "Hida 3" }],
         },
         {
           departTime: "09:39",
-          arriveTime: "12:20",
+          arriveTime: "12:14",
           segments: [{ name: "Hida 5" }],
         },
       ],
@@ -155,7 +155,7 @@ describe("parseNavitime", () => {
         },
         {
           departTime: "08:43",
-          arriveTime: "11:03",
+          arriveTime: "10:58",
           segments: [{ name: "Hida 3" }],
         },
       ],

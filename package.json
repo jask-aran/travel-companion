@@ -12,6 +12,7 @@
     "preview": "pnpm --filter @travel-companion/web preview",
     "trip:refresh": "tsx scripts/refresh-trip.ts",
     "trip:pull": "tsx scripts/refresh-trip.ts --source api",
+    "trip:rebuild": "tsx scripts/refresh-trip.ts --source saved",
     "trip:pull:cli": "tsx scripts/refresh-trip.ts --source cli",
     "trip:scrape": "tsx scripts/refresh-trip.ts --source html",
     "trip:scrape:headed": "tsx scripts/refresh-trip.ts --source html --headed",
