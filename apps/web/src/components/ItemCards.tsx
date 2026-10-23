@@ -240,6 +240,8 @@ function DepartureSteps(props: { option: DepartureOption; timed: boolean }) {
                 {(before) => (
                   <li class="departure-steps__change">
                     Change{before().to ? ` at ${before().to}` : ""}
+                    {/* A walk between stations, e.g. Keisei Ueno to Ueno-Okachimachi. */}
+                    <Show when={segment.from && segment.from !== before().to}>, walk to {segment.from}</Show>
                     <Show when={props.timed && wait()}>{(minutes) => ` · ${minutes()} min`}</Show>
                   </li>
                 )}
@@ -252,9 +254,10 @@ function DepartureSteps(props: { option: DepartureOption; timed: boolean }) {
                 </span>
                 <span class="departure-steps__what">
                   <LineChip segment={segment} />
-                  <Show when={segment.from || segment.headsign}>
+                  <Show when={(index() === 0 && segment.from) || segment.headsign}>
                     <span class="departure-steps__where">
-                      {[segment.from && `From ${segment.from}`, segment.headsign && `towards ${segment.headsign}`]
+                      {/* After a change, the change row has said where you board. */}
+                      {[index() === 0 && segment.from && `From ${segment.from}`, segment.headsign && `towards ${segment.headsign}`]
                         .filter(Boolean)
                         .join(", ")}
                     </span>
