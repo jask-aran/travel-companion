@@ -2,6 +2,7 @@ import { For, Show, createSignal, type JSX } from "solid-js";
 import type {
   DepartureBoard,
   DepartureOption,
+  DepartureSegment,
   DayItem,
   FlightItem,
   LodgingItem,
@@ -187,6 +188,9 @@ export function RouteLegRow(props: {
 
 const clockMinutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5));
 
+/** Minutes from one clock time to a later one, wrapping past midnight. */
+const minutesBetween = (from: string, to: string) => (clockMinutes(to) - clockMinutes(from) + 1440) % 1440;
+
 /**
  * How often a service runs, from the gaps between its departures on the
  * board: "every ~8 min". Needs three departures to say anything.
@@ -204,37 +208,90 @@ function frequencyOf(options: DepartureOption[], service: string | undefined): n
 /** "Skyliner › Oedo Line": the rides of an option, as one key. */
 const chainOf = (option: DepartureOption) => option.segments.map((segment) => segment.name).join(" › ");
 
-function LineChips(props: { option: DepartureOption }) {
+/** A line's name edged in its own colour, as station signs use it. */
+function LineChip(props: { segment: DepartureSegment }) {
   return (
-    <span class="departure__lines">
-      <For each={props.option.segments}>
-        {(segment) => (
-          <span
-            class={`departure__line departure__line--${segment.kind}`}
-            title={[segment.nameLocal, segment.headsign && `towards ${segment.headsign}`].filter(Boolean).join(" · ")}
-            style={segment.color ? { "--line": segment.color } : undefined}
-          >
-            {segment.name}
-          </span>
-        )}
-      </For>
+    <span
+      class={`departure__line departure__line--${props.segment.kind}`}
+      title={props.segment.nameLocal}
+      style={props.segment.color ? { "--line": props.segment.color } : undefined}
+    >
+      {props.segment.name}
     </span>
+  );
+}
+
+/**
+ * One way through, ride by ride: where to board and which way the train is
+ * headed (what the platform signs show), and where to change. A timetabled
+ * option gives clock times; an untimed one gives each ride's typical length.
+ */
+function DepartureSteps(props: { option: DepartureOption; timed: boolean }) {
+  const last = () => props.option.segments.at(-1);
+  return (
+    <ol class="departure-steps">
+      <For each={props.option.segments}>
+        {(segment, index) => {
+          const previous = () => props.option.segments[index() - 1];
+          const wait = () => previous() && minutesBetween(previous()!.arriveTime, segment.departTime);
+          return (
+            <>
+              <Show when={previous()}>
+                {(before) => (
+                  <li class="departure-steps__change">
+                    Change{before().to ? ` at ${before().to}` : ""}
+                    <Show when={props.timed && wait()}>{(minutes) => ` · ${minutes()} min`}</Show>
+                  </li>
+                )}
+              </Show>
+              <li class="departure-steps__ride">
+                <span class="departure-steps__time">
+                  {props.timed
+                    ? segment.departTime
+                    : `~${formatDurationShort(minutesBetween(segment.departTime, segment.arriveTime) * 60)}`}
+                </span>
+                <span class="departure-steps__what">
+                  <LineChip segment={segment} />
+                  <Show when={segment.from || segment.headsign}>
+                    <span class="departure-steps__where">
+                      {[segment.from && `From ${segment.from}`, segment.headsign && `towards ${segment.headsign}`]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  </Show>
+                </span>
+              </li>
+            </>
+          );
+        }}
+      </For>
+      <Show when={props.timed || last()?.to}>
+        <li class="departure-steps__end">
+          <span class="departure-steps__time">{props.timed ? props.option.arriveTime : ""}</span>
+          <span class="departure-steps__where">{last()?.to ? `Arrive ${last()!.to}` : "Arrive"}</span>
+        </li>
+      </Show>
+    </ol>
   );
 }
 
 /**
  * What runs on a leg around its target time, folded under it.
  *
- * Google's answers (Korea) are a timetable: real departures, the one to aim
- * for marked (for "arrive by", the last that still makes it; for "leave at",
- * the first after), and how often the line runs. NAVITIME's marketplace plan
- * (Japan) has no timetable, only routes and typical ride times, so those are
- * shown as routes with no clock times rather than as invented departures.
+ * Folded, it reads as the one to aim for: for "arrive by", the last that
+ * still makes it; for "leave at", the first after. Open, the other
+ * departures sit in a strip to pick from, and the picked one is spelled out
+ * ride by ride.
+ *
+ * Google's answers (Korea) are a timetable. NAVITIME's marketplace plan
+ * (Japan) has none, only routes and typical ride times, so those boards pick
+ * between routes and show no clock times rather than invented departures.
  */
 function DepartureBoardView(props: { board: DepartureBoard }) {
   const [open, setOpen] = createSignal(false);
+  const [chosen, setChosen] = createSignal<DepartureOption>();
   const target = () => props.board.target;
-  const timetable = () => !props.board.approximate;
+  const timed = () => !props.board.approximate;
   const pick = () => {
     const options = props.board.options;
     if (target().kind === "arrive") {
@@ -252,20 +309,16 @@ function DepartureBoardView(props: { board: DepartureBoard }) {
     }
     return [...byChain.values()].sort((a, b) => a.minutes - b.minutes);
   };
-  /**
-   * Three departures for the folded line, the pick among them: to arrive by
-   * a time, the pick and the two before it (the ones that also make it); to
-   * leave at one, the pick and the two after.
-   */
-  const upcoming = () => {
-    const options = props.board.options;
-    const at = Math.max(0, options.indexOf(pick()!));
-    return target().kind === "arrive"
-      ? options.slice(Math.max(0, at - 2), at + 1)
-      : options.slice(at, at + 3);
-  };
-  const every = () => frequencyOf(props.board.options, pick()?.segments[0]?.name);
-  const targetLabel = () => `${target().kind === "arrive" ? "Arrive by" : "Leave from"} ${target().time}`;
+  const choices = () => (timed() ? props.board.options : routes());
+  const shown = () => chosen() ?? (timed() ? pick() : routes()[0]);
+  const every = () => frequencyOf(props.board.options, shown()?.segments[0]?.name);
+  const heading = () =>
+    [
+      `${target().kind === "arrive" ? "Arrive by" : "Leave from"} ${target().time}`,
+      timed() && every() ? `every ~${every()} min` : undefined,
+    ]
+      .filter(Boolean)
+      .join(" · ");
 
   return (
     <div class="departures" classList={{ "is-open": open() }}>
@@ -275,71 +328,59 @@ function DepartureBoardView(props: { board: DepartureBoard }) {
         aria-expanded={open()}
         onClick={() => setOpen((value) => !value)}
       >
-        <Show
-          when={timetable()}
-          fallback={
+        <Icon name={timed() ? "clock" : "route"} />
+        <Show when={shown()}>
+          {(option) => (
             <>
-              <Icon name="route" />
-              <span class="departures__lead">
-                <span class="departures__line">{routes()[0] && chainOf(routes()[0]!)}</span>
-                <span class="departures__typical">~{formatDurationShort((routes()[0]?.minutes ?? 0) * 60)}</span>
+              <span class="departures__when">
+                <Show
+                  when={timed()}
+                  fallback={<>~{formatDurationShort(option().minutes * 60)}</>}
+                >
+                  <strong>{option().departTime}</strong>→{option().arriveTime}
+                </Show>
               </span>
+              <span class="departures__chain">{chainOf(option())}</span>
             </>
-          }
-        >
-          <Icon name="clock" />
-          <span class="departures__lead">
-            <For each={upcoming()}>
-              {(option) => (
-                <span classList={{ "departures__next": option === pick() }}>{option.departTime}</span>
-              )}
-            </For>
-            <span class="departures__line">{pick()?.segments[0]?.name}</span>
-          </span>
-          <Show when={every()}>
-            {(minutes) => <span class="departures__every">every ~{minutes()} min</span>}
-          </Show>
+          )}
         </Show>
         <span class="departures__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
       </button>
       <Show when={open()}>
         <div class="departures__body">
-          <Show
-            when={timetable()}
-            fallback={
-              <>
-                <p class="departures__target">Typical routes · {targetLabel()}</p>
-                <ol class="departures__list">
-                  <For each={routes()}>
-                    {(option) => (
-                      <li class="departure departure--route">
-                        <LineChips option={option} />
-                        <span class="departure__minutes">~{formatDurationShort(option.minutes * 60)}</span>
-                      </li>
-                    )}
-                  </For>
-                </ol>
-                <p class="departures__source">
-                  NAVITIME: routes and typical ride times, not a timetable. Check times on the day.
-                </p>
-              </>
-            }
-          >
-            <p class="departures__target">{targetLabel()}</p>
-            <ol class="departures__list">
-              <For each={props.board.options}>
+          <p class="departures__target">{heading()}</p>
+          <Show when={choices().length > 1}>
+            <div class="departures__choices" role="radiogroup" aria-label={timed() ? "Departures" : "Routes"}>
+              <For each={choices()}>
                 {(option) => (
-                  <li class="departure" classList={{ "departure--pick": option === pick() }}>
-                    <span class="departure__times">
-                      <strong>{option.departTime}</strong>–{option.arriveTime}
-                    </span>
-                    <LineChips option={option} />
-                    <span class="departure__minutes">{formatDurationShort(option.minutes * 60)}</span>
-                  </li>
+                  <button
+                    type="button"
+                    role="radio"
+                    class="departures__choice"
+                    classList={{ "is-pick": timed() && option === pick() }}
+                    aria-checked={option === shown()}
+                    onClick={() => setChosen(option)}
+                  >
+                    {timed() ? option.departTime : chainOf(option)}
+                  </button>
                 )}
               </For>
-            </ol>
-            <p class="departures__source">Times: Google</p>
+            </div>
+          </Show>
+          <Show when={shown()}>
+            {(option) => (
+              <>
+                <DepartureSteps option={option()} timed={timed()} />
+                <p class="departures__source">
+                  <Show
+                    when={timed()}
+                    fallback={<>~{formatDurationShort(option().minutes * 60)} riding · NAVITIME estimate, not a timetable</>}
+                  >
+                    {formatDurationShort(option().minutes * 60)} riding · Times from Google
+                  </Show>
+                </p>
+              </>
+            )}
           </Show>
         </div>
       </Show>

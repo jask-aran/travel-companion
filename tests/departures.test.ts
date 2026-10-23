@@ -29,6 +29,8 @@ describe("parseGoogleRoutes", () => {
       name: "공항철도",
       kind: "subway",
       headsign: "서울역",
+      from: "김포공항",
+      to: "Hongik Univ. Entrance",
       color: "#0095d4",
     });
   });
@@ -53,7 +55,7 @@ describe("parseNavitime", () => {
     const options = parseNavitime(fixture<NavitimeResponse>("navitime-nagoya-takayama.json"));
     expect(options).toHaveLength(1);
     expect(options[0]).toMatchObject({ departTime: "08:34", arriveTime: "10:55" });
-    expect(options[0]?.segments[0]?.name).toBe("ひだ");
+    expect(options[0]?.segments[0]).toMatchObject({ name: "ひだ", from: "名古屋", to: "高山" });
   });
 });
 

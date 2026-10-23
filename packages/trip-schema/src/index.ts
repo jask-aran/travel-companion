@@ -190,6 +190,10 @@ export const DepartureSegmentSchema = v.object({
   arriveTime: clockTime,
   /** Where the vehicle is headed, for picking the right platform. */
   headsign: optionalString,
+  /** Where you board, in English where we know it. */
+  from: optionalString,
+  /** Where you get off. */
+  to: optionalString,
   /** The line's own colour, "#rrggbb", as station signs use it. */
   color: optionalString,
 });

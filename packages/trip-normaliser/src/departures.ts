@@ -50,10 +50,12 @@ export type DepartureReport = {
   errors: string[];
 };
 
-type CacheEntry = { fetchedAt: string; approximate?: boolean; options: DepartureOption[] };
+type CacheEntry = { version?: number; fetchedAt: string; approximate?: boolean; options: DepartureOption[] };
 type Cache = Record<string, CacheEntry>;
 
 const CACHE_DAYS = 7;
+/** Bump when the fields parsed from an answer change, so old entries are re-asked. */
+const CACHE_VERSION = 2;
 /** Per run; the month allows 500. A full trip is about a dozen legs. */
 const NAVITIME_BUDGET = 40;
 const OPTIONS_KEPT = 8;
@@ -89,7 +91,7 @@ async function readCache(path: string): Promise<Cache> {
 }
 
 const fresh = (entry: CacheEntry | undefined, now: Date) =>
-  Boolean(entry) && now.getTime() - Date.parse(entry!.fetchedAt) < CACHE_DAYS * 86_400_000;
+  entry?.version === CACHE_VERSION && now.getTime() - Date.parse(entry!.fetchedAt) < CACHE_DAYS * 86_400_000;
 
 /** "HH:MM" moved by minutes, or undefined if that leaves the day. */
 function shifted(time: string, minutes: number): string | undefined {
@@ -146,6 +148,7 @@ export async function attachDepartures(
           ? parseGoogleRoutes(await fetchGoogle(sample, from, to, apiKey))
           : parseNavitime(await fetchNavitime(sample, from, to, apiKey));
       const entry: CacheEntry = {
+        version: CACHE_VERSION,
         fetchedAt: now.toISOString(),
         ...(sample.provider === "navitime" ? { approximate: true } : {}),
         options,
@@ -182,7 +185,7 @@ export async function attachDepartures(
   // Names in Japanese or Korean, translated once and cached.
   const locals = Object.values(drafts).flatMap((board) =>
     board.options.flatMap((option) =>
-      option.segments.flatMap((segment) => [localOf(segment), segment.headsign ?? ""]),
+      option.segments.flatMap((segment) => [localOf(segment), segment.headsign ?? "", segment.from ?? "", segment.to ?? ""]),
     ),
   );
   const { translations, report: translation } = await translateNames(
@@ -236,15 +239,19 @@ function named(option: DepartureOption, translations: Record<string, string>): D
   return {
     ...option,
     segments: option.segments.map((segment) => {
-      const { nameLocal: _stored, headsign: _headsign, ...rest } = segment;
+      const { nameLocal: _stored, headsign: _headsign, from: _from, to: _to, ...rest } = segment;
       const local = localOf(segment);
       const name = englishName(local, translations);
       const headsign = segment.headsign && englishName(segment.headsign, translations);
+      const from = segment.from && englishName(segment.from, translations);
+      const to = segment.to && englishName(segment.to, translations);
       return {
         ...rest,
         name,
         ...(name !== local ? { nameLocal: local } : {}),
         ...(headsign ? { headsign } : {}),
+        ...(from ? { from } : {}),
+        ...(to ? { to } : {}),
       };
     }),
   };
@@ -289,7 +296,12 @@ async function fetchGoogle(request: DepartureRequest, from: Place, to: Place, ap
 }
 
 type GoogleTransit = {
-  stopDetails?: { departureTime?: string; arrivalTime?: string };
+  stopDetails?: {
+    departureTime?: string;
+    arrivalTime?: string;
+    departureStop?: { name?: string };
+    arrivalStop?: { name?: string };
+  };
   headsign?: string;
   transitLine?: { name?: string; nameShort?: string; color?: string; vehicle?: { type?: string } };
 };
@@ -331,6 +343,11 @@ function googleKind(type: string | undefined): DepartureSegment["kind"] {
   }
 }
 
+/** A stop's name, folded like a headsign. */
+function stopName(raw: string | undefined): string | undefined {
+  return raw?.normalize("NFKC").trim() || undefined;
+}
+
 export function parseGoogleRoutes(response: GoogleRoutesResponse): DepartureOption[] {
   const options: DepartureOption[] = [];
   for (const route of response.routes ?? []) {
@@ -342,12 +359,16 @@ export function parseGoogleRoutes(response: GoogleRoutesResponse): DepartureOpti
       if (!transit || !departTime || !arriveTime) continue;
       const line = transit.transitLine;
       const headsign = localHeadsign(transit.headsign);
+      const from = stopName(transit.stopDetails?.departureStop?.name);
+      const to = stopName(transit.stopDetails?.arrivalStop?.name);
       segments.push({
         name: localLineName(line?.nameShort || line?.name || "Transit"),
         kind: googleKind(line?.vehicle?.type),
         departTime,
         arriveTime,
         ...(headsign ? { headsign } : {}),
+        ...(from ? { from } : {}),
+        ...(to ? { to } : {}),
         ...(line?.color ? { color: line.color } : {}),
       });
     }
@@ -384,6 +405,7 @@ async function fetchNavitime(request: DepartureRequest, from: Place, to: Place, 
 type NavitimeSection = {
   type?: string;
   move?: string;
+  name?: string;
   from_time?: string;
   to_time?: string;
   line_name?: string;
@@ -416,21 +438,32 @@ function navitimeKind(section: NavitimeSection): DepartureSegment["kind"] {
   }
 }
 
+/** A station's name; "start" and "goal" stand for the query's own points. */
+function pointName(section: NavitimeSection | undefined): string | undefined {
+  const name = stopName(section?.name);
+  return name && name !== "start" && name !== "goal" ? name : undefined;
+}
+
 export function parseNavitime(response: NavitimeResponse): DepartureOption[] {
   const options: DepartureOption[] = [];
   for (const item of response.items ?? []) {
     const segments: DepartureSegment[] = [];
-    for (const section of item.sections ?? []) {
+    const sections = item.sections ?? [];
+    for (const [index, section] of sections.entries()) {
       if (section.type !== "move" || !section.move || section.move === "walk") continue;
       const departTime = section.from_time?.slice(11, 16);
       const arriveTime = section.to_time?.slice(11, 16);
       if (!departTime || !arriveTime) continue;
+      const from = pointName(sections.slice(0, index).findLast((other) => other.type === "point"));
+      const to = pointName(sections.slice(index + 1).find((other) => other.type === "point"));
       // `transport.name` is the service; `line_name` may add the stretch ridden.
       segments.push({
         name: localLineName(section.transport?.name || section.line_name || "Train"),
         kind: navitimeKind(section),
         departTime,
         arriveTime,
+        ...(from ? { from } : {}),
+        ...(to ? { to } : {}),
         ...(section.transport?.color ? { color: section.transport.color } : {}),
       });
     }
