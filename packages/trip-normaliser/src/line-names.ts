@@ -36,3 +36,21 @@ export function englishName(local: string, translations: Record<string, string>)
   if (seoul) return `Line ${seoul[1]}`;
   return translations[local] ?? local;
 }
+
+const KANA_KANJI = /[぀-ヿ㐀-鿿]/;
+
+/**
+ * A Japanese station name as asked of the translator. Bare, a name is read
+ * as words (白子, Shiroko, comes back "White piece"); as "白子駅" it is read
+ * as a place and romanised.
+ */
+export const stationQuery = (local: string) =>
+  KANA_KANJI.test(local) && !/駅$/.test(local) ? `${local}駅` : local;
+
+/** The English name for a station, without the "Station" the query added. */
+export function englishStation(local: string, translations: Record<string, string>): string {
+  const query = stationQuery(local);
+  const english = translations[query];
+  if (!english) return local;
+  return query === local ? english : english.replace(/\s+Station$/i, "");
+}

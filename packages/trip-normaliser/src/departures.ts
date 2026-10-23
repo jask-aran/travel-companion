@@ -7,7 +7,14 @@ import type {
   Place,
   TripBundle,
 } from "../../trip-schema/src/index.js";
-import { englishName, localHeadsign, localLineName, needsTranslation } from "./line-names.js";
+import {
+  englishName,
+  englishStation,
+  localHeadsign,
+  localLineName,
+  needsTranslation,
+  stationQuery,
+} from "./line-names.js";
 import { translateNames, type TranslationReport } from "./translate.js";
 
 /**
@@ -185,7 +192,7 @@ export async function attachDepartures(
   // Names in Japanese or Korean, translated once and cached.
   const locals = Object.values(drafts).flatMap((board) =>
     board.options.flatMap((option) =>
-      option.segments.flatMap((segment) => [localOf(segment), segment.headsign ?? "", segment.from ?? "", segment.to ?? ""]),
+      option.segments.flatMap((segment) => [localOf(segment), segment.headsign ?? "", stationQuery(segment.from ?? ""), stationQuery(segment.to ?? "")]),
     ),
   );
   const { translations, report: translation } = await translateNames(
@@ -196,11 +203,16 @@ export async function attachDepartures(
   );
   report.translation = translation;
 
+  const requestOf = new Map(requests.map((request) => [request.key, request]));
   const boards = Object.fromEntries(
-    Object.entries(drafts).map(([key, board]) => [
-      key,
-      { ...board, options: board.options.map((option) => named(option, translations)) },
-    ]),
+    Object.entries(drafts).map(([key, board]) => {
+      const request = requestOf.get(key)!;
+      const ends = { from: bundle.places[request.fromPlaceId], to: bundle.places[request.toPlaceId] };
+      return [
+        key,
+        { ...board, options: board.options.map((option) => endsNamed(named(option, translations), ends)) },
+      ];
+    }),
   );
   report.boards = Object.keys(boards).length;
   if (report.boards) bundle.departures = boards;
@@ -243,8 +255,8 @@ function named(option: DepartureOption, translations: Record<string, string>): D
       const local = localOf(segment);
       const name = englishName(local, translations);
       const headsign = segment.headsign && englishName(segment.headsign, translations);
-      const from = segment.from && englishName(segment.from, translations);
-      const to = segment.to && englishName(segment.to, translations);
+      const from = segment.from && englishStation(segment.from, translations);
+      const to = segment.to && englishStation(segment.to, translations);
       return {
         ...rest,
         name,
@@ -254,6 +266,45 @@ function named(option: DepartureOption, translations: Record<string, string>): D
         ...(to ? { to } : {}),
       };
     }),
+  };
+}
+
+/** "Shiroko Station" as "Shiroko": a Wanderlog stop that is a station, by name. */
+const stationOf = (place: Place | undefined) => /^(.+?)\s+Station$/i.exec(place?.name ?? "")?.[1];
+
+/** Letters to change to turn one name into the other. */
+function editDistance(a: string, b: string): number {
+  let row = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i += 1) {
+    const next = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      next[j] = Math.min(row[j]! + 1, next[j - 1]! + 1, row[j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    row = next;
+  }
+  return row[b.length]!;
+}
+
+/**
+ * Where a leg starts or ends at a station saved in the trip, the trip's own
+ * spelling beats a machine romanisation (白子 comes back "Shirako"; the
+ * station is Shiroko). Only a near-spelling, though: boarding at Kintetsu
+ * Nagoya for a stop saved as Nagoya Station is a different station.
+ */
+const respelt = (given: string | undefined, saved: string) =>
+  Boolean(given) && given !== saved && editDistance(given!.toLowerCase(), saved.toLowerCase()) <= 2;
+
+function endsNamed(option: DepartureOption, ends: { from?: Place | undefined; to?: Place | undefined }): DepartureOption {
+  const from = stationOf(ends.from);
+  const to = stationOf(ends.to);
+  const last = option.segments.length - 1;
+  return {
+    ...option,
+    segments: option.segments.map((segment, index) => ({
+      ...segment,
+      ...(index === 0 && from && respelt(segment.from, from) ? { from } : {}),
+      ...(index === last && to && respelt(segment.to, to) ? { to } : {}),
+    })),
   };
 }
 

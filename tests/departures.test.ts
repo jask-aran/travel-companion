@@ -10,8 +10,10 @@ import {
 import {
   englishName,
   localHeadsign,
+  englishStation,
   localLineName,
   needsTranslation,
+  stationQuery,
 } from "../packages/trip-normaliser/src/line-names.js";
 import { departureTargets, providerFor } from "../apps/web/src/lib/departure-targets.js";
 
@@ -78,6 +80,13 @@ describe("line names", () => {
     expect(englishName("2호선", {})).toBe("Line 2");
     expect(englishName("공항철도", { 공항철도: "Airport Railroad" })).toBe("Airport Railroad");
     expect(englishName("某線", {})).toBe("某線");
+  });
+
+  it("asks for a Japanese station as a station, so it is romanised", () => {
+    expect(stationQuery("白子")).toBe("白子駅");
+    expect(stationQuery("Hongik Univ. Entrance")).toBe("Hongik Univ. Entrance");
+    expect(englishStation("白子", { 白子駅: "Shiroko Station" })).toBe("Shiroko");
+    expect(englishStation("白子", {})).toBe("白子");
   });
 });
 
