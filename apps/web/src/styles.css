@@ -1851,12 +1851,13 @@ html {
 
 /* --- Departure boards --- */
 
-/* Under a summary leg, indented to its text; the leg's rail runs on past it. */
+/* Under a route leg, indented to its text; the leg's rail runs on past it. */
 .departures {
   padding: 0 var(--pad) 0.55rem var(--text-x);
   margin-top: -0.25rem;
 }
 
+/* Keep the times fixed; only the line chain gives up width on a phone. */
 .departures__toggle {
   display: flex;
   align-items: center;
@@ -1871,6 +1872,7 @@ html {
   font-family: var(--font-mono);
   font-size: var(--fs-small);
   text-align: left;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -1879,22 +1881,19 @@ html {
   color: var(--kind-travel);
 }
 
-.departures__lead {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-  white-space: nowrap;
-  overflow: hidden;
+.departures__when {
+  flex: none;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
-.departures__lead .departures__line {
-  margin-left: 0.3rem;
+.departures__chain {
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
   color: var(--ink-soft);
-  font-family: var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .departures__chevron {
@@ -1919,109 +1918,139 @@ html {
 .departures__target,
 .departures__source {
   margin: 0;
+  color: var(--ink-muted);
   font-family: var(--font-mono);
   font-size: var(--fs-label);
-  letter-spacing: 0.04em;
-  color: var(--ink-muted);
-}
-
-.departures__target {
-  text-transform: uppercase;
 }
 
 .departures__source {
   margin-top: 0.3rem;
+  overflow-wrap: anywhere;
 }
 
-.departures__list {
-  margin: 0.3rem 0 0;
+/* Choices scroll inside the leg, without a visible scrollbar. */
+.departures__choices {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0.3rem;
+  padding: 0.1rem 0 0.35rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.departures__choices::-webkit-scrollbar {
+  display: none;
+}
+
+/* A selected choice is filled; the underline marks the recommended one. */
+.departures__choice {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.2rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  background: var(--paper-elevated);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: 1.25;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.departures__choice[aria-checked="true"] {
+  border-color: rgb(var(--travel-rgb) / 55%);
+  background: rgb(var(--travel-rgb) / 18%);
+  color: var(--ink);
+}
+
+.departures__choice.is-pick {
+  box-shadow: inset 0 -2px var(--kind-travel);
+}
+
+.departures__choice:focus-visible {
+  outline: 2px solid var(--kind-travel);
+  outline-offset: -2px;
+}
+
+/* Fixed time column; the route and station details use the remaining width. */
+.departure-steps {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.55rem 0 0;
   padding: 0;
   list-style: none;
 }
 
-.departure {
+.departure-steps__ride,
+.departure-steps__end {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: baseline;
-  column-gap: 0.6rem;
-  padding: 0.3rem 0.4rem;
-  border-radius: 6px;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: start;
+  column-gap: 0.55rem;
 }
 
-.departure + .departure {
-  border-top: var(--hairline);
-}
-
-/* The one to aim for. */
-.departure--pick {
-  background: rgb(var(--travel-rgb) / 10%);
-}
-
-.departure--pick + .departure {
-  border-top-color: transparent;
-}
-
-.departure__times,
-.departure__minutes {
+.departure-steps__time {
+  padding-top: 0.1rem;
+  color: var(--ink-soft);
   font-family: var(--font-mono);
-  font-size: var(--fs-small);
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.departure__minutes {
-  color: var(--ink-muted);
-}
-
-.departure__lines {
+.departure-steps__what {
+  display: grid;
+  justify-items: start;
+  gap: 0.15rem;
   min-width: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
 }
 
-/* A line chip edged in the line's own colour, as station signs use it. */
+/* Change notes sit in the text column, with a dotted link between rides. */
+.departure-steps__change {
+  margin: 0.05rem 0 0.05rem 5.05rem;
+  padding: 0.1rem 0 0.1rem 0.55rem;
+  border-left: 1px dotted rgb(var(--travel-rgb) / 70%);
+  color: var(--ink-muted);
+  font-size: var(--fs-label);
+  line-height: 1.35;
+}
+
+.departure-steps__where {
+  color: var(--ink-muted);
+  font-size: var(--fs-label);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.departure-steps__end {
+  margin-top: 0.1rem;
+}
+
+/* Keep complete service names visible, even when a long name needs two lines. */
 .departure__line {
+  display: inline-block;
+  width: fit-content;
   max-width: 100%;
   padding: 0.05rem 0.4rem 0.05rem 0.35rem;
   border-left: 3px solid var(--line, var(--kind-travel));
   border-radius: 3px;
-  background: rgb(var(--ink-rgb) / 6%);
+  background: rgb(var(--travel-rgb) / 8%);
+  color: var(--ink-soft);
   font-size: var(--fs-label);
   line-height: 1.5;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .departure__line--express,
 .departure__line--shinkansen {
   font-weight: 600;
-}
-
-/* Folded board: the next few departures, the one to aim for first. */
-.departures__lead > span:not(.departures__line) {
-  color: var(--ink-muted);
-}
-
-.departures__lead > .departures__next {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.departures__every,
-.departures__typical {
-  flex: none;
-  color: var(--ink-muted);
-  font-size: var(--fs-label);
-}
-
-.departures__typical {
-  margin-left: 0.4rem;
-}
-
-/* A route with no clock times: the lines, then the typical ride. */
-.departure--route {
-  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 /* --- Compact stats: icon beside its figure, not above it --- */
