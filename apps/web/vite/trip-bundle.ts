@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Plugin, ViteDevServer } from "vite";
 import { encryptTrip } from "../src/lib/trip-crypto";
+import { MEDIA_ROUTES, mediaUpstream } from "../src/lib/media";
 import { parse as parseYaml } from "yaml";
 
 const appDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -212,6 +213,30 @@ export function tripBundlePlugin(): Plugin {
                   error: error instanceof Error ? error.message : String(error),
                 }),
               );
+            },
+          );
+          return;
+        }
+
+        // Photos and maps, as the Pages worker serves them: the key is added
+        // here, server side, and never reaches the page.
+        const route = path && Object.values(MEDIA_ROUTES).find((name) => path === `${basePath}${name}`);
+        if (route) {
+          const upstream = mediaUpstream(route, new URL(req.url ?? "", "http://dev").searchParams, localGoogleApiKey());
+          if (!upstream) {
+            res.statusCode = 404;
+            res.end();
+            return;
+          }
+          fetch(upstream).then(
+            async (response) => {
+              res.statusCode = response.status;
+              res.setHeader("Content-Type", response.headers.get("content-type") ?? "application/octet-stream");
+              res.end(Buffer.from(await response.arrayBuffer()));
+            },
+            () => {
+              res.statusCode = 502;
+              res.end();
             },
           );
           return;

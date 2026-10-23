@@ -1,32 +1,28 @@
+import { createSignal } from "solid-js";
 import type { Place } from "@travel-companion/trip-schema";
+import { MEDIA_ROUTES } from "./media.js";
 
 /**
- * Google's browser key, injected at build time from GOOGLE_MAPS_API_KEY.
- *
- * It is necessarily visible in the built app: Place Photos may not be cached
- * or re-hosted (ToS 3.2.3(b)), so the image is fetched straight from Google by
- * the browser. Restrict the key by HTTP referrer in the Cloud console.
+ * Photos and maps load through the app's own worker (see media.ts), which
+ * holds the Google key. Place Photos may not be cached or re-hosted (ToS
+ * 3.2.3(b)), so the worker forwards each request rather than storing images.
  */
-declare const __GOOGLE_MAPS_KEY__: string;
-
-const apiKey = typeof __GOOGLE_MAPS_KEY__ === "string" ? __GOOGLE_MAPS_KEY__ : "";
-
-export const placePhotosEnabled = apiKey.length > 0;
+declare const __TRIP_BASE__: string;
+const base = typeof __TRIP_BASE__ === "string" ? __TRIP_BASE__ : "/";
 
 /**
- * The photo column is at most 9rem × 1.6 (its fade) on a wide phone: 480px
- * covers that on a 2x screen. Larger images only cost decode time while a
- * day opens; an opened card dims its photo to a backdrop anyway.
+ * Set once the trip is open (App.tsx). Reactive, so photos rendered before
+ * it lands pick it up. Dev serves without a token; its proxy doesn't check.
  */
-const MAX_WIDTH_PX = 480;
+const [token, setToken] = createSignal("");
+export const setMediaToken = setToken;
+
+const mediaUrl = (route: string, params: Record<string, string>) =>
+  `${base}${route}?${new URLSearchParams({ ...params, t: token() }).toString()}`;
 
 export function placePhotoUrl(place: Place): string | undefined {
-  if (!apiKey || !place.photo?.name) return undefined;
-  const params = new URLSearchParams({
-    maxWidthPx: String(MAX_WIDTH_PX),
-    key: apiKey,
-  });
-  return `https://places.googleapis.com/v1/${place.photo.name}/media?${params.toString()}`;
+  if (!place.photo?.name) return undefined;
+  return mediaUrl(MEDIA_ROUTES.photo, { name: place.photo.name });
 }
 
 /** Google requires these to be shown wherever the photo is displayed. */
@@ -38,23 +34,9 @@ export function photoAttribution(place: Place): string | undefined {
 /**
  * A street map of the place, for stays without a photo: the Airbnbs on this
  * trip are bare addresses, and the block they sit in is what you need to
- * recognise on arrival. Maps Static API, fetched by the browser like photos
- * (the same no-caching terms). Portrait to fit the card's photo column.
+ * recognise on arrival.
  */
 export function staticMapUrl(place: Place): string | undefined {
-  if (!apiKey || place.latitude == null || place.longitude == null) return undefined;
-  const at = `${place.latitude},${place.longitude}`;
-  const params = new URLSearchParams({
-    center: at,
-    zoom: "16",
-    size: "180x320",
-    scale: "2",
-    markers: `color:0xc8432b|${at}`,
-    key: apiKey,
-  });
-  // Quieter base map: the marker and the streets around it are the point.
-  for (const style of ["feature:poi|visibility:off", "feature:transit|element:labels.icon|visibility:simplified"]) {
-    params.append("style", style);
-  }
-  return `https://maps.googleapis.com/maps/api/staticmap?${params.toString()}`;
+  if (place.latitude == null || place.longitude == null) return undefined;
+  return mediaUrl(MEDIA_ROUTES.map, { at: `${place.latitude},${place.longitude}` });
 }

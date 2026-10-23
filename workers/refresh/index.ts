@@ -3,6 +3,7 @@ import { parseWanderlogSource } from "../../packages/wanderlog-import/src/index.
 import { attachPlaceDetails } from "../../packages/trip-normaliser/src/place-details.js";
 import { normaliseCompleteWanderlog } from "../../packages/trip-normaliser/src/complete.js";
 import { decryptTrip, encryptTrip, type EncryptedPayload } from "../../apps/web/src/lib/trip-crypto.js";
+import { MEDIA_ROUTES, mediaToken, mediaUpstream } from "../../apps/web/src/lib/media.js";
 
 /**
  * Pages advanced-mode worker. Static files still come from the deployment.
@@ -32,6 +33,8 @@ type RefreshEnv = {
   PUBLIC_ID: string;
   WANDERLOG_TRIP_ID?: string;
   TRIP_PASSPHRASE?: string;
+  /** Server-side only: photos and maps are fetched with it here (media.ts). */
+  GOOGLE_MAPS_API_KEY?: string;
 };
 
 function tokenMatches(presented: string, expected: string): boolean {
@@ -179,6 +182,32 @@ async function fromAssets(request: Request, env: RefreshEnv): Promise<Response> 
   return headed;
 }
 
+/**
+ * A place photo or street map from Google, with the key added here so it
+ * never ships to the browser. Only for a caller who can open the trip (the
+ * token is a hash of the passphrase), and only photos and maps of a point,
+ * so the key can't be spent on anything else. Not stored at the edge:
+ * Google's terms forbid re-hosting photos.
+ */
+async function media(route: string, url: URL, env: RefreshEnv): Promise<Response> {
+  const apiKey = env.GOOGLE_MAPS_API_KEY;
+  const passphrase = env.TRIP_PASSPHRASE;
+  if (!apiKey || !passphrase) return new Response(null, { status: 503 });
+  if (!tokenMatches(url.searchParams.get("t") ?? "", await mediaToken(passphrase))) {
+    return new Response(null, { status: 401 });
+  }
+  const upstream = mediaUpstream(route, url.searchParams, apiKey);
+  if (!upstream) return new Response(null, { status: 404 });
+  const response = await fetch(upstream);
+  return new Response(response.body, {
+    status: response.status,
+    headers: {
+      "content-type": response.headers.get("content-type") ?? "application/octet-stream",
+      "cache-control": response.ok ? "private, max-age=86400" : "no-store",
+    },
+  });
+}
+
 function isTripPayload(pathname: string): boolean {
   return pathname.endsWith("/trip.enc");
 }
@@ -188,6 +217,8 @@ async function handle(request: Request, env: RefreshEnv): Promise<Response> {
   if (request.method === "POST" && url.pathname.endsWith("/api/refresh")) {
     return refresh(request, env);
   }
+  const route = Object.values(MEDIA_ROUTES).find((name) => url.pathname.endsWith(`/${name}`));
+  if (request.method === "GET" && route) return media(route, url, env);
   if ((request.method === "GET" || request.method === "HEAD") && isTripPayload(url.pathname)) {
     try {
       const body = await env.TRIP.get(OBJECT_KEY);

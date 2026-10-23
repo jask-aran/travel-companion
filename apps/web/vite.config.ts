@@ -1,14 +1,8 @@
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 import { VitePWA } from "vite-plugin-pwa";
-import { localGoogleApiKey, localPassphrase, tripBundlePlugin } from "./vite/trip-bundle";
+import { localPassphrase, tripBundlePlugin } from "./vite/trip-bundle";
 
-/**
- * Google Place Photos cannot be cached or re-hosted, so the browser fetches
- * them directly and the key ships in the bundle. Restrict it by HTTP referrer.
- * With no key set, the app simply renders no photos.
- */
-const googleMapsKey = localGoogleApiKey();
 /**
  * Only the build encrypts. The dev server serves the working bundle as
  * plaintext, so flagging dev as encrypted made the app fetch a trip.enc that
@@ -26,7 +20,6 @@ const base = process.env.TRIP_BASE ?? "/japankorea2026/";
 export default defineConfig({
   base,
   define: {
-    __GOOGLE_MAPS_KEY__: JSON.stringify(googleMapsKey),
     __TRIP_ENCRYPTED__: JSON.stringify(tripEncrypted),
     __TRIP_BASE__: JSON.stringify(base),
     // Shown in the footer, so you can tell which shell a device is running.

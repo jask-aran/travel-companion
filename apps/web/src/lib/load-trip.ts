@@ -1,5 +1,7 @@
 import { parseTripBundle, type TripBundle } from "@travel-companion/trip-schema";
 import { decryptTrip, type EncryptedPayload } from "./trip-crypto.js";
+import { mediaToken } from "./media.js";
+import { setMediaToken } from "./place-photo.js";
 
 /**
  * True when the build published an encrypted payload. Dev always serves
@@ -24,7 +26,8 @@ async function fetchPayload(): Promise<unknown> {
 
 /**
  * Load the trip payload, decrypting it when the build is encrypted. The
- * passphrase is required only to read the data — it is never sent anywhere.
+ * passphrase itself is never sent anywhere; only a hash of it rides along
+ * on photo requests (media.ts).
  */
 export async function loadTripBundle(passphrase?: string): Promise<TripBundle> {
   const payload = await fetchPayload();
@@ -33,5 +36,7 @@ export async function loadTripBundle(passphrase?: string): Promise<TripBundle> {
 
   if (!passphrase) throw new Error("A passphrase is required to open this trip.");
   const plaintext = await decryptTrip(payload as EncryptedPayload, passphrase);
+  // Whoever can open the trip may load its photos through the worker.
+  setMediaToken(await mediaToken(passphrase));
   return parseTripBundle(JSON.parse(plaintext));
 }
