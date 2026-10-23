@@ -124,11 +124,29 @@ export function DaySection(props: {
     return plans;
   });
   /** Out of the hotel by the recommended train, less the walk to it. */
+  /**
+   * Out of the hotel by the recommended train, less the walk to it. A walk
+   * to the station first (hotel, then Nagoya Station, then the Hida) is
+   * worked back through, as long as the stops before the train are only
+   * places you pass through.
+   */
   const boardLeave = createMemo(() => {
-    const first = routeItems().find((item) => item.type === "place");
-    const leg = first ? legs().get(first.id) : undefined;
-    if (!first || !leg || leg.fromPlaceId !== wokeIn()?.placeId) return undefined;
-    return leaveFor(legPlans().get(first.id)?.option);
+    let previous = wokeIn()?.placeId;
+    let lead = 0;
+    for (const item of routeItems()) {
+      if (item.type !== "place") continue;
+      const leg = legs().get(item.id);
+      if (!previous || !leg || leg.fromPlaceId !== previous) return undefined;
+      const train = legPlans().get(item.id)?.option;
+      if (train) {
+        const leave = leaveFor(train);
+        return leave && shiftClock(leave, -lead);
+      }
+      if (item.startTime || !isWaypoint(props.bundle.places[item.placeId])) return undefined;
+      lead += Math.ceil((leg.durationSeconds ?? 0) / 60);
+      previous = item.placeId;
+    }
+    return undefined;
   });
 
   const placeName = (placeId: string) => props.bundle.places[placeId]?.name;
