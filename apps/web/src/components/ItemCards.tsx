@@ -362,7 +362,9 @@ function DepartureBoardView(props: { board: DepartureBoard }) {
       </button>
       <Show when={open()}>
         <div class="departures__body">
-          <p class="departures__target">{heading()}</p>
+          <p class="departures__target" classList={{ "is-missed": Boolean(missedTarget()) }}>
+            {heading()}
+          </p>
           <Show when={choices().length > 1}>
             <div class="departures__choices" role="radiogroup" aria-label={timed() ? "Departures" : "Routes"}>
               <For each={choices()}>

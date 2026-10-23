@@ -2053,6 +2053,12 @@ html {
   font-weight: 600;
 }
 
+/* No train makes the plan's time: the one thing on the board to act on. */
+.departures__target.is-missed {
+  color: var(--warn);
+  font-weight: 600;
+}
+
 /* --- Compact stats: icon beside its figure, not above it --- */
 .day-stats > div {
   display: flex;
