@@ -131,9 +131,14 @@
     "serviceNames": ["近鉄名古屋線特急"],
     "kind": "express",
     "stationNames": {"近鉄名古屋": "Kintetsu-Nagoya", "桑名": "Kuwana", "近鉄四日市": "Kintetsu-Yokkaichi", "白子": "Shiroko", "津": "Tsu", "伊勢中川": "Ise-Nakagawa", "松阪": "Matsusaka", "伊勢市": "Iseshi", "宇治山田": "Ujiyamada", "五十鈴川": "Isuzugawa", "鳥羽": "Toba", "志摩磯部": "Shima-Isobe", "鵜方": "Ugata", "賢島": "Kashikojima"},
-    "source": {"urls": ["https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0710&tx=1-9004"], "retrieved": "2026-10-23", "note": "Official Kintetsu weekend/holiday train detail. The English page says current timetable but does not state a 2026 effective date."},
+    "source": {"urls": ["https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0710&tx=1-9004", "https://eki.kintetsu.co.jp/english/T5?USR=PC&d=1&dw=1&pattern=A&slCode=413-1", "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0550&tx=1-9181", "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0630&tx=1-9180", "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0650&tx=1-9005", "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0730&tx=1-9108", "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0750&tx=1-8950"], "retrieved": "2026-10-23", "note": "Official Kintetsu weekend/holiday station timetable and train details. Includes every limited express departing Kintetsu-Nagoya from 05:00 through 07:50 that stops at Shiroko; the 07:30 and 07:50 departures arrive after 07:50. The English station page says current timetable but does not state a 2026 effective date."},
     "departures": [
-      {"train": "Kintetsu Limited Express", "days": "weekends", "stops": {"近鉄名古屋": "07:10", "桑名": "07:26", "近鉄四日市": "07:38", "白子": "07:49", "津": "07:59", "伊勢中川": "08:10", "松阪": "08:17", "伊勢市": "08:30", "宇治山田": "08:33", "五十鈴川": "08:36", "鳥羽": "08:45", "志摩磯部": "09:04", "鵜方": "09:10", "賢島": "09:16"}}
+      {"train": "Urban Liner", "days": "weekends", "stops": {"近鉄名古屋": "05:55", "桑名": "06:11", "近鉄四日市": "06:22", "白子": "06:34"}},
+      {"train": "Urban Liner", "days": "weekends", "stops": {"近鉄名古屋": "06:30", "桑名": "06:46", "近鉄四日市": "06:57", "白子": "07:09"}},
+      {"train": "Kintetsu Limited Express", "days": "weekends", "stops": {"近鉄名古屋": "06:50", "桑名": "07:06", "近鉄四日市": "07:18", "白子": "07:30"}},
+      {"train": "Kintetsu Limited Express", "days": "weekends", "stops": {"近鉄名古屋": "07:10", "桑名": "07:26", "近鉄四日市": "07:38", "白子": "07:49", "津": "07:59", "伊勢中川": "08:10", "松阪": "08:17", "伊勢市": "08:30", "宇治山田": "08:33", "五十鈴川": "08:36", "鳥羽": "08:45", "志摩磯部": "09:04", "鵜方": "09:10", "賢島": "09:16"}},
+      {"train": "Urban Liner", "days": "weekends", "stops": {"近鉄名古屋": "07:30", "桑名": "07:46", "近鉄四日市": "07:57", "白子": "08:09"}},
+      {"train": "Kintetsu Limited Express", "days": "weekends", "stops": {"近鉄名古屋": "07:50", "桑名": "08:06", "近鉄四日市": "08:18", "白子": "08:29"}}
     ]
   },
   {
