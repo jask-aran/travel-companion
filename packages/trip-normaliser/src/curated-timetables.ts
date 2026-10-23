@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import type { DepartureBoard, DepartureOption, DepartureSegment } from "../../trip-schema/src/index.js";
 
 type TimetableDeparture = {
@@ -26,15 +26,27 @@ function loadTimetables(tripId: string): CuratedTimetable[] {
   const cached = timetablesByTrip.get(tripId);
   if (cached) return cached;
 
-  let timetables: CuratedTimetable[];
+  // `timetables.json`, plus any files in `timetables/` (one per region, so
+  // several people or agents can add to a trip without editing one file).
+  const folder = new URL(`../../../data/trips/${tripId}/`, import.meta.url);
+  const read = (url: URL): CuratedTimetable[] => {
+    try {
+      return JSON.parse(readFileSync(url, "utf8")) as CuratedTimetable[];
+    } catch (error) {
+      if (!(error instanceof Error) || !("code" in error) || error.code !== "ENOENT") throw error;
+      return [];
+    }
+  };
+  let extra: string[] = [];
   try {
-    timetables = JSON.parse(
-      readFileSync(new URL(`../../../data/trips/${tripId}/timetables.json`, import.meta.url), "utf8"),
-    ) as CuratedTimetable[];
+    extra = readdirSync(new URL("timetables/", folder)).filter((name) => name.endsWith(".json")).sort();
   } catch (error) {
     if (!(error instanceof Error) || !("code" in error) || error.code !== "ENOENT") throw error;
-    timetables = [];
   }
+  const timetables = [
+    ...read(new URL("timetables.json", folder)),
+    ...extra.flatMap((name) => read(new URL(`timetables/${name}`, folder))),
+  ];
   timetablesByTrip.set(tripId, timetables);
   return timetables;
 }
