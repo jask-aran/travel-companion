@@ -7,6 +7,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@photostructure/tz-lookup": "11.2.0",
     "@travel-companion/trip-schema": "workspace:*"
   }
 }

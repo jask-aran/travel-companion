@@ -85,37 +85,27 @@ describe("Wanderlog adapters", () => {
 
 describe("normaliser", () => {
   it.each([
-    [540, "Etc/GMT-9"],
-    [60, "Etc/GMT-1"],
-    [-300, "Etc/GMT+5"],
-    [330, "UTC"],
-    [345, "UTC"],
-    [0, "Etc/GMT+0"],
-  ])("reads place and day UTC offset %i with zone %s", (offset, timezone) => {
+    ["Tokyo", 35.68, 139.76, "2026-11-21", "Asia/Tokyo", 540],
+    ["Paris in winter", 48.85, 2.35, "2026-12-01", "Europe/Paris", 60],
+    ["Paris in summer", 48.85, 2.35, "2026-07-01", "Europe/Paris", 120],
+    ["New York", 40.71, -74.0, "2026-12-01", "America/New_York", -300],
+    ["Kathmandu", 27.7, 85.32, "2026-12-01", "Asia/Kathmandu", 345],
+  ])("puts a day in %s on its local clock, from coordinates", (_label, lat, lng, date, zone, offset) => {
     const input = {
       tripPlan: {
-        title: "Offsets",
-        startDate: "2026-11-20",
-        endDate: "2026-11-22",
+        title: "Zones",
+        startDate: date,
+        endDate: date,
         itinerary: {
           sections: [
-            { date: "2026-11-20", blocks: [{ id: 1, type: "place", place: { place_id: "unknown", name: "Unknown" } }] },
-            { date: "2026-11-21", blocks: [
-              { id: 2, type: "place", place: { place_id: "first", name: "First" } },
-              { id: 3, type: "place", place: { place_id: "local", name: "Local", utc_offset: offset } },
-              { id: 4, type: "place", place: { place_id: "other", name: "Other", utc_offset: -60 } },
-            ] },
-            { date: "2026-11-22", blocks: [{ id: 5, type: "place", place: { place_id: "same", name: "Same", utc_offset: offset } }] },
+            { date, blocks: [{ id: 1, type: "place", place: { place_id: "here", name: "Here", geometry: { location: { lat, lng } } } }] },
           ],
         },
       },
     };
     const { bundle } = normaliseWanderlog(input, { sourceKind: "cli-json", sourceText: JSON.stringify(input) });
-    expect(bundle.places["google-place:local"]?.utcOffsetMinutes).toBe(offset);
-    expect(bundle.places["google-place:first"]?.utcOffsetMinutes).toBeUndefined();
-    expect(bundle.days.map((day) => ({ timezone: day.timezone, offset: day.utcOffsetMinutes }))).toEqual(
-      Array.from({ length: 3 }, () => ({ timezone, offset })),
-    );
+    expect(bundle.places["google-place:here"]?.timeZone).toBe(zone);
+    expect(bundle.days[0]).toMatchObject({ timezone: zone, utcOffsetMinutes: offset });
   });
 
   it("creates an allow-listed TripBundle", () => {
@@ -128,8 +118,8 @@ describe("normaliser", () => {
 
     expect(bundle.trip.title).toBe("Example trip");
     expect(bundle.days).toHaveLength(1);
-    expect(bundle.days[0]?.timezone).toBe("UTC");
-    expect(bundle.days[0]?.utcOffsetMinutes).toBeUndefined();
+    expect(bundle.days[0]?.timezone).toBe("Asia/Tokyo");
+    expect(bundle.days[0]?.utcOffsetMinutes).toBe(540);
     expect(bundle.days[0]?.items).toHaveLength(3);
     expect(Object.keys(bundle.places)).toHaveLength(2);
     expect(Object.keys(bundle.routeLegs)).toHaveLength(1);

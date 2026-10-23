@@ -77,7 +77,9 @@ export const PlaceSchema = v.object({
   locality: optionalString,
   latitude: optionalNumber,
   longitude: optionalNumber,
-  /** Local time minus UTC, in minutes. */
+  /** IANA zone from the coordinates, e.g. "Asia/Tokyo". */
+  timeZone: optionalString,
+  /** Local time minus UTC, in minutes, as Google gave it when fetched. */
   utcOffsetMinutes: optionalNumber,
   rating: optionalNumber,
   ratingCount: optionalNumber,

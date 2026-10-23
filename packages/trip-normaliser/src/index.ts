@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { offsetMinutes, zoneAt } from "./time-zones.js";
 import {
   parseTripBundle,
   type DayItem,
@@ -230,6 +231,8 @@ function placeFromBlock(
   if ((override?.publishAddress ?? true) && locality) place.locality = locality;
   if (latitude !== undefined) place.latitude = latitude;
   if (longitude !== undefined) place.longitude = longitude;
+  const timeZone = zoneAt(latitude, longitude);
+  if (timeZone) place.timeZone = timeZone;
   const utcOffsetMinutes = asNumber(rawPlace.utc_offset);
   if (utcOffsetMinutes !== undefined) place.utcOffsetMinutes = utcOffsetMinutes;
   const rating = asNumber(rawPlace.rating);
@@ -472,21 +475,19 @@ export function normaliseWanderlog(
   }
 
   addGlobalFlights(daysByDate, tripPlan, places, options.overrides, warnings);
-  const offsetCounts = new Map<number, number>();
+  // Each day keeps the clock of its first stop, else the trip's usual zone.
+  const zoneCounts = new Map<string, number>();
   for (const place of Object.values(places)) {
-    const offset = place.utcOffsetMinutes;
-    if (offset !== undefined) offsetCounts.set(offset, (offsetCounts.get(offset) ?? 0) + 1);
+    if (place.timeZone) zoneCounts.set(place.timeZone, (zoneCounts.get(place.timeZone) ?? 0) + 1);
   }
-  const tripOffset = [...offsetCounts].sort((left, right) => right[1] - left[1])[0]?.[0];
+  const tripZone = [...zoneCounts].sort((left, right) => right[1] - left[1])[0]?.[0];
   const routeLegs = routesFrom(resources, places, warnings);
   for (const day of daysByDate.values()) {
-    const offset = day.map.orderedPlaceIds
-      .map((id) => places[id]?.utcOffsetMinutes)
-      .find((value) => value !== undefined) ?? tripOffset;
-    if (offset !== undefined) {
-      day.utcOffsetMinutes = offset;
-      if (offset % 60 === 0) day.timezone = `Etc/GMT${offset > 0 ? "-" : "+"}${Math.abs(offset / 60)}`;
-    }
+    const zone =
+      day.map.orderedPlaceIds.map((id) => places[id]?.timeZone).find((value) => value !== undefined) ?? tripZone;
+    const offset = zone ? offsetMinutes(zone, day.date) : undefined;
+    if (zone) day.timezone = zone;
+    if (offset !== undefined) day.utcOffsetMinutes = offset;
     day.map.routeLegIds = Object.values(routeLegs)
       .filter((leg) => day.map.orderedPlaceIds.includes(leg.fromPlaceId) && day.map.orderedPlaceIds.includes(leg.toPlaceId))
       .map((leg) => leg.id);

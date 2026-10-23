@@ -17,6 +17,7 @@ import {
 } from "./line-names.js";
 import { curateDepartureBoard } from "./curated-timetables.js";
 import { translateNames, type TranslationReport } from "./translate.js";
+import { offsetMinutes } from "./time-zones.js";
 
 /**
  * Departure options for the legs that need them, fetched at pull time and
@@ -156,8 +157,11 @@ export async function attachDepartures(
       return cache[key];
     }
     report.requested[sample.provider] += 1;
-    // Use UTC when the origin's offset is unknown.
-    const utcOffsetMinutes = from.utcOffsetMinutes ?? 0;
+    // The origin's clock on the day asked about; UTC only when nothing is known.
+    const utcOffsetMinutes =
+      (from.timeZone ? offsetMinutes(from.timeZone, sample.date, sample.time) : undefined) ??
+      from.utcOffsetMinutes ??
+      0;
     try {
       const options =
         sample.provider === "google"
