@@ -611,35 +611,7 @@ p {
   color: var(--ink-muted);
 }
 
-.day-section__chevron {
-  width: 0.6rem;
-  height: 0.6rem;
-  margin-right: calc(var(--pad) + 0.3rem);
-  border-right: 2px solid var(--ink-muted);
-  border-bottom: 2px solid var(--ink-muted);
-  transform: rotate(-45deg);
-  transition: transform 160ms ease;
-}
-
-.day-section__chevron.is-open {
-  transform: rotate(45deg) translate(-2px, -2px);
-}
-
-.day-section--collapsed {
-  padding-bottom: 0.5rem;
-}
-
-.day-section--collapsed + .day-section {
-  padding-top: 0.9rem;
-}
-
-.day-section--collapsed .day-section__header {
-  margin-bottom: 0;
-}
-
-.day-section--collapsed .day-section__title {
-  font-size: var(--fs-name);
-}
+/* A folded route still leaves the summary, so the day keeps its full size. */
 
 .day-part {
   display: grid;
@@ -651,6 +623,60 @@ p {
   padding-bottom: 0.3rem;
   border-bottom: var(--hairline);
   color: var(--ink-muted);
+}
+
+/* "Day route" is the fold: the label, the stop count while folded, a chevron. */
+.day-part__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.4rem;
+  padding: 0.3rem 0 0.4rem;
+  border: 0;
+  border-bottom: var(--hairline);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.day-part__count {
+  margin-left: auto;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+
+.day-part__chevron {
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin: 0 0.35rem 0.2rem auto;
+  border-right: 1.5px solid var(--ink-muted);
+  border-bottom: 1.5px solid var(--ink-muted);
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.day-part__count + .day-part__chevron {
+  margin-left: 0.2rem;
+}
+
+.day-part__chevron.is-open {
+  transform: translateY(0.2rem) rotate(225deg);
+}
+
+/* Folded, the route is a single line above the day's divider: no rule of its own. */
+.day-part__toggle[aria-expanded="false"] {
+  border-bottom-color: transparent;
+}
+
+.day-part:has(> .day-part__toggle[aria-expanded="false"]) {
+  margin-bottom: 0.25rem;
+}
+
+.day-part__toggle:focus-visible {
+  outline: 2px solid var(--kind-travel);
+  outline-offset: 2px;
 }
 
 .day-part > *,

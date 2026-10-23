@@ -1,11 +1,13 @@
 import { createSignal } from "solid-js";
 
 /**
- * Which days are folded. Only explicit choices are stored; a day with no
- * choice is folded once it is in the past, so the trip opens on what is next.
- * Per device, like the theme: it is a reading preference, not trip data.
+ * Which days have their route folded; every day's summary is always shown.
+ * Only explicit choices are stored; with no choice, a route is open only on
+ * the day itself, so the trip reads as a list of summaries with today's
+ * route spelled out. Per device, like the theme: a reading preference, not
+ * trip data. (A new key: the old one stored whole-day folds.)
  */
-const STORAGE_KEY = "travel-companion:collapsed-days";
+const STORAGE_KEY = "travel-companion:collapsed-routes";
 
 type Choices = Record<string, boolean>;
 
@@ -29,7 +31,7 @@ function localToday(): string {
 }
 
 export function isDayCollapsed(dayId: string, date: string): boolean {
-  return choices()[dayId] ?? date < localToday();
+  return choices()[dayId] ?? date !== localToday();
 }
 
 export function setDayCollapsed(dayId: string, collapsed: boolean): void {

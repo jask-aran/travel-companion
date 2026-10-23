@@ -275,11 +275,11 @@ export function DaySection(props: {
   const bodyId = () => `body-${props.day.id}`;
 
   /**
-   * The body stays mounted while it folds shut, so it can animate out, and
-   * is unmounted after: a folded day costs nothing, photos included.
+   * The route stays mounted while it folds shut, so it can animate out, and
+   * is unmounted after: a folded route costs nothing, photos included.
    */
   const [shown, setShown] = createSignal(!collapsed());
-  let body: HTMLDivElement | undefined;
+  let body: HTMLOListElement | undefined;
   createEffect(
     on(
       collapsed,
@@ -307,8 +307,9 @@ export function DaySection(props: {
       id={props.day.id}
       aria-labelledby={`heading-${props.day.id}`}
     >
-      {/* The whole header is the fold control: a big target, and the title
-          stays the section's accessible name. */}
+      {/* The whole header opens and closes the day's route (the summary is
+          always shown): a big target, and the title stays the section's
+          accessible name. */}
       <button
         type="button"
         class="day-section__header"
@@ -341,11 +342,9 @@ export function DaySection(props: {
             {(subtitle) => <p class="day-section__subtitle">{formatArrows(subtitle())}</p>}
           </Show>
         </div>
-        <span class="day-section__chevron" classList={{ "is-open": !collapsed() }} aria-hidden="true" />
       </button>
 
-      <Show when={shown()}>
-        <div class="day-section__body" id={bodyId()} ref={body}>
+      <div class="day-section__body">
           {/* The shape of the day up front: how much of it is moving, where
               you sleep, whether you fly. An AI-written summary will sit
               between the figures and the bookings. */}
@@ -471,8 +470,23 @@ export function DaySection(props: {
           </Show>
           <Show when={routeItems().length > 0}>
             <div class="day-part">
-              <p class="day-part__label">Day route</p>
-              <ol class="timeline">
+              {/* The route is what opens: the summary above says the day's
+                  shape at a glance, the route is the detail. */}
+              <button
+                type="button"
+                class="day-part__label day-part__toggle"
+                aria-expanded={!collapsed()}
+                aria-controls={bodyId()}
+                onClick={() => setDayCollapsed(props.day.id, !collapsed())}
+              >
+                <span>Day route</span>
+                <Show when={collapsed() && stopCount() > 0}>
+                  <span class="day-part__count">{stopsLabel(stopCount())}</span>
+                </Show>
+                <span class="day-part__chevron" classList={{ "is-open": !collapsed() }} aria-hidden="true" />
+              </button>
+              <Show when={shown()}>
+              <ol class="timeline" id={bodyId()} ref={body}>
                 <Show when={wokeIn()}>
                   {(stay) => (
                     <HotelPill
@@ -528,10 +542,10 @@ export function DaySection(props: {
                   )}
                 </Show>
               </ol>
+              </Show>
             </div>
           </Show>
-        </div>
-      </Show>
+      </div>
     </section>
   );
 }

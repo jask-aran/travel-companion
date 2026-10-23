@@ -9,7 +9,7 @@ export function CollapseAll(props: {
   onToggle?: () => void;
 }) {
   const folded = () => allDaysCollapsed(props.days);
-  const label = () => (folded() ? "Expand all days" : "Collapse all days");
+  const label = () => (folded() ? "Expand all routes" : "Collapse all routes");
 
   return (
     <button
