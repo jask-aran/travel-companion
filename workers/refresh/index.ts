@@ -4,6 +4,7 @@ import { attachPlaceDetails } from "../../packages/trip-normaliser/src/place-det
 import { normaliseCompleteWanderlog } from "../../packages/trip-normaliser/src/complete.js";
 import { decryptTrip, encryptTrip, type EncryptedPayload } from "../../apps/web/src/lib/trip-crypto.js";
 import { MEDIA_ROUTES, mediaToken, mediaUpstream } from "../../apps/web/src/lib/media.js";
+import { departureTargets } from "../../apps/web/src/lib/departure-targets.js";
 
 /**
  * Pages advanced-mode worker. Static files still come from the deployment.
@@ -68,7 +69,12 @@ function carryPhotos(next: TripBundle, previous: TripBundle | undefined): number
 
 function carryDepartures(next: TripBundle, previous: TripBundle | undefined): number {
   if (!previous?.departures) return 0;
-  const legs = new Set(Object.values(next.routeLegs).map((leg) => `${leg.fromPlaceId}>${leg.toPlaceId}`));
+  // Every leg that still gets a board, including the airport transfers the
+  // app adds where Wanderlog has no leg (a flight's airports aren't stops).
+  const legs = new Set([
+    ...Object.values(next.routeLegs).map((leg) => `${leg.fromPlaceId}>${leg.toPlaceId}`),
+    ...departureTargets(next).map((target) => target.key),
+  ]);
   const kept = Object.entries(previous.departures).filter(([key]) => legs.has(key));
   if (kept.length) next.departures = Object.fromEntries(kept);
   return kept.length;
