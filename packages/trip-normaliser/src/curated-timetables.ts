@@ -87,11 +87,12 @@ type ScheduledRide = {
  * target is missed rather than go blank, the first couple of hours after.
  */
 function withinWindow(ride: ScheduledRide, board: DepartureBoard): boolean {
-  const target = clockMinutes(board.target.time);
   if (board.target.kind === "depart") {
+    const target = clockMinutes(board.target.time);
     const depart = clockMinutes(ride.depart);
     return depart >= target && depart <= target + 180;
   }
+  const target = clockMinutes(board.target.until ?? board.target.time);
   const arrive = clockMinutes(ride.arrive);
   return arrive >= target - 180 && arrive <= target + 120;
 }
@@ -144,6 +145,7 @@ function scheduledOption(option: DepartureOption, rides: ScheduledRide[]): Depar
     departTime: first.departTime,
     arriveTime: last.arriveTime,
     minutes: durationBetween(first.departTime, last.arriveTime),
+    ...(option.walkMinutes !== undefined ? { walkMinutes: option.walkMinutes } : {}),
     segments,
   };
 }

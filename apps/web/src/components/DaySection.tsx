@@ -1,5 +1,5 @@
 import { For, Show, createEffect, createMemo, createSignal, on } from "solid-js";
-import type { DayItem, RouteLeg, TripBundle, TripDay } from "@travel-companion/trip-schema";
+import type { DayItem, DepartureOption, RouteLeg, TripBundle, TripDay } from "@travel-companion/trip-schema";
 import {
   formatArrows,
   formatDayHeading,
@@ -16,7 +16,8 @@ import {
   type LodgingSlot,
 } from "../lib/lodging";
 import { bindFlights } from "../lib/flight-binding";
-import { dayTravelSeconds, dayWalking, stopsBetween, type RouteLegIndex } from "../lib/route-legs";
+import { dayTravelSeconds, dayWalking, isWaypoint, stopsBetween, type RouteLegIndex } from "../lib/route-legs";
+import { leaveFor, pickDeparture, readyAfter } from "../lib/departure-pick";
 import { dayRouting, legOutOf as legOutOfDay } from "../lib/day-routing";
 import { departureKey } from "../lib/departure-targets";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
@@ -92,6 +93,44 @@ export function DaySection(props: {
   const sleepsIn = () => routing().sleepsIn;
   const legs = () => routing().legs;
   const endLeg = () => routing().endLeg;
+  /** Departures for a leg, shown where you take it: on the day route. */
+  const boardFor = (leg: RouteLeg) => props.bundle.departures?.[departureKey(leg)];
+  /**
+   * Each leg's recommended departure, in route order. Where a ride ends at a
+   * station and the next leaves from it, the next can't leave before the
+   * first arrives: that is how an impossible connection shows up.
+   */
+  const legPlans = createMemo(() => {
+    const plans = new Map<string, { notBefore?: string; option?: DepartureOption }>();
+    const ordered: [string, RouteLeg][] = [];
+    for (const item of routeItems()) {
+      const leg = item.type === "place" && !binding().supersededLegs.has(item.id) ? legs().get(item.id) : undefined;
+      if (leg) ordered.push([item.id, leg]);
+    }
+    const last = endLeg();
+    if (last) ordered.push(["end", last]);
+
+    let ready: { at: string; placeId: string } | undefined;
+    for (const [key, leg] of ordered) {
+      const board = boardFor(leg);
+      const notBefore = ready?.placeId === leg.fromPlaceId ? ready.at : undefined;
+      ready = undefined;
+      if (!board) continue;
+      const { option } = pickDeparture(board, notBefore);
+      plans.set(key, { ...(notBefore ? { notBefore } : {}), ...(option ? { option } : {}) });
+      const at = readyAfter(option);
+      if (at && isWaypoint(props.bundle.places[leg.toPlaceId])) ready = { at, placeId: leg.toPlaceId };
+    }
+    return plans;
+  });
+  /** Out of the hotel by the recommended train, less the walk to it. */
+  const boardLeave = createMemo(() => {
+    const first = routeItems().find((item) => item.type === "place");
+    const leg = first ? legs().get(first.id) : undefined;
+    if (!first || !leg || leg.fromPlaceId !== wokeIn()?.placeId) return undefined;
+    return leaveFor(legPlans().get(first.id)?.option);
+  });
+
   const placeName = (placeId: string) => props.bundle.places[placeId]?.name;
   /** Today's role for the hotel at each end of the route, for its pill. */
   /**
@@ -99,6 +138,7 @@ export function DaySection(props: {
    * otherwise in time for the first stop you gave a time in Wanderlog.
    */
   const leaveHotelBy = () => {
+    if (boardLeave()) return boardLeave();
     if (checkOutBy()) return checkOutBy();
     // Notes can sit above the first stop; the leg runs to the first place.
     const first = routeItems().find((item) => item.type === "place");
@@ -114,12 +154,12 @@ export function DaySection(props: {
   const leavesFromCheckOut = (timing: FlightTiming | undefined) =>
     Boolean(timing?.fromHotel) && wokeInSlot()?.role === "check-out";
   /** Shown on the check-out band rather than the flight. */
-  const checkOutBy = createMemo(
-    () =>
-      flights()
-        .map((flight) => timings().get(flight.id))
-        .find(leavesFromCheckOut)?.leaveBy,
-  );
+  const checkOutBy = createMemo(() => {
+    const timing = flights()
+      .map((flight) => timings().get(flight.id))
+      .find(leavesFromCheckOut);
+    return timing ? (boardLeave() ?? timing.leaveBy) : undefined;
+  });
   const leaveLabel = (timing: FlightTiming | undefined) => {
     const from = timing?.legs[0]?.fromPlaceId;
     if (!from || leavesFromCheckOut(timing)) return undefined;
@@ -146,9 +186,6 @@ export function DaySection(props: {
   });
 
   const journeys = () => routing().journeys;
-  /** Departure times fetched at pull time for a summary leg, if any. */
-  /** Departures for a leg, shown where you take it: on the day route. */
-  const boardFor = (leg: RouteLeg) => props.bundle.departures?.[departureKey(leg)];
 
   const stopsLabel = (count: number) =>
     count === 0 ? "No stops" : `${count} stop${count === 1 ? "" : "s"}`;
@@ -427,7 +464,12 @@ export function DaySection(props: {
                       </Show>
                       <Show when={!binding().supersededLegs.has(item.id) && legs().get(item.id)}>
                         {(leg) => (
-                          <RouteLegRow leg={leg()} places={props.bundle.places} board={boardFor(leg())} />
+                          <RouteLegRow
+                            leg={leg()}
+                            places={props.bundle.places}
+                            board={boardFor(leg())}
+                            notBefore={legPlans().get(item.id)?.notBefore}
+                          />
                         )}
                       </Show>
                       <DayItemRow
@@ -444,7 +486,14 @@ export function DaySection(props: {
                   )}
                 </For>
                 <Show when={endLeg()}>
-                  {(leg) => <RouteLegRow leg={leg()} places={props.bundle.places} board={boardFor(leg())} />}
+                  {(leg) => (
+                    <RouteLegRow
+                      leg={leg()}
+                      places={props.bundle.places}
+                      board={boardFor(leg())}
+                      notBefore={legPlans().get("end")?.notBefore}
+                    />
+                  )}
                 </Show>
                 <Show when={sleepsIn()}>
                   {(stay) => (

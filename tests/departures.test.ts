@@ -42,6 +42,33 @@ describe("parseGoogleRoutes", () => {
     const options = parseGoogleRoutes(fixture<GoogleRoutesResponse>("google-routes-gimpo.json"));
     expect(options.some((option) => option.segments.some((segment) => segment.kind === "bus"))).toBe(false);
   });
+
+  it("counts the walk before the first ride, rounded up to minutes", () => {
+    const ride = (dep: string, arr: string) => ({
+      travelMode: "TRANSIT",
+      transitDetails: {
+        stopDetails: { departureTime: dep, arrivalTime: arr },
+        transitLine: { name: "AREX", vehicle: { type: "RAIL" } },
+      },
+    });
+    const [option] = parseGoogleRoutes({
+      routes: [
+        {
+          legs: [
+            {
+              steps: [
+                { travelMode: "WALK", staticDuration: "100s" },
+                { travelMode: "WALK", staticDuration: "50s" },
+                ride("2026-05-01T01:00:00Z", "2026-05-01T01:30:00Z"),
+                { travelMode: "WALK", staticDuration: "600s" },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(option?.walkMinutes).toBe(3);
+  });
 });
 
 describe("parseNavitime", () => {
@@ -52,6 +79,7 @@ describe("parseNavitime", () => {
       ["京成スカイライナー", "express"],
       ["都営大江戸線", "subway"],
     ]);
+    expect(options[0]?.walkMinutes).toBe(4);
   });
 
   it("keeps only the Hida when slower routes leave earlier and arrive later", () => {
@@ -266,8 +294,8 @@ describe("departureTargets", () => {
       time,
     }));
     expect(targets).toEqual([
-      // Out of the arrival airport, 75 minutes after an international landing.
-      { key: "nrt>shinjuku", provider: "navitime", kind: "depart", date: "2026-12-06", time: "14:05" },
+      // Out of the arrival airport, 90 minutes after an international landing.
+      { key: "nrt>shinjuku", provider: "navitime", kind: "depart", date: "2026-12-06", time: "14:20" },
       // A journey leaves when the stop before it ends.
       { key: "shinjuku>nagoya", provider: "navitime", kind: "depart", date: "2026-12-06", time: "16:00" },
     ]);

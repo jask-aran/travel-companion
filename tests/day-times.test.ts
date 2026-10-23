@@ -55,17 +55,23 @@ describe("flight timing", () => {
   ]);
 
   it("works back from departure through the leg into the airport", () => {
-    // 08:30 − 2 h = 06:30, − 57 min = 05:33, rounded down to 05:30.
+    // 08:30 − 3 h = 05:30, − 57 min = 04:33, rounded down to 04:30.
     expect(flightTiming(flight, items, legs, places, "hotel")).toEqual({
-      airportBy: "06:30",
-      leaveBy: "05:30",
+      airportBy: "05:30",
+      airportUntil: "06:30",
+      leaveBy: "04:30",
       legs: [legs.get("s1")],
       fromHotel: true,
     });
   });
 
   it("gives only the airport time when nothing routes into it", () => {
-    expect(flightTiming(flight, [], legs, places)).toEqual({ airportBy: "06:30", legs: [], fromHotel: false });
+    expect(flightTiming(flight, [], legs, places)).toEqual({
+      airportBy: "05:30",
+      airportUntil: "06:30",
+      legs: [],
+      fromHotel: false,
+    });
   });
 
   describe("through a station on the way", () => {
@@ -89,7 +95,7 @@ describe("flight timing", () => {
     it("traces the transfer back to the hotel", () => {
       // 06:30 − 86 − 4 = 05:00.
       const timing = flightTiming(flight, via("exit"), chainLegs("exit"), stationPlaces, "hotel");
-      expect(timing?.leaveBy).toBe("05:00");
+      expect(timing?.leaveBy).toBe("04:00");
       expect(timing?.fromHotel).toBe(true);
       expect(timing?.legs.map((leg) => leg.id)).toEqual(["a", "b"]);
     });
@@ -105,18 +111,18 @@ describe("flight timing", () => {
       const evening = { ...flight, departTime: "20:10" };
       const timing = flightTiming(evening, via("exit"), chainLegs("exit"), stationPlaces, "hotel");
       expect(timing?.fromHotel).toBe(true);
-      expect(timing?.leaveBy).toBe("16:40");
+      expect(timing?.leaveBy).toBe("15:40");
     });
   });
 
   it("uses the shorter margin only when both airports share a country", () => {
     const domestic = { ...flight, arrivePlaceId: "itm" };
-    expect(flightTiming(domestic, [], legs, places)?.airportBy).toBe("07:30");
+    expect(flightTiming(domestic, [], legs, places)?.airportBy).toBe("07:00");
     const unknown = { ...flight, arrivePlaceId: "nowhere" };
-    expect(flightTiming(unknown, [], legs, places)?.airportBy).toBe("06:30");
+    expect(flightTiming(unknown, [], legs, places)?.airportBy).toBe("05:30");
   });
 
   it("wraps before midnight", () => {
-    expect(flightTiming({ ...flight, departTime: "01:00" }, [], legs, places)?.airportBy).toBe("23:00");
+    expect(flightTiming({ ...flight, departTime: "01:00" }, [], legs, places)?.airportBy).toBe("22:00");
   });
 });

@@ -290,7 +290,8 @@ function itemFromBlock(
     case "place": {
       const place = placeFromBlock(block, overrides, warnings);
       if (!place) return undefined;
-      places[place.id] ??= place;
+      // A stop's own block beats the bare airport a flight registered first.
+      if (!places[place.id]?.sourceBlockId) places[place.id] = place;
       if (block.hotel) return { ...common, type: "lodging", placeId: place.id, name: place.name };
       return { ...common, type: "place", placeId: place.id };
     }
@@ -325,9 +326,17 @@ function itemFromBlock(
       assign("arriveDate", asString(arrive?.date));
       assign("confirmationNumber", asString(block.confirmationNumber));
 
+      /**
+       * The flight's airports as places in their own right, so a flight can
+       * be routed to and from without the airport also listed as a stop.
+       */
       const airportPlaceId = (airport: ReturnType<typeof asRecord>) => {
-        const id = asString(asRecord(airport?.googlePlace)?.place_id);
-        return id ? `google-place:${id}` : undefined;
+        const googlePlace = asRecord(airport?.googlePlace);
+        if (!googlePlace) return undefined;
+        const place = placeFromBlock({ place: googlePlace }, overrides, []);
+        if (!place || place.id.startsWith("source-block:")) return undefined;
+        places[place.id] ??= place;
+        return place.id;
       };
       assign("departPlaceId", airportPlaceId(departAirportRecord));
       assign("arrivePlaceId", airportPlaceId(arriveAirportRecord));

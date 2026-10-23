@@ -204,6 +204,8 @@ export const DepartureOptionSchema = v.object({
   arriveTime: clockTime,
   /** Door to door, walking included. */
   minutes: v.number(),
+  /** On foot before the first ride, so leaving can be timed from boarding. */
+  walkMinutes: optionalNumber,
   segments: v.array(DepartureSegmentSchema),
 });
 
@@ -215,7 +217,17 @@ export const DepartureOptionSchema = v.object({
 export const DepartureBoardSchema = v.object({
   provider: v.picklist(["google", "navitime"]),
   /** "arrive" by the time (a flight, a booked start) or "depart" at it. */
-  target: v.object({ kind: v.picklist(["arrive", "depart"]), date: isoDate, time: clockTime }),
+  target: v.object({
+    kind: v.picklist(["arrive", "depart"]),
+    date: isoDate,
+    time: clockTime,
+    /**
+     * For "arrive": a window rather than a deadline. Options arriving from
+     * `time` up to `until` are all fine (at the airport 3 h to 2 h before a
+     * flight), so the board lists them for you to choose.
+     */
+    until: v.optional(clockTime),
+  }),
   fetchedAt: v.string(),
   /** NAVITIME's marketplace plan gives averaged, not timetabled, times. */
   approximate: v.optional(v.boolean()),

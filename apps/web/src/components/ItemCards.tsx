@@ -1,4 +1,4 @@
-import { For, Show, createSignal, type JSX } from "solid-js";
+import { For, Show, createMemo, createSignal, type JSX } from "solid-js";
 import type {
   DepartureBoard,
   DepartureOption,
@@ -27,6 +27,7 @@ import {
   noteRestatesNames,
 } from "../lib/format";
 import { notesPreview } from "../lib/rich-notes";
+import { pickDeparture } from "../lib/departure-pick";
 import { RichNotes } from "./RichNotes";
 import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "../lib/maps";
 import { photoAttribution, placePhotoUrl, staticMapUrl } from "../lib/place-photo";
@@ -101,6 +102,8 @@ export function RouteLegRow(props: {
   showEnds?: boolean;
   /** Departure times fetched for this leg, shown beneath it. */
   board?: DepartureBoard | undefined;
+  /** When the ride before gets you to this leg's start (see departure-pick). */
+  notBefore?: string | undefined;
 }) {
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
@@ -181,7 +184,9 @@ export function RouteLegRow(props: {
           </a>
         )}
       </Show>
-      <Show when={props.board}>{(board) => <DepartureBoardView board={board()} />}</Show>
+      <Show when={props.board}>
+        {(board) => <DepartureBoardView board={board()} notBefore={props.notBefore} />}
+      </Show>
     </li>
   );
 }
@@ -290,19 +295,13 @@ function DepartureSteps(props: { option: DepartureOption; timed: boolean }) {
  * (Japan) has none, only routes and typical ride times, so those boards pick
  * between routes and show no clock times rather than invented departures.
  */
-function DepartureBoardView(props: { board: DepartureBoard }) {
+function DepartureBoardView(props: { board: DepartureBoard; notBefore?: string | undefined }) {
   const [open, setOpen] = createSignal(false);
   const [chosen, setChosen] = createSignal<DepartureOption>();
   const target = () => props.board.target;
   const timed = () => !props.board.approximate;
-  const pick = () => {
-    const options = props.board.options;
-    if (target().kind === "arrive") {
-      const fits = options.filter((option) => option.arriveTime <= target().time);
-      return fits.at(-1) ?? options[0];
-    }
-    return options.find((option) => option.departTime >= target().time) ?? options.at(-1);
-  };
+  const picked = createMemo(() => pickDeparture(props.board, props.notBefore));
+  const pick = () => picked().option;
   /** Routes for an untimed board: one per chain of lines, quickest first. */
   const routes = () => {
     const byChain = new Map<string, DepartureOption>();
@@ -312,23 +311,19 @@ function DepartureBoardView(props: { board: DepartureBoard }) {
     }
     return [...byChain.values()].sort((a, b) => a.minutes - b.minutes);
   };
-  const choices = () => (timed() ? props.board.options : routes());
+  const choices = () => (timed() ? picked().listed : routes());
   const shown = () => chosen() ?? (timed() ? pick() : routes()[0]);
   const every = () => frequencyOf(props.board.options, shown()?.segments[0]?.name);
-  const missedTarget = () => {
-    const option = pick();
-    if (props.board.source?.type !== "curated" || !option) return undefined;
-    if (target().kind === "arrive" && option.arriveTime > target().time) {
-      return `Nothing arrives by ${target().time} · first in ${option.arriveTime}`;
-    }
-    if (target().kind === "depart" && option.departTime < target().time) {
-      return `Nothing departs after ${target().time} · last at ${option.departTime}`;
-    }
-    return undefined;
+  /** Estimated boards can't say a train is missed; only timetables can. */
+  const missedTarget = () => (timed() ? picked().missed : undefined);
+  const targetLabel = () => {
+    const { kind, time, until } = target();
+    if (kind === "depart") return `Leave from ${time}`;
+    return until ? `Arrive ${time}–${until}` : `Arrive by ${time}`;
   };
   const heading = () =>
     [
-      missedTarget() ?? `${target().kind === "arrive" ? "Arrive by" : "Leave from"} ${target().time}`,
+      missedTarget() ?? targetLabel(),
       timed() && every() ? `every ~${every()} min` : undefined,
     ]
       .filter(Boolean)
@@ -789,9 +784,8 @@ export function FlightRow(props: {
                 {(timing) => (
                   <span class="flight-by">
                     <Icon name="clock" />
-                    <Hidden>{`At ${props.item.departAirport ?? "the airport"} by `}</Hidden>
-                    <span aria-hidden="true">by </span>
-                    <strong>{timing().airportBy}</strong>
+                    <Hidden>{`At ${props.item.departAirport ?? "the airport"} between `}</Hidden>
+                    <strong>{timing().airportBy}</strong>–{timing().airportUntil}
                   </span>
                 )}
               </Show>

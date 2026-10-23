@@ -18,14 +18,15 @@ export type DepartureTarget = {
   kind: DepartureBoard["target"]["kind"];
   date: string;
   time: string;
+  /** For "arrive": any arrival from `time` up to this is fine. */
+  until?: string;
 };
 
 /**
- * Off the plane to on a train. International adds immigration and customs
- * on top of bags and finding the platform; an early board is cheap, missing
- * the first suggestion is not.
+ * Off the plane to on a train: from 90 minutes after an international
+ * landing (immigration, customs, bags, the platform), 30 after a domestic one.
  */
-export const ARRIVAL_MARGIN_MINUTES = { international: 75, domestic: 30 };
+export const ARRIVAL_MARGIN_MINUTES = { international: 90, domestic: 30 };
 
 export const departureKey = (leg: Pick<RouteLeg, "fromPlaceId" | "toPlaceId">) =>
   `${leg.fromPlaceId}>${leg.toPlaceId}`;
@@ -54,13 +55,23 @@ export function departureTargets(bundle: TripBundle): DepartureTarget[] {
     kind: DepartureTarget["kind"],
     date: string | undefined,
     time: string | undefined,
+    until?: string,
   ) => {
     if (!leg || leg.travelMode !== "transit" || !date || !time) return;
     const provider = providerFor(bundle.places[leg.fromPlaceId]);
     if (!provider) return;
     const key = departureKey(leg);
     if (targets.has(key)) return;
-    targets.set(key, { key, fromPlaceId: leg.fromPlaceId, toPlaceId: leg.toPlaceId, provider, kind, date, time });
+    targets.set(key, {
+      key,
+      fromPlaceId: leg.fromPlaceId,
+      toPlaceId: leg.toPlaceId,
+      provider,
+      kind,
+      date,
+      time,
+      ...(until ? { until } : {}),
+    });
   };
 
   for (const day of bundle.days) {
@@ -71,7 +82,7 @@ export function departureTargets(bundle: TripBundle): DepartureTarget[] {
       // the station before it needs no timetable.
       const timing = routing.timings.get(flight.id);
       const ride = timing?.legs.findLast((leg) => leg.travelMode !== "walking");
-      add(ride, "arrive", flight.departDate ?? day.date, timing?.airportBy);
+      add(ride, "arrive", flight.departDate ?? day.date, timing?.airportBy, timing?.airportUntil);
 
       const out = legOutOf(routing, flight.arrivePlaceId);
       const margin = ARRIVAL_MARGIN_MINUTES[isDomestic(flight, bundle.places) ? "domestic" : "international"];

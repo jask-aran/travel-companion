@@ -57,12 +57,15 @@ export function sunTimes(
 export const sunsetTime = (...args: Parameters<typeof sunTimes>) => sunTimes(...args).sunset;
 
 /**
- * How long before departure to be at the airport. Domestic only when both
- * airports are known places in the same country; anything unsure gets the
- * international margin, since early is the safe mistake.
+ * How long before departure to be at the airport, at the earliest: the
+ * board lists trains arriving from then until `AIRPORT_WINDOW_MINUTES`
+ * later (3 h to 2 h before an international flight), and you pick. Domestic
+ * only when both airports are known places in the same country; anything
+ * unsure gets the international margin, since early is the safe mistake.
  */
-export const INTERNATIONAL_BUFFER_MINUTES = 120;
-export const DOMESTIC_BUFFER_MINUTES = 60;
+export const INTERNATIONAL_BUFFER_MINUTES = 180;
+export const DOMESTIC_BUFFER_MINUTES = 90;
+export const AIRPORT_WINDOW_MINUTES = 60;
 
 const country = (place?: Place) => place?.address?.split(",").at(-1)?.trim();
 
@@ -86,8 +89,10 @@ export function shiftClock(time: string, minutes: number): string | undefined {
 }
 
 export type FlightTiming = {
-  /** Be at the departure airport by this local time. */
+  /** At the departure airport from this local time... */
   airportBy: string;
+  /** ...until this one, the latest that's comfortable. */
+  airportUntil: string;
   /** Leave by this time, when the day routes into the airport. */
   leaveBy?: string;
   /** The transfer to the airport, in travel order. Empty when nothing routes there. */
@@ -120,19 +125,25 @@ export function flightTiming(
   hotelPlaceId?: string,
 ): FlightTiming | undefined {
   if (!flight.departTime) return undefined;
-  const airportBy = shiftClock(flight.departTime, -bufferMinutes(flight, places));
-  if (!airportBy) return undefined;
+  const buffer = bufferMinutes(flight, places);
+  const airportBy = shiftClock(flight.departTime, -buffer);
+  const airportUntil = shiftClock(flight.departTime, -buffer + AIRPORT_WINDOW_MINUTES);
+  if (!airportBy || !airportUntil) return undefined;
 
   const stops = items.filter((item) => item.type === "place");
   const at = stops.findIndex((item) => item.placeId === flight.departPlaceId);
   const direct = at >= 0 ? legs.get(stops[at]!.id) : undefined;
-  if (!direct?.durationSeconds) return { airportBy, legs: [], fromHotel: false };
+  if (!direct) return { airportBy, airportUntil, legs: [], fromHotel: false };
 
   const single: FlightTiming = {
     airportBy,
+    airportUntil,
     legs: [direct],
     fromHotel: Boolean(hotelPlaceId) && direct.fromPlaceId === hotelPlaceId,
   };
+  // A transfer only the timetable knows the length of (an airport the day
+  // doesn't list): its board times the leaving.
+  if (!direct.durationSeconds) return single;
   const singleLeave = leaveTime(airportBy, [direct]);
   if (singleLeave) single.leaveBy = singleLeave;
   if (!hotelPlaceId || single.fromHotel) return single;
@@ -150,5 +161,5 @@ export function flightTiming(
 
   const leaveBy = leaveTime(airportBy, chain);
   if (!leaveBy) return single;
-  return { airportBy, leaveBy, legs: chain, fromHotel: true };
+  return { airportBy, airportUntil, leaveBy, legs: chain, fromHotel: true };
 }

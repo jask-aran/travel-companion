@@ -38,6 +38,8 @@ export type DepartureRequest = {
   kind: DepartureBoard["target"]["kind"];
   date: string;
   time: string;
+  /** For "arrive": the latest acceptable arrival; options from `time` to here are all fine. */
+  until?: string;
 };
 
 export type DepartureKeys = {
@@ -63,7 +65,7 @@ type Cache = Record<string, CacheEntry>;
 
 const CACHE_DAYS = 7;
 /** Bump when the fields parsed from an answer change, so old entries are re-asked. */
-const CACHE_VERSION = 2;
+const CACHE_VERSION = 3;
 /** Per run; the month allows 500. A full trip is about a dozen legs. */
 const NAVITIME_BUDGET = 40;
 const OPTIONS_KEPT = 8;
@@ -108,10 +110,16 @@ function shifted(time: string, minutes: number): string | undefined {
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }
 
+/** A window is asked about more densely: each ask returns only a few. */
+const WINDOW_OFFSETS_MINUTES = [0, 20, 40, 60, 80];
+
 function samplesOf(request: DepartureRequest): Sample[] {
   const direction = request.kind === "depart" ? 1 : -1;
-  return SAMPLE_OFFSETS_MINUTES[request.provider].flatMap((offset) => {
-    const time = shifted(request.time, offset * direction);
+  const offsets =
+    request.until && request.provider === "google" ? WINDOW_OFFSETS_MINUTES : SAMPLE_OFFSETS_MINUTES[request.provider];
+  return offsets.flatMap((offset) => {
+    const anchor = request.kind === "arrive" ? (request.until ?? request.time) : request.time;
+    const time = shifted(anchor, offset * direction);
     return time ? [{ ...request, time }] : [];
   });
 }
@@ -175,11 +183,17 @@ export async function attachDepartures(
     const entries = (await Promise.all(samplesOf(request).map(answer))).filter(
       (entry): entry is CacheEntry => Boolean(entry),
     );
+    entries.push(...(await windowTail(request, entries, answer)));
     const options = tidy(plausible(entries.flatMap((entry) => entry.options), request, bundle));
     if (!options.length) continue;
     const board: DepartureBoard = {
       provider: request.provider,
-      target: { kind: request.kind, date: request.date, time: request.time },
+      target: {
+        kind: request.kind,
+        date: request.date,
+        time: request.time,
+        ...(request.until ? { until: request.until } : {}),
+      },
       // The oldest answer is the one to doubt.
       fetchedAt: entries.map((entry) => entry.fetchedAt).sort()[0]!,
       ...(entries.some((entry) => entry.approximate) ? { approximate: true } : {}),
@@ -189,7 +203,13 @@ export async function attachDepartures(
     if (curated.matched) {
       // Same dominance rule as provider answers: the 17:20 that arrives 18:44
       // goes when the 17:20 into 18:23 is on the board.
-      if (curated.board) drafts[request.key] = { ...curated.board, options: tidy(curated.board.options) };
+      if (curated.board) {
+        // Held to the same window as provider answers, unless nothing in it
+        // runs: then the board shows what does, and says the window is missed.
+        const inWindow = plausible(curated.board.options, request, bundle);
+        const options = tidy(inWindow.length ? inWindow : curated.board.options);
+        drafts[request.key] = { ...curated.board, options };
+      }
       continue;
     }
     drafts[request.key] = board;
@@ -229,6 +249,28 @@ export async function attachDepartures(
 }
 
 /**
+ * Google's "arrive by" answers land well before the time asked (ask for
+ * 08:25 and the latest is in at 07:57), so the end of a window stays empty.
+ * Asking "leave at" from just after the last train found fills it.
+ */
+async function windowTail(
+  request: DepartureRequest,
+  entries: CacheEntry[],
+  answer: (sample: Sample) => Promise<CacheEntry | undefined>,
+): Promise<CacheEntry[]> {
+  if (!request.until || request.provider !== "google") return [];
+  const options = entries.flatMap((entry) => entry.options);
+  const latest = options.reduce<DepartureOption | undefined>(
+    (best, option) => (!best || option.arriveTime > best.arriveTime ? option : best),
+    undefined,
+  );
+  if (!latest || latest.arriveTime >= request.until) return [];
+  const starts = [1, 21].flatMap((minutes) => shifted(latest.departTime, minutes) ?? []);
+  const tail = await Promise.all(starts.map((time) => answer({ ...request, kind: "depart", time })));
+  return tail.filter((entry): entry is CacheEntry => Boolean(entry));
+}
+
+/**
  * Options that answer the question asked: arriving by the target or leaving
  * at or after it, and not wildly slower than Wanderlog's own estimate for the
  * leg. Without bus timetables NAVITIME routes a bus-only trip (Takayama to
@@ -245,12 +287,21 @@ function plausible(
   );
   const estimate = (leg?.durationSeconds ?? 0) / 60;
   const ceiling = estimate ? Math.max(estimate * 2, estimate + 60) : Infinity;
+  // A window (the airport, 3 h to 2 h ahead) wants what arrives within it,
+  // plus a little before so the board can start from the nearest one; the
+  // early-morning trains that would otherwise fill the board are noise.
+  const earliest = request.until ? shifted(request.time, -WINDOW_LEAD_MINUTES) : undefined;
   return options.filter(
     (option) =>
       option.minutes <= ceiling &&
-      (request.kind === "arrive" ? option.arriveTime <= request.time : option.departTime >= request.time),
+      (request.kind === "arrive"
+        ? option.arriveTime <= (request.until ?? request.time) && (!earliest || option.arriveTime >= earliest)
+        : option.departTime >= request.time),
   );
 }
+
+/** How far before an arrival window a board still lists trains. */
+const WINDOW_LEAD_MINUTES = 20;
 
 /** The provider's own name for a segment, whatever an older cache stored. */
 const localOf = (segment: DepartureSegment) => localLineName(segment.nameLocal ?? segment.name);
@@ -340,7 +391,7 @@ async function fetchGoogle(request: DepartureRequest, from: Place, to: Place, ap
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
-      "X-Goog-FieldMask": "routes.duration,routes.legs.steps.travelMode,routes.legs.steps.transitDetails",
+      "X-Goog-FieldMask": "routes.duration,routes.legs.steps.travelMode,routes.legs.steps.transitDetails,routes.legs.steps.staticDuration",
     },
     body: JSON.stringify({
       origin: waypoint(from),
@@ -366,7 +417,7 @@ type GoogleTransit = {
   transitLine?: { name?: string; nameShort?: string; color?: string; vehicle?: { type?: string } };
 };
 export type GoogleRoutesResponse = {
-  routes?: { duration?: string; legs?: { steps?: { transitDetails?: GoogleTransit }[] }[] }[];
+  routes?: { duration?: string; legs?: { steps?: { travelMode?: string; staticDuration?: string; transitDetails?: GoogleTransit }[] }[] }[];
 };
 
 /** An RFC 3339 instant as local "HH:MM". */
@@ -412,7 +463,14 @@ export function parseGoogleRoutes(response: GoogleRoutesResponse): DepartureOpti
   const options: DepartureOption[] = [];
   for (const route of response.routes ?? []) {
     const segments: DepartureSegment[] = [];
-    for (const step of route.legs?.flatMap((leg) => leg.steps ?? []) ?? []) {
+    const steps = route.legs?.flatMap((leg) => leg.steps ?? []) ?? [];
+    const firstRide = steps.findIndex((step) => step.transitDetails);
+    const walkSeconds = steps
+      .slice(0, firstRide < 0 ? 0 : firstRide)
+      .filter((step) => step.travelMode === "WALK")
+      .reduce((sum, step) => sum + (Number.parseFloat(step.staticDuration ?? "") || 0), 0);
+    const walkMinutes = Math.ceil(walkSeconds / 60);
+    for (const step of steps) {
       const transit = step.transitDetails;
       const departTime = localClock(transit?.stopDetails?.departureTime);
       const arriveTime = localClock(transit?.stopDetails?.arrivalTime);
@@ -435,7 +493,13 @@ export function parseGoogleRoutes(response: GoogleRoutesResponse): DepartureOpti
     const first = segments[0];
     const last = segments.at(-1);
     if (!first || !last) continue;
-    options.push({ departTime: first.departTime, arriveTime: last.arriveTime, minutes: span(first, last), segments });
+    options.push({
+      departTime: first.departTime,
+      arriveTime: last.arriveTime,
+      minutes: span(first, last),
+      ...(walkMinutes > 0 ? { walkMinutes } : {}),
+      segments,
+    });
   }
   return tidy(options);
 }
@@ -465,6 +529,8 @@ async function fetchNavitime(request: DepartureRequest, from: Place, to: Place, 
 type NavitimeSection = {
   type?: string;
   move?: string;
+  /** Minutes, on move sections. */
+  time?: number;
   name?: string;
   from_time?: string;
   to_time?: string;
@@ -509,6 +575,11 @@ export function parseNavitime(response: NavitimeResponse): DepartureOption[] {
   for (const item of response.items ?? []) {
     const segments: DepartureSegment[] = [];
     const sections = item.sections ?? [];
+    const moves = sections.filter((section) => section.type === "move");
+    const firstRide = moves.findIndex((section) => section.move !== "walk");
+    const walkMinutes = moves
+      .slice(0, firstRide < 0 ? 0 : firstRide)
+      .reduce((sum, section) => sum + (section.time ?? 0), 0);
     for (const [index, section] of sections.entries()) {
       if (section.type !== "move" || !section.move || section.move === "walk") continue;
       const departTime = section.from_time?.slice(11, 16);
@@ -530,7 +601,13 @@ export function parseNavitime(response: NavitimeResponse): DepartureOption[] {
     const first = segments[0];
     const last = segments.at(-1);
     if (!first || !last) continue;
-    options.push({ departTime: first.departTime, arriveTime: last.arriveTime, minutes: span(first, last), segments });
+    options.push({
+      departTime: first.departTime,
+      arriveTime: last.arriveTime,
+      minutes: span(first, last),
+      ...(walkMinutes > 0 ? { walkMinutes } : {}),
+      segments,
+    });
   }
   return tidy(options);
 }
