@@ -331,3 +331,15 @@ describe("areaOf", () => {
     expect(areaOf("1 Chome-22-2 Showamachi, 高山市 岐阜県 506-0053, Japan")).toBeUndefined();
   });
 });
+
+describe("cityOf", () => {
+  it("names the city, not the ward or the prefecture", async () => {
+    const { cityOf, formatCategory, isUntitled } = await import("../apps/web/src/lib/format.js");
+    expect(cityOf("30-3 Yeonhui-ro 1-gil, Mapo-gu, Seoul, South Korea")).toBe("Seoul");
+    expect(cityOf("Japan, 〒160-0021 Tokyo, Shinjuku City, Kabukicho, 2 Chome−14−5")).toBe("Tokyo");
+    expect(cityOf("1 Chome-1 Hanasatomachi, Takayama, Gifu 506-0026, Japan")).toBe("Takayama");
+    expect(formatCategory("establishment")).toBeUndefined();
+    expect(formatCategory("logical_transit_station")).toBe("Transit station");
+    expect(isUntitled("2026-12-04", "2026-12-04")).toBe(true);
+  });
+});

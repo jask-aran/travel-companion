@@ -5,6 +5,8 @@ import {
   formatDayHeading,
   formatDistance,
   formatDurationShort,
+  cityOf,
+  isUntitled,
   parseTripDate,
 } from "../lib/format";
 import {
@@ -224,8 +226,12 @@ export function DaySection(props: {
   /** The town the day is based in, from where you sleep. Shown even folded. */
   const baseCity = createMemo(() => {
     const stay = stayForDay(stays(), props.day.date);
-    return stay ? stayPlace(props.bundle, stay)?.locality : undefined;
+    const place = stay ? stayPlace(props.bundle, stay) : undefined;
+    return cityOf(place?.address) ?? place?.locality;
   });
+  /** An untitled day goes by where it's spent. */
+  const title = () =>
+    isUntitled(props.day.title, props.day.date) ? (baseCity() ?? formatDayHeading(props.day.date)) : props.day.title;
 
   const summarySlots = createMemo(() => daySummarySlots(plan()));
   /**
@@ -329,7 +335,7 @@ export function DaySection(props: {
             </Show>
           </p>
           <h2 class="day-section__title" id={`heading-${props.day.id}`}>
-            {formatArrows(props.day.title)}
+            {formatArrows(title())}
           </h2>
           <Show when={props.day.subtitle}>
             {(subtitle) => <p class="day-section__subtitle">{formatArrows(subtitle())}</p>}
@@ -460,6 +466,9 @@ export function DaySection(props: {
             </div>
           </Show>
 
+          <Show when={routeItems().length === 0}>
+            <p class="day-part__empty">Nothing planned yet</p>
+          </Show>
           <Show when={routeItems().length > 0}>
             <div class="day-part">
               <p class="day-part__label">Day route</p>

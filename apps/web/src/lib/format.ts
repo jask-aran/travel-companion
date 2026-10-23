@@ -120,7 +120,8 @@ export function formatRatingLabel(rating?: number, ratingCount?: number): string
 
 /** Google's place types are snake_case; a card shows them as a phrase. */
 export function formatCategory(category?: string): string | undefined {
-  if (!category) return undefined;
+  if (!category || SILENT_CATEGORIES.has(category)) return undefined;
+  if (CATEGORY_NAMES[category]) return CATEGORY_NAMES[category];
   const words = category.replace(/_/g, " ").trim();
   return words ? words.charAt(0).toUpperCase() + words.slice(1) : undefined;
 }
@@ -194,6 +195,26 @@ export function areaOf(address?: string): string | undefined {
       : unique.slice(-2);
   return area.join(", ") || undefined;
 }
+
+/**
+ * The city alone, for a day's header: "Seoul" for "Mapo-gu, Seoul", "Tokyo"
+ * for "Shinjuku City, Tokyo", and "Takayama" for "Takayama, Gifu", where
+ * the second part is the prefecture.
+ */
+export function cityOf(address?: string): string | undefined {
+  const [first, second] = areaOf(address)?.split(", ") ?? [];
+  return first && second && DISTRICT.test(first) ? second : first;
+}
+
+/** Wanderlog titles an untitled day with its date; that says nothing. */
+export const isUntitled = (title: string, date: string) => !title.trim() || title === date;
+
+/**
+ * Google's types that say nothing about a place ("establishment"), and the
+ * ones worth saying differently.
+ */
+const SILENT_CATEGORIES = new Set(["establishment", "point_of_interest", "premise", "compound_building"]);
+const CATEGORY_NAMES: Record<string, string> = { logical_transit_station: "Transit station" };
 
 /**
  * Wanderlog writes the passenger list into a flight's free-text note as well

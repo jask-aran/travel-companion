@@ -92,3 +92,34 @@ export async function translateNames(
   await writeFile(cachePath, `${JSON.stringify(store, null, 2)}\n`, "utf8");
   return { translations: Object.fromEntries(wanted.filter((text) => text in cache).map((text) => [text, cache[text]!])), report };
 }
+
+/**
+ * Places Google names only in Japanese or Korean (Takayama Station's town is
+ * 高山市), in English, through the same cached translation as line names.
+ * "Takayama City" reads as "Takayama", as the other towns do.
+ */
+export async function englishLocalities(
+  bundle: { places: Record<string, { locality?: string | undefined }> },
+  apiKey: string | undefined,
+  cachePath: string,
+  projectNumber?: string,
+): Promise<number> {
+  const local = Object.values(bundle.places).filter((place) => place.locality && LOCAL_SCRIPT.test(place.locality));
+  if (!local.length) return 0;
+  const { translations } = await translateNames(
+    local.map((place) => place.locality!),
+    apiKey,
+    cachePath,
+    projectNumber,
+  );
+  let translated = 0;
+  for (const place of local) {
+    const english = translations[place.locality!];
+    if (!english) continue;
+    place.locality = english.replace(/\s+City$/i, "");
+    translated += 1;
+  }
+  return translated;
+}
+
+const LOCAL_SCRIPT = /[぀-ヿ㐀-鿿가-힯]/;

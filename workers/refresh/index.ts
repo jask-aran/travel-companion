@@ -59,6 +59,12 @@ function carryPhotos(next: TripBundle, previous: TripBundle | undefined): number
   if (!previous) return 0;
   let copied = 0;
   for (const [id, place] of Object.entries(next.places)) {
+    // A town translated at the last pull stays translated (see englishLocalities).
+    const locality = previous.places[id]?.locality;
+    const translated = (text: string) => !/[^\x00-\x7F]/.test(text);
+    if (locality && place.locality && translated(locality) && !translated(place.locality)) {
+      place.locality = locality;
+    }
     const photo = previous.places[id]?.photo;
     if (!photo || place.photo) continue;
     place.photo = photo;

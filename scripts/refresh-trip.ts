@@ -1,5 +1,5 @@
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
 import { acquireWithApi, acquireWithBrowser, acquireWithCli, type AcquiredSource } from "../packages/wanderlog-import/src/acquire.js";
@@ -10,6 +10,7 @@ import { normaliseCompleteWanderlog } from "../packages/trip-normaliser/src/comp
 import { attachPlacePhotos } from "../packages/trip-normaliser/src/place-photos.js";
 import { attachPlaceDetails } from "../packages/trip-normaliser/src/place-details.js";
 import { attachDepartures } from "../packages/trip-normaliser/src/departures.js";
+import { englishLocalities } from "../packages/trip-normaliser/src/translate.js";
 import { departureTargets } from "../apps/web/src/lib/departure-targets.js";
 import type { ImportOverrides } from "../packages/trip-normaliser/src/index.js";
 
@@ -150,6 +151,14 @@ const departureReport = await attachDepartures(
   dirname(workingBundlePath),
 );
 
+// Town names Google gives only in Japanese or Korean, in English.
+const localities = await englishLocalities(
+  result.bundle,
+  googleApiKey,
+  join(dirname(workingBundlePath), "translations-cache.json"),
+  config.google?.projectNumber?.toString(),
+);
+
 const bundle = parseTripBundle(result.bundle);
 const reportPath = loaded.resolvePath(config.paths.report);
 const markdownReportPath = reportPath.replace(/\.json$/i, ".md");
@@ -163,6 +172,7 @@ console.log(`Saved raw source: ${rawPath}`);
 console.log(`Generated TripBundle: ${workingBundlePath}`);
 console.log(`Import report: ${reportPath}`);
 console.log(`Place details: ${detailCount} places enriched from Wanderlog metadata.`);
+if (localities) console.log(`Town names: ${localities} translated to English.`);
 if (photoReport.skipped && !photoReport.requested) {
   console.log(
     "Place photos: skipped. Set google.apiKey in config/trip.local.yaml (or GOOGLE_MAPS_API_KEY) to fetch them.",
