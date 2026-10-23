@@ -22,6 +22,7 @@
     "ship": "pnpm build && tsx scripts/publish.ts && tsx scripts/bundle-refresh.ts && wrangler pages deploy apps/web/.publish --project-name jask-aran --branch main --commit-dirty && wrangler kv key put trip.enc --path apps/web/dist/trip.enc --binding TRIP --remote"
   },
   "dependencies": {
+    "@photostructure/tz-lookup": "11.2.0",
     "playwright": "^1.61.1",
     "valibot": "^1.4.2",
     "yaml": "^2.9.0"

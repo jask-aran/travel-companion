@@ -14,6 +14,9 @@ await esbuild.build({
   bundle: true,
   format: "esm",
   platform: "neutral",
+  // "neutral" reads no package entry fields; CommonJS-only packages
+  // (tz-lookup) only have "main".
+  mainFields: ["module", "main"],
   target: "es2022",
   outfile: resolve(root, "apps/web/.publish/_worker.js"),
   external: ["node:crypto"],
