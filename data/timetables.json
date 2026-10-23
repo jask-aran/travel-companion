@@ -162,13 +162,51 @@
     "kind": "shinkansen",
     "stationNames": {"東京": "Tokyo", "品川": "Shinagawa", "新横浜": "Shin-Yokohama", "静岡": "Shizuoka", "浜松": "Hamamatsu", "豊橋": "Toyohashi", "名古屋": "Nagoya", "京都": "Kyoto", "新大阪": "Shin-Osaka"},
     "source": {
-      "urls": ["https://timetables.jreast.co.jp/2610/train/175/177351.html", "https://timetables.jreast.co.jp/2610/train/095/098091.html"],
+      "urls": [
+        "https://timetables.jreast.co.jp/2610/timetable-v/001d2p.html",
+        "https://timetables.jreast.co.jp/2611/timetable-v/001d2.html",
+        "https://timetables.jreast.co.jp/en/2610/train/060/062372.html",
+        "https://timetables.jreast.co.jp/en/2610/train/175/177321.html",
+        "https://timetables.jreast.co.jp/en/2610/train/125/128581.html",
+        "https://timetables.jreast.co.jp/en/2610/train/060/062431.html",
+        "https://timetable.jr-odekake.net/train-timetable/372461?date=20260920",
+        "https://timetables.jreast.co.jp/en/2610/train/085/089381.html",
+        "https://timetables.jreast.co.jp/en/2610/train/175/177351.html",
+        "https://timetables.jreast.co.jp/en/2610/train/085/089391.html",
+        "https://timetables.jreast.co.jp/en/2610/train/085/089401.html",
+        "https://timetables.jreast.co.jp/en/2610/train/175/177381.html",
+        "https://timetables.jreast.co.jp/en/2610/train/125/128591.html",
+        "https://timetables.jreast.co.jp/en/2610/train/095/098091.html",
+        "https://timetables.jreast.co.jp/en/2610/train/175/177391.html",
+        "https://timetables.jreast.co.jp/en/2610/train/125/128601.html",
+        "https://timetables.jreast.co.jp/en/2610/train/175/177401.html",
+        "https://timetables.jreast.co.jp/en/2610/train/125/128611.html",
+        "https://timetables.jreast.co.jp/en/2610/train/100/103091.html",
+        "https://timetables.jreast.co.jp/en/2610/train/060/062291.html",
+        "https://traininfo.jr-central.co.jp/shinkansen/pc/ja/ti06.html?bound=2&hour=15&station=1"
+      ],
       "retrieved": "2026-10-23",
-      "note": "Official JR East train-by-train timetables for the October 2026 issue. Nozomi 507 is listed for 2026-11-21; Hikari 665 is listed in the same current issue. Recheck the operating calendar before travel."
+      "note": "Official JR East October 2026 Saturday/holiday timetable, November 2026 Tokyo timetable and October 2026 train pages. Nozomi 503's detailed stops use JR West's official train timetable. Date-specific services are scoped to 2026-11-21; check service notices before travel."
     },
     "departures": [
+      {"train": "Nozomi 89", "days": "daily", "stops": {"東京": "20:00", "品川": "20:06", "新横浜": "20:17", "名古屋": "21:38"}},
+      {"train": "Nozomi 501", "dates": ["2026-11-21"], "stops": {"東京": "20:03", "品川": "20:09", "新横浜": "20:20", "名古屋": "21:42"}},
+      {"train": "Nozomi 287", "days": "daily", "stops": {"東京": "20:09", "品川": "20:16", "新横浜": "20:28", "名古屋": "21:46"}},
+      {"train": "Hikari 663", "days": "daily", "stops": {"東京": "20:12", "品川": "20:18", "新横浜": "20:30", "名古屋": "22:11"}},
+      {"train": "Nozomi 503", "dates": ["2026-11-21"], "stops": {"東京": "20:18", "品川": "20:24", "新横浜": "20:36", "名古屋": "21:53"}},
+      {"train": "Nozomi 91", "days": "daily", "stops": {"東京": "20:21", "品川": "20:27", "新横浜": "20:38", "名古屋": "21:56"}},
       {"train": "Nozomi 507", "dates": ["2026-11-21"], "stops": {"東京": "20:30", "品川": "20:36", "新横浜": "20:47", "名古屋": "22:06", "京都": "22:42", "新大阪": "22:57"}},
-      {"train": "Hikari 665", "days": "daily", "stops": {"東京": "21:06", "品川": "21:12", "新横浜": "21:23", "静岡": "22:02", "浜松": "22:26", "豊橋": "22:44", "名古屋": "23:04"}}
+      {"train": "Nozomi 93", "days": "daily", "stops": {"東京": "20:39", "品川": "20:45", "新横浜": "20:57", "名古屋": "22:15"}},
+      {"train": "Nozomi 95", "days": "daily", "stops": {"東京": "20:54", "品川": "21:00", "新横浜": "21:11", "名古屋": "22:29"}},
+      {"train": "Nozomi 513", "dates": ["2026-11-21"], "stops": {"東京": "20:57", "品川": "21:03", "新横浜": "21:14", "名古屋": "22:31"}},
+      {"train": "Nozomi 289", "days": "daily", "stops": {"東京": "21:03", "品川": "21:09", "新横浜": "21:21", "名古屋": "22:39"}},
+      {"train": "Hikari 665", "days": "daily", "stops": {"東京": "21:06", "品川": "21:12", "新横浜": "21:23", "静岡": "22:02", "浜松": "22:26", "豊橋": "22:44", "名古屋": "23:04"}},
+      {"train": "Nozomi 515", "dates": ["2026-11-21"], "stops": {"東京": "21:09", "品川": "21:16", "新横浜": "21:27", "名古屋": "22:45"}},
+      {"train": "Nozomi 291", "days": "daily", "stops": {"東京": "21:12", "品川": "21:18", "新横浜": "21:30", "名古屋": "22:47"}},
+      {"train": "Nozomi 517", "dates": ["2026-11-21"], "stops": {"東京": "21:21", "品川": "21:27", "新横浜": "21:38", "名古屋": "22:54"}},
+      {"train": "Nozomi 293", "days": "daily", "stops": {"東京": "21:24", "品川": "21:30", "新横浜": "21:41", "名古屋": "22:57"}},
+      {"train": "Hikari 667", "dates": ["2026-11-21"], "stops": {"東京": "21:33", "品川": "21:39", "新横浜": "21:51", "名古屋": "23:24"}},
+      {"train": "Hikari 669", "days": "daily", "stops": {"東京": "22:03", "品川": "22:09", "新横浜": "22:20", "名古屋": "23:49"}}
     ]
   },
   {
