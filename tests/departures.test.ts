@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import type { Place, TripBundle } from "../packages/trip-schema/src/index.js";
+import type { DepartureBoard, Place, TripBundle } from "../packages/trip-schema/src/index.js";
 import {
   parseGoogleRoutes,
   parseNavitime,
   type GoogleRoutesResponse,
   type NavitimeResponse,
 } from "../packages/trip-normaliser/src/departures.js";
+import { curateDepartureBoard } from "../packages/trip-normaliser/src/curated-timetables.js";
 import {
   englishName,
   localHeadsign,
@@ -58,6 +59,55 @@ describe("parseNavitime", () => {
     expect(options).toHaveLength(1);
     expect(options[0]).toMatchObject({ departTime: "08:34", arriveTime: "10:55" });
     expect(options[0]?.segments[0]).toMatchObject({ name: "ひだ", from: "名古屋", to: "高山" });
+  });
+
+  it("uses the published Hida times and keeps only trains that arrive by the target", () => {
+    const options = parseNavitime(fixture<NavitimeResponse>("navitime-nagoya-takayama.json"));
+    const board = (time: string): DepartureBoard => ({
+      provider: "navitime",
+      target: { kind: "arrive", date: "2026-11-23", time },
+      fetchedAt: "2026-10-23T00:00:00.000Z",
+      approximate: true,
+      options,
+    });
+
+    const onTime = curateDepartureBoard(board("10:30"));
+    expect(onTime.matched).toBe(true);
+    expect(onTime.board).toMatchObject({
+      approximate: false,
+      source: { type: "curated", operator: "JR Central" },
+      options: [
+        {
+          departTime: "07:43",
+          arriveTime: "10:16",
+          minutes: 153,
+          segments: [{ name: "Hida 1", from: "Nagoya", to: "Takayama" }],
+        },
+      ],
+    });
+
+    const missesTarget = curateDepartureBoard(board("09:30"));
+    expect(missesTarget).toEqual({ matched: true });
+  });
+
+  it("shifts a connecting ride to follow a curated Skyliner arrival", () => {
+    const [option] = parseNavitime(fixture<NavitimeResponse>("navitime-narita-shinjuku.json"));
+    const result = curateDepartureBoard({
+      provider: "navitime",
+      target: { kind: "depart", date: "2026-12-06", time: "14:05" },
+      fetchedAt: "2026-10-23T00:00:00.000Z",
+      approximate: true,
+      options: [option!],
+    });
+
+    expect(result.board?.options[0]).toMatchObject({
+      departTime: "14:18",
+      arriveTime: "15:35",
+      segments: [
+        { name: "Skyliner 136", departTime: "14:18", arriveTime: "15:10" },
+        { name: "都営大江戸線", departTime: "15:21", arriveTime: "15:35" },
+      ],
+    });
   });
 });
 

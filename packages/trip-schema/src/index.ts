@@ -219,6 +219,8 @@ export const DepartureBoardSchema = v.object({
   fetchedAt: v.string(),
   /** NAVITIME's marketplace plan gives averaged, not timetabled, times. */
   approximate: v.optional(v.boolean()),
+  /** Timetable source when a NAVITIME estimate was replaced by curated data. */
+  source: v.optional(v.object({ type: v.literal("curated"), operator: v.string() })),
   options: v.array(DepartureOptionSchema),
 });
 

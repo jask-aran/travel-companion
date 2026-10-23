@@ -1,0 +1,195 @@
+[
+  {
+    "id": "keisei-skyliner-narita-keisei-ueno",
+    "operator": "Keisei",
+    "service": "Skyliner",
+    "serviceNames": ["京成スカイライナー"],
+    "kind": "express",
+    "fromStations": ["成田空港"],
+    "toStations": ["京成上野"],
+    "stationNames": {
+      "from": { "ja": "成田空港", "en": "Narita Airport" },
+      "to": { "ja": "京成上野", "en": "Keisei Ueno" }
+    },
+    "source": {
+      "url": "https://www.keisei.co.jp/keisei/tetudou/skyliner/jp/traffic/skyliner_timetable_1121.php",
+      "retrieved": "2026-10-23",
+      "note": "Official timetable effective 2026-11-21. Times below use the Saturday/holiday table, which applies on 2026-11-21 and 2026-12-06."
+    },
+    "departures": [
+      { "train": "Skyliner 68", "depart": "19:40", "arrive": "20:25", "days": "weekends" },
+      { "train": "Skyliner 70", "depart": "20:00", "arrive": "20:44", "days": "weekends" },
+      { "train": "Skyliner 172", "depart": "20:20", "arrive": "21:08", "days": "weekends" },
+      { "train": "Skyliner 74", "depart": "20:40", "arrive": "21:24", "days": "weekends" },
+      { "train": "Skyliner 76", "depart": "21:00", "arrive": "21:45", "days": "weekends" },
+      { "train": "Skyliner 178", "depart": "21:20", "arrive": "22:08", "days": "weekends" },
+      { "train": "Skyliner 80", "depart": "21:40", "arrive": "22:26", "days": "weekends" },
+      { "train": "Skyliner 136", "depart": "14:18", "arrive": "15:10", "days": "weekends" },
+      { "train": "Skyliner 38", "depart": "14:38", "arrive": "15:23", "days": "weekends" },
+      { "train": "Skyliner 40", "depart": "14:59", "arrive": "15:43", "days": "weekends" },
+      { "train": "Skyliner 142", "depart": "15:18", "arrive": "16:09", "days": "weekends" },
+      { "train": "Skyliner 44", "depart": "15:38", "arrive": "16:23", "days": "weekends" },
+      { "train": "Skyliner 46", "depart": "15:58", "arrive": "16:43", "days": "weekends" },
+      { "train": "Skyliner 148", "depart": "16:18", "arrive": "17:09", "days": "weekends" },
+      { "train": "Skyliner 50", "depart": "16:38", "arrive": "17:23", "days": "weekends" },
+      { "train": "Skyliner 52", "depart": "16:59", "arrive": "17:43", "days": "weekends" }
+    ]
+  },
+  {
+    "id": "keisei-skyliner-keisei-ueno-narita",
+    "operator": "Keisei",
+    "service": "Skyliner",
+    "serviceNames": ["京成スカイライナー"],
+    "kind": "express",
+    "fromStations": ["京成上野"],
+    "toStations": ["成田空港"],
+    "stationNames": {
+      "from": { "ja": "京成上野", "en": "Keisei Ueno" },
+      "to": { "ja": "成田空港", "en": "Narita Airport" }
+    },
+    "source": {
+      "url": "https://www.keisei.co.jp/keisei/tetudou/skyliner/jp/traffic/skyliner_timetable_1121.php",
+      "retrieved": "2026-10-23",
+      "note": "Official timetable effective 2026-11-21. These are weekday trains for the 2026-12-11 return."
+    },
+    "departures": [
+      { "train": "Skyliner 59", "depart": "15:20", "arrive": "16:03", "days": "weekdays" },
+      { "train": "Skyliner 163", "depart": "15:37", "arrive": "16:27", "days": "weekdays" },
+      { "train": "Skyliner 63", "depart": "16:00", "arrive": "16:44", "days": "weekdays" },
+      { "train": "Skyliner 65", "depart": "16:20", "arrive": "17:04", "days": "weekdays" },
+      { "train": "Skyliner 67", "depart": "16:40", "arrive": "17:25", "days": "weekdays" },
+      { "train": "Skyliner 69", "depart": "17:00", "arrive": "17:45", "days": "weekdays" },
+      { "train": "Skyliner 71", "depart": "17:20", "arrive": "18:03", "days": "weekdays" },
+      { "train": "Skyliner 73", "depart": "17:40", "arrive": "18:29", "days": "weekdays" }
+    ]
+  },
+  {
+    "id": "jr-east-narita-express-narita-tokyo",
+    "operator": "JR East",
+    "service": "Narita Express 50",
+    "serviceNames": ["成田エクスプレス"],
+    "kind": "express",
+    "fromStations": ["成田空港"],
+    "toStations": ["東京"],
+    "stationNames": {
+      "from": { "ja": "成田空港", "en": "Narita Airport" },
+      "to": { "ja": "東京", "en": "Tokyo" }
+    },
+    "source": {
+      "url": "https://timetables.jreast.co.jp/en/2610/train/180/184921.html",
+      "retrieved": "2026-10-23",
+      "note": "Official JR East Oct 2026 issue timetable; check service notices for the travel date."
+    },
+    "departures": [
+      { "train": "Narita Express 50", "depart": "19:49", "arrive": "20:51", "days": "daily" }
+    ]
+  },
+  {
+    "id": "jr-east-narita-express-narita-shinjuku",
+    "operator": "JR East",
+    "service": "Narita Express 30",
+    "serviceNames": ["成田エクスプレス"],
+    "kind": "express",
+    "fromStations": ["成田空港"],
+    "toStations": ["新宿"],
+    "stationNames": {
+      "from": { "ja": "成田空港", "en": "Narita Airport" },
+      "to": { "ja": "新宿", "en": "Shinjuku" }
+    },
+    "source": {
+      "url": "https://timetables.jreast.co.jp/en/2610/train/030/031491.html",
+      "retrieved": "2026-10-23",
+      "note": "Official JR East Oct 2026 issue timetable; check service notices for the travel date."
+    },
+    "departures": [
+      { "train": "Narita Express 30", "depart": "14:45", "arrive": "16:11", "days": "daily" }
+    ]
+  },
+  {
+    "id": "jr-east-narita-express-41-shinjuku-narita",
+    "operator": "JR East",
+    "service": "Narita Express 41",
+    "serviceNames": ["成田エクスプレス"],
+    "kind": "express",
+    "fromStations": ["新宿"],
+    "toStations": ["成田空港"],
+    "stationNames": {
+      "from": { "ja": "新宿", "en": "Shinjuku" },
+      "to": { "ja": "成田空港", "en": "Narita Airport" }
+    },
+    "source": {
+      "url": "https://timetables.jreast.co.jp/en/2610/train/075/076571.html",
+      "retrieved": "2026-10-23",
+      "note": "Official JR East Oct 2026 issue timetable; check service notices for the travel date."
+    },
+    "departures": [
+      { "train": "Narita Express 41", "depart": "16:08", "arrive": "17:29", "days": "weekdays" }
+    ]
+  },
+  {
+    "id": "jr-east-narita-express-43-shinjuku-narita",
+    "operator": "JR East",
+    "service": "Narita Express 43",
+    "serviceNames": ["成田エクスプレス"],
+    "kind": "express",
+    "fromStations": ["新宿"],
+    "toStations": ["成田空港"],
+    "stationNames": {
+      "from": { "ja": "新宿", "en": "Shinjuku" },
+      "to": { "ja": "成田空港", "en": "Narita Airport" }
+    },
+    "source": {
+      "url": "https://timetables.jreast.co.jp/en/2610/train/030/031211.html",
+      "retrieved": "2026-10-23",
+      "note": "Official JR East Oct 2026 issue timetable; check service notices for the travel date."
+    },
+    "departures": [
+      { "train": "Narita Express 43", "depart": "16:38", "arrive": "17:58", "days": "weekdays" }
+    ]
+  },
+  {
+    "id": "kintetsu-nagoya-shiroko-limited-express",
+    "operator": "Kintetsu",
+    "service": "Kintetsu Nagoya Line Limited Express",
+    "serviceNames": ["近鉄名古屋線特急"],
+    "kind": "express",
+    "fromStations": ["近鉄名古屋"],
+    "toStations": ["白子"],
+    "stationNames": {
+      "from": { "ja": "近鉄名古屋", "en": "Kintetsu-Nagoya" },
+      "to": { "ja": "白子", "en": "Shiroko" }
+    },
+    "source": {
+      "url": "https://eki.kintetsu.co.jp/english/T7?dw=1&sf=4104&time=0710&tx=1-9004",
+      "retrieved": "2026-10-23",
+      "note": "Official weekends/holiday timetable: Kintetsu-Nagoya 07:10, Shiroko 07:49. The page does not state a 2026 effective date."
+    },
+    "departures": [
+      { "train": "Kintetsu Limited Express", "depart": "07:10", "arrive": "07:49", "days": "weekends" }
+    ]
+  },
+  {
+    "id": "jr-central-hida-nagoya-takayama",
+    "operator": "JR Central",
+    "service": "Hida",
+    "serviceNames": ["ひだ"],
+    "kind": "express",
+    "fromStations": ["名古屋"],
+    "toStations": ["高山"],
+    "stationNames": {
+      "from": { "ja": "名古屋", "en": "Nagoya" },
+      "to": { "ja": "高山", "en": "Takayama" }
+    },
+    "source": {
+      "url": "https://www.snowmonkeyresorts.com/access/limited-express-hida-timetable/",
+      "retrieved": "2026-10-23",
+      "note": "Published regular timetable last updated 2026-10-10. The page says selected dates may have extra services and does not state exact validity dates; recheck for winter 2026 changes."
+    },
+    "departures": [
+      { "train": "Hida 1", "depart": "07:43", "arrive": "10:16", "days": "daily" },
+      { "train": "Hida 3", "depart": "08:43", "arrive": "11:03", "days": "daily" },
+      { "train": "Hida 5", "depart": "09:39", "arrive": "12:20", "days": "daily" },
+      { "train": "Hida 7", "depart": "10:48", "arrive": "13:17", "days": "daily" }
+    ]
+  }
+]

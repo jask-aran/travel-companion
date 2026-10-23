@@ -15,6 +15,7 @@ import {
   needsTranslation,
   stationQuery,
 } from "./line-names.js";
+import { curateDepartureBoard } from "./curated-timetables.js";
 import { translateNames, type TranslationReport } from "./translate.js";
 
 /**
@@ -176,7 +177,7 @@ export async function attachDepartures(
     );
     const options = tidy(plausible(entries.flatMap((entry) => entry.options), request, bundle));
     if (!options.length) continue;
-    drafts[request.key] = {
+    const board: DepartureBoard = {
       provider: request.provider,
       target: { kind: request.kind, date: request.date, time: request.time },
       // The oldest answer is the one to doubt.
@@ -184,6 +185,12 @@ export async function attachDepartures(
       ...(entries.some((entry) => entry.approximate) ? { approximate: true } : {}),
       options,
     };
+    const curated = request.provider === "navitime" ? curateDepartureBoard(board) : { matched: false, board };
+    if (curated.matched) {
+      if (curated.board) drafts[request.key] = curated.board;
+      continue;
+    }
+    drafts[request.key] = board;
   }
 
   await mkdir(cacheDir, { recursive: true });

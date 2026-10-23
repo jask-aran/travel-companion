@@ -379,7 +379,12 @@ function DepartureBoardView(props: { board: DepartureBoard }) {
                     when={timed()}
                     fallback={<>~{formatDurationShort(option().minutes * 60)} riding · NAVITIME estimate, not a timetable</>}
                   >
-                    {formatDurationShort(option().minutes * 60)} riding · Times from Google
+                    <Show
+                      when={props.board.source?.type === "curated"}
+                      fallback={<>{formatDurationShort(option().minutes * 60)} riding · Times from Google</>}
+                    >
+                      {formatDurationShort(option().minutes * 60)} riding · Times: {props.board.source?.operator} timetable
+                    </Show>
                   </Show>
                 </p>
               </>
