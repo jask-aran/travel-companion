@@ -111,11 +111,6 @@ describe("parseNavitime", () => {
           arriveTime: "11:03",
           segments: [{ name: "Hida 3" }],
         },
-        {
-          departTime: "09:39",
-          arriveTime: "12:20",
-          segments: [{ name: "Hida 5" }],
-        },
       ],
     });
   });
@@ -145,16 +140,12 @@ describe("parseNavitime", () => {
       ],
     });
 
-    expect(result.board).toMatchObject({
-      approximate: false,
-      source: { type: "curated", operator: "Keisei" },
-      options: [
-        {
-          departTime: "19:43",
-          arriveTime: "20:20",
-          segments: [{ name: "Skyliner 68", from: "Narita Airport Terminal 2,3", to: "Nippori" }],
-        },
-      ],
+    expect(result.board).toMatchObject({ approximate: false, source: { type: "curated", operator: "Keisei" } });
+    // Leaving at 19:30, the first train after it leads the board.
+    expect(result.board?.options[0]).toMatchObject({
+      departTime: "19:43",
+      arriveTime: "20:20",
+      segments: [{ name: "Skyliner 68", from: "Narita Airport Terminal 2,3", to: "Nippori" }],
     });
   });
 

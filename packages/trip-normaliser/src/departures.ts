@@ -187,7 +187,9 @@ export async function attachDepartures(
     };
     const curated = request.provider === "navitime" ? curateDepartureBoard(board) : { matched: false, board };
     if (curated.matched) {
-      if (curated.board) drafts[request.key] = curated.board;
+      // Same dominance rule as provider answers: the 17:20 that arrives 18:44
+      // goes when the 17:20 into 18:23 is on the board.
+      if (curated.board) drafts[request.key] = { ...curated.board, options: tidy(curated.board.options) };
       continue;
     }
     drafts[request.key] = board;

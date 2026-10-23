@@ -81,9 +81,19 @@ type ScheduledRide = {
   arrive: string;
 };
 
+/**
+ * Trains worth listing: to leave at a time, the ones after it; to arrive by
+ * one, those arriving in the hours before it and, so a board can say the
+ * target is missed rather than go blank, the first couple of hours after.
+ */
 function withinWindow(ride: ScheduledRide, board: DepartureBoard): boolean {
-  const event = board.target.kind === "arrive" ? ride.arrive : ride.depart;
-  return Math.abs(clockMinutes(event) - clockMinutes(board.target.time)) <= 180;
+  const target = clockMinutes(board.target.time);
+  if (board.target.kind === "depart") {
+    const depart = clockMinutes(ride.depart);
+    return depart >= target && depart <= target + 180;
+  }
+  const arrive = clockMinutes(ride.arrive);
+  return arrive >= target - 180 && arrive <= target + 120;
 }
 
 function durationBetween(start: string, end: string): number {
