@@ -33,7 +33,9 @@ export const departureKey = (leg: Pick<RouteLeg, "fromPlaceId" | "toPlaceId">) =
   `${leg.fromPlaceId}>${leg.toPlaceId}`;
 
 /**
- * Use NAVITIME in Japan and Google elsewhere; no coordinates means no provider.
+ * NAVITIME in Japan, Google everywhere else: Google's Routes API has no
+ * Japanese transit (its FAQ excludes Japan's partners), and NAVITIME covers
+ * only Japan. No coordinates means no provider.
  * An address ending in Japan or 日本 overrides the coordinate boxes below.
  * The boxes approximate Japan's islands because addresses can omit the country.
  */

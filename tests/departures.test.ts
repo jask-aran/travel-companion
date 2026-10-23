@@ -245,10 +245,10 @@ const place = (id: string, latitude: number, longitude: number, name = id): Plac
   ({ id, name, latitude, longitude }) as Place;
 
 describe("departureTargets", () => {
-  it("picks Google for Korea and NAVITIME for Japan", () => {
+  it("picks NAVITIME for Japan and Google elsewhere", () => {
     expect(providerFor(place("icn", 37.46, 126.44))).toBe("google");
     expect(providerFor(place("nrt", 35.77, 140.38))).toBe("navitime");
-    expect(providerFor(place("cns", -16.88, 145.75))).toBeUndefined();
+    expect(providerFor(place("cns", -16.88, 145.75))).toBe("google");
   });
 
   it("times a flight's transfers and a journey pinned by a stop time", () => {
