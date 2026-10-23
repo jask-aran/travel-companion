@@ -84,8 +84,6 @@ const SAMPLE_OFFSETS_MINUTES: Record<DepartureBoard["provider"], number[]> = {
   google: [0, 30, 60],
   navitime: [0],
 };
-/** Japan and Korea are both UTC+9, with no daylight saving. */
-const UTC_OFFSET_HOURS = 9;
 
 type Sample = DepartureRequest & { time: string };
 
@@ -158,10 +156,12 @@ export async function attachDepartures(
       return cache[key];
     }
     report.requested[sample.provider] += 1;
+    // Use UTC when the origin's offset is unknown.
+    const utcOffsetMinutes = from.utcOffsetMinutes ?? 0;
     try {
       const options =
         sample.provider === "google"
-          ? parseGoogleRoutes(await fetchGoogle(sample, from, to, apiKey))
+          ? parseGoogleRoutes(await fetchGoogle(sample, from, to, apiKey, utcOffsetMinutes), utcOffsetMinutes)
           : parseNavitime(await fetchNavitime(sample, from, to, apiKey));
       const entry: CacheEntry = {
         version: CACHE_VERSION,
@@ -380,12 +380,12 @@ const waypoint = (place: Place) => {
 };
 
 /** Local wall-clock date and time as the UTC instant Google wants. */
-function utcInstant(date: string, time: string): string {
+function utcInstant(date: string, time: string, utcOffsetMinutes: number): string {
   const local = Date.parse(`${date}T${time}:00Z`);
-  return new Date(local - UTC_OFFSET_HOURS * 3_600_000).toISOString();
+  return new Date(local - utcOffsetMinutes * 60_000).toISOString();
 }
 
-async function fetchGoogle(request: DepartureRequest, from: Place, to: Place, apiKey: string) {
+async function fetchGoogle(request: DepartureRequest, from: Place, to: Place, apiKey: string, utcOffsetMinutes: number) {
   const response = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
     method: "POST",
     headers: {
@@ -398,7 +398,7 @@ async function fetchGoogle(request: DepartureRequest, from: Place, to: Place, ap
       destination: waypoint(to),
       travelMode: "TRANSIT",
       computeAlternativeRoutes: true,
-      [request.kind === "arrive" ? "arrivalTime" : "departureTime"]: utcInstant(request.date, request.time),
+      [request.kind === "arrive" ? "arrivalTime" : "departureTime"]: utcInstant(request.date, request.time, utcOffsetMinutes),
       languageCode: "en",
     }),
   });
@@ -421,11 +421,11 @@ export type GoogleRoutesResponse = {
 };
 
 /** An RFC 3339 instant as local "HH:MM". */
-function localClock(instant: string | undefined): string | undefined {
+export function localClock(instant: string | undefined, utcOffsetMinutes: number): string | undefined {
   if (!instant) return undefined;
   const ms = Date.parse(instant);
   if (Number.isNaN(ms)) return undefined;
-  return new Date(ms + UTC_OFFSET_HOURS * 3_600_000).toISOString().slice(11, 16);
+  return new Date(ms + utcOffsetMinutes * 60_000).toISOString().slice(11, 16);
 }
 
 function googleKind(type: string | undefined): DepartureSegment["kind"] {
@@ -459,7 +459,8 @@ function stopName(raw: string | undefined): string | undefined {
   return raw?.normalize("NFKC").trim() || undefined;
 }
 
-export function parseGoogleRoutes(response: GoogleRoutesResponse): DepartureOption[] {
+// Use UTC when the caller has no origin offset.
+export function parseGoogleRoutes(response: GoogleRoutesResponse, utcOffsetMinutes = 0): DepartureOption[] {
   const options: DepartureOption[] = [];
   for (const route of response.routes ?? []) {
     const segments: DepartureSegment[] = [];
@@ -472,8 +473,8 @@ export function parseGoogleRoutes(response: GoogleRoutesResponse): DepartureOpti
     const walkMinutes = Math.ceil(walkSeconds / 60);
     for (const step of steps) {
       const transit = step.transitDetails;
-      const departTime = localClock(transit?.stopDetails?.departureTime);
-      const arriveTime = localClock(transit?.stopDetails?.arrivalTime);
+      const departTime = localClock(transit?.stopDetails?.departureTime, utcOffsetMinutes);
+      const arriveTime = localClock(transit?.stopDetails?.arrivalTime, utcOffsetMinutes);
       if (!transit || !departTime || !arriveTime) continue;
       const line = transit.transitLine;
       const headsign = localHeadsign(transit.headsign);

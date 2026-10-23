@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { DepartureBoard, Place, TripBundle } from "../packages/trip-schema/src/index.js";
 import {
+  localClock,
   parseGoogleRoutes,
   parseNavitime,
   type GoogleRoutesResponse,
@@ -22,8 +23,14 @@ const fixture = <T>(name: string) =>
   JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), "utf8")) as T;
 
 describe("parseGoogleRoutes", () => {
+  it("uses the supplied origin offset and falls back to UTC", () => {
+    const response = fixture<GoogleRoutesResponse>("google-routes-gimpo.json");
+    expect(parseGoogleRoutes(response, 60)[0]?.departTime).toBe("03:29");
+    expect(parseGoogleRoutes(response)[0]?.departTime).toBe("02:29");
+  });
+
   it("reads AREX departures from Gimpo, in local time, by departure", () => {
-    const options = parseGoogleRoutes(fixture<GoogleRoutesResponse>("google-routes-gimpo.json"));
+    const options = parseGoogleRoutes(fixture<GoogleRoutesResponse>("google-routes-gimpo.json"), 540);
     expect(options.map((option) => option.departTime)).toEqual(["11:29", "11:33", "11:41", "11:50"]);
     const [first] = options;
     expect(first).toMatchObject({ arriveTime: "11:43", minutes: 14 });
@@ -39,7 +46,7 @@ describe("parseGoogleRoutes", () => {
   });
 
   it("drops a bus that leaves earlier but arrives after the train", () => {
-    const options = parseGoogleRoutes(fixture<GoogleRoutesResponse>("google-routes-gimpo.json"));
+    const options = parseGoogleRoutes(fixture<GoogleRoutesResponse>("google-routes-gimpo.json"), 540);
     expect(options.some((option) => option.segments.some((segment) => segment.kind === "bus"))).toBe(false);
   });
 
@@ -66,8 +73,20 @@ describe("parseGoogleRoutes", () => {
           ],
         },
       ],
-    });
+    }, 540);
     expect(option?.walkMinutes).toBe(3);
+  });
+});
+
+describe("localClock", () => {
+  it.each([
+    ["2026-05-01T10:15:00Z", 60, "11:15"],
+    ["2026-05-01T23:30:00Z", 60, "00:30"],
+    ["2026-05-01T10:15:00+09:00", 60, "02:15"],
+    ["2026-05-01T10:15:00Z", 330, "15:45"],
+    ["2026-05-01T01:15:00Z", -300, "20:15"],
+  ])("converts %s with offset %i to %s", (instant, offset, expected) => {
+    expect(localClock(instant, offset)).toBe(expected);
   });
 });
 

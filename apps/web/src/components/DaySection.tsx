@@ -257,7 +257,7 @@ export function DaySection(props: {
       .at(-1);
     const place = hotel?.latitude !== undefined ? hotel : lastStop;
     if (place?.latitude === undefined || place.longitude === undefined) return undefined;
-    const times = sunTimes(props.day.date, place.latitude, place.longitude, props.day.timezone);
+    const times = sunTimes(props.day.date, place.latitude, place.longitude, props.day.utcOffsetMinutes ?? props.day.timezone);
     return times.sunrise && times.sunset ? { rise: times.sunrise, set: times.sunset } : undefined;
   });
   const hasStats = createMemo(

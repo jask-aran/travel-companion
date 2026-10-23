@@ -230,6 +230,8 @@ function placeFromBlock(
   if ((override?.publishAddress ?? true) && locality) place.locality = locality;
   if (latitude !== undefined) place.latitude = latitude;
   if (longitude !== undefined) place.longitude = longitude;
+  const utcOffsetMinutes = asNumber(rawPlace.utc_offset);
+  if (utcOffsetMinutes !== undefined) place.utcOffsetMinutes = utcOffsetMinutes;
   const rating = asNumber(rawPlace.rating);
   if (rating !== undefined) place.rating = rating;
   const ratingCount = asNumber(rawPlace.user_ratings_total);
@@ -463,15 +465,28 @@ export function normaliseWanderlog(
       id: `day:${date}`,
       date,
       title: asString(section.heading) ?? asString(section.displayHeading) ?? date,
-      timezone: "Asia/Tokyo",
+      timezone: "UTC",
       items,
       map: { orderedPlaceIds, routeLegIds: [] },
     });
   }
 
   addGlobalFlights(daysByDate, tripPlan, places, options.overrides, warnings);
+  const offsetCounts = new Map<number, number>();
+  for (const place of Object.values(places)) {
+    const offset = place.utcOffsetMinutes;
+    if (offset !== undefined) offsetCounts.set(offset, (offsetCounts.get(offset) ?? 0) + 1);
+  }
+  const tripOffset = [...offsetCounts].sort((left, right) => right[1] - left[1])[0]?.[0];
   const routeLegs = routesFrom(resources, places, warnings);
   for (const day of daysByDate.values()) {
+    const offset = day.map.orderedPlaceIds
+      .map((id) => places[id]?.utcOffsetMinutes)
+      .find((value) => value !== undefined) ?? tripOffset;
+    if (offset !== undefined) {
+      day.utcOffsetMinutes = offset;
+      if (offset % 60 === 0) day.timezone = `Etc/GMT${offset > 0 ? "-" : "+"}${Math.abs(offset / 60)}`;
+    }
     day.map.routeLegIds = Object.values(routeLegs)
       .filter((leg) => day.map.orderedPlaceIds.includes(leg.fromPlaceId) && day.map.orderedPlaceIds.includes(leg.toPlaceId))
       .map((leg) => leg.id);

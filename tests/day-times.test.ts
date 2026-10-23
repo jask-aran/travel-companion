@@ -8,6 +8,18 @@ const minutes = (time: string | undefined) => {
 };
 
 describe("sunset", () => {
+  it.each([
+    [540, "Etc/GMT-9"],
+    [-300, "Etc/GMT+5"],
+    [330, "Asia/Kolkata"],
+    [345, "Asia/Kathmandu"],
+    [0, "UTC"],
+  ])("formats offset %i like %s", (offset, zone) => {
+    expect(sunTimes("2026-12-03", 28.61, 77.21, offset)).toEqual(
+      sunTimes("2026-12-03", 28.61, 77.21, zone),
+    );
+  });
+
   // Expected times from NOAA's solar calculator method, an independent formula.
   it.each([
     ["2026-12-03", 35.68, 139.77, "Asia/Tokyo", "16:28"],

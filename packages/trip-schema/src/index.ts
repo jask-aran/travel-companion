@@ -77,6 +77,8 @@ export const PlaceSchema = v.object({
   locality: optionalString,
   latitude: optionalNumber,
   longitude: optionalNumber,
+  /** Local time minus UTC, in minutes. */
+  utcOffsetMinutes: optionalNumber,
   rating: optionalNumber,
   ratingCount: optionalNumber,
   image: v.optional(PlaceImageSchema),
@@ -242,6 +244,8 @@ export const TripDaySchema = v.object({
   title: v.string(),
   subtitle: optionalString,
   timezone: v.string(),
+  /** Local time minus UTC, in minutes. */
+  utcOffsetMinutes: optionalNumber,
   items: v.array(DayItemSchema),
   map: v.object({
     orderedPlaceIds: v.array(v.string()),

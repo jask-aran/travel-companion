@@ -9,7 +9,7 @@ const J2000 = 2_451_545;
 
 /**
  * Sunrise and sunset for a date and place, as the local clock reads them in
- * `timeZone`.
+ * `timeZone` (an IANA zone name or a UTC offset in minutes).
  *
  * The standard sunrise equation, good to a minute or two away from the poles.
  * The −0.833° altitude allows for refraction and the sun's radius, matching
@@ -19,7 +19,7 @@ export function sunTimes(
   isoDate: string,
   latitude: number,
   longitude: number,
-  timeZone: string,
+  timeZone: string | number,
 ): { sunrise?: string; sunset?: string } {
   const midnightUtc = Date.parse(`${isoDate}T00:00:00Z`);
   if (Number.isNaN(midnightUtc)) return {};
@@ -48,9 +48,10 @@ export function sunTimes(
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-    timeZone,
+    timeZone: typeof timeZone === "number" ? "UTC" : timeZone,
   });
-  const at = (julian: number) => clock.format(new Date((julian - UNIX_EPOCH_JD) * DAY_MS));
+  const offsetMs = typeof timeZone === "number" ? timeZone * 60_000 : 0;
+  const at = (julian: number) => clock.format(new Date((julian - UNIX_EPOCH_JD) * DAY_MS + offsetMs));
   return { sunrise: at(transit - halfDay), sunset: at(transit + halfDay) };
 }
 
