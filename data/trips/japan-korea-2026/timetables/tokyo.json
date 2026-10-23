@@ -1,0 +1,1393 @@
+[
+  {
+    "id": "jr-east-nex-narita-tokyo-evening",
+    "operator": "JR East",
+    "service": "Narita Express",
+    "serviceNames": [
+      "成田エクスプレス",
+      "JR成田エクスプレス"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "成田空港": "Narita Airport",
+      "空港第２ビル": "Narita Airport Terminal 2,3",
+      "千葉": "Chiba",
+      "東京": "Tokyo"
+    },
+    "source": {
+      "urls": [
+        "https://timetables.jreast.co.jp/2611/timetable/tt1130/1130021.html",
+        "https://timetables.jreast.co.jp/2611/train/045/048021.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031261.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031271.html"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official Saturday/holiday train pages; calendars mark 2026-11-21 active. Origin and intermediate stops use departures; the destination uses arrival. The November evening table ends at Tokyo as requested."
+    },
+    "departures": [
+      {
+        "train": "Narita Express 50",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "19:49",
+          "空港第２ビル": "19:53",
+          "千葉": "20:22",
+          "東京": "20:51"
+        }
+      },
+      {
+        "train": "Narita Express 52",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "20:44",
+          "空港第２ビル": "20:47",
+          "千葉": "21:14",
+          "東京": "21:43"
+        }
+      },
+      {
+        "train": "Narita Express 54",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "21:44",
+          "空港第２ビル": "21:47",
+          "東京": "22:37"
+        }
+      }
+    ]
+  },
+  {
+    "id": "jr-east-nex-narita-shinjuku-afternoon",
+    "operator": "JR East",
+    "service": "Narita Express",
+    "serviceNames": [
+      "成田エクスプレス",
+      "JR成田エクスプレス"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "成田空港": "Narita Airport",
+      "空港第２ビル": "Narita Airport Terminal 2,3",
+      "東京": "Tokyo",
+      "品川": "Shinagawa",
+      "渋谷": "Shibuya",
+      "新宿": "Shinjuku",
+      "千葉": "Chiba"
+    },
+    "source": {
+      "urls": [
+        "https://timetables.jreast.co.jp/2611/timetable/tt1130/1130021.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031221.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031471.html",
+        "https://timetables.jreast.co.jp/2611/train/060/063471.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031481.html",
+        "https://timetables.jreast.co.jp/2611/train/075/076741.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031231.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031241.html"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official Saturday/holiday train pages; calendars mark 2026-12-06 active. Origin and intermediate stops use departures; the destination uses arrival. The November evening table ends at Tokyo as requested."
+    },
+    "departures": [
+      {
+        "train": "Narita Express 28",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "14:20",
+          "空港第２ビル": "14:23",
+          "東京": "15:15",
+          "品川": "15:26",
+          "渋谷": "15:36",
+          "新宿": "15:41"
+        }
+      },
+      {
+        "train": "Narita Express 30",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "14:45",
+          "空港第２ビル": "14:49",
+          "千葉": "15:20",
+          "東京": "15:45",
+          "渋谷": "16:06",
+          "新宿": "16:11"
+        }
+      },
+      {
+        "train": "Narita Express 32",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "15:14",
+          "空港第２ビル": "15:18",
+          "東京": "16:14",
+          "品川": "16:26",
+          "渋谷": "16:35",
+          "新宿": "16:41"
+        }
+      },
+      {
+        "train": "Narita Express 34",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "15:44",
+          "空港第２ビル": "15:48",
+          "千葉": "16:19",
+          "東京": "16:45",
+          "渋谷": "17:07",
+          "新宿": "17:12"
+        }
+      },
+      {
+        "train": "Narita Express 36",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "16:19",
+          "空港第２ビル": "16:23",
+          "東京": "17:18",
+          "品川": "17:29",
+          "渋谷": "17:38",
+          "新宿": "17:43"
+        }
+      },
+      {
+        "train": "Narita Express 38",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "16:44",
+          "空港第２ビル": "16:48",
+          "千葉": "17:19",
+          "東京": "17:45",
+          "渋谷": "18:09",
+          "新宿": "18:13"
+        }
+      },
+      {
+        "train": "Narita Express 40",
+        "days": "weekends",
+        "stops": {
+          "成田空港": "17:16",
+          "空港第２ビル": "17:19",
+          "東京": "18:18",
+          "渋谷": "18:42",
+          "新宿": "18:46"
+        }
+      }
+    ]
+  },
+  {
+    "id": "jr-east-nex-shinjuku-narita",
+    "operator": "JR East",
+    "service": "Narita Express",
+    "serviceNames": [
+      "成田エクスプレス",
+      "JR成田エクスプレス"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "新宿": "Shinjuku",
+      "渋谷": "Shibuya",
+      "品川": "Shinagawa",
+      "東京": "Tokyo",
+      "空港第２ビル": "Narita Airport Terminal 2,3",
+      "成田空港": "Narita Airport",
+      "千葉": "Chiba"
+    },
+    "source": {
+      "urls": [
+        "https://timetables.jreast.co.jp/2611/timetable/tt0866/0866090.html",
+        "https://timetables.jreast.co.jp/2611/train/075/076671.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031161.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031491.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031171.html",
+        "https://timetables.jreast.co.jp/2611/train/075/076681.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031181.html",
+        "https://timetables.jreast.co.jp/2611/train/075/076701.html",
+        "https://timetables.jreast.co.jp/2611/train/030/031191.html",
+        "https://timetables.jreast.co.jp/2611/timetable-v/023d1.html"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Friday 2026-12-11 uses the weekday timetable. Train-page calendars confirm this date for N'EX 29–43. N'EX 45 times and daily operation come from the full official weekday timetable; its individual page could not be fetched. Includes arrivals at either airport terminal 14:30–18:30. City stops use departures; both airport stops use arrivals. Coupled sections are retained in one departure."
+    },
+    "departures": [
+      {
+        "train": "Narita Express 29",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "13:08",
+          "渋谷": "13:14",
+          "品川": "13:24",
+          "東京": "13:33",
+          "空港第２ビル": "14:27",
+          "成田空港": "14:31"
+        }
+      },
+      {
+        "train": "Narita Express 31",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "13:38",
+          "渋谷": "13:44",
+          "東京": "14:03",
+          "千葉": "14:28",
+          "空港第２ビル": "14:54",
+          "成田空港": "14:58"
+        }
+      },
+      {
+        "train": "Narita Express 33",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "14:08",
+          "渋谷": "14:14",
+          "品川": "14:24",
+          "東京": "14:33",
+          "空港第２ビル": "15:23",
+          "成田空港": "15:27"
+        }
+      },
+      {
+        "train": "Narita Express 35",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "14:38",
+          "渋谷": "14:44",
+          "東京": "15:03",
+          "千葉": "15:27",
+          "空港第２ビル": "15:53",
+          "成田空港": "15:57"
+        }
+      },
+      {
+        "train": "Narita Express 37",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "15:08",
+          "渋谷": "15:14",
+          "品川": "15:24",
+          "東京": "15:33",
+          "空港第２ビル": "16:27",
+          "成田空港": "16:31"
+        }
+      },
+      {
+        "train": "Narita Express 39",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "15:38",
+          "渋谷": "15:44",
+          "東京": "16:03",
+          "千葉": "16:28",
+          "空港第２ビル": "16:53",
+          "成田空港": "16:57"
+        }
+      },
+      {
+        "train": "Narita Express 41",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "16:08",
+          "渋谷": "16:14",
+          "品川": "16:24",
+          "東京": "16:33",
+          "空港第２ビル": "17:25",
+          "成田空港": "17:29"
+        }
+      },
+      {
+        "train": "Narita Express 43",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "16:38",
+          "渋谷": "16:44",
+          "東京": "17:03",
+          "千葉": "17:28",
+          "空港第２ビル": "17:54",
+          "成田空港": "17:58"
+        }
+      },
+      {
+        "train": "Narita Express 45",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "17:09",
+          "渋谷": "17:15",
+          "品川": "17:24",
+          "東京": "17:33",
+          "千葉": "17:59",
+          "空港第２ビル": "18:25",
+          "成田空港": "18:29"
+        }
+      }
+    ]
+  },
+  {
+    "id": "jr-east-shonan-shinjuku-shinjuku-kita-kamakura",
+    "operator": "JR East",
+    "service": "Shonan-Shinjuku Line",
+    "serviceNames": [
+      "JR湘南新宿ライン",
+      "湘南新宿ライン",
+      "JR湘南新宿ライン普通",
+      "JR湘南新宿ライン快速",
+      "JR湘南新宿ライン特別快速",
+      "JR湘南新宿ライン(宇都宮-逗子)",
+      "JR湘南新宿ライン(宇都宮-逗子)快速",
+      "JR湘南新宿ライン(宇都宮-逗子)特別快速",
+      "JR湘南新宿ライン(高崎-東海道)",
+      "JR湘南新宿ライン(高崎-東海道)快速",
+      "JR湘南新宿ライン(高崎-東海道)特別快速"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "新宿": "Shinjuku",
+      "渋谷": "Shibuya",
+      "恵比寿": "Ebisu",
+      "大崎": "Osaki",
+      "西大井": "Nishi-Oi",
+      "武蔵小杉": "Musashi-Kosugi",
+      "新川崎": "Shin-Kawasaki",
+      "横浜": "Yokohama",
+      "保土ケ谷": "Hodogaya",
+      "東戸塚": "Higashi-Totsuka",
+      "戸塚": "Totsuka",
+      "大船": "Ofuna",
+      "北鎌倉": "Kita-Kamakura"
+    },
+    "source": {
+      "urls": [
+        "https://timetables.jreast.co.jp/2611/timetable/tt0866/0866090.html",
+        "https://timetables.jreast.co.jp/2611/train/035/035611.html",
+        "https://timetables.jreast.co.jp/2611/train/035/035851.html",
+        "https://timetables.jreast.co.jp/2611/train/035/035631.html",
+        "https://timetables.jreast.co.jp/2611/train/035/035651.html",
+        "https://timetables.jreast.co.jp/2611/train/035/035671.html",
+        "https://timetables.jreast.co.jp/2611/train/045/047891.html",
+        "https://timetables.jreast.co.jp/2611/train/035/036391.html",
+        "https://timetables.jreast.co.jp/2611/train/035/036441.html",
+        "https://timetables.jreast.co.jp/2611/train/035/036521.html",
+        "https://timetables.jreast.co.jp/2611/train/110/113191.html",
+        "https://timetables.jreast.co.jp/2611/train/035/035721.html",
+        "https://timetables.jreast.co.jp/2611/train/110/113201.html",
+        "https://timetables.jreast.co.jp/2611/train/035/036991.html",
+        "https://timetables.jreast.co.jp/2611/train/045/047911.html",
+        "https://timetables.jreast.co.jp/2611/train/035/035881.html",
+        "https://timetables.jreast.co.jp/2611/train/035/037161.html"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official weekday train pages; calendars mark Monday 2026-12-07 active. Includes ordinary, rapid and special rapid services reaching Ofuna. Trains with Kita-Kamakura in stops run through; other trains require a change at Ofuna. Individual train times take precedence over the station summary. Intermediate stops use departures; the final included stop uses arrival."
+    },
+    "departures": [
+      {
+        "train": "Shonan-Shinjuku Line Local",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "07:16",
+          "渋谷": "07:21",
+          "恵比寿": "07:23",
+          "大崎": "07:28",
+          "西大井": "07:32",
+          "武蔵小杉": "07:37",
+          "新川崎": "07:40",
+          "横浜": "07:50",
+          "保土ケ谷": "07:53",
+          "東戸塚": "07:58",
+          "戸塚": "08:02",
+          "大船": "08:07"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Rapid",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "07:36",
+          "渋谷": "07:42",
+          "恵比寿": "07:44",
+          "大崎": "07:49",
+          "武蔵小杉": "07:57",
+          "横浜": "08:10",
+          "戸塚": "08:22",
+          "大船": "08:28"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Local",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "07:43",
+          "渋谷": "07:48",
+          "恵比寿": "07:51",
+          "大崎": "07:56",
+          "西大井": "08:02",
+          "武蔵小杉": "08:07",
+          "新川崎": "08:10",
+          "横浜": "08:19",
+          "保土ケ谷": "08:23",
+          "東戸塚": "08:28",
+          "戸塚": "08:32",
+          "大船": "08:37"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Rapid",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "07:51",
+          "渋谷": "07:56",
+          "恵比寿": "07:59",
+          "大崎": "08:03",
+          "武蔵小杉": "08:12",
+          "横浜": "08:25",
+          "戸塚": "08:37",
+          "大船": "08:42"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Local",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:02",
+          "渋谷": "08:07",
+          "恵比寿": "08:10",
+          "大崎": "08:14",
+          "西大井": "08:18",
+          "武蔵小杉": "08:23",
+          "新川崎": "08:26",
+          "横浜": "08:35",
+          "保土ケ谷": "08:39",
+          "東戸塚": "08:44",
+          "戸塚": "08:48",
+          "大船": "08:53"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Rapid",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:10",
+          "渋谷": "08:15",
+          "恵比寿": "08:17",
+          "大崎": "08:21",
+          "武蔵小杉": "08:30",
+          "横浜": "08:42",
+          "戸塚": "08:54",
+          "大船": "09:00"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Local",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:19",
+          "渋谷": "08:24",
+          "恵比寿": "08:27",
+          "大崎": "08:31",
+          "西大井": "08:36",
+          "武蔵小杉": "08:41",
+          "新川崎": "08:45",
+          "横浜": "08:54",
+          "保土ケ谷": "08:58",
+          "東戸塚": "09:02",
+          "戸塚": "09:06",
+          "大船": "09:12",
+          "北鎌倉": "09:15"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Rapid",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:26",
+          "渋谷": "08:31",
+          "恵比寿": "08:34",
+          "大崎": "08:39",
+          "武蔵小杉": "08:49",
+          "横浜": "09:01",
+          "戸塚": "09:13",
+          "大船": "09:18"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Local",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:34",
+          "渋谷": "08:39",
+          "恵比寿": "08:41",
+          "大崎": "08:46",
+          "西大井": "08:49",
+          "武蔵小杉": "08:55",
+          "新川崎": "08:58",
+          "横浜": "09:07",
+          "保土ケ谷": "09:10",
+          "東戸塚": "09:15",
+          "戸塚": "09:19",
+          "大船": "09:25"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Rapid",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:41",
+          "渋谷": "08:46",
+          "恵比寿": "08:48",
+          "大崎": "08:52",
+          "武蔵小杉": "09:02",
+          "横浜": "09:14",
+          "戸塚": "09:25",
+          "大船": "09:30"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Local",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:50",
+          "渋谷": "08:54",
+          "恵比寿": "08:57",
+          "大崎": "09:04",
+          "西大井": "09:09",
+          "武蔵小杉": "09:14",
+          "新川崎": "09:17",
+          "横浜": "09:27",
+          "保土ケ谷": "09:30",
+          "東戸塚": "09:35",
+          "戸塚": "09:39",
+          "大船": "09:46",
+          "北鎌倉": "09:49"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Rapid",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "09:03",
+          "渋谷": "09:08",
+          "恵比寿": "09:11",
+          "大崎": "09:16",
+          "武蔵小杉": "09:26",
+          "横浜": "09:38",
+          "戸塚": "09:48",
+          "大船": "09:53"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Local",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "09:20",
+          "渋谷": "09:25",
+          "恵比寿": "09:27",
+          "大崎": "09:32",
+          "西大井": "09:36",
+          "武蔵小杉": "09:41",
+          "新川崎": "09:44",
+          "横浜": "09:54",
+          "保土ケ谷": "09:57",
+          "東戸塚": "10:02",
+          "戸塚": "10:06",
+          "大船": "10:12"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Rapid",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "09:30",
+          "渋谷": "09:36",
+          "恵比寿": "09:38",
+          "大崎": "09:42",
+          "武蔵小杉": "09:51",
+          "横浜": "10:04",
+          "戸塚": "10:15",
+          "大船": "10:20"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Local",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "09:50",
+          "渋谷": "09:55",
+          "恵比寿": "09:57",
+          "大崎": "10:02",
+          "西大井": "10:06",
+          "武蔵小杉": "10:11",
+          "新川崎": "10:14",
+          "横浜": "10:23",
+          "保土ケ谷": "10:27",
+          "東戸塚": "10:31",
+          "戸塚": "10:35",
+          "大船": "10:42",
+          "北鎌倉": "10:45"
+        }
+      },
+      {
+        "train": "Shonan-Shinjuku Line Rapid",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "10:00",
+          "渋谷": "10:06",
+          "恵比寿": "10:09",
+          "大崎": "10:14",
+          "武蔵小杉": "10:22",
+          "横浜": "10:32",
+          "戸塚": "10:42",
+          "大船": "10:47"
+        }
+      }
+    ]
+  },
+  {
+    "id": "odakyu-romancecar-shinjuku-hakone-yumoto",
+    "operator": "Odakyu",
+    "service": "Romancecar",
+    "serviceNames": [
+      "ロマンスカー",
+      "小田急ロマンスカー",
+      "はこね",
+      "スーパーはこね",
+      "小田急特急ロマンスカー",
+      "小田急小田原線特急",
+      "小田急小田原線ロマンスカー"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "新宿": "Shinjuku",
+      "新百合ヶ丘": "Shin-Yurigaoka",
+      "相模大野": "Sagami-Ono",
+      "本厚木": "Hon-Atsugi",
+      "伊勢原": "Isehara",
+      "秦野": "Hadano",
+      "小田原": "Odawara",
+      "箱根湯本": "Hakone-Yumoto",
+      "町田": "Machida",
+      "海老名": "Ebina"
+    },
+    "source": {
+      "urls": [
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/",
+        "https://www.odakyu.jp/romancecar/timetable/doc/260314/weekday_down2026.pdf",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_01.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_02.png"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official 2026-03-14 weekday timetable, active on retrieval; Tuesday 2026-12-08 is a weekday. All direct Shinjuku–Hakone-Yumoto services departing 06:30–10:30. The next Shinjuku departure is 11:00. No weekday Super Hakone appears in this window. Odawara and Hakone-Yumoto times are arrivals; other included stops use printed departures. Recheck later timetable notices before travel."
+    },
+    "departures": [
+      {
+        "train": "Romancecar Hakone 41",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "07:37",
+          "新百合ヶ丘": "08:10",
+          "相模大野": "08:22",
+          "本厚木": "08:33",
+          "伊勢原": "08:39",
+          "秦野": "08:48",
+          "小田原": "09:05",
+          "箱根湯本": "09:22"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 21",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:11",
+          "町田": "08:51",
+          "海老名": "09:02",
+          "本厚木": "09:07",
+          "秦野": "09:20",
+          "小田原": "09:36",
+          "箱根湯本": "09:53"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 1",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:31",
+          "新百合ヶ丘": "09:02",
+          "相模大野": "09:13",
+          "本厚木": "09:25",
+          "秦野": "09:39",
+          "小田原": "09:55",
+          "箱根湯本": "10:18"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 71",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "09:20",
+          "新百合ヶ丘": "09:43",
+          "町田": "09:52",
+          "海老名": "10:04",
+          "本厚木": "10:09",
+          "伊勢原": "10:15",
+          "秦野": "10:23",
+          "小田原": "10:40",
+          "箱根湯本": "10:55"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 3",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "10:00",
+          "町田": "10:30",
+          "海老名": "10:41",
+          "伊勢原": "10:49",
+          "小田原": "11:13",
+          "箱根湯本": "11:27"
+        }
+      }
+    ]
+  },
+  {
+    "id": "odakyu-romancecar-hakone-yumoto-shinjuku",
+    "operator": "Odakyu",
+    "service": "Romancecar",
+    "serviceNames": [
+      "ロマンスカー",
+      "小田急ロマンスカー",
+      "はこね",
+      "スーパーはこね",
+      "小田急特急ロマンスカー",
+      "小田急小田原線特急",
+      "小田急小田原線ロマンスカー"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "箱根湯本": "Hakone-Yumoto",
+      "小田原": "Odawara",
+      "伊勢原": "Isehara",
+      "海老名": "Ebina",
+      "町田": "Machida",
+      "新宿": "Shinjuku",
+      "秦野": "Hadano",
+      "本厚木": "Hon-Atsugi"
+    },
+    "source": {
+      "urls": [
+        "https://www.odakyu.jp/romancecar/timetable/weekday/up/",
+        "https://www.odakyu.jp/romancecar/timetable/doc/260314/weekday_up2026.pdf",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-img/weekday_up_04.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-img/weekday_up_05.png"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official 2026-03-14 weekday timetable, active on retrieval; Tuesday 2026-12-08 is a weekday. All direct Hakone-Yumoto–Shinjuku trains departing 14:00–20:00. The 14:18 Metro Hakone 20 does not serve Shinjuku and is excluded. Intermediate stops use departures; Shinjuku uses arrival. Recheck later timetable notices before travel."
+    },
+    "departures": [
+      {
+        "train": "Romancecar Hakone 12",
+        "days": "weekdays",
+        "stops": {
+          "箱根湯本": "14:48",
+          "小田原": "15:14",
+          "伊勢原": "15:38",
+          "海老名": "15:47",
+          "町田": "15:57",
+          "新宿": "16:26"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 36",
+        "days": "weekdays",
+        "stops": {
+          "箱根湯本": "15:13",
+          "小田原": "15:29",
+          "秦野": "15:46",
+          "本厚木": "16:02",
+          "海老名": "16:07",
+          "町田": "16:17",
+          "新宿": "16:46"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 14",
+        "days": "weekdays",
+        "stops": {
+          "箱根湯本": "15:52",
+          "小田原": "16:13",
+          "伊勢原": "16:40",
+          "海老名": "16:50",
+          "町田": "17:01",
+          "新宿": "17:27"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 16",
+        "days": "weekdays",
+        "stops": {
+          "箱根湯本": "16:51",
+          "小田原": "17:10",
+          "伊勢原": "17:38",
+          "海老名": "17:49",
+          "町田": "18:01",
+          "新宿": "18:28"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 18",
+        "days": "weekdays",
+        "stops": {
+          "箱根湯本": "17:46",
+          "小田原": "18:03",
+          "伊勢原": "18:30",
+          "海老名": "18:41",
+          "町田": "18:52",
+          "新宿": "19:26"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 20",
+        "days": "weekdays",
+        "stops": {
+          "箱根湯本": "18:36",
+          "小田原": "18:51",
+          "秦野": "19:09",
+          "本厚木": "19:22",
+          "町田": "19:35",
+          "新宿": "20:06"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 22",
+        "days": "weekdays",
+        "stops": {
+          "箱根湯本": "19:50",
+          "小田原": "20:07",
+          "伊勢原": "20:33",
+          "海老名": "20:42",
+          "町田": "20:52",
+          "新宿": "21:26"
+        }
+      }
+    ]
+  },
+  {
+    "id": "keio-shinjuku-takaosanguchi",
+    "operator": "Keio",
+    "service": "Keio Line Limited Express",
+    "serviceNames": [
+      "京王線特急",
+      "京王高尾線特急",
+      "京王京王線特急",
+      "京王電鉄京王線特急",
+      "京王電鉄高尾線特急"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "新宿": "Shinjuku",
+      "笹塚": "Sasazuka",
+      "明大前": "Meidaimae",
+      "千歳烏山": "Chitose-Karasuyama",
+      "調布": "Chofu",
+      "府中": "Fuchu",
+      "分倍河原": "Bubaigawara",
+      "聖蹟桜ヶ丘": "Seiseki-Sakuragaoka",
+      "高幡不動": "Takahatafudo",
+      "北野": "Kitano",
+      "京王片倉": "Keio-Katakura",
+      "山田": "Yamada",
+      "めじろ台": "Mejirodai",
+      "狭間": "Hazama",
+      "高尾": "Takao",
+      "高尾山口": "Takaosanguchi"
+    },
+    "source": {
+      "urls": [
+        "https://www.keio.co.jp/global/routes/stations/shinjuku/",
+        "https://transfer-train.navitime.biz/keio/directions/timetable?direction=1&line=1&station=4254",
+        "https://transfer-train.navitime.biz/api/keio/timetable/4254/1/1?datetime=2026-12-10T07%3A00%3A00%2B09%3A00&target=weekday&lang=ja",
+        "https://transfer-train.navitime.biz/api/keio/stops/4254/1?operation_id=8002030d&train_no=0101&datetime=2026-12-10T07%3A03%3A00%2B09%3A00&all=true&lang=ja&direction=1",
+        "https://transfer-train.navitime.biz/api/keio/stops/4254/1?operation_id=800203c7&train_no=0103&datetime=2026-12-10T08%3A10%3A00%2B09%3A00&all=true&lang=ja&direction=1",
+        "https://transfer-train.navitime.biz/api/keio/stops/4254/1?operation_id=800203a7&train_no=0105&datetime=2026-12-10T08%3A56%3A00%2B09%3A00&all=true&lang=ja&direction=1",
+        "https://transfer-train.navitime.biz/api/keio/stops/4254/1?operation_id=800202ee&train_no=0107&datetime=2026-12-10T09%3A16%3A00%2B09%3A00&all=true&lang=ja&direction=1",
+        "https://transfer-train.navitime.biz/api/keio/stops/4254/1?operation_id=80020449&train_no=0109&datetime=2026-12-10T09%3A48%3A00%2B09%3A00&all=true&lang=ja&direction=1",
+        "https://transfer-train.navitime.biz/api/keio/stops/4254/1?operation_id=80020387&train_no=0111&datetime=2026-12-10T10%3A10%3A00%2B09%3A00&all=true&lang=ja&direction=1",
+        "https://transfer-train.navitime.biz/api/keio/stops/4254/1?operation_id=800203c8&train_no=0113&datetime=2026-12-10T10%3A30%3A00%2B09%3A00&all=true&lang=ja&direction=1"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official Keio timetable service linked from keio.co.jp. The API explicitly returns 2026-12-10; weekday revision 2026-08-17. All through limited expresses in the requested window are included. No Semi Special Express or Mt.TAKAO is listed. Local trains are outside the requested types. Intermediate stops use departures; the final stop uses arrival."
+    },
+    "departures": [
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "07:03",
+          "笹塚": "07:09",
+          "明大前": "07:13",
+          "千歳烏山": "07:18",
+          "調布": "07:25",
+          "府中": "07:32",
+          "分倍河原": "07:34",
+          "聖蹟桜ヶ丘": "07:37",
+          "高幡不動": "07:41",
+          "北野": "07:47",
+          "京王片倉": "07:49",
+          "山田": "07:51",
+          "めじろ台": "07:53",
+          "狭間": "07:55",
+          "高尾": "07:58",
+          "高尾山口": "08:00"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:10",
+          "笹塚": "08:16",
+          "明大前": "08:19",
+          "千歳烏山": "08:26",
+          "調布": "08:34",
+          "府中": "08:42",
+          "分倍河原": "08:44",
+          "聖蹟桜ヶ丘": "08:47",
+          "高幡不動": "08:51",
+          "北野": "08:58",
+          "京王片倉": "09:00",
+          "山田": "09:02",
+          "めじろ台": "09:04",
+          "狭間": "09:06",
+          "高尾": "09:09",
+          "高尾山口": "09:11"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "08:56",
+          "笹塚": "09:01",
+          "明大前": "09:04",
+          "千歳烏山": "09:11",
+          "調布": "09:19",
+          "府中": "09:29",
+          "分倍河原": "09:31",
+          "聖蹟桜ヶ丘": "09:34",
+          "高幡不動": "09:41",
+          "北野": "09:48",
+          "京王片倉": "09:51",
+          "山田": "09:53",
+          "めじろ台": "09:55",
+          "狭間": "09:57",
+          "高尾": "09:59",
+          "高尾山口": "10:02"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "09:16",
+          "笹塚": "09:21",
+          "明大前": "09:23",
+          "千歳烏山": "09:29",
+          "調布": "09:38",
+          "府中": "09:47",
+          "分倍河原": "09:49",
+          "聖蹟桜ヶ丘": "09:52",
+          "高幡不動": "09:56",
+          "北野": "10:03",
+          "京王片倉": "10:05",
+          "山田": "10:07",
+          "めじろ台": "10:09",
+          "狭間": "10:10",
+          "高尾": "10:13",
+          "高尾山口": "10:16"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "09:48",
+          "笹塚": "09:53",
+          "明大前": "09:56",
+          "千歳烏山": "10:02",
+          "調布": "10:10",
+          "府中": "10:16",
+          "分倍河原": "10:18",
+          "聖蹟桜ヶ丘": "10:21",
+          "高幡不動": "10:25",
+          "北野": "10:32",
+          "京王片倉": "10:34",
+          "山田": "10:36",
+          "めじろ台": "10:38",
+          "狭間": "10:40",
+          "高尾": "10:42",
+          "高尾山口": "10:45"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "10:10",
+          "笹塚": "10:15",
+          "明大前": "10:18",
+          "千歳烏山": "10:23",
+          "調布": "10:30",
+          "府中": "10:37",
+          "分倍河原": "10:39",
+          "聖蹟桜ヶ丘": "10:42",
+          "高幡不動": "10:46",
+          "北野": "10:52",
+          "京王片倉": "10:54",
+          "山田": "10:56",
+          "めじろ台": "10:58",
+          "狭間": "11:00",
+          "高尾": "11:02",
+          "高尾山口": "11:05"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "新宿": "10:30",
+          "笹塚": "10:35",
+          "明大前": "10:37",
+          "千歳烏山": "10:42",
+          "調布": "10:48",
+          "府中": "10:54",
+          "分倍河原": "10:56",
+          "聖蹟桜ヶ丘": "10:59",
+          "高幡不動": "11:03",
+          "北野": "11:09",
+          "京王片倉": "11:11",
+          "山田": "11:13",
+          "めじろ台": "11:15",
+          "狭間": "11:17",
+          "高尾": "11:20",
+          "高尾山口": "11:23"
+        }
+      }
+    ]
+  },
+  {
+    "id": "keio-takaosanguchi-shinjuku",
+    "operator": "Keio",
+    "service": "Keio Line Limited Express",
+    "serviceNames": [
+      "京王線特急",
+      "京王高尾線特急",
+      "京王京王線特急",
+      "京王電鉄京王線特急",
+      "京王電鉄高尾線特急"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "高尾山口": "Takaosanguchi",
+      "高尾": "Takao",
+      "狭間": "Hazama",
+      "めじろ台": "Mejirodai",
+      "山田": "Yamada",
+      "京王片倉": "Keio-Katakura",
+      "北野": "Kitano",
+      "高幡不動": "Takahatafudo",
+      "聖蹟桜ヶ丘": "Seiseki-Sakuragaoka",
+      "分倍河原": "Bubaigawara",
+      "府中": "Fuchu",
+      "調布": "Chofu",
+      "千歳烏山": "Chitose-Karasuyama",
+      "明大前": "Meidaimae",
+      "笹塚": "Sasazuka",
+      "新宿": "Shinjuku"
+    },
+    "source": {
+      "urls": [
+        "https://www.keio.co.jp/global/routes/stations/shinjuku/",
+        "https://transfer-train.navitime.biz/keio/directions/timetable?direction=0&line=4&station=2629",
+        "https://transfer-train.navitime.biz/api/keio/timetable/2629/4/0?datetime=2026-12-10T13%3A00%3A00%2B09%3A00&target=weekday&lang=ja",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=00040094&train_no=0132&datetime=2026-12-10T13%3A06%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=000400a9&train_no=0134&datetime=2026-12-10T13%3A26%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=000400bd&train_no=0136&datetime=2026-12-10T13%3A46%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=000400a4&train_no=0138&datetime=2026-12-10T14%3A06%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=00040071&train_no=0140&datetime=2026-12-10T14%3A26%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=000400cf&train_no=0142&datetime=2026-12-10T14%3A46%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=00040095&train_no=0144&datetime=2026-12-10T15%3A06%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=000400aa&train_no=0146&datetime=2026-12-10T15%3A26%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=000400a5&train_no=0148&datetime=2026-12-10T16%3A07%3A00%2B09%3A00&all=true&lang=ja&direction=0",
+        "https://transfer-train.navitime.biz/api/keio/stops/2629/4?operation_id=00040072&train_no=0150&datetime=2026-12-10T16%3A26%3A00%2B09%3A00&all=true&lang=ja&direction=0"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "Official Keio timetable service linked from keio.co.jp. The API explicitly returns 2026-12-10; weekday revision 2026-08-17. All through limited expresses in the requested window are included. No Semi Special Express or Mt.TAKAO is listed. Local trains are outside the requested types. Intermediate stops use departures; the final stop uses arrival."
+    },
+    "departures": [
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "13:06",
+          "高尾": "13:09",
+          "狭間": "13:10",
+          "めじろ台": "13:12",
+          "山田": "13:14",
+          "京王片倉": "13:16",
+          "北野": "13:23",
+          "高幡不動": "13:29",
+          "聖蹟桜ヶ丘": "13:32",
+          "分倍河原": "13:36",
+          "府中": "13:38",
+          "調布": "13:45",
+          "千歳烏山": "13:51",
+          "明大前": "13:56",
+          "笹塚": "13:59",
+          "新宿": "14:03"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "13:26",
+          "高尾": "13:29",
+          "狭間": "13:30",
+          "めじろ台": "13:32",
+          "山田": "13:34",
+          "京王片倉": "13:36",
+          "北野": "13:43",
+          "高幡不動": "13:49",
+          "聖蹟桜ヶ丘": "13:52",
+          "分倍河原": "13:56",
+          "府中": "13:58",
+          "調布": "14:05",
+          "千歳烏山": "14:11",
+          "明大前": "14:16",
+          "笹塚": "14:19",
+          "新宿": "14:23"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "13:46",
+          "高尾": "13:49",
+          "狭間": "13:50",
+          "めじろ台": "13:52",
+          "山田": "13:54",
+          "京王片倉": "13:56",
+          "北野": "14:03",
+          "高幡不動": "14:09",
+          "聖蹟桜ヶ丘": "14:12",
+          "分倍河原": "14:16",
+          "府中": "14:18",
+          "調布": "14:25",
+          "千歳烏山": "14:31",
+          "明大前": "14:36",
+          "笹塚": "14:39",
+          "新宿": "14:43"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "14:06",
+          "高尾": "14:09",
+          "狭間": "14:10",
+          "めじろ台": "14:12",
+          "山田": "14:14",
+          "京王片倉": "14:16",
+          "北野": "14:23",
+          "高幡不動": "14:29",
+          "聖蹟桜ヶ丘": "14:32",
+          "分倍河原": "14:36",
+          "府中": "14:38",
+          "調布": "14:45",
+          "千歳烏山": "14:51",
+          "明大前": "14:56",
+          "笹塚": "14:59",
+          "新宿": "15:03"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "14:26",
+          "高尾": "14:29",
+          "狭間": "14:30",
+          "めじろ台": "14:32",
+          "山田": "14:34",
+          "京王片倉": "14:36",
+          "北野": "14:43",
+          "高幡不動": "14:49",
+          "聖蹟桜ヶ丘": "14:52",
+          "分倍河原": "14:56",
+          "府中": "14:58",
+          "調布": "15:05",
+          "千歳烏山": "15:11",
+          "明大前": "15:16",
+          "笹塚": "15:19",
+          "新宿": "15:23"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "14:46",
+          "高尾": "14:49",
+          "狭間": "14:50",
+          "めじろ台": "14:52",
+          "山田": "14:54",
+          "京王片倉": "14:56",
+          "北野": "15:03",
+          "高幡不動": "15:09",
+          "聖蹟桜ヶ丘": "15:12",
+          "分倍河原": "15:16",
+          "府中": "15:18",
+          "調布": "15:25",
+          "千歳烏山": "15:31",
+          "明大前": "15:36",
+          "笹塚": "15:39",
+          "新宿": "15:43"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "15:06",
+          "高尾": "15:09",
+          "狭間": "15:10",
+          "めじろ台": "15:12",
+          "山田": "15:14",
+          "京王片倉": "15:16",
+          "北野": "15:23",
+          "高幡不動": "15:29",
+          "聖蹟桜ヶ丘": "15:32",
+          "分倍河原": "15:36",
+          "府中": "15:38",
+          "調布": "15:45",
+          "千歳烏山": "15:51",
+          "明大前": "15:56",
+          "笹塚": "15:59",
+          "新宿": "16:03"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "15:26",
+          "高尾": "15:29",
+          "狭間": "15:30",
+          "めじろ台": "15:32",
+          "山田": "15:34",
+          "京王片倉": "15:36",
+          "北野": "15:43",
+          "高幡不動": "15:49",
+          "聖蹟桜ヶ丘": "15:52",
+          "分倍河原": "15:56",
+          "府中": "15:58",
+          "調布": "16:05",
+          "千歳烏山": "16:11",
+          "明大前": "16:17",
+          "笹塚": "16:20",
+          "新宿": "16:25"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "16:07",
+          "高尾": "16:10",
+          "狭間": "16:11",
+          "めじろ台": "16:13",
+          "山田": "16:15",
+          "京王片倉": "16:17",
+          "北野": "16:23",
+          "高幡不動": "16:30",
+          "聖蹟桜ヶ丘": "16:33",
+          "分倍河原": "16:37",
+          "府中": "16:39",
+          "調布": "16:46",
+          "千歳烏山": "16:51",
+          "明大前": "16:57",
+          "笹塚": "17:00",
+          "新宿": "17:06"
+        }
+      },
+      {
+        "train": "Keio Limited Express",
+        "days": "weekdays",
+        "stops": {
+          "高尾山口": "16:26",
+          "高尾": "16:29",
+          "狭間": "16:30",
+          "めじろ台": "16:32",
+          "山田": "16:34",
+          "京王片倉": "16:36",
+          "北野": "16:43",
+          "高幡不動": "16:49",
+          "聖蹟桜ヶ丘": "16:52",
+          "分倍河原": "16:56",
+          "府中": "16:58",
+          "調布": "17:04",
+          "千歳烏山": "17:11",
+          "明大前": "17:18",
+          "笹塚": "17:21",
+          "新宿": "17:27"
+        }
+      }
+    ]
+  },
+  {
+    "id": "keisei-access-express-narita-ueno-unverified",
+    "operator": "Keisei",
+    "service": "Access Express",
+    "serviceNames": [
+      "京成成田スカイアクセス線アクセス特急",
+      "京成アクセス特急"
+    ],
+    "kind": "express",
+    "stationNames": {
+      "空港第2ビル": "Narita Airport Terminal 2,3",
+      "京成上野": "Keisei Ueno"
+    },
+    "source": {
+      "urls": [
+        "https://www.keisei.co.jp/keisei/tetudou/accessj/narita-airport-terminal2-3.php",
+        "https://keisei.ekitan.com/maintenance.html",
+        "https://www.keisei.co.jp/news/detail.php?CN=8045",
+        "https://www.keisei.co.jp/cms/files/keisei/MASTER/0110/DRTEpEss.pdf"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "No verified departures included. Requested Sunday 2026-12-06 14:00–17:30 from Terminal 2. Keisei announces a timetable revision effective 2026-11-21. The linked station timetable redirects to a maintenance notice; the revision PDF does not give the requested Access Express times. Through service to Keisei-Ueno and connection times could not be verified. No pre-revision times are substituted."
+    },
+    "departures": []
+  },
+  {
+    "id": "enoden-kamakura-enoshima-unverified",
+    "operator": "Enoden",
+    "service": "Enoshima Electric Railway",
+    "serviceNames": [
+      "江ノ島電鉄",
+      "江ノ島電鉄線",
+      "江ノ電"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "鎌倉": "Kamakura",
+      "江ノ島": "Enoshima"
+    },
+    "source": {
+      "urls": [
+        "https://www.enoden.co.jp/train/station/kamakura/time-table/",
+        "https://www.enoden.co.jp/train/station/enoshima/"
+      ],
+      "retrieved": "2026-10-23",
+      "note": "No complete train rows included. Requested Monday 2026-12-07 11:00–16:00 from Kamakura. The official station timetable explicitly lists 21 departures from 11:12 to 15:52, but corresponding Enoshima arrival times were not verified. No arrival is estimated from frequency or journey duration."
+    },
+    "departures": []
+  }
+]
