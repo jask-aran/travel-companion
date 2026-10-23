@@ -9,6 +9,7 @@ import { isDomestic, shiftClock } from "./day-times.js";
  * summary shows (flight transfers and long journeys), by transit, and only
  * where a time pins them down: a flight, or a stop with a time set in
  * Wanderlog. A stop with a time is how you mark it as time-sensitive.
+ * Use NAVITIME for Japan and Google elsewhere.
  */
 export type DepartureTarget = {
   key: string;
@@ -32,17 +33,29 @@ export const departureKey = (leg: Pick<RouteLeg, "fromPlaceId" | "toPlaceId">) =
   `${leg.fromPlaceId}>${leg.toPlaceId}`;
 
 /**
- * Google's API has no Japanese transit (its FAQ excludes Japan's partners);
- * NAVITIME covers Japan only. Coordinates decide, since addresses on this
- * trip do not always end in a country.
+ * Use NAVITIME in Japan and Google elsewhere; no coordinates means no provider.
+ * An address ending in Japan or 日本 overrides the coordinate boxes below.
+ * The boxes approximate Japan's islands because addresses can omit the country.
  */
 export function providerFor(place?: Place): DepartureTarget["provider"] | undefined {
   const lat = place?.latitude;
   const lng = place?.longitude;
   if (lat == null || lng == null) return undefined;
-  if (lat >= 33 && lat <= 38.7 && lng >= 124.5 && lng <= 130) return "google";
-  if (lat >= 24 && lat <= 46 && lng >= 122.9 && lng <= 146) return "navitime";
-  return undefined;
+  if (/(?:\bJapan|日本)\s*$/iu.test(place?.address ?? "")) return "navitime";
+
+  // [south, north, west, east], in degrees. These are island bounds, not borders.
+  const japanBoxes = [
+    [30, 34, 128.4, 140], // Kyushu, Shikoku, and southern Honshu; below South Korea.
+    [34, 37, 130, 142], // Central Honshu; east of South Korea's mainland.
+    [37, 41.6, 136, 142], // Northern Honshu; east of Korea's Ulleungdo island.
+    [41.3, 45.6, 139.3, 145.35], // Hokkaido; south of Sakhalin, west of the Kurils.
+    [43, 43.6, 145.35, 145.9], // Nemuro peninsula; south of the Kurils.
+    [24, 30, 122.9, 131], // Ryukyu Islands, including Okinawa; east of Taiwan.
+    [34.05, 34.75, 129.1, 129.6], // Tsushima; south of Busan.
+  ] as const;
+  return japanBoxes.some(([south, north, west, east]) =>
+    lat >= south && lat <= north && lng >= west && lng <= east
+  ) ? "navitime" : "google";
 }
 
 export function departureTargets(bundle: TripBundle): DepartureTarget[] {
