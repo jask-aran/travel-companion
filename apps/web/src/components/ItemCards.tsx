@@ -709,6 +709,38 @@ export function HotelPill(props: {
   );
 }
 
+/**
+ * A night in the middle of a stay, in the day summary: the hotel is already
+ * known from the day you checked in, so one line, not the whole card again.
+ */
+export function StayLine(props: { item: LodgingItem; place?: Place | undefined; date: string }) {
+  const nights = () => nightsBetween(props.item.checkInDate, props.item.checkOutDate);
+  const night = () => {
+    const before = props.item.checkInDate ? nightsBetween(props.item.checkInDate, props.date) : undefined;
+    return before === undefined ? undefined : before + 1;
+  };
+  return (
+    <div class="stay-line">
+      <span class="kind-badge kind-badge--lodging" aria-hidden="true">
+        <ModeGlyph mode="lodging" />
+      </span>
+      <Show when={props.place} fallback={<span class="stay-line__name">{props.item.name}</span>}>
+        {(place) => (
+          <a class="stay-line__name" href={buildGoogleMapsUrl(place())} target="_blank" rel="noopener noreferrer">
+            {props.item.name}
+          </a>
+        )}
+      </Show>
+      <Show when={night() && nights()}>
+        <span class="stay-line__night">
+          Night {night()} of {nights()}
+        </span>
+      </Show>
+      <CopyAddress address={props.place?.address} />
+    </div>
+  );
+}
+
 export function FlightRow(props: {
   item: FlightItem;
   timing?: FlightTiming | undefined;
@@ -782,8 +814,9 @@ export function FlightRow(props: {
                 {(timing) => (
                   <span class="flight-by">
                     <Icon name="clock" />
-                    <Hidden>{`At ${props.item.departAirport ?? "the airport"} between `}</Hidden>
-                    <strong>{timing().airportBy}</strong>–{timing().airportUntil}
+                    <span>
+                      At airport <strong>{timing().airportBy}</strong>–{timing().airportUntil}
+                    </span>
                   </span>
                 )}
               </Show>

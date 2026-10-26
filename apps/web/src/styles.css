@@ -511,7 +511,7 @@ p {
 .day-section {
   position: relative;
   scroll-margin-top: var(--sticky-offset);
-  padding: 0.4rem 0.75rem 0.9rem;
+  padding: 0.4rem 0.75rem 0.6rem;
   /* Inline room for overhanging badges and shadows, cancelled by the
      negative margin; the day divider is inset to match. */
   margin-inline: -0.75rem;
@@ -523,7 +523,7 @@ p {
 
 /* The rule between days spans the cards, not the section's overhang room. */
 .day-section + .day-section {
-  padding-top: 1.2rem;
+  padding-top: 1rem;
 }
 
 .day-section + .day-section::before {
@@ -2145,6 +2145,21 @@ html {
   line-height: 1.35;
 }
 
+/* The figure, then what it is: "6h 2m / in transit". */
+.day-stats dd {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.day-stats__caption {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  color: var(--ink-muted);
+  word-spacing: normal;
+  white-space: normal;
+}
+
 .day-stats__name {
   height: auto;
   padding-top: 0.05rem;
@@ -2198,11 +2213,12 @@ html {
   text-align: right;
 }
 
+/* Under the departure city, on its own line: when to be at the airport. */
 .flight-by {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.25rem;
-  margin-left: 0.5rem;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
   white-space: nowrap;
 }
 
@@ -2457,3 +2473,32 @@ html {
   contain: layout paint;
 }
 
+
+/* A middle night of a stay, as one row of the day summary. */
+.stay-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.9rem;
+  padding: 0.35rem var(--pad);
+  background-image: var(--lodging-wash);
+}
+
+.stay-line__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.stay-line__night {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+  word-spacing: -0.3em;
+}

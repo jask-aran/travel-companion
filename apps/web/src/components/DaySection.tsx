@@ -26,7 +26,7 @@ import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { fold, unfold } from "../lib/fold-motion";
 import { shiftClock, sunTimes, type FlightTiming } from "../lib/day-times";
 import { clock } from "../lib/clock";
-import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow } from "./ItemCards";
+import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow, StayLine } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
 /** A stat's name as an icon, the word kept for screen readers. */
@@ -36,6 +36,15 @@ function StatName(props: { icon: IconName; label: string }) {
       <Icon name={props.icon} />
       <Hidden>{props.label}</Hidden>
     </dt>
+  );
+}
+
+/** What a figure is, in words under it; the stat's name already tells screen readers. */
+function StatCaption(props: { children: string }) {
+  return (
+    <span class="day-stats__caption" aria-hidden="true">
+      {props.children}
+    </span>
   );
 }
 
@@ -58,15 +67,23 @@ function placeSequences(items: DayItem[], stayPlaceIds: Set<string>): number[] {
 function LodgingSlotView(props: {
   slot: LodgingSlot;
   bundle: TripBundle;
+  date: string;
   checkOutBy?: string | undefined;
 }) {
   return (
-    <LodgingBand
-      item={slotToLodgingItem(props.slot)}
-      place={stayPlace(props.bundle, props.slot.stay)}
-      role={props.slot.role}
-      checkOutBy={props.slot.role === "check-out" ? props.checkOutBy : undefined}
-    />
+    <Show
+      when={props.slot.role === "stay"}
+      fallback={
+        <LodgingBand
+          item={slotToLodgingItem(props.slot)}
+          place={stayPlace(props.bundle, props.slot.stay)}
+          role={props.slot.role}
+          checkOutBy={props.slot.role === "check-out" ? props.checkOutBy : undefined}
+        />
+      }
+    >
+      <StayLine item={slotToLodgingItem(props.slot)} place={stayPlace(props.bundle, props.slot.stay)} date={props.date} />
+    </Show>
   );
 }
 
@@ -416,14 +433,20 @@ export function DaySection(props: {
                     <Show when={stopCount() > 0}>
                       <div>
                         <StatName icon="pin" label="Stops" />
-                        <dd>{stopCount()}</dd>
+                        <dd>
+                          {stopCount()}
+                          <StatCaption>{stopCount() === 1 ? "stop" : "stops"}</StatCaption>
+                        </dd>
                       </div>
                     </Show>
                     <Show when={movingLabel()}>
                       {(label) => (
                         <div>
                           <StatName icon="clock" label="Moving" />
-                          <dd>{label()}</dd>
+                          <dd>
+                            {label()}
+                            <StatCaption>in transit</StatCaption>
+                          </dd>
                         </div>
                       )}
                     </Show>
@@ -434,6 +457,7 @@ export function DaySection(props: {
                           <dd class="day-stats__pair">
                             <span>{walk().time}</span>
                             <span>{walk().distance}</span>
+                            <StatCaption>walking</StatCaption>
                           </dd>
                         </div>
                       )}
@@ -453,6 +477,7 @@ export function DaySection(props: {
                               <Hidden>Sunset </Hidden>
                               {times().set}
                             </span>
+                            <StatCaption>daylight</StatCaption>
                           </dd>
                         </div>
                       )}
@@ -461,7 +486,7 @@ export function DaySection(props: {
                 </Show>
                 <For each={leaving()}>
                   {(slot) => (
-                    <LodgingSlotView slot={slot} bundle={props.bundle} checkOutBy={checkOutBy()} />
+                    <LodgingSlotView slot={slot} bundle={props.bundle} date={props.day.date} checkOutBy={checkOutBy()} />
                   )}
                 </For>
                 {/* Each flight with its transfers either side, each its own section,
@@ -518,7 +543,7 @@ export function DaySection(props: {
                   )}
                 </For>
                 <For each={arriving()}>
-                  {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} />}
+                  {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} date={props.day.date} />}
                 </For>
               </div>
             </div>
