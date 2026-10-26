@@ -13,6 +13,7 @@ import {
   collectStays,
   daySummarySlots,
   slotToLodgingItem,
+  stayDisplay,
   stayForDay,
   stayPlace,
   type LodgingSlot,
@@ -26,7 +27,7 @@ import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { fold, unfold } from "../lib/fold-motion";
 import { shiftClock, sunTimes, type FlightTiming } from "../lib/day-times";
 import { clock } from "../lib/clock";
-import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow, StayLine } from "./ItemCards";
+import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow, StayLine, chainOf } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
 /** A stat's name as an icon, the word kept for screen readers. */
@@ -147,6 +148,13 @@ export function DaySection(props: {
     }
     return plans;
   });
+  /** What a leg rides, for the summary, which shows no board: the picked option's lines. */
+  const lineFor = (leg: RouteLeg) => {
+    const board = boardFor(leg);
+    if (!board) return undefined;
+    const option = [...legPlans().values()].find((plan) => plan.board === board)?.option ?? board.options[0];
+    return option && chainOf(option);
+  };
   /**
    * Out of the hotel by the recommended train, less the walk to it. A walk
    * to the station first (hotel, then Nagoya Station, then the Hida) is
@@ -218,7 +226,8 @@ export function DaySection(props: {
     if (props.day.date !== now.date) return [];
     const events: { time: string; text: string }[] = [];
     const leave = leaveHotelBy();
-    const hotel = wokeIn()?.placeId && placeName(wokeIn()!.placeId!);
+    const stay = wokeIn();
+    const hotel = stay && stayDisplay(stay.name, stayPlace(props.bundle, stay)).name;
     if (leave) events.push({ time: leave, text: hotel ? `Leave ${hotel}` : "Leave the hotel" });
     for (const flight of flights()) {
       const airport = flight.departCity ?? flight.departAirport;
@@ -498,7 +507,7 @@ export function DaySection(props: {
                       <Show when={timings().get(item.id)?.legs.length}>
                         <ol class="day-summary__transfer">
                           <For each={timings().get(item.id)?.legs}>
-                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} showEnds />}
+                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} line={lineFor(leg)} showEnds />}
                           </For>
                         </ol>
                       </Show>
@@ -512,7 +521,7 @@ export function DaySection(props: {
                       <Show when={legOutOf(item.arrivePlaceId)}>
                         {(leg) => (
                           <ol class="day-summary__transfer">
-                            <RouteLegRow leg={leg()} places={props.bundle.places} showEnds />
+                            <RouteLegRow leg={leg()} places={props.bundle.places} line={lineFor(leg())} showEnds />
                           </ol>
                         )}
                       </Show>
@@ -536,6 +545,7 @@ export function DaySection(props: {
                         <RouteLegRow
                           leg={journey.leg}
                           places={props.bundle.places}
+                          line={lineFor(journey.leg)}
                           showEnds
                         />
                       </ol>

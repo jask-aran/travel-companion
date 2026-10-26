@@ -1,4 +1,5 @@
 import type { LodgingItem, Place, TripBundle } from "@travel-companion/trip-schema";
+import { cityOf } from "./format.js";
 
 export type Stay = {
   key: string;
@@ -178,4 +179,22 @@ export function stayForDay(stays: Stay[], date: string): Stay | undefined {
     stays.find((stay) => stay.checkInDate <= date && date < stay.checkOutDate) ??
     stays.find((stay) => stay.checkOutDate === date)
   );
+}
+
+/**
+ * A flat is named by its street address in Wanderlog ("1-chōme-21-1
+ * Nipponbashi"), which reads as noise on a card. Such a name shows as "Stay in
+ * Nipponbashi" (the street's neighbourhood, else the locality), the street
+ * kept as the line under it. A real name, given in Wanderlog, is used as is.
+ */
+export function stayDisplay(name: string, place?: Place): { name: string; street?: string } {
+  const address = place?.address ?? "";
+  if (!/^\d/.test(name) || !address.startsWith(name)) return { name };
+  const words = name.split(/\s+/);
+  const firstWord = words.findIndex((word) => !/\d/.test(word));
+  const rest = firstWord < 0 ? "" : words.slice(firstWord).join(" ");
+  const area = rest && !/\d/.test(rest) ? rest : place?.locality;
+  if (!area) return { name };
+  const city = cityOf(address);
+  return { name: `Stay in ${area}`, street: city && city !== area ? `${name}, ${city}` : name };
 }

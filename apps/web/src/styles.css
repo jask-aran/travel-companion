@@ -293,29 +293,16 @@ p {
 }
 
 /*
- * Two voices: Sora for what a thing is (names, titles, notes), Paper Mono for
- * what is said about it (labels, categories, addresses, times, distances).
+ * Two voices: Sora for everything in words (names, notes, categories,
+ * addresses, what a figure means), Paper Mono for what you'd read off a
+ * board: clock times, codes, the day's figures, and the capitalised labels.
  */
-.stop__meta,
-.stop__where,
-.travel__mode,
-.travel__detail,
-.flight-end__city,
-.leave-time,
-.card__detail-row,
 .day-stats dd {
   font-family: var(--font-mono);
 }
 
 /* A mono space is a full cell wide; pull words together so "Check out by"
    reads as a phrase, not three tokens. */
-.stop__meta,
-.stop__where,
-.travel__mode,
-.travel__detail,
-.flight-end__city,
-.leave-time,
-.card__detail-row,
 .day-stats dd,
 .state-panel__eyebrow,
 .unlock__eyebrow,
@@ -471,7 +458,9 @@ p {
   transition: background 160ms ease;
 }
 
-.day-tab:hover {
+/* Not on the active pill: a phone keeps hover after a tap, which outranked
+   the fill and left the day you're on grey. */
+.day-tab:not(.day-tab--active):hover {
   background: rgb(var(--on-dark-rgb) / 12%);
 }
 
@@ -1268,6 +1257,25 @@ p {
   }
 }
 
+/*
+ * A hotel card carries more lines (dates, nights) than a stop, so its photo
+ * fades out before the text column instead of reaching under it, and the
+ * credit keeps to the photo (wrapping, so it is never cut short).
+ */
+.lodging-band:not(.lodging-band--open) > .stop__photo {
+  width: calc(var(--photo-w) * 1.25);
+}
+
+.lodging-band:not(.lodging-band--open) > .stop__photo img {
+  mask-image: linear-gradient(to right, transparent 0%, rgb(0 0 0 / 60%) 22%, #000 40%);
+}
+
+.lodging-band:not(.lodging-band--open) > .stop__photo figcaption {
+  left: auto;
+  width: var(--photo-w);
+  white-space: normal;
+}
+
 .stop__photo-link {
   position: absolute;
   inset: 0;
@@ -1480,8 +1488,19 @@ p {
   stroke: none;
 }
 
+/* A note belongs to the stop above it: tucked under the card, on a rule that
+   runs unbroken through consecutive notes. */
 .note-item {
-  padding: 0.35rem var(--pad) 0.35rem var(--text-x);
+  padding: 0.3rem var(--pad) 0.3rem calc(var(--text-x) + 0.75rem);
+}
+
+.note-item::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--text-x);
+  border-left: 2px solid rgb(var(--line-rgb) / 55%);
 }
 
 .note-text {
@@ -1691,16 +1710,17 @@ p {
 }
 
 /* The Google Maps pin on links that open Maps; the pin is taller than wide. */
-.gmaps-icon {
-  width: auto;
-  height: 1.15rem;
-  flex: none;
-}
-
+/* Opens the leg in Maps: a quiet line icon, not the brand pin on every leg. */
 .travel__open {
   display: grid;
   place-items: center;
   min-width: 1.75rem;
+  color: var(--ink-muted);
+}
+
+.travel__open .mode-glyph {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 /* An address is a hint, not the destination: one line, cut short. */
@@ -1901,7 +1921,6 @@ html {
   border: 1px dashed var(--card-border);
   border-radius: var(--card-radius);
   color: var(--ink-muted);
-  font-family: var(--font-mono);
   font-size: var(--fs-small);
   text-align: center;
 }
@@ -1931,7 +1950,6 @@ html {
   border-radius: 8px;
   background: var(--paper-elevated);
   color: var(--ink);
-  font-family: var(--font-mono);
   font-size: var(--fs-small);
   text-align: left;
   white-space: nowrap;
@@ -1946,6 +1964,7 @@ html {
 .departures__when {
   flex: none;
   color: var(--ink);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1981,7 +2000,6 @@ html {
 .departures__source {
   margin: 0;
   color: var(--ink-muted);
-  font-family: var(--font-mono);
   font-size: var(--fs-label);
 }
 
@@ -2027,9 +2045,15 @@ html {
 }
 
 .departures__choice[aria-checked="true"] {
-  border-color: rgb(var(--travel-rgb) / 55%);
-  background: rgb(var(--travel-rgb) / 18%);
-  color: var(--ink);
+  border-color: transparent;
+  background: var(--seal);
+  color: var(--on-seal);
+  font-weight: 600;
+}
+
+/* The recommended one stays marked while another is looked at. */
+.departures__choice[aria-checked="true"].is-pick {
+  box-shadow: none;
 }
 
 .departures__choice.is-pick {
@@ -2191,11 +2215,6 @@ html {
 }
 
 .icon-link .mode-glyph,
-.icon-link .gmaps-icon {
-  width: 1rem;
-  height: 1rem;
-}
-
 /* --- Flight card: one line of times and airports --- */
 .flight-legs {
   grid-template-columns: auto auto minmax(1.5rem, 1fr) auto auto;
@@ -2497,8 +2516,6 @@ html {
 
 .stay-line__night {
   flex: none;
-  font-family: var(--font-mono);
   font-size: var(--fs-small);
   color: var(--ink-muted);
-  word-spacing: -0.3em;
 }

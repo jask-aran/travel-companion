@@ -32,8 +32,8 @@ import { RichNotes } from "./RichNotes";
 import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "../lib/maps";
 import { photoAttribution, placePhotoUrl, staticMapUrl } from "../lib/place-photo";
 import { LONG_LEG_SECONDS } from "../lib/route-legs";
+import { stayDisplay } from "../lib/lodging";
 import type { FlightTiming } from "../lib/day-times";
-import { GoogleMapsIcon } from "./GoogleMapsIcon";
 import { Hidden, Icon } from "./Icon";
 
 function StatusPill(props: { status?: DayItem["status"] | undefined }) {
@@ -104,13 +104,23 @@ export function RouteLegRow(props: {
   board?: DepartureBoard | undefined;
   /** When the ride before gets you to this leg's start (see departure-pick). */
   notBefore?: string | undefined;
+  /** The train or bus taken, where a board knows it and isn't shown here. */
+  line?: string | undefined;
 }) {
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
+  /**
+   * How long, then what you ride: a rail distance says nothing you'd act on.
+   * A board beneath names the line itself; walks and drives keep distance.
+   */
   const detail = () =>
     [
       formatDurationShort(props.leg.durationSeconds),
-      formatDistance(props.leg.distanceMetres),
+      props.leg.travelMode === "transit"
+        ? props.board
+          ? undefined
+          : props.line
+        : formatDistance(props.leg.distanceMetres),
       props.note,
     ]
       .filter(Boolean)
@@ -168,7 +178,7 @@ export function RouteLegRow(props: {
           >
             {contents()}
             <span class="travel__open">
-              <GoogleMapsIcon />
+              <Icon name="map" />
             </span>
           </a>
         )}
@@ -200,7 +210,7 @@ function frequencyOf(options: DepartureOption[], service: string | undefined): n
 }
 
 /** "Skyliner › Oedo Line": the rides of an option, as one key. */
-const chainOf = (option: DepartureOption) => option.segments.map((segment) => segment.name).join(" › ");
+export const chainOf = (option: DepartureOption) => option.segments.map((segment) => segment.name).join(" › ");
 
 /** A line's name edged in its own colour, as station signs use it. */
 function LineChip(props: { segment: DepartureSegment }) {
@@ -682,10 +692,10 @@ export function HotelPill(props: {
         <span class="kind-badge kind-badge--lodging" aria-hidden="true">
           <ModeGlyph mode="lodging" />
         </span>
-        <Show when={props.place} fallback={<span class="hotel-pill__name">{props.name}</span>}>
+        <Show when={props.place} fallback={<span class="hotel-pill__name">{stayDisplay(props.name).name}</span>}>
           {(place) => (
             <a class="hotel-pill__name" href={buildGoogleMapsUrl(place())} target="_blank" rel="noopener noreferrer">
-              {props.name}
+              {stayDisplay(props.name, place()).name}
             </a>
           )}
         </Show>
@@ -714,6 +724,7 @@ export function HotelPill(props: {
  * known from the day you checked in, so one line, not the whole card again.
  */
 export function StayLine(props: { item: LodgingItem; place?: Place | undefined; date: string }) {
+  const name = () => stayDisplay(props.item.name, props.place).name;
   const nights = () => nightsBetween(props.item.checkInDate, props.item.checkOutDate);
   const night = () => {
     const before = props.item.checkInDate ? nightsBetween(props.item.checkInDate, props.date) : undefined;
@@ -724,10 +735,10 @@ export function StayLine(props: { item: LodgingItem; place?: Place | undefined; 
       <span class="kind-badge kind-badge--lodging" aria-hidden="true">
         <ModeGlyph mode="lodging" />
       </span>
-      <Show when={props.place} fallback={<span class="stay-line__name">{props.item.name}</span>}>
+      <Show when={props.place} fallback={<span class="stay-line__name">{name()}</span>}>
         {(place) => (
           <a class="stay-line__name" href={buildGoogleMapsUrl(place())} target="_blank" rel="noopener noreferrer">
-            {props.item.name}
+            {name()}
           </a>
         )}
       </Show>
@@ -938,6 +949,7 @@ export function LodgingBand(props: {
   const rating = () => formatRatingLabel(props.place?.rating, props.place?.ratingCount);
   const category = () => formatCategory(props.place?.category);
   const area = () => areaOf(props.place?.address) ?? props.place?.locality;
+  const shownName = () => stayDisplay(props.item.name, props.place);
 
   return (
     <div
@@ -984,16 +996,16 @@ export function LodgingBand(props: {
         </div>
         <Show
           when={props.place}
-          fallback={<span class="stop__name stop__name--plain">{props.item.name}</span>}
+          fallback={<span class="stop__name stop__name--plain">{shownName().name}</span>}
         >
           {(place) => (
             <a class="stop__name" href={buildGoogleMapsUrl(place())} target="_blank" rel="noopener noreferrer">
-              {props.item.name}
+              {shownName().name}
             </a>
           )}
         </Show>
         <Show when={category()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
-        <Show when={area()}>{(where) => <p class="stop__where">{where()}</p>}</Show>
+        <Show when={shownName().street ?? area()}>{(where) => <p class="stop__where">{where()}</p>}</Show>
         <Show when={stayLine()}>
           {(line) => (
             <Show
