@@ -4,8 +4,8 @@ import { MEDIA_ROUTES } from "./media.js";
 
 /**
  * Photos and maps load through the app's own worker (see media.ts), which
- * holds the Google key. Place Photos may not be cached or re-hosted (ToS
- * 3.2.3(b)), so the worker forwards each request rather than storing images.
+ * holds the Google key. The worker saves photos in private R2 storage and
+ * checks the trip token before serving them.
  */
 declare const __TRIP_BASE__: string;
 const base = typeof __TRIP_BASE__ === "string" ? __TRIP_BASE__ : "/";

@@ -10,6 +10,7 @@ test-results/
 .env
 .env.*
 !.env.example
+.wrangler/
 .DS_Store
 
 # Local trip identity / acquisition config (Wanderlog trip id, private URL)

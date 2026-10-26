@@ -300,7 +300,7 @@ Google Place objects also contain:
 
 These are photo tokens, not direct image URLs. They require a Places Photo API request.
 
-Do not treat them as durable assets. Google photo identifiers can expire, caching is restricted, and attribution/source-access requirements apply.
+Do not treat photo tokens as durable assets: they can expire. For this personal app, the operator explicitly chose persistent photo storage outside Google’s standard caching terms. The production worker saves the first image for each place in private R2 storage and checks the trip token before serving it. Attribution remains required. See [hosting](hosting.md) for the deployed bucket and verification results.
 
 ### 7.3 Selection order
 

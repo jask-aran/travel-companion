@@ -17,7 +17,7 @@ export const MEDIA_ROUTES = { photo: "api/photo", map: "api/map" } as const;
  * covers that on a 2x screen. Larger images only cost decode time while a
  * day opens; an opened card dims its photo to a backdrop anyway.
  */
-const PHOTO_WIDTH_PX = 480;
+export const PHOTO_WIDTH_PX = 480;
 
 /** A Places photo resource name, as the trip stores it. */
 const PHOTO_NAME = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;

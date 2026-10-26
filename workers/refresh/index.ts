@@ -3,7 +3,7 @@ import { parseWanderlogSource } from "../../packages/wanderlog-import/src/index.
 import { attachPlaceDetails } from "../../packages/trip-normaliser/src/place-details.js";
 import { normaliseCompleteWanderlog } from "../../packages/trip-normaliser/src/complete.js";
 import { decryptTrip, encryptTrip, type EncryptedPayload } from "../../apps/web/src/lib/trip-crypto.js";
-import { MEDIA_ROUTES, mediaToken, mediaUpstream } from "../../apps/web/src/lib/media.js";
+import { MEDIA_ROUTES, PHOTO_WIDTH_PX, mediaToken, mediaUpstream } from "../../apps/web/src/lib/media.js";
 import { departureTargets } from "../../apps/web/src/lib/departure-targets.js";
 
 /**
@@ -28,9 +28,21 @@ type TripStore = {
   put(key: string, value: string): Promise<unknown>;
 };
 
+/** The R2 operations this worker uses, following the existing TripStore pattern. */
+type PhotoStore = {
+  get(key: string): Promise<{
+    body: ReadableStream<Uint8Array>;
+    httpMetadata?: { contentType?: string };
+  } | null>;
+  put(key: string, body: ReadableStream<Uint8Array>, options: {
+    httpMetadata: { contentType: string };
+  }): Promise<unknown>;
+};
+
 type RefreshEnv = {
   ASSETS: { fetch(request: Request): Promise<Response> };
   TRIP: TripStore;
+  PHOTOS?: PhotoStore;
   PUBLIC_ID: string;
   WANDERLOG_TRIP_ID?: string;
   TRIP_PASSPHRASE?: string;
@@ -198,10 +210,10 @@ async function fromAssets(request: Request, env: RefreshEnv): Promise<Response> 
  * A place photo or street map from Google, with the key added here so it
  * never ships to the browser. Only for a caller who can open the trip (the
  * token is a hash of the passphrase), and only photos and maps of a point,
- * so the key can't be spent on anything else. Not stored at the edge:
- * Google's terms forbid re-hosting photos.
+ * so the key can't be spent on anything else. Photos persist in private R2
+ * storage when PHOTOS is bound. Maps retain the one-day edge cache.
  */
-/** How long a photo or map stays in the shared edge cache: what Google's own image response allows. */
+/** Lifetime of temporary edge entries; persistent photos use R2 instead. */
 const MEDIA_EDGE_SECONDS = 86_400;
 
 type WaitUntil = { waitUntil(promise: Promise<unknown>): void };
@@ -218,12 +230,38 @@ async function media(route: string, url: URL, env: RefreshEnv, ctx: WaitUntil): 
   const upstream = mediaUpstream(route, url.searchParams, apiKey);
   if (!upstream) return new Response(null, { status: 404 });
 
+  if (route === MEDIA_ROUTES.photo && env.PHOTOS) {
+    // mediaUpstream validated the name. Use the place ID, not the expiring
+    // photo reference, so a trip rebuild keeps the same saved image.
+    const placeId = (url.searchParams.get("name") ?? "").split("/")[1];
+    const key = `${env.PUBLIC_ID}/photos/${PHOTO_WIDTH_PX}/${placeId}`;
+    const saved = await env.PHOTOS.get(key);
+    const photoResponse = (body: ReadableStream<Uint8Array>, contentType: string, state: "r2-hit" | "r2-miss") =>
+      new Response(body, { headers: {
+        "content-type": contentType,
+        "cache-control": "private, max-age=2592000",
+        "x-media-cache": state,
+      } });
+    if (saved) {
+      return photoResponse(saved.body, saved.httpMetadata?.contentType ?? "image/jpeg", "r2-hit");
+    }
+    const response = await fetch(upstream);
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!response.ok || !response.body || !contentType.startsWith("image/")) {
+      return new Response(null, { status: response.ok ? 502 : response.status, headers: { "cache-control": "no-store" } });
+    }
+    const copy = response.clone();
+    if (copy.body) {
+      await env.PHOTOS.put(key, copy.body, { httpMetadata: { contentType } });
+    }
+    return photoResponse(response.body, contentType, "r2-miss");
+  }
+
   /*
    * Shared by everyone who opens the trip: Google bills each photo request,
    * so a cache per phone costs one load per photo per phone per day; this
    * one costs one per photo per day, however many people read the trip.
-   * Google's image response is `public, max-age=86400`, which permits a
-   * shared cache for a day, so that is how long it is kept. Keyed without
+   * Maps, and photos without an R2 binding, use this temporary cache. Keyed without
    * the token or the API key; the token is checked before the cache is read.
    */
   const keyUrl = new URL(`${url.origin}/__media-cache/${route}`);
@@ -293,6 +331,9 @@ export default {
       return await handle(request, env, ctx);
     } catch (error) {
       console.error(JSON.stringify({ message: "refresh worker failed", error: String(error) }));
+      if (Object.values(MEDIA_ROUTES).some((route) => new URL(request.url).pathname.endsWith(`/${route}`))) {
+        return new Response(null, { status: 502, headers: { "cache-control": "no-store" } });
+      }
       if (request.method === "GET" || request.method === "HEAD") return env.ASSETS.fetch(request);
       return Response.json({ error: "Refresh failed" }, { status: 500 });
     }
