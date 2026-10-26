@@ -95,6 +95,16 @@ export default defineConfig({
             },
           },
           {
+            // Photos and maps never change for a place, so the copy on the
+            // phone wins (offline-media.ts fills this cache up front).
+            urlPattern: /\/api\/(photo|map)\?/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "media",
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
             // Live departure boards: the worker's answer when online, the
             // last one this phone got when not.
             urlPattern: /\/api\/departures\?/,

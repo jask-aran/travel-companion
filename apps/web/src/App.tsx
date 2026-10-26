@@ -26,6 +26,7 @@ import { isDayCollapsed, setDayCollapsed } from "./lib/collapsed-days";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { indexRouteLegs } from "./lib/route-legs";
 import { withLiveBoards } from "./lib/live-departures";
+import { keepMediaOffline } from "./lib/offline-media";
 
 export default function App() {
   /*
@@ -45,6 +46,14 @@ export default function App() {
   const [unlockError, setUnlockError] = createSignal("");
   const [trip] = createResource(passphrase, (secret) => loadTripBundle(secret));
   const shown = withLiveBoards(trip);
+  // Once the itinerary is up, in the background: dev has no service worker to use the copies.
+  createEffect(() => {
+    const bundle = trip();
+    if (!bundle || !import.meta.env.PROD) return;
+    const start = () => void keepMediaOffline(bundle);
+    if ("requestIdleCallback" in window) requestIdleCallback(start, { timeout: 5000 });
+    else setTimeout(start, 2000);
+  });
 
   const isWrongPassphrase = (error: unknown) =>
     error instanceof WrongPassphraseError ||
