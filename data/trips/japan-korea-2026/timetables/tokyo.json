@@ -649,7 +649,9 @@
       "スーパーはこね",
       "小田急特急ロマンスカー",
       "小田急小田原線特急",
-      "小田急小田原線ロマンスカー"
+      "小田急小田原線ロマンスカー",
+      "ホームウェイ",
+      "小田急特急ホームウェイ"
     ],
     "kind": "express",
     "stationNames": {
@@ -668,16 +670,31 @@
       "urls": [
         "https://www.odakyu.jp/romancecar/timetable/weekday/down/",
         "https://www.odakyu.jp/romancecar/timetable/doc/260314/weekday_down2026.pdf",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-att/weekday_down2026.pdf",
         "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_01.png",
-        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_02.png"
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_02.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_03.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_04.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_05.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_06.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/down/o5oaa100000009h9-img/weekday_down_07.png",
+        "https://api.openstreetmap.org/api/0.6/node/2389061846",
+        "https://nominatim.openstreetmap.org/search?q=Shin-Yurigaoka+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%9B%B8%E6%A8%A1%E5%A4%A7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9C%AC%E5%8E%9A%E6%9C%A8%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%BC%8A%E5%8B%A2%E5%8E%9F%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Hadano+station&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/4011607036",
+        "https://nominatim.openstreetmap.org/search?q=%E7%AE%B1%E6%A0%B9%E6%B9%AF%E6%9C%AC%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Machida+station&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/map?bbox=139.389,35.451,139.393,35.455"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official 2026-03-14 weekday timetable, active on retrieval; Tuesday 2026-12-08 is a weekday. All direct Shinjuku–Hakone-Yumoto services departing 06:30–10:30. The next Shinjuku departure is 11:00. No weekday Super Hakone appears in this window. Odawara and Hakone-Yumoto times are arrivals; other included stops use printed departures. Recheck later timetable notices before travel."
+      "retrieved": "2026-10-26",
+      "note": "All 16 direct Shinjuku to Hakone-Yumoto Romancecar departures on Tuesday 2026-12-08. Official weekday timetable effective 2026-03-14, still published on retrieval. Valid is limited to the travel date; no official end date is published. Includes Home Way 1 and 5, the final direct departures. Odawara and Hakone-Yumoto times are arrivals; other times are departures. All seats require a reserved-seat limited-express ticket in addition to the fare. The published October/November extension notice does not cover December; those extras are not applied. Check later notices before travel."
     },
     "departures": [
       {
         "train": "Romancecar Hakone 41",
-        "days": "weekdays",
         "stops": {
           "新宿": "07:37",
           "新百合ヶ丘": "08:10",
@@ -687,11 +704,13 @@
           "秦野": "08:48",
           "小田原": "09:05",
           "箱根湯本": "09:22"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 21",
-        "days": "weekdays",
         "stops": {
           "新宿": "08:11",
           "町田": "08:51",
@@ -700,11 +719,13 @@
           "秦野": "09:20",
           "小田原": "09:36",
           "箱根湯本": "09:53"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 1",
-        "days": "weekdays",
         "stops": {
           "新宿": "08:31",
           "新百合ヶ丘": "09:02",
@@ -713,11 +734,13 @@
           "秦野": "09:39",
           "小田原": "09:55",
           "箱根湯本": "10:18"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 71",
-        "days": "weekdays",
         "stops": {
           "新宿": "09:20",
           "新百合ヶ丘": "09:43",
@@ -728,11 +751,13 @@
           "秦野": "10:23",
           "小田原": "10:40",
           "箱根湯本": "10:55"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 3",
-        "days": "weekdays",
         "stops": {
           "新宿": "10:00",
           "町田": "10:30",
@@ -740,9 +765,219 @@
           "伊勢原": "10:49",
           "小田原": "11:13",
           "箱根湯本": "11:27"
+        },
+        "dates": [
+          "2026-12-08"
+        ]
+      },
+      {
+        "train": "Romancecar Hakone 5",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "11:00",
+          "町田": "11:28",
+          "海老名": "11:38",
+          "伊勢原": "11:47",
+          "小田原": "12:10",
+          "箱根湯本": "12:25"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 23",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "11:20",
+          "町田": "11:48",
+          "海老名": "11:58",
+          "本厚木": "12:03",
+          "秦野": "12:17",
+          "小田原": "12:33",
+          "箱根湯本": "12:53"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 7",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "12:00",
+          "町田": "12:28",
+          "海老名": "12:38",
+          "伊勢原": "12:47",
+          "小田原": "13:10",
+          "箱根湯本": "13:24"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 25",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "12:20",
+          "町田": "12:48",
+          "海老名": "12:58",
+          "本厚木": "13:03",
+          "秦野": "13:17",
+          "小田原": "13:33",
+          "箱根湯本": "13:47"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 9",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "13:00",
+          "町田": "13:28",
+          "海老名": "13:38",
+          "伊勢原": "13:47",
+          "小田原": "14:10",
+          "箱根湯本": "14:30"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 27",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "13:20",
+          "町田": "13:48",
+          "海老名": "13:58",
+          "本厚木": "14:03",
+          "秦野": "14:17",
+          "小田原": "14:33",
+          "箱根湯本": "14:56"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 11",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "14:00",
+          "町田": "14:28",
+          "海老名": "14:38",
+          "伊勢原": "14:47",
+          "小田原": "15:10",
+          "箱根湯本": "15:27"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 13",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "15:00",
+          "町田": "15:28",
+          "海老名": "15:38",
+          "伊勢原": "15:47",
+          "小田原": "16:10",
+          "箱根湯本": "16:25"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 29",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "16:00",
+          "町田": "16:28",
+          "海老名": "16:38",
+          "本厚木": "16:43",
+          "秦野": "16:57",
+          "小田原": "17:15",
+          "箱根湯本": "17:37"
+        }
+      },
+      {
+        "train": "Romancecar Home Way 1",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "17:00",
+          "町田": "17:29",
+          "海老名": "17:39",
+          "本厚木": "17:44",
+          "秦野": "17:57",
+          "小田原": "18:15",
+          "箱根湯本": "18:28"
+        }
+      },
+      {
+        "train": "Romancecar Home Way 5",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "新宿": "18:00",
+          "町田": "18:32",
+          "海老名": "18:45",
+          "本厚木": "18:49",
+          "秦野": "19:03",
+          "小田原": "19:20",
+          "箱根湯本": "19:40"
         }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-08",
+      "to": "2026-12-08"
+    },
+    "stopCoordinates": {
+      "新宿": [
+        35.6902156,
+        139.6996243
+      ],
+      "新百合ヶ丘": [
+        35.6038674,
+        139.507684
+      ],
+      "相模大野": [
+        35.5321708,
+        139.4378867
+      ],
+      "本厚木": [
+        35.4393177,
+        139.3642806
+      ],
+      "伊勢原": [
+        35.3959932,
+        139.3135001
+      ],
+      "秦野": [
+        35.3702949,
+        139.2257281
+      ],
+      "小田原": [
+        35.2561819,
+        139.1552509
+      ],
+      "箱根湯本": [
+        35.2331952,
+        139.1034651
+      ],
+      "町田": [
+        35.5440456,
+        139.4451253
+      ],
+      "海老名": [
+        35.4527491,
+        139.3909319
+      ]
+    }
   },
   {
     "id": "odakyu-romancecar-hakone-yumoto-shinjuku",
@@ -766,22 +1001,168 @@
       "町田": "Machida",
       "新宿": "Shinjuku",
       "秦野": "Hadano",
-      "本厚木": "Hon-Atsugi"
+      "本厚木": "Hon-Atsugi",
+      "相模大野": "Sagami-Ono",
+      "新百合ヶ丘": "Shin-Yurigaoka"
     },
     "source": {
       "urls": [
         "https://www.odakyu.jp/romancecar/timetable/weekday/up/",
         "https://www.odakyu.jp/romancecar/timetable/doc/260314/weekday_up2026.pdf",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-att/weekday_up2026.pdf",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-img/weekday_up_01.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-img/weekday_up_02.png",
+        "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-img/weekday_up_03.png",
         "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-img/weekday_up_04.png",
-        "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-img/weekday_up_05.png"
+        "https://www.odakyu.jp/romancecar/timetable/weekday/up/o5oaa100000009di-img/weekday_up_05.png",
+        "https://nominatim.openstreetmap.org/search?q=%E7%AE%B1%E6%A0%B9%E6%B9%AF%E6%9C%AC%E9%A7%85&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/4011607036",
+        "https://nominatim.openstreetmap.org/search?q=%E4%BC%8A%E5%8B%A2%E5%8E%9F%E9%A7%85&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/map?bbox=139.389,35.451,139.393,35.455",
+        "https://nominatim.openstreetmap.org/search?q=Machida+station&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/2389061846",
+        "https://nominatim.openstreetmap.org/search?q=Hadano+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9C%AC%E5%8E%9A%E6%9C%A8%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%9B%B8%E6%A8%A1%E5%A4%A7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Shin-Yurigaoka+station&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official 2026-03-14 weekday timetable, active on retrieval; Tuesday 2026-12-08 is a weekday. All direct Hakone-Yumoto–Shinjuku trains departing 14:00–20:00. The 14:18 Metro Hakone 20 does not serve Shinjuku and is excluded. Intermediate stops use departures; Shinjuku uses arrival. Recheck later timetable notices before travel."
+      "retrieved": "2026-10-26",
+      "note": "All 16 direct Hakone-Yumoto to Shinjuku Romancecar departures on Tuesday 2026-12-08. Official weekday timetable effective 2026-03-14, still published on retrieval. Valid is limited to the travel date; no official end date is published. Includes Hakone 40, which stops at Sagami-Ono and Shin-Yurigaoka. Shinjuku is arrival; other times are departures. Metro Hakone 20 runs to Kita-Senju and does not serve Shinjuku, so it is excluded. All seats require a reserved-seat limited-express ticket in addition to the fare. The published October/November extension notice does not cover December; those extras are not applied. Check later notices before travel."
     },
     "departures": [
       {
+        "train": "Romancecar Hakone 2",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "09:32",
+          "小田原": "09:51",
+          "伊勢原": "10:17",
+          "海老名": "10:27",
+          "町田": "10:37",
+          "新宿": "11:05"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 30",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "10:10",
+          "小田原": "10:29",
+          "秦野": "10:46",
+          "本厚木": "11:02",
+          "海老名": "11:07",
+          "町田": "11:17",
+          "新宿": "11:45"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 4",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "10:34",
+          "小田原": "10:54",
+          "伊勢原": "11:18",
+          "海老名": "11:27",
+          "町田": "11:37",
+          "新宿": "12:05"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 32",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "11:13",
+          "小田原": "11:29",
+          "秦野": "11:46",
+          "本厚木": "12:02",
+          "海老名": "12:07",
+          "町田": "12:17",
+          "新宿": "12:45"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 6",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "11:35",
+          "小田原": "11:53",
+          "伊勢原": "12:17",
+          "海老名": "12:27",
+          "町田": "12:37",
+          "新宿": "13:05"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 8",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "12:40",
+          "小田原": "12:54",
+          "伊勢原": "13:18",
+          "海老名": "13:27",
+          "町田": "13:37",
+          "新宿": "14:05"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 34",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "13:12",
+          "小田原": "13:29",
+          "秦野": "13:46",
+          "本厚木": "14:02",
+          "海老名": "14:07",
+          "町田": "14:17",
+          "新宿": "14:45"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 10",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "13:35",
+          "小田原": "13:54",
+          "伊勢原": "14:18",
+          "海老名": "14:27",
+          "町田": "14:37",
+          "新宿": "15:05"
+        }
+      },
+      {
+        "train": "Romancecar Hakone 40",
+        "dates": [
+          "2026-12-08"
+        ],
+        "stops": {
+          "箱根湯本": "13:55",
+          "小田原": "14:12",
+          "秦野": "14:29",
+          "伊勢原": "14:37",
+          "本厚木": "14:44",
+          "相模大野": "14:55",
+          "新百合ヶ丘": "15:05",
+          "新宿": "15:25"
+        }
+      },
+      {
         "train": "Romancecar Hakone 12",
-        "days": "weekdays",
         "stops": {
           "箱根湯本": "14:48",
           "小田原": "15:14",
@@ -789,11 +1170,13 @@
           "海老名": "15:47",
           "町田": "15:57",
           "新宿": "16:26"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 36",
-        "days": "weekdays",
         "stops": {
           "箱根湯本": "15:13",
           "小田原": "15:29",
@@ -802,11 +1185,13 @@
           "海老名": "16:07",
           "町田": "16:17",
           "新宿": "16:46"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 14",
-        "days": "weekdays",
         "stops": {
           "箱根湯本": "15:52",
           "小田原": "16:13",
@@ -814,11 +1199,13 @@
           "海老名": "16:50",
           "町田": "17:01",
           "新宿": "17:27"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 16",
-        "days": "weekdays",
         "stops": {
           "箱根湯本": "16:51",
           "小田原": "17:10",
@@ -826,11 +1213,13 @@
           "海老名": "17:49",
           "町田": "18:01",
           "新宿": "18:28"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 18",
-        "days": "weekdays",
         "stops": {
           "箱根湯本": "17:46",
           "小田原": "18:03",
@@ -838,11 +1227,13 @@
           "海老名": "18:41",
           "町田": "18:52",
           "新宿": "19:26"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 20",
-        "days": "weekdays",
         "stops": {
           "箱根湯本": "18:36",
           "小田原": "18:51",
@@ -850,11 +1241,13 @@
           "本厚木": "19:22",
           "町田": "19:35",
           "新宿": "20:06"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       },
       {
         "train": "Romancecar Hakone 22",
-        "days": "weekdays",
         "stops": {
           "箱根湯本": "19:50",
           "小田原": "20:07",
@@ -862,9 +1255,59 @@
           "海老名": "20:42",
           "町田": "20:52",
           "新宿": "21:26"
-        }
+        },
+        "dates": [
+          "2026-12-08"
+        ]
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-08",
+      "to": "2026-12-08"
+    },
+    "stopCoordinates": {
+      "箱根湯本": [
+        35.2331952,
+        139.1034651
+      ],
+      "小田原": [
+        35.2561819,
+        139.1552509
+      ],
+      "伊勢原": [
+        35.3959932,
+        139.3135001
+      ],
+      "海老名": [
+        35.4527491,
+        139.3909319
+      ],
+      "町田": [
+        35.5440456,
+        139.4451253
+      ],
+      "新宿": [
+        35.6902156,
+        139.6996243
+      ],
+      "秦野": [
+        35.3702949,
+        139.2257281
+      ],
+      "本厚木": [
+        35.4393177,
+        139.3642806
+      ],
+      "相模大野": [
+        35.5321708,
+        139.4378867
+      ],
+      "新百合ヶ丘": [
+        35.6038674,
+        139.507684
+      ]
+    }
   },
   {
     "id": "keio-shinjuku-takaosanguchi",
@@ -1389,5 +1832,853 @@
       "note": "No complete train rows included. Requested Monday 2026-12-07 11:00–16:00 from Kamakura. The official station timetable explicitly lists 21 departures from 11:12 to 15:52, but corresponding Enoshima arrival times were not verified. No arrival is estimated from frequency or journey duration."
     },
     "departures": []
+  },
+  {
+    "id": "tokyo-takao-tozan-cable-out",
+    "operator": "Takao Tozan Railway",
+    "service": "Mount Takao Cable Car",
+    "serviceNames": [
+      "高尾登山電鉄",
+      "高尾登山電鉄ケーブルカー",
+      "高尾山ケーブルカー",
+      "高尾山ケーブル",
+      "ケーブルカー"
+    ],
+    "kind": "other",
+    "stationNames": {
+      "清滝": "Kiyotaki",
+      "高尾山": "Takaosan"
+    },
+    "stopCoordinates": {
+      "清滝": [
+        35.6311026,
+        139.2668989
+      ],
+      "高尾山": [
+        35.6310943,
+        139.2560936
+      ]
+    },
+    "valid": {
+      "from": "2026-12-01",
+      "to": "2026-12-30"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://www.takaotozan.co.jp/timeprice/index.php",
+        "https://www.takaotozan.co.jp/",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B8%85%E6%BB%9D%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%AB%98%E5%B0%BE%E5%B1%B1%E9%A7%85&format=jsonv2"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "All 38 published regular departures on Thursday 2026-12-10: December weekday service, 08:00 to 17:15 inclusive, every 15 minutes. Both terminals depart simultaneously. Departures are expanded from the official interval timetable; destination arrivals use the operator's approximate six-minute ride time, not separately published exact arrivals. The official page is available in the search index but the live timetable and home page redirect to a maintenance notice; December 2026 maintenance or extra-service notices could not be checked. Crowds can cause an earlier first departure or unscheduled extra trips; these have no published times and are not listed. The annual December schedule excludes New Year's Eve. Takaosan Station is below the summit; allow time to walk down to the cable station. The nearby chairlift uses different terminals (Sanjo and Sanroku) and operates continuously, 09:00 to 16:00 in December; it has no published discrete departures and is not represented by invented timetable rows."
+    },
+    "departures": [
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "08:00",
+          "高尾山": "08:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "08:15",
+          "高尾山": "08:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "08:30",
+          "高尾山": "08:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "08:45",
+          "高尾山": "08:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "09:00",
+          "高尾山": "09:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "09:15",
+          "高尾山": "09:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "09:30",
+          "高尾山": "09:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "09:45",
+          "高尾山": "09:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "10:00",
+          "高尾山": "10:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "10:15",
+          "高尾山": "10:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "10:30",
+          "高尾山": "10:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "10:45",
+          "高尾山": "10:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "11:00",
+          "高尾山": "11:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "11:15",
+          "高尾山": "11:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "11:30",
+          "高尾山": "11:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "11:45",
+          "高尾山": "11:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "12:00",
+          "高尾山": "12:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "12:15",
+          "高尾山": "12:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "12:30",
+          "高尾山": "12:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "12:45",
+          "高尾山": "12:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "13:00",
+          "高尾山": "13:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "13:15",
+          "高尾山": "13:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "13:30",
+          "高尾山": "13:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "13:45",
+          "高尾山": "13:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "14:00",
+          "高尾山": "14:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "14:15",
+          "高尾山": "14:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "14:30",
+          "高尾山": "14:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "14:45",
+          "高尾山": "14:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "15:00",
+          "高尾山": "15:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "15:15",
+          "高尾山": "15:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "15:30",
+          "高尾山": "15:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "15:45",
+          "高尾山": "15:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "16:00",
+          "高尾山": "16:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "16:15",
+          "高尾山": "16:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "16:30",
+          "高尾山": "16:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "16:45",
+          "高尾山": "16:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "17:00",
+          "高尾山": "17:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "清滝": "17:15",
+          "高尾山": "17:21"
+        }
+      }
+    ]
+  },
+  {
+    "id": "tokyo-takao-tozan-cable-return",
+    "operator": "Takao Tozan Railway",
+    "service": "Mount Takao Cable Car",
+    "serviceNames": [
+      "高尾登山電鉄",
+      "高尾登山電鉄ケーブルカー",
+      "高尾山ケーブルカー",
+      "高尾山ケーブル",
+      "ケーブルカー"
+    ],
+    "kind": "other",
+    "stationNames": {
+      "高尾山": "Takaosan",
+      "清滝": "Kiyotaki"
+    },
+    "stopCoordinates": {
+      "高尾山": [
+        35.6310943,
+        139.2560936
+      ],
+      "清滝": [
+        35.6311026,
+        139.2668989
+      ]
+    },
+    "valid": {
+      "from": "2026-12-01",
+      "to": "2026-12-30"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://www.takaotozan.co.jp/timeprice/index.php",
+        "https://www.takaotozan.co.jp/",
+        "https://nominatim.openstreetmap.org/search?q=%E9%AB%98%E5%B0%BE%E5%B1%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B8%85%E6%BB%9D%E9%A7%85&format=jsonv2"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "All 38 published regular departures on Thursday 2026-12-10: December weekday service, 08:00 to 17:15 inclusive, every 15 minutes. Both terminals depart simultaneously. Departures are expanded from the official interval timetable; destination arrivals use the operator's approximate six-minute ride time, not separately published exact arrivals. The official page is available in the search index but the live timetable and home page redirect to a maintenance notice; December 2026 maintenance or extra-service notices could not be checked. Crowds can cause an earlier first departure or unscheduled extra trips; these have no published times and are not listed. The annual December schedule excludes New Year's Eve. Takaosan Station is below the summit; allow time to walk down to the cable station. The nearby chairlift uses different terminals (Sanjo and Sanroku) and operates continuously, 09:00 to 16:00 in December; it has no published discrete departures and is not represented by invented timetable rows."
+    },
+    "departures": [
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "08:00",
+          "清滝": "08:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "08:15",
+          "清滝": "08:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "08:30",
+          "清滝": "08:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "08:45",
+          "清滝": "08:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "09:00",
+          "清滝": "09:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "09:15",
+          "清滝": "09:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "09:30",
+          "清滝": "09:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "09:45",
+          "清滝": "09:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "10:00",
+          "清滝": "10:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "10:15",
+          "清滝": "10:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "10:30",
+          "清滝": "10:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "10:45",
+          "清滝": "10:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "11:00",
+          "清滝": "11:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "11:15",
+          "清滝": "11:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "11:30",
+          "清滝": "11:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "11:45",
+          "清滝": "11:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "12:00",
+          "清滝": "12:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "12:15",
+          "清滝": "12:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "12:30",
+          "清滝": "12:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "12:45",
+          "清滝": "12:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "13:00",
+          "清滝": "13:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "13:15",
+          "清滝": "13:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "13:30",
+          "清滝": "13:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "13:45",
+          "清滝": "13:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "14:00",
+          "清滝": "14:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "14:15",
+          "清滝": "14:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "14:30",
+          "清滝": "14:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "14:45",
+          "清滝": "14:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "15:00",
+          "清滝": "15:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "15:15",
+          "清滝": "15:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "15:30",
+          "清滝": "15:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "15:45",
+          "清滝": "15:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "16:00",
+          "清滝": "16:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "16:15",
+          "清滝": "16:21"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "16:30",
+          "清滝": "16:36"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "16:45",
+          "清滝": "16:51"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "17:00",
+          "清滝": "17:06"
+        }
+      },
+      {
+        "train": "Mount Takao Cable Car",
+        "dates": [
+          "2026-12-10"
+        ],
+        "stops": {
+          "高尾山": "17:15",
+          "清滝": "17:21"
+        }
+      }
+    ]
   }
 ]

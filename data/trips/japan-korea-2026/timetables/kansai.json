@@ -23,16 +23,28 @@
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-98-0801&dw=0&tm=1000&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-98-0801&dw=0&tm=1000&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-173-0803&dw=0&tm=1330&date=20261202&USR=PC",
+        "https://nominatim.openstreetmap.org/search?q=%E9%9B%A3%E6%B3%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%96%B0%E4%BB%8A%E5%AE%AE%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E4%B8%8B%E8%8C%B6%E5%B1%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A0%BA%E6%9D%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Kongo+station%2C+Japan&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B2%B3%E5%86%85%E9%95%B7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9E%97%E9%96%93%E7%94%B0%E5%9C%92%E9%83%BD%E5%B8%82%E9%A7%85&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. No through 急行 or 快速急行 leaves 極楽橋 for なんば in 12:30–17:30; local trains require a change at 橋本."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. Reserved-seat limited express; a limited-express ticket is required in addition to the fare."
     },
     "departures": [
       {
         "train": "Koya 1",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "なんば": "10:00",
           "新今宮": "10:02",
@@ -44,8 +56,68 @@
           "橋本": "10:46",
           "極楽橋": "11:31"
         }
+      },
+      {
+        "train": "Koya 3",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "なんば": "13:30",
+          "新今宮": "13:32",
+          "天下茶屋": "13:35",
+          "堺東": "13:42",
+          "金剛": "13:52",
+          "河内長野": "13:57",
+          "林間田園都市": "14:08",
+          "橋本": "14:15",
+          "極楽橋": "14:55"
+        }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "なんば": [
+        34.6636625,
+        135.5017751
+      ],
+      "新今宮": [
+        34.6501425,
+        135.5002187
+      ],
+      "天下茶屋": [
+        34.6371552,
+        135.4966595
+      ],
+      "堺東": [
+        34.5755127,
+        135.4849582
+      ],
+      "金剛": [
+        34.4952314,
+        135.5594015
+      ],
+      "河内長野": [
+        34.4508344,
+        135.5732234
+      ],
+      "林間田園都市": [
+        34.3555065,
+        135.6033421
+      ],
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ],
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ]
+    }
   },
   {
     "id": "kansai-nankai-koya-return",
@@ -71,16 +143,45 @@
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-41",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-697-0804&dw=0&tm=1647&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-41&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-581-0802&dw=0&tm=1146&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-697-0804&dw=0&tm=1647&date=20261202&USR=PC",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9E%97%E9%96%93%E7%94%B0%E5%9C%92%E9%83%BD%E5%B8%82%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B2%B3%E5%86%85%E9%95%B7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Kongo+station%2C+Japan&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A0%BA%E6%9D%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E4%B8%8B%E8%8C%B6%E5%B1%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%96%B0%E4%BB%8A%E5%AE%AE%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%9B%A3%E6%B3%A2%E9%A7%85&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. No through 急行 or 快速急行 leaves 極楽橋 for なんば in 12:30–17:30; local trains require a change at 橋本."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. Reserved-seat limited express; a limited-express ticket is required in addition to the fare."
     },
     "departures": [
       {
+        "train": "Koya 2",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "11:46",
+          "橋本": "12:30",
+          "林間田園都市": "12:35",
+          "河内長野": "12:46",
+          "金剛": "12:50",
+          "堺東": "13:00",
+          "天下茶屋": "13:08",
+          "新今宮": "13:10",
+          "なんば": "13:13"
+        }
+      },
+      {
         "train": "Koya 4",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "16:47",
           "橋本": "17:24",
@@ -93,7 +194,50 @@
           "なんば": "18:10"
         }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ],
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ],
+      "林間田園都市": [
+        34.3555065,
+        135.6033421
+      ],
+      "河内長野": [
+        34.4508344,
+        135.5732234
+      ],
+      "金剛": [
+        34.4952314,
+        135.5594015
+      ],
+      "堺東": [
+        34.5755127,
+        135.4849582
+      ],
+      "天下茶屋": [
+        34.6371552,
+        135.4966595
+      ],
+      "新今宮": [
+        34.6501425,
+        135.5002187
+      ],
+      "なんば": [
+        34.6636625,
+        135.5017751
+      ]
+    }
   },
   {
     "id": "kansai-nankai-koya-rapid-express-out",
@@ -130,16 +274,39 @@
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-79-1901&dw=0&tm=0902&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-79-1901&dw=0&tm=0902&date=20261202&USR=PC",
+        "https://nominatim.openstreetmap.org/search?q=%E9%9B%A3%E6%B3%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%96%B0%E4%BB%8A%E5%AE%AE%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E4%B8%8B%E8%8C%B6%E5%B1%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A0%BA%E6%9D%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%8C%97%E9%87%8E%E7%94%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Kongo+station%2C+Japan&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B2%B3%E5%86%85%E9%95%B7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Mikkaichicho+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%BE%8E%E5%8A%A0%E3%81%AE%E5%8F%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9E%97%E9%96%93%E7%94%B0%E5%9C%92%E9%83%BD%E5%B8%82%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%BE%A1%E5%B9%B8%E8%BE%BB%E9%A7%85&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E6%B8%85%E6%B0%B4%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%AD%A6%E6%96%87%E8%B7%AF%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B9%9D%E5%BA%A6%E5%B1%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%AB%98%E9%87%8E%E4%B8%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8B%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8A%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%B4%B0%E5%B7%9D%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%A5%9E%E8%B0%B7%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. No through 急行 or 快速急行 leaves 極楽橋 for なんば in 12:30–17:30; local trains require a change at 橋本."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. Only through trains between Namba and Gokurakubashi are included. Other trains require a change at Hashimoto. No reserved-seat supplement is required."
     },
     "departures": [
       {
         "train": "Rapid Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "なんば": "09:02",
           "新今宮": "09:05",
@@ -164,7 +331,98 @@
           "極楽橋": "10:41"
         }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "なんば": [
+        34.6636625,
+        135.5017751
+      ],
+      "新今宮": [
+        34.6501425,
+        135.5002187
+      ],
+      "天下茶屋": [
+        34.6371552,
+        135.4966595
+      ],
+      "堺東": [
+        34.5755127,
+        135.4849582
+      ],
+      "北野田": [
+        34.5229815,
+        135.5431304
+      ],
+      "金剛": [
+        34.4952314,
+        135.5594015
+      ],
+      "河内長野": [
+        34.4508344,
+        135.5732234
+      ],
+      "三日市町": [
+        34.4366198,
+        135.5713025
+      ],
+      "美加の台": [
+        34.4243686,
+        135.5775949
+      ],
+      "林間田園都市": [
+        34.3555065,
+        135.6033421
+      ],
+      "御幸辻": [
+        34.3378833,
+        135.6020976
+      ],
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ],
+      "紀伊清水": [
+        34.3074429,
+        135.6046161
+      ],
+      "学文路": [
+        34.2965572,
+        135.5800628
+      ],
+      "九度山": [
+        34.288069,
+        135.564599
+      ],
+      "高野下": [
+        34.2716971,
+        135.5663685
+      ],
+      "下古沢": [
+        34.2665086,
+        135.553091
+      ],
+      "上古沢": [
+        34.2575002,
+        135.5479954
+      ],
+      "紀伊細川": [
+        34.2358697,
+        135.5537617
+      ],
+      "紀伊神谷": [
+        34.2428762,
+        135.5710789
+      ],
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ]
+    }
   },
   {
     "id": "kansai-nankai-koya-express-out",
@@ -203,16 +461,75 @@
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-107-2903&dw=0&tm=1024&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-0&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-8-2901&dw=0&tm=0600&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5728&tx=2360100-107-2903&dw=0&tm=1024&date=20261202&USR=PC",
+        "https://nominatim.openstreetmap.org/search?q=%E9%9B%A3%E6%B3%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%96%B0%E4%BB%8A%E5%AE%AE%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E4%B8%8B%E8%8C%B6%E5%B1%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A0%BA%E6%9D%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%8C%97%E9%87%8E%E7%94%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Kongo+station%2C+Japan&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B2%B3%E5%86%85%E9%95%B7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Mikkaichicho+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%BE%8E%E5%8A%A0%E3%81%AE%E5%8F%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Chihayaguchi+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E8%A6%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E8%A6%8B%E5%B3%A0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9E%97%E9%96%93%E7%94%B0%E5%9C%92%E9%83%BD%E5%B8%82%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%BE%A1%E5%B9%B8%E8%BE%BB%E9%A7%85&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E6%B8%85%E6%B0%B4%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%AD%A6%E6%96%87%E8%B7%AF%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B9%9D%E5%BA%A6%E5%B1%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%AB%98%E9%87%8E%E4%B8%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8B%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8A%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%B4%B0%E5%B7%9D%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%A5%9E%E8%B0%B7%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. No through 急行 or 快速急行 leaves 極楽橋 for なんば in 12:30–17:30; local trains require a change at 橋本."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. Only through trains between Namba and Gokurakubashi are included. Other trains require a change at Hashimoto. No reserved-seat supplement is required."
     },
     "departures": [
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "なんば": "06:00",
+          "新今宮": "06:02",
+          "天下茶屋": "06:05",
+          "堺東": "06:12",
+          "北野田": "06:19",
+          "金剛": "06:23",
+          "河内長野": "06:28",
+          "三日市町": "06:30",
+          "美加の台": "06:32",
+          "千早口": "06:35",
+          "天見": "06:37",
+          "紀見峠": "06:41",
+          "林間田園都市": "06:43",
+          "御幸辻": "06:46",
+          "橋本": "06:51",
+          "紀伊清水": "06:55",
+          "学文路": "06:59",
+          "九度山": "07:02",
+          "高野下": "07:05",
+          "下古沢": "07:11",
+          "上古沢": "07:15",
+          "紀伊細川": "07:24",
+          "紀伊神谷": "07:29",
+          "極楽橋": "07:33"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "なんば": "10:24",
           "新今宮": "10:26",
@@ -240,7 +557,110 @@
           "極楽橋": "12:04"
         }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "なんば": [
+        34.6636625,
+        135.5017751
+      ],
+      "新今宮": [
+        34.6501425,
+        135.5002187
+      ],
+      "天下茶屋": [
+        34.6371552,
+        135.4966595
+      ],
+      "堺東": [
+        34.5755127,
+        135.4849582
+      ],
+      "北野田": [
+        34.5229815,
+        135.5431304
+      ],
+      "金剛": [
+        34.4952314,
+        135.5594015
+      ],
+      "河内長野": [
+        34.4508344,
+        135.5732234
+      ],
+      "三日市町": [
+        34.4366198,
+        135.5713025
+      ],
+      "美加の台": [
+        34.4243686,
+        135.5775949
+      ],
+      "千早口": [
+        34.4117216,
+        135.5901047
+      ],
+      "天見": [
+        34.3971716,
+        135.5955342
+      ],
+      "紀見峠": [
+        34.3661019,
+        135.6001349
+      ],
+      "林間田園都市": [
+        34.3555065,
+        135.6033421
+      ],
+      "御幸辻": [
+        34.3378833,
+        135.6020976
+      ],
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ],
+      "紀伊清水": [
+        34.3074429,
+        135.6046161
+      ],
+      "学文路": [
+        34.2965572,
+        135.5800628
+      ],
+      "九度山": [
+        34.288069,
+        135.564599
+      ],
+      "高野下": [
+        34.2716971,
+        135.5663685
+      ],
+      "下古沢": [
+        34.2665086,
+        135.553091
+      ],
+      "上古沢": [
+        34.2575002,
+        135.5479954
+      ],
+      "紀伊細川": [
+        34.2358697,
+        135.5537617
+      ],
+      "紀伊神谷": [
+        34.2428762,
+        135.5710789
+      ],
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ]
+    }
   },
   {
     "id": "kansai-nankai-cable-out",
@@ -253,35 +673,102 @@
       "高野山ケーブルカー",
       "南海鋼索線"
     ],
-    "kind": "rail",
+    "kind": "other",
     "stationNames": {
       "極楽橋": "Gokurakubashi",
       "高野山": "Koyasan"
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=683-0",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1031-7809&dw=0&tm=0640&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1032-7811&dw=0&tm=0649&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1033-7813&dw=0&tm=0705&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1034-7815&dw=0&tm=0714&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1035-7817&dw=0&tm=0738&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1036-7819&dw=0&tm=0802&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1037-7821&dw=0&tm=0811&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1038-7823&dw=0&tm=0835&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1039-7825&dw=0&tm=0909&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1040-7827&dw=0&tm=0934&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1041-7829&dw=0&tm=0943&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1042-7831&dw=0&tm=1001&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1043-7833&dw=0&tm=1010&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=683-0&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1028-7803&dw=0&tm=0533&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1029-7805&dw=0&tm=0616&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1030-7807&dw=0&tm=0625&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1031-7809&dw=0&tm=0640&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1032-7811&dw=0&tm=0649&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1033-7813&dw=0&tm=0705&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1034-7815&dw=0&tm=0714&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1035-7817&dw=0&tm=0738&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1036-7819&dw=0&tm=0802&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1037-7821&dw=0&tm=0811&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1038-7823&dw=0&tm=0835&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1039-7825&dw=0&tm=0909&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1040-7827&dw=0&tm=0934&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1041-7829&dw=0&tm=0943&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1042-7831&dw=0&tm=1001&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1043-7833&dw=0&tm=1010&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1045-7837&dw=0&tm=1042&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1046-7839&dw=0&tm=1051&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1047-7841&dw=0&tm=1115&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1048-7843&dw=0&tm=1130&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1049-7845&dw=0&tm=1142&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1050-7847&dw=0&tm=1152&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1051-7849&dw=0&tm=1210&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1052-7851&dw=0&tm=1258&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1053-7853&dw=0&tm=1312&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1054-7855&dw=0&tm=1347&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1055-7857&dw=0&tm=1419&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1058-7863&dw=0&tm=1454&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1059-7865&dw=0&tm=1505&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1060-7867&dw=0&tm=1526&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1061-7869&dw=0&tm=1558&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1062-7871&dw=0&tm=1624&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1063-7873&dw=0&tm=1634&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1064-7875&dw=0&tm=1652&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1065-7877&dw=0&tm=1732&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1066-7879&dw=0&tm=1743&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1067-7881&dw=0&tm=1754&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1068-7883&dw=0&tm=1816&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1069-7885&dw=0&tm=1837&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1070-7887&dw=0&tm=1848&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1071-7889&dw=0&tm=1900&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1072-7891&dw=0&tm=1931&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1073-7893&dw=0&tm=2007&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1074-7895&dw=0&tm=2045&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1075-7897&dw=0&tm=2140&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=5740100-1076-7899&dw=0&tm=2241&date=20261202&USR=PC",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Koyasan+station&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. Excludes Wednesday suspensions at 10:30, 14:31 and 14:40. Every retained cable arrival was fetched separately; no duration was added to a departure."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. The 10:30, 14:31 and 14:40 departures do not run on Wednesdays and are excluded. Each arrival was read from its individual official train page. Unscheduled extra trips are not published."
     },
     "departures": [
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "05:33",
+          "高野山": "05:38"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "06:16",
+          "高野山": "06:21"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "06:25",
+          "高野山": "06:30"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "06:40",
           "高野山": "06:45"
@@ -289,7 +776,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "06:49",
           "高野山": "06:54"
@@ -297,7 +786,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "07:05",
           "高野山": "07:10"
@@ -305,7 +796,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "07:14",
           "高野山": "07:19"
@@ -313,7 +806,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "07:38",
           "高野山": "07:43"
@@ -321,7 +816,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "08:02",
           "高野山": "08:07"
@@ -329,7 +826,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "08:11",
           "高野山": "08:16"
@@ -337,7 +836,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "08:35",
           "高野山": "08:40"
@@ -345,7 +846,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "09:09",
           "高野山": "09:14"
@@ -353,7 +856,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "09:34",
           "高野山": "09:39"
@@ -361,7 +866,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "09:43",
           "高野山": "09:48"
@@ -369,7 +876,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "10:01",
           "高野山": "10:06"
@@ -377,13 +886,330 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "10:10",
           "高野山": "10:15"
         }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "10:42",
+          "高野山": "10:47"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "10:51",
+          "高野山": "10:56"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "11:15",
+          "高野山": "11:20"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "11:30",
+          "高野山": "11:35"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "11:42",
+          "高野山": "11:47"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "11:52",
+          "高野山": "11:57"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "12:10",
+          "高野山": "12:15"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "12:58",
+          "高野山": "13:03"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "13:12",
+          "高野山": "13:17"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "13:47",
+          "高野山": "13:52"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "14:19",
+          "高野山": "14:24"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "14:54",
+          "高野山": "14:59"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "15:05",
+          "高野山": "15:10"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "15:26",
+          "高野山": "15:31"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "15:58",
+          "高野山": "16:03"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "16:24",
+          "高野山": "16:29"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "16:34",
+          "高野山": "16:39"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "16:52",
+          "高野山": "16:57"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "17:32",
+          "高野山": "17:37"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "17:43",
+          "高野山": "17:48"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "17:54",
+          "高野山": "17:59"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "18:16",
+          "高野山": "18:21"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "18:37",
+          "高野山": "18:42"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "18:48",
+          "高野山": "18:53"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "19:00",
+          "高野山": "19:05"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "19:31",
+          "高野山": "19:36"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "20:07",
+          "高野山": "20:12"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "20:45",
+          "高野山": "20:50"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "21:40",
+          "高野山": "21:45"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "22:41",
+          "高野山": "22:46"
+        }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ],
+      "高野山": [
+        34.2276796,
+        135.577347
+      ]
+    }
   },
   {
     "id": "kansai-nankai-cable-return",
@@ -396,33 +1222,301 @@
       "高野山ケーブルカー",
       "南海鋼索線"
     ],
-    "kind": "rail",
+    "kind": "other",
     "stationNames": {
       "高野山": "Koyasan",
       "極楽橋": "Gokurakubashi"
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=683-1",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1101-7852&dw=0&tm=1258&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1102-7854&dw=0&tm=1312&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1103-7856&dw=0&tm=1347&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1104-7858&dw=0&tm=1419&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1107-7864&dw=0&tm=1454&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1108-7866&dw=0&tm=1505&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1109-7868&dw=0&tm=1526&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1110-7870&dw=0&tm=1558&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1111-7872&dw=0&tm=1624&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1112-7874&dw=0&tm=1634&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1113-7876&dw=0&tm=1652&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=683-1&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1077-7804&dw=0&tm=0533&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1078-7806&dw=0&tm=0616&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1079-7808&dw=0&tm=0625&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1080-7810&dw=0&tm=0640&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1081-7812&dw=0&tm=0649&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1082-7814&dw=0&tm=0705&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1083-7816&dw=0&tm=0714&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1084-7818&dw=0&tm=0738&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1085-7820&dw=0&tm=0802&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1086-7822&dw=0&tm=0811&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1087-7824&dw=0&tm=0835&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1088-7826&dw=0&tm=0909&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1089-7828&dw=0&tm=0934&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1090-7830&dw=0&tm=0943&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1091-7832&dw=0&tm=1001&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1092-7834&dw=0&tm=1010&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1094-7838&dw=0&tm=1042&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1095-7840&dw=0&tm=1051&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1096-7842&dw=0&tm=1115&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1097-7844&dw=0&tm=1130&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1098-7846&dw=0&tm=1142&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1099-7848&dw=0&tm=1152&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1100-7850&dw=0&tm=1210&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1101-7852&dw=0&tm=1258&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1102-7854&dw=0&tm=1312&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1103-7856&dw=0&tm=1347&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1104-7858&dw=0&tm=1419&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1107-7864&dw=0&tm=1454&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1108-7866&dw=0&tm=1505&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1109-7868&dw=0&tm=1526&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1110-7870&dw=0&tm=1558&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1111-7872&dw=0&tm=1624&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1112-7874&dw=0&tm=1634&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1113-7876&dw=0&tm=1652&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1114-7878&dw=0&tm=1732&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1115-7880&dw=0&tm=1743&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1116-7882&dw=0&tm=1754&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1117-7884&dw=0&tm=1816&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1118-7886&dw=0&tm=1837&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1119-7888&dw=0&tm=1848&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1120-7890&dw=0&tm=1900&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1121-7892&dw=0&tm=1931&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1122-7894&dw=0&tm=2007&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1123-7896&dw=0&tm=2045&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=9643&tx=5740110-1124-7898&dw=0&tm=2140&date=20261202&USR=PC",
+        "https://nominatim.openstreetmap.org/search?q=Koyasan+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable. 2026-12-02 is Wednesday; 2026-12-03 is Thursday. Intermediate values are departure times; the final stop is arrival. The operator station pages use なんば; the timetable engine labels it 難波. Check later service notices before travel. Effective 2026-03-28. Excludes Wednesday suspensions at 10:30, 14:31 and 14:40. Every retained cable arrival was fetched separately; no duration was added to a departure."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. The 10:30, 14:31 and 14:40 departures do not run on Wednesdays and are excluded. Each arrival was read from its individual official train page. Unscheduled extra trips are not published."
     },
     "departures": [
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "05:33",
+          "極楽橋": "05:38"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "06:16",
+          "極楽橋": "06:21"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "06:25",
+          "極楽橋": "06:30"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "06:40",
+          "極楽橋": "06:45"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "06:49",
+          "極楽橋": "06:54"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "07:05",
+          "極楽橋": "07:10"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "07:14",
+          "極楽橋": "07:19"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "07:38",
+          "極楽橋": "07:43"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "08:02",
+          "極楽橋": "08:07"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "08:11",
+          "極楽橋": "08:16"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "08:35",
+          "極楽橋": "08:40"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "09:09",
+          "極楽橋": "09:14"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "09:34",
+          "極楽橋": "09:39"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "09:43",
+          "極楽橋": "09:48"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "10:01",
+          "極楽橋": "10:06"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "10:10",
+          "極楽橋": "10:15"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "10:42",
+          "極楽橋": "10:47"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "10:51",
+          "極楽橋": "10:56"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "11:15",
+          "極楽橋": "11:20"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "11:30",
+          "極楽橋": "11:35"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "11:42",
+          "極楽橋": "11:47"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "11:52",
+          "極楽橋": "11:57"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "12:10",
+          "極楽橋": "12:15"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "12:58",
           "極楽橋": "13:03"
@@ -430,7 +1524,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "13:12",
           "極楽橋": "13:17"
@@ -438,7 +1534,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "13:47",
           "極楽橋": "13:52"
@@ -446,7 +1544,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "14:19",
           "極楽橋": "14:24"
@@ -454,7 +1554,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "14:54",
           "極楽橋": "14:59"
@@ -462,7 +1564,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "15:05",
           "極楽橋": "15:10"
@@ -470,7 +1574,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "15:26",
           "極楽橋": "15:31"
@@ -478,7 +1584,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "15:58",
           "極楽橋": "16:03"
@@ -486,7 +1594,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "16:24",
           "極楽橋": "16:29"
@@ -494,7 +1604,9 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "16:34",
           "極楽橋": "16:39"
@@ -502,13 +1614,140 @@
       },
       {
         "train": "Koyasan Cable Car",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "高野山": "16:52",
           "極楽橋": "16:57"
         }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "17:32",
+          "極楽橋": "17:37"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "17:43",
+          "極楽橋": "17:48"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "17:54",
+          "極楽橋": "17:59"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "18:16",
+          "極楽橋": "18:21"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "18:37",
+          "極楽橋": "18:42"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "18:48",
+          "極楽橋": "18:53"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "19:00",
+          "極楽橋": "19:05"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "19:31",
+          "極楽橋": "19:36"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "20:07",
+          "極楽橋": "20:12"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "20:45",
+          "極楽橋": "20:50"
+        }
+      },
+      {
+        "train": "Koyasan Cable Car",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山": "21:40",
+          "極楽橋": "21:45"
+        }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "高野山": [
+        34.2276796,
+        135.577347
+      ],
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ]
+    }
   },
   {
     "id": "kansai-nankai-rapit-airport",
@@ -1553,24 +2792,272 @@
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-41",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-601-7522&dw=0&tm=1239&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-613-7524&dw=0&tm=1316&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-631-7526&dw=0&tm=1402&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-643-7528&dw=0&tm=1434&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-658-7530&dw=0&tm=1508&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-669-7306&dw=0&tm=1540&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-681-7532&dw=0&tm=1613&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-692-7534&dw=0&tm=1633&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-705-7536&dw=0&tm=1709&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-41&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-434-7502&dw=0&tm=0541&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-450-7504&dw=0&tm=0626&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-464-7506&dw=0&tm=0651&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-479-7508&dw=0&tm=0715&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-495-7510&dw=0&tm=0748&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-503-7512&dw=0&tm=0812&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-517-7514&dw=0&tm=0844&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-528-7516&dw=0&tm=0919&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-537-7302&dw=0&tm=0944&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-550-7518&dw=0&tm=1012&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-574-7304&dw=0&tm=1123&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-590-7520&dw=0&tm=1207&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-601-7522&dw=0&tm=1239&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-613-7524&dw=0&tm=1316&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-631-7526&dw=0&tm=1402&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-643-7528&dw=0&tm=1434&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-658-7530&dw=0&tm=1508&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-669-7306&dw=0&tm=1540&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-681-7532&dw=0&tm=1613&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-692-7534&dw=0&tm=1633&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-705-7536&dw=0&tm=1709&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-725-7538&dw=0&tm=1753&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-741-7540&dw=0&tm=1824&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-751-7542&dw=0&tm=1846&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-760-7544&dw=0&tm=1909&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-773-7546&dw=0&tm=1939&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-791-7548&dw=0&tm=2023&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-803-7550&dw=0&tm=2055&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-830-7552&dw=0&tm=2147&date=20261202&USR=PC",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%A5%9E%E8%B0%B7%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%B4%B0%E5%B7%9D%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8A%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8B%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%AB%98%E9%87%8E%E4%B8%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B9%9D%E5%BA%A6%E5%B1%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%AD%A6%E6%96%87%E8%B7%AF%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E6%B8%85%E6%B0%B4%E9%A7%85&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable effective 2026-03-28. 2026-12-02 is Wednesday. These are separate rides for the return via 橋本, not through services to なんば. Intermediate stops use departures; the final stop uses arrival. All times were fetched from official individual train pages. No connection time or transfer duration is assumed."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. This is a separate ride between Hashimoto and Gokurakubashi. Change at Hashimoto for Namba; connection times are not verified. Short-turn trains that do not reach Gokurakubashi are excluded."
     },
     "departures": [
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "05:41",
+          "紀伊神谷": "05:44",
+          "紀伊細川": "05:50",
+          "上古沢": "05:57",
+          "下古沢": "06:01",
+          "高野下": "06:06",
+          "九度山": "06:09",
+          "学文路": "06:12",
+          "紀伊清水": "06:16",
+          "橋本": "06:20"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "06:26",
+          "紀伊神谷": "06:29",
+          "紀伊細川": "06:35",
+          "上古沢": "06:42",
+          "下古沢": "06:48",
+          "高野下": "06:52",
+          "九度山": "06:56",
+          "学文路": "06:59",
+          "紀伊清水": "07:03",
+          "橋本": "07:08"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "06:51",
+          "紀伊神谷": "06:54",
+          "紀伊細川": "07:00",
+          "上古沢": "07:07",
+          "下古沢": "07:11",
+          "高野下": "07:16",
+          "九度山": "07:19",
+          "学文路": "07:22",
+          "紀伊清水": "07:26",
+          "橋本": "07:31"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "07:15",
+          "紀伊神谷": "07:18",
+          "紀伊細川": "07:24",
+          "上古沢": "07:31",
+          "下古沢": "07:35",
+          "高野下": "07:40",
+          "九度山": "07:43",
+          "学文路": "07:46",
+          "紀伊清水": "07:50",
+          "橋本": "07:55"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "07:48",
+          "紀伊神谷": "07:51",
+          "紀伊細川": "07:57",
+          "上古沢": "08:04",
+          "下古沢": "08:07",
+          "高野下": "08:12",
+          "九度山": "08:15",
+          "学文路": "08:18",
+          "紀伊清水": "08:28",
+          "橋本": "08:33"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "08:12",
+          "紀伊神谷": "08:15",
+          "紀伊細川": "08:21",
+          "上古沢": "08:28",
+          "下古沢": "08:32",
+          "高野下": "08:38",
+          "九度山": "08:42",
+          "学文路": "08:45",
+          "紀伊清水": "08:49",
+          "橋本": "08:53"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "08:44",
+          "紀伊神谷": "08:47",
+          "紀伊細川": "08:53",
+          "上古沢": "09:00",
+          "下古沢": "09:04",
+          "高野下": "09:09",
+          "九度山": "09:12",
+          "学文路": "09:15",
+          "紀伊清水": "09:20",
+          "橋本": "09:24"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "09:19",
+          "紀伊神谷": "09:22",
+          "紀伊細川": "09:30",
+          "上古沢": "09:37",
+          "下古沢": "09:41",
+          "高野下": "09:45",
+          "九度山": "09:49",
+          "学文路": "09:56",
+          "紀伊清水": "10:00",
+          "橋本": "10:04"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "09:44",
+          "紀伊神谷": "09:47",
+          "紀伊細川": "09:53",
+          "上古沢": "10:00",
+          "下古沢": "10:06",
+          "高野下": "10:10",
+          "九度山": "10:20",
+          "学文路": "10:22",
+          "紀伊清水": "10:28",
+          "橋本": "10:33"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "10:12",
+          "紀伊神谷": "10:16",
+          "紀伊細川": "10:29",
+          "上古沢": "10:36",
+          "下古沢": "10:43",
+          "高野下": "10:47",
+          "九度山": "10:51",
+          "学文路": "10:54",
+          "紀伊清水": "11:00",
+          "橋本": "11:04"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "11:23",
+          "紀伊神谷": "11:28",
+          "紀伊細川": "11:34",
+          "上古沢": "11:41",
+          "下古沢": "11:45",
+          "高野下": "11:49",
+          "九度山": "11:53",
+          "学文路": "11:56",
+          "紀伊清水": "12:02",
+          "橋本": "12:06"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "12:07",
+          "紀伊神谷": "12:11",
+          "紀伊細川": "12:17",
+          "上古沢": "12:24",
+          "下古沢": "12:28",
+          "高野下": "12:32",
+          "九度山": "12:38",
+          "学文路": "12:41",
+          "紀伊清水": "12:45",
+          "橋本": "12:49"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "12:39",
           "紀伊神谷": "12:43",
@@ -1585,8 +3072,10 @@
         }
       },
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "13:16",
           "紀伊神谷": "13:20",
@@ -1601,8 +3090,10 @@
         }
       },
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "14:02",
           "紀伊神谷": "14:05",
@@ -1617,8 +3108,10 @@
         }
       },
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "14:34",
           "紀伊神谷": "14:38",
@@ -1633,8 +3126,10 @@
         }
       },
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "15:08",
           "紀伊神谷": "15:12",
@@ -1649,8 +3144,10 @@
         }
       },
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "15:40",
           "紀伊神谷": "15:45",
@@ -1665,8 +3162,10 @@
         }
       },
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "16:13",
           "紀伊神谷": "16:17",
@@ -1681,8 +3180,10 @@
         }
       },
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "16:33",
           "紀伊神谷": "16:36",
@@ -1697,8 +3198,10 @@
         }
       },
       {
-        "train": "Local",
-        "days": "weekdays",
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "極楽橋": "17:09",
           "紀伊神谷": "17:12",
@@ -1711,8 +3214,199 @@
           "紀伊清水": "17:46",
           "橋本": "17:50"
         }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "17:53",
+          "紀伊神谷": "17:56",
+          "紀伊細川": "18:03",
+          "上古沢": "18:10",
+          "下古沢": "18:14",
+          "高野下": "18:19",
+          "九度山": "18:22",
+          "学文路": "18:25",
+          "紀伊清水": "18:29",
+          "橋本": "18:33"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "18:24",
+          "紀伊神谷": "18:27",
+          "紀伊細川": "18:34",
+          "上古沢": "18:40",
+          "下古沢": "18:44",
+          "高野下": "18:49",
+          "九度山": "18:52",
+          "学文路": "18:55",
+          "紀伊清水": "18:59",
+          "橋本": "19:04"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "18:46",
+          "紀伊神谷": "18:49",
+          "紀伊細川": "18:55",
+          "上古沢": "19:02",
+          "下古沢": "19:06",
+          "高野下": "19:11",
+          "九度山": "19:14",
+          "学文路": "19:17",
+          "紀伊清水": "19:21",
+          "橋本": "19:27"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "19:09",
+          "紀伊神谷": "19:12",
+          "紀伊細川": "19:18",
+          "上古沢": "19:25",
+          "下古沢": "19:29",
+          "高野下": "19:34",
+          "九度山": "19:37",
+          "学文路": "19:40",
+          "紀伊清水": "19:44",
+          "橋本": "19:49"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "19:39",
+          "紀伊神谷": "19:42",
+          "紀伊細川": "19:48",
+          "上古沢": "19:55",
+          "下古沢": "19:59",
+          "高野下": "20:04",
+          "九度山": "20:07",
+          "学文路": "20:10",
+          "紀伊清水": "20:14",
+          "橋本": "20:19"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "20:23",
+          "紀伊神谷": "20:26",
+          "紀伊細川": "20:32",
+          "上古沢": "20:39",
+          "下古沢": "20:43",
+          "高野下": "20:48",
+          "九度山": "20:51",
+          "学文路": "20:54",
+          "紀伊清水": "21:01",
+          "橋本": "21:06"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "20:55",
+          "紀伊神谷": "20:58",
+          "紀伊細川": "21:04",
+          "上古沢": "21:11",
+          "下古沢": "21:16",
+          "高野下": "21:21",
+          "九度山": "21:24",
+          "学文路": "21:27",
+          "紀伊清水": "21:31",
+          "橋本": "21:36"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "21:47",
+          "紀伊神谷": "21:50",
+          "紀伊細川": "21:56",
+          "上古沢": "22:03",
+          "下古沢": "22:07",
+          "高野下": "22:12",
+          "九度山": "22:15",
+          "学文路": "22:18",
+          "紀伊清水": "22:23",
+          "橋本": "22:28"
+        }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ],
+      "紀伊神谷": [
+        34.2428762,
+        135.5710789
+      ],
+      "紀伊細川": [
+        34.2358697,
+        135.5537617
+      ],
+      "上古沢": [
+        34.2575002,
+        135.5479954
+      ],
+      "下古沢": [
+        34.2665086,
+        135.553091
+      ],
+      "高野下": [
+        34.2716971,
+        135.5663685
+      ],
+      "九度山": [
+        34.288069,
+        135.564599
+      ],
+      "学文路": [
+        34.2965572,
+        135.5800628
+      ],
+      "紀伊清水": [
+        34.3074429,
+        135.6046161
+      ],
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ]
+    }
   },
   {
     "id": "kansai-nankai-hashimoto-express-return",
@@ -1742,24 +3436,506 @@
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&slCode=309-32&d=1&dw=0",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-620-2740&dw=0&tm=1336&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-633-2742&dw=0&tm=1406&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-644-2744&dw=0&tm=1436&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-655-2746&dw=0&tm=1506&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-665-2748&dw=0&tm=1536&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-689-2750&dw=0&tm=1632&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-696-2752&dw=0&tm=1646&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-704-2754&dw=0&tm=1705&date=20261023&USR=PC",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-727-2756&dw=0&tm=1756&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-32&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-428-2702&dw=0&tm=0506&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-432-2704&dw=0&tm=0533&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-438-2706&dw=0&tm=0557&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-445-2708&dw=0&tm=0615&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-452-2710&dw=0&tm=0630&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-461-2712&dw=0&tm=0644&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-467-2714&dw=0&tm=0655&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-477-2716&dw=0&tm=0714&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-487-2718&dw=0&tm=0735&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-496-2720&dw=0&tm=0749&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-500-2722&dw=0&tm=0759&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-508-2724&dw=0&tm=0818&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-515-2726&dw=0&tm=0841&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-527-2728&dw=0&tm=0918&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-536-2730&dw=0&tm=0941&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-546-2732&dw=0&tm=1007&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-555-2734&dw=0&tm=1036&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-568-2736&dw=0&tm=1107&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-610-2738&dw=0&tm=1306&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-620-2740&dw=0&tm=1336&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-633-2742&dw=0&tm=1406&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-644-2744&dw=0&tm=1436&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-655-2746&dw=0&tm=1506&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-665-2748&dw=0&tm=1536&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-689-2750&dw=0&tm=1632&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-696-2752&dw=0&tm=1646&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-704-2754&dw=0&tm=1705&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-727-2756&dw=0&tm=1756&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-734-2758&dw=0&tm=1811&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-738-2760&dw=0&tm=1823&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-766-2762&dw=0&tm=1930&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-774-2764&dw=0&tm=1943&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-778-2766&dw=0&tm=1955&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-799-2768&dw=0&tm=2043&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-815-2770&dw=0&tm=2110&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-829-2772&dw=0&tm=2146&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-847-2774&dw=0&tm=2230&date=20261202&USR=PC",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268",
+        "https://nominatim.openstreetmap.org/search?q=%E5%BE%A1%E5%B9%B8%E8%BE%BB%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9E%97%E9%96%93%E7%94%B0%E5%9C%92%E9%83%BD%E5%B8%82%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E8%A6%8B%E5%B3%A0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E8%A6%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Chihayaguchi+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%BE%8E%E5%8A%A0%E3%81%AE%E5%8F%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Mikkaichicho+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B2%B3%E5%86%85%E9%95%B7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Kongo+station%2C+Japan&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%8C%97%E9%87%8E%E7%94%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A0%BA%E6%9D%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E4%B8%8B%E8%8C%B6%E5%B1%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%96%B0%E4%BB%8A%E5%AE%AE%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%9B%A3%E6%B3%A2%E9%A7%85&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable effective 2026-03-28. 2026-12-02 is Wednesday. These are separate rides for the return via 橋本, not through services to なんば. Intermediate stops use departures; the final stop uses arrival. All times were fetched from official individual train pages. No connection time or transfer duration is assumed. Supplemental onward departure range covers all express departures from the earliest to the latest local arrival at 橋本 and the first following express. A listed departure is not a verified transfer recommendation."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. Every express of this type from Hashimoto to Namba is included, including through trains from Gokurakubashi where applicable. This table starts at Hashimoto; connection times are not verified."
     },
     "departures": [
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "05:06",
+          "御幸辻": "05:09",
+          "林間田園都市": "05:12",
+          "紀見峠": "05:14",
+          "天見": "05:18",
+          "千早口": "05:20",
+          "美加の台": "05:23",
+          "三日市町": "05:25",
+          "河内長野": "05:27",
+          "金剛": "05:32",
+          "北野田": "05:36",
+          "堺東": "05:43",
+          "天下茶屋": "05:49",
+          "新今宮": "05:52",
+          "なんば": "05:54"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "05:33",
+          "御幸辻": "05:36",
+          "林間田園都市": "05:39",
+          "紀見峠": "05:41",
+          "天見": "05:45",
+          "千早口": "05:47",
+          "美加の台": "05:50",
+          "三日市町": "05:52",
+          "河内長野": "05:55",
+          "金剛": "05:59",
+          "北野田": "06:03",
+          "堺東": "06:10",
+          "天下茶屋": "06:17",
+          "新今宮": "06:19",
+          "なんば": "06:21"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "05:57",
+          "御幸辻": "06:01",
+          "林間田園都市": "06:03",
+          "紀見峠": "06:05",
+          "天見": "06:09",
+          "千早口": "06:12",
+          "美加の台": "06:14",
+          "三日市町": "06:16",
+          "河内長野": "06:19",
+          "金剛": "06:24",
+          "北野田": "06:28",
+          "堺東": "06:34",
+          "天下茶屋": "06:41",
+          "新今宮": "06:44",
+          "なんば": "06:47"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "06:15",
+          "御幸辻": "06:18",
+          "林間田園都市": "06:21",
+          "紀見峠": "06:23",
+          "天見": "06:27",
+          "千早口": "06:29",
+          "美加の台": "06:32",
+          "三日市町": "06:34",
+          "河内長野": "06:37",
+          "金剛": "06:41",
+          "北野田": "06:46",
+          "堺東": "06:55",
+          "天下茶屋": "07:02",
+          "新今宮": "07:05",
+          "なんば": "07:07"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "06:30",
+          "御幸辻": "06:33",
+          "林間田園都市": "06:36",
+          "紀見峠": "06:38",
+          "天見": "06:42",
+          "千早口": "06:45",
+          "美加の台": "06:48",
+          "三日市町": "06:50",
+          "河内長野": "06:58",
+          "金剛": "07:04",
+          "北野田": "07:08",
+          "堺東": "07:17",
+          "天下茶屋": "07:24",
+          "新今宮": "07:27",
+          "なんば": "07:30"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "06:44",
+          "御幸辻": "06:47",
+          "林間田園都市": "06:50",
+          "紀見峠": "06:52",
+          "天見": "06:56",
+          "千早口": "06:59",
+          "美加の台": "07:02",
+          "三日市町": "07:04",
+          "河内長野": "07:08",
+          "金剛": "07:13",
+          "北野田": "07:18",
+          "堺東": "07:28",
+          "天下茶屋": "07:36",
+          "新今宮": "07:39",
+          "なんば": "07:42"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "06:55",
+          "御幸辻": "06:58",
+          "林間田園都市": "07:01",
+          "紀見峠": "07:03",
+          "天見": "07:07",
+          "千早口": "07:10",
+          "美加の台": "07:13",
+          "三日市町": "07:15",
+          "河内長野": "07:19",
+          "金剛": "07:24",
+          "北野田": "07:28",
+          "堺東": "07:39",
+          "天下茶屋": "07:46",
+          "新今宮": "07:49",
+          "なんば": "07:52"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "07:14",
+          "御幸辻": "07:18",
+          "林間田園都市": "07:20",
+          "紀見峠": "07:23",
+          "天見": "07:27",
+          "千早口": "07:29",
+          "美加の台": "07:32",
+          "三日市町": "07:34",
+          "河内長野": "07:38",
+          "金剛": "07:43",
+          "北野田": "07:48",
+          "堺東": "07:56",
+          "天下茶屋": "08:05",
+          "新今宮": "08:08",
+          "なんば": "08:11"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "07:35",
+          "御幸辻": "07:38",
+          "林間田園都市": "07:41",
+          "紀見峠": "07:43",
+          "天見": "07:47",
+          "千早口": "07:50",
+          "美加の台": "07:53",
+          "三日市町": "07:55",
+          "河内長野": "08:03",
+          "金剛": "08:08",
+          "北野田": "08:12",
+          "堺東": "08:20",
+          "天下茶屋": "08:27",
+          "新今宮": "08:30",
+          "なんば": "08:33"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "07:49",
+          "御幸辻": "07:52",
+          "林間田園都市": "07:55",
+          "紀見峠": "07:57",
+          "天見": "08:01",
+          "千早口": "08:04",
+          "美加の台": "08:07",
+          "三日市町": "08:09",
+          "河内長野": "08:12",
+          "金剛": "08:17",
+          "北野田": "08:22",
+          "堺東": "08:30",
+          "天下茶屋": "08:37",
+          "新今宮": "08:40",
+          "なんば": "08:42"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "07:59",
+          "御幸辻": "08:03",
+          "林間田園都市": "08:05",
+          "紀見峠": "08:07",
+          "天見": "08:11",
+          "千早口": "08:14",
+          "美加の台": "08:16",
+          "三日市町": "08:18",
+          "河内長野": "08:22",
+          "金剛": "08:27",
+          "北野田": "08:31",
+          "堺東": "08:41",
+          "天下茶屋": "08:48",
+          "新今宮": "08:51",
+          "なんば": "08:54"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "08:18",
+          "御幸辻": "08:21",
+          "林間田園都市": "08:24",
+          "紀見峠": "08:26",
+          "天見": "08:30",
+          "千早口": "08:32",
+          "美加の台": "08:35",
+          "三日市町": "08:37",
+          "河内長野": "08:40",
+          "金剛": "08:45",
+          "北野田": "08:50",
+          "堺東": "08:58",
+          "天下茶屋": "09:06",
+          "新今宮": "09:08",
+          "なんば": "09:11"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "08:41",
+          "御幸辻": "08:44",
+          "林間田園都市": "08:47",
+          "紀見峠": "08:49",
+          "天見": "08:53",
+          "千早口": "08:55",
+          "美加の台": "08:58",
+          "三日市町": "09:00",
+          "河内長野": "09:03",
+          "金剛": "09:07",
+          "北野田": "09:11",
+          "堺東": "09:19",
+          "天下茶屋": "09:26",
+          "新今宮": "09:29",
+          "なんば": "09:32"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "09:18",
+          "御幸辻": "09:21",
+          "林間田園都市": "09:24",
+          "紀見峠": "09:26",
+          "天見": "09:30",
+          "千早口": "09:32",
+          "美加の台": "09:35",
+          "三日市町": "09:37",
+          "河内長野": "09:40",
+          "金剛": "09:44",
+          "北野田": "09:48",
+          "堺東": "09:55",
+          "天下茶屋": "10:02",
+          "新今宮": "10:04",
+          "なんば": "10:07"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "09:41",
+          "御幸辻": "09:44",
+          "林間田園都市": "09:47",
+          "紀見峠": "09:49",
+          "天見": "09:53",
+          "千早口": "09:55",
+          "美加の台": "09:58",
+          "三日市町": "10:00",
+          "河内長野": "10:02",
+          "金剛": "10:07",
+          "北野田": "10:11",
+          "堺東": "10:18",
+          "天下茶屋": "10:25",
+          "新今宮": "10:27",
+          "なんば": "10:29"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "10:07",
+          "御幸辻": "10:10",
+          "林間田園都市": "10:13",
+          "紀見峠": "10:15",
+          "天見": "10:19",
+          "千早口": "10:21",
+          "美加の台": "10:24",
+          "三日市町": "10:26",
+          "河内長野": "10:28",
+          "金剛": "10:33",
+          "北野田": "10:37",
+          "堺東": "10:44",
+          "天下茶屋": "10:50",
+          "新今宮": "10:53",
+          "なんば": "10:55"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "10:36",
+          "御幸辻": "10:39",
+          "林間田園都市": "10:42",
+          "紀見峠": "10:44",
+          "天見": "10:48",
+          "千早口": "10:50",
+          "美加の台": "10:53",
+          "三日市町": "10:55",
+          "河内長野": "10:57",
+          "金剛": "11:02",
+          "北野田": "11:06",
+          "堺東": "11:13",
+          "天下茶屋": "11:20",
+          "新今宮": "11:23",
+          "なんば": "11:26"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "11:07",
+          "御幸辻": "11:10",
+          "林間田園都市": "11:13",
+          "紀見峠": "11:15",
+          "天見": "11:19",
+          "千早口": "11:21",
+          "美加の台": "11:24",
+          "三日市町": "11:26",
+          "河内長野": "11:28",
+          "金剛": "11:33",
+          "北野田": "11:37",
+          "堺東": "11:44",
+          "天下茶屋": "11:51",
+          "新今宮": "11:53",
+          "なんば": "11:56"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "13:06",
+          "御幸辻": "13:10",
+          "林間田園都市": "13:12",
+          "紀見峠": "13:14",
+          "天見": "13:18",
+          "千早口": "13:21",
+          "美加の台": "13:23",
+          "三日市町": "13:25",
+          "河内長野": "13:28",
+          "金剛": "13:33",
+          "北野田": "13:37",
+          "堺東": "13:43",
+          "天下茶屋": "13:51",
+          "新今宮": "13:53",
+          "なんば": "13:56"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "13:36",
           "御幸辻": "13:39",
@@ -1780,7 +3956,9 @@
       },
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "14:06",
           "御幸辻": "14:09",
@@ -1801,7 +3979,9 @@
       },
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "14:36",
           "御幸辻": "14:39",
@@ -1822,7 +4002,9 @@
       },
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "15:06",
           "御幸辻": "15:09",
@@ -1843,7 +4025,9 @@
       },
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "15:36",
           "御幸辻": "15:39",
@@ -1864,7 +4048,9 @@
       },
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "16:32",
           "御幸辻": "16:35",
@@ -1885,7 +4071,9 @@
       },
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "16:46",
           "御幸辻": "16:49",
@@ -1906,7 +4094,9 @@
       },
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "17:05",
           "御幸辻": "17:09",
@@ -1927,7 +4117,9 @@
       },
       {
         "train": "Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "17:56",
           "御幸辻": "17:59",
@@ -1945,8 +4137,282 @@
           "新今宮": "18:47",
           "なんば": "18:50"
         }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "18:11",
+          "御幸辻": "18:14",
+          "林間田園都市": "18:17",
+          "紀見峠": "18:19",
+          "天見": "18:23",
+          "千早口": "18:25",
+          "美加の台": "18:28",
+          "三日市町": "18:30",
+          "河内長野": "18:32",
+          "金剛": "18:37",
+          "北野田": "18:41",
+          "堺東": "18:48",
+          "天下茶屋": "18:55",
+          "新今宮": "18:58",
+          "なんば": "19:02"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "18:23",
+          "御幸辻": "18:26",
+          "林間田園都市": "18:29",
+          "紀見峠": "18:31",
+          "天見": "18:35",
+          "千早口": "18:37",
+          "美加の台": "18:40",
+          "三日市町": "18:42",
+          "河内長野": "18:44",
+          "金剛": "18:49",
+          "北野田": "18:53",
+          "堺東": "19:00",
+          "天下茶屋": "19:06",
+          "新今宮": "19:10",
+          "なんば": "19:13"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "19:30",
+          "御幸辻": "19:34",
+          "林間田園都市": "19:36",
+          "紀見峠": "19:38",
+          "天見": "19:42",
+          "千早口": "19:45",
+          "美加の台": "19:47",
+          "三日市町": "19:49",
+          "河内長野": "19:56",
+          "金剛": "20:01",
+          "北野田": "20:05",
+          "堺東": "20:12",
+          "天下茶屋": "20:20",
+          "新今宮": "20:23",
+          "なんば": "20:26"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "19:43",
+          "御幸辻": "19:47",
+          "林間田園都市": "19:49",
+          "紀見峠": "19:51",
+          "天見": "19:55",
+          "千早口": "19:58",
+          "美加の台": "20:00",
+          "三日市町": "20:02",
+          "河内長野": "20:05",
+          "金剛": "20:10",
+          "北野田": "20:14",
+          "堺東": "20:22",
+          "天下茶屋": "20:30",
+          "新今宮": "20:33",
+          "なんば": "20:36"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "19:55",
+          "御幸辻": "19:58",
+          "林間田園都市": "20:01",
+          "紀見峠": "20:03",
+          "天見": "20:07",
+          "千早口": "20:09",
+          "美加の台": "20:12",
+          "三日市町": "20:14",
+          "河内長野": "20:16",
+          "金剛": "20:21",
+          "北野田": "20:25",
+          "堺東": "20:34",
+          "天下茶屋": "20:43",
+          "新今宮": "20:46",
+          "なんば": "20:49"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "20:43",
+          "御幸辻": "20:47",
+          "林間田園都市": "20:49",
+          "紀見峠": "20:51",
+          "天見": "20:55",
+          "千早口": "20:58",
+          "美加の台": "21:00",
+          "三日市町": "21:02",
+          "河内長野": "21:05",
+          "金剛": "21:10",
+          "北野田": "21:13",
+          "堺東": "21:24",
+          "天下茶屋": "21:32",
+          "新今宮": "21:35",
+          "なんば": "21:38"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "21:10",
+          "御幸辻": "21:13",
+          "林間田園都市": "21:16",
+          "紀見峠": "21:18",
+          "天見": "21:22",
+          "千早口": "21:24",
+          "美加の台": "21:27",
+          "三日市町": "21:29",
+          "河内長野": "21:31",
+          "金剛": "21:36",
+          "北野田": "21:40",
+          "堺東": "21:47",
+          "天下茶屋": "21:56",
+          "新今宮": "21:59",
+          "なんば": "22:02"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "21:46",
+          "御幸辻": "21:49",
+          "林間田園都市": "21:52",
+          "紀見峠": "21:54",
+          "天見": "21:58",
+          "千早口": "22:00",
+          "美加の台": "22:03",
+          "三日市町": "22:05",
+          "河内長野": "22:07",
+          "金剛": "22:12",
+          "北野田": "22:16",
+          "堺東": "22:24",
+          "天下茶屋": "22:31",
+          "新今宮": "22:34",
+          "なんば": "22:37"
+        }
+      },
+      {
+        "train": "Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "22:30",
+          "御幸辻": "22:33",
+          "林間田園都市": "22:36",
+          "紀見峠": "22:38",
+          "天見": "22:42",
+          "千早口": "22:44",
+          "美加の台": "22:47",
+          "三日市町": "22:49",
+          "河内長野": "22:51",
+          "金剛": "22:56",
+          "北野田": "23:00",
+          "堺東": "23:07",
+          "天下茶屋": "23:14",
+          "新今宮": "23:16",
+          "なんば": "23:18"
+        }
       }
-    ]
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ],
+      "御幸辻": [
+        34.3378833,
+        135.6020976
+      ],
+      "林間田園都市": [
+        34.3555065,
+        135.6033421
+      ],
+      "紀見峠": [
+        34.3661019,
+        135.6001349
+      ],
+      "天見": [
+        34.3971716,
+        135.5955342
+      ],
+      "千早口": [
+        34.4117216,
+        135.5901047
+      ],
+      "美加の台": [
+        34.4243686,
+        135.5775949
+      ],
+      "三日市町": [
+        34.4366198,
+        135.5713025
+      ],
+      "河内長野": [
+        34.4508344,
+        135.5732234
+      ],
+      "金剛": [
+        34.4952314,
+        135.5594015
+      ],
+      "北野田": [
+        34.5229815,
+        135.5431304
+      ],
+      "堺東": [
+        34.5755127,
+        135.4849582
+      ],
+      "天下茶屋": [
+        34.6371552,
+        135.4966595
+      ],
+      "新今宮": [
+        34.6501425,
+        135.5002187
+      ],
+      "なんば": [
+        34.6636625,
+        135.5017751
+      ]
+    }
   },
   {
     "id": "kansai-nankai-hashimoto-rapid-express-return",
@@ -1973,16 +4439,97 @@
     },
     "source": {
       "urls": [
-        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&slCode=309-32&d=1&dw=0",
-        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-717-1706&dw=0&tm=1732&date=20261023&USR=PC"
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-32&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-564-1902&dw=0&tm=1140&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-591-1702&dw=0&tm=1210&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-602-1704&dw=0&tm=1239&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-717-1706&dw=0&tm=1732&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-747-1708&dw=0&tm=1836&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-761-1710&dw=0&tm=1911&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-794-1712&dw=0&tm=2025&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360110-818-1714&dw=0&tm=2124&date=20261202&USR=PC",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268",
+        "https://nominatim.openstreetmap.org/search?q=%E5%BE%A1%E5%B9%B8%E8%BE%BB%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9E%97%E9%96%93%E7%94%B0%E5%9C%92%E9%83%BD%E5%B8%82%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%BE%8E%E5%8A%A0%E3%81%AE%E5%8F%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Mikkaichicho+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B2%B3%E5%86%85%E9%95%B7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Kongo+station%2C+Japan&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%8C%97%E9%87%8E%E7%94%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A0%BA%E6%9D%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E4%B8%8B%E8%8C%B6%E5%B1%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%96%B0%E4%BB%8A%E5%AE%AE%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%9B%A3%E6%B3%A2%E9%A7%85&format=jsonv2"
       ],
-      "retrieved": "2026-10-23",
-      "note": "Official weekday timetable effective 2026-03-28. 2026-12-02 is Wednesday. These are separate rides for the return via 橋本, not through services to なんば. Intermediate stops use departures; the final stop uses arrival. All times were fetched from official individual train pages. No connection time or transfer duration is assumed. Supplemental onward departure range covers all express departures from the earliest to the latest local arrival at 橋本 and the first following express. A listed departure is not a verified transfer recommendation."
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. Every express of this type from Hashimoto to Namba is included, including through trains from Gokurakubashi where applicable. This table starts at Hashimoto; connection times are not verified."
     },
     "departures": [
       {
         "train": "Rapid Express",
-        "days": "weekdays",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "11:40",
+          "御幸辻": "11:44",
+          "林間田園都市": "11:46",
+          "美加の台": "11:54",
+          "三日市町": "11:57",
+          "河内長野": "11:59",
+          "金剛": "12:04",
+          "北野田": "12:08",
+          "堺東": "12:14",
+          "天下茶屋": "12:21",
+          "新今宮": "12:24",
+          "なんば": "12:26"
+        }
+      },
+      {
+        "train": "Rapid Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "12:10",
+          "御幸辻": "12:13",
+          "林間田園都市": "12:16",
+          "美加の台": "12:24",
+          "三日市町": "12:26",
+          "河内長野": "12:29",
+          "金剛": "12:33",
+          "北野田": "12:37",
+          "堺東": "12:44",
+          "天下茶屋": "12:51",
+          "新今宮": "12:53",
+          "なんば": "12:56"
+        }
+      },
+      {
+        "train": "Rapid Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "12:39",
+          "御幸辻": "12:42",
+          "林間田園都市": "12:45",
+          "美加の台": "12:53",
+          "三日市町": "12:55",
+          "河内長野": "12:58",
+          "金剛": "13:02",
+          "北野田": "13:06",
+          "堺東": "13:13",
+          "天下茶屋": "13:20",
+          "新今宮": "13:23",
+          "なんば": "13:26"
+        }
+      },
+      {
+        "train": "Rapid Express",
+        "dates": [
+          "2026-12-02"
+        ],
         "stops": {
           "橋本": "17:32",
           "御幸辻": "17:35",
@@ -1996,6 +4543,1695 @@
           "天下茶屋": "18:14",
           "新今宮": "18:17",
           "なんば": "18:20"
+        }
+      },
+      {
+        "train": "Rapid Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "18:36",
+          "御幸辻": "18:39",
+          "林間田園都市": "18:42",
+          "美加の台": "18:50",
+          "三日市町": "18:52",
+          "河内長野": "18:55",
+          "金剛": "18:59",
+          "北野田": "19:03",
+          "堺東": "19:12",
+          "天下茶屋": "19:18",
+          "新今宮": "19:21",
+          "なんば": "19:23"
+        }
+      },
+      {
+        "train": "Rapid Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "19:11",
+          "御幸辻": "19:14",
+          "林間田園都市": "19:17",
+          "美加の台": "19:25",
+          "三日市町": "19:27",
+          "河内長野": "19:30",
+          "金剛": "19:34",
+          "北野田": "19:38",
+          "堺東": "19:46",
+          "天下茶屋": "19:55",
+          "新今宮": "19:58",
+          "なんば": "20:02"
+        }
+      },
+      {
+        "train": "Rapid Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "20:25",
+          "御幸辻": "20:28",
+          "林間田園都市": "20:31",
+          "美加の台": "20:39",
+          "三日市町": "20:41",
+          "河内長野": "20:44",
+          "金剛": "20:48",
+          "北野田": "20:52",
+          "堺東": "20:59",
+          "天下茶屋": "21:06",
+          "新今宮": "21:08",
+          "なんば": "21:11"
+        }
+      },
+      {
+        "train": "Rapid Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "21:24",
+          "御幸辻": "21:27",
+          "林間田園都市": "21:30",
+          "美加の台": "21:38",
+          "三日市町": "21:40",
+          "河内長野": "21:43",
+          "金剛": "21:47",
+          "北野田": "21:51",
+          "堺東": "21:59",
+          "天下茶屋": "22:07",
+          "新今宮": "22:10",
+          "なんば": "22:14"
+        }
+      }
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ],
+      "御幸辻": [
+        34.3378833,
+        135.6020976
+      ],
+      "林間田園都市": [
+        34.3555065,
+        135.6033421
+      ],
+      "美加の台": [
+        34.4243686,
+        135.5775949
+      ],
+      "三日市町": [
+        34.4366198,
+        135.5713025
+      ],
+      "河内長野": [
+        34.4508344,
+        135.5732234
+      ],
+      "金剛": [
+        34.4952314,
+        135.5594015
+      ],
+      "北野田": [
+        34.5229815,
+        135.5431304
+      ],
+      "堺東": [
+        34.5755127,
+        135.4849582
+      ],
+      "天下茶屋": [
+        34.6371552,
+        135.4966595
+      ],
+      "新今宮": [
+        34.6501425,
+        135.5002187
+      ],
+      "なんば": [
+        34.6636625,
+        135.5017751
+      ]
+    }
+  },
+  {
+    "id": "kansai-nankai-koya-rapid-express-return",
+    "operator": "Nankai",
+    "service": "Koya Line Rapid Express",
+    "serviceNames": [
+      "南海高野線快速急行",
+      "南海高野線快急",
+      "南海高野線快速急行(難波-極楽橋)"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "極楽橋": "Gokurakubashi",
+      "紀伊神谷": "Kii-Kamiya",
+      "紀伊細川": "Kii-Hosokawa",
+      "上古沢": "Kami-Kosawa",
+      "下古沢": "Shimo-Kosawa",
+      "高野下": "Koyashita",
+      "九度山": "Kudoyama",
+      "学文路": "Kamuro",
+      "紀伊清水": "Kii-Shimizu",
+      "橋本": "Hashimoto",
+      "御幸辻": "Miyukitsuji",
+      "林間田園都市": "Rinkan-den-en-toshi",
+      "美加の台": "Mikanodai",
+      "三日市町": "Mikkaichicho",
+      "河内長野": "Kawachinagano",
+      "金剛": "Kongo",
+      "北野田": "Kitanoda",
+      "堺東": "Sakaihigashi",
+      "天下茶屋": "Tengachaya",
+      "新今宮": "Shin-Imamiya",
+      "なんば": "Namba"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=1&dw=0&slCode=309-41&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5298&tx=2360110-564-1902&dw=0&tm=1053&date=20261202&USR=PC",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%A5%9E%E8%B0%B7%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%B4%B0%E5%B7%9D%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8A%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8B%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%AB%98%E9%87%8E%E4%B8%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B9%9D%E5%BA%A6%E5%B1%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%AD%A6%E6%96%87%E8%B7%AF%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E6%B8%85%E6%B0%B4%E9%A7%85&format=jsonv2",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268",
+        "https://nominatim.openstreetmap.org/search?q=%E5%BE%A1%E5%B9%B8%E8%BE%BB%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%9E%97%E9%96%93%E7%94%B0%E5%9C%92%E9%83%BD%E5%B8%82%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%BE%8E%E5%8A%A0%E3%81%AE%E5%8F%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Mikkaichicho+station&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%B2%B3%E5%86%85%E9%95%B7%E9%87%8E%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=Kongo+station%2C+Japan&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%8C%97%E9%87%8E%E7%94%B0%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A0%BA%E6%9D%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%A4%A9%E4%B8%8B%E8%8C%B6%E5%B1%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%96%B0%E4%BB%8A%E5%AE%AE%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%9B%A3%E6%B3%A2%E9%A7%85&format=jsonv2"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. Only through trains between Namba and Gokurakubashi are included. Other trains require a change at Hashimoto. No reserved-seat supplement is required."
+    },
+    "departures": [
+      {
+        "train": "Rapid Express",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "極楽橋": "10:53",
+          "紀伊神谷": "10:56",
+          "紀伊細川": "11:02",
+          "上古沢": "11:09",
+          "下古沢": "11:12",
+          "高野下": "11:19",
+          "九度山": "11:22",
+          "学文路": "11:28",
+          "紀伊清水": "11:31",
+          "橋本": "11:40",
+          "御幸辻": "11:44",
+          "林間田園都市": "11:46",
+          "美加の台": "11:54",
+          "三日市町": "11:57",
+          "河内長野": "11:59",
+          "金剛": "12:04",
+          "北野田": "12:08",
+          "堺東": "12:14",
+          "天下茶屋": "12:21",
+          "新今宮": "12:24",
+          "なんば": "12:26"
+        }
+      }
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ],
+      "紀伊神谷": [
+        34.2428762,
+        135.5710789
+      ],
+      "紀伊細川": [
+        34.2358697,
+        135.5537617
+      ],
+      "上古沢": [
+        34.2575002,
+        135.5479954
+      ],
+      "下古沢": [
+        34.2665086,
+        135.553091
+      ],
+      "高野下": [
+        34.2716971,
+        135.5663685
+      ],
+      "九度山": [
+        34.288069,
+        135.564599
+      ],
+      "学文路": [
+        34.2965572,
+        135.5800628
+      ],
+      "紀伊清水": [
+        34.3074429,
+        135.6046161
+      ],
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ],
+      "御幸辻": [
+        34.3378833,
+        135.6020976
+      ],
+      "林間田園都市": [
+        34.3555065,
+        135.6033421
+      ],
+      "美加の台": [
+        34.4243686,
+        135.5775949
+      ],
+      "三日市町": [
+        34.4366198,
+        135.5713025
+      ],
+      "河内長野": [
+        34.4508344,
+        135.5732234
+      ],
+      "金剛": [
+        34.4952314,
+        135.5594015
+      ],
+      "北野田": [
+        34.5229815,
+        135.5431304
+      ],
+      "堺東": [
+        34.5755127,
+        135.4849582
+      ],
+      "天下茶屋": [
+        34.6371552,
+        135.4966595
+      ],
+      "新今宮": [
+        34.6501425,
+        135.5002187
+      ],
+      "なんば": [
+        34.6636625,
+        135.5017751
+      ]
+    }
+  },
+  {
+    "id": "kansai-nankai-koya-local-out",
+    "operator": "Nankai",
+    "service": "Koya Line Local",
+    "serviceNames": [
+      "南海高野線",
+      "南海高野線各停",
+      "南海高野線各駅停車",
+      "南海高野線(橋本-極楽橋)"
+    ],
+    "kind": "rail",
+    "stationNames": {
+      "橋本": "Hashimoto",
+      "紀伊清水": "Kii-Shimizu",
+      "学文路": "Kamuro",
+      "九度山": "Kudoyama",
+      "高野下": "Koyashita",
+      "下古沢": "Shimo-Kosawa",
+      "上古沢": "Kami-Kosawa",
+      "紀伊細川": "Kii-Hosokawa",
+      "紀伊神谷": "Kii-Kamiya",
+      "極楽橋": "Gokurakubashi"
+    },
+    "source": {
+      "urls": [
+        "https://kensaku.nankai.co.jp/pc/T5?USR=PC&d=2&dw=0&slCode=309-32&time=0900&date=20261202",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-5-7501&dw=0&tm=0542&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-10-7503&dw=0&tm=0602&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-14-7505&dw=0&tm=0629&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-31-7507&dw=0&tm=0722&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-43-7509&dw=0&tm=0746&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-62-7511&dw=0&tm=0824&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-78-7513&dw=0&tm=0901&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-83-7515&dw=0&tm=0915&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-108-7517&dw=0&tm=1024&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-120-7519&dw=0&tm=1056&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-139-7301&dw=0&tm=1158&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-150-7521&dw=0&tm=1227&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-162-7523&dw=0&tm=1256&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-186-7525&dw=0&tm=1403&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-196-7527&dw=0&tm=1430&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-210-7529&dw=0&tm=1504&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-219-7531&dw=0&tm=1533&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-225-7303&dw=0&tm=1557&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-244-7533&dw=0&tm=1638&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-255-7535&dw=0&tm=1706&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-265-7537&dw=0&tm=1733&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-280-7539&dw=0&tm=1804&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-300-7541&dw=0&tm=1847&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-312-7543&dw=0&tm=1917&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-332-7545&dw=0&tm=2002&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-358-7547&dw=0&tm=2057&date=20261202&USR=PC",
+        "https://kensaku.nankai.co.jp/pc/T7?sf=5808&tx=2360100-383-7549&dw=0&tm=2157&date=20261202&USR=PC",
+        "https://api.openstreetmap.org/api/0.6/node/8163291268",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E6%B8%85%E6%B0%B4%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E5%AD%A6%E6%96%87%E8%B7%AF%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B9%9D%E5%BA%A6%E5%B1%B1%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E9%AB%98%E9%87%8E%E4%B8%8B%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8B%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E4%B8%8A%E5%8F%A4%E6%B2%A2%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%B4%B0%E5%B7%9D%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E7%B4%80%E4%BC%8A%E7%A5%9E%E8%B0%B7%E9%A7%85&format=jsonv2",
+        "https://nominatim.openstreetmap.org/search?q=%E6%A5%B5%E6%A5%BD%E6%A9%8B%E9%A7%85&format=jsonv2"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "All scheduled departures in this direction on Wednesday 2026-12-02, from the official weekday timetable effective 2026-03-28. Valid is limited to the checked travel date; the operator gives no end date for this timetable. Intermediate times are departures; the last stop is arrival. The station pages use なんば; the train pages use 難波. This is a separate ride between Hashimoto and Gokurakubashi. Change at Hashimoto for Namba; connection times are not verified. Short-turn trains that do not reach Gokurakubashi are excluded."
+    },
+    "departures": [
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "05:42",
+          "紀伊清水": "05:47",
+          "学文路": "05:50",
+          "九度山": "05:53",
+          "高野下": "05:57",
+          "下古沢": "06:01",
+          "上古沢": "06:05",
+          "紀伊細川": "06:12",
+          "紀伊神谷": "06:17",
+          "極楽橋": "06:20"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "06:02",
+          "紀伊清水": "06:07",
+          "学文路": "06:12",
+          "九度山": "06:15",
+          "高野下": "06:19",
+          "下古沢": "06:23",
+          "上古沢": "06:27",
+          "紀伊細川": "06:35",
+          "紀伊神谷": "06:41",
+          "極楽橋": "06:44"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "06:29",
+          "紀伊清水": "06:33",
+          "学文路": "06:37",
+          "九度山": "06:40",
+          "高野下": "06:43",
+          "下古沢": "06:48",
+          "上古沢": "06:52",
+          "紀伊細川": "07:00",
+          "紀伊神谷": "07:06",
+          "極楽橋": "07:09"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "07:22",
+          "紀伊清水": "07:26",
+          "学文路": "07:30",
+          "九度山": "07:33",
+          "高野下": "07:40",
+          "下古沢": "07:44",
+          "上古沢": "07:48",
+          "紀伊細川": "07:57",
+          "紀伊神谷": "08:02",
+          "極楽橋": "08:06"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "07:46",
+          "紀伊清水": "07:50",
+          "学文路": "07:54",
+          "九度山": "07:57",
+          "高野下": "08:01",
+          "下古沢": "08:08",
+          "上古沢": "08:11",
+          "紀伊細川": "08:21",
+          "紀伊神谷": "08:27",
+          "極楽橋": "08:30"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "08:24",
+          "紀伊清水": "08:28",
+          "学文路": "08:32",
+          "九度山": "08:35",
+          "高野下": "08:38",
+          "下古沢": "08:43",
+          "上古沢": "08:46",
+          "紀伊細川": "08:53",
+          "紀伊神谷": "08:59",
+          "極楽橋": "09:02"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "09:01",
+          "紀伊清水": "09:05",
+          "学文路": "09:09",
+          "九度山": "09:12",
+          "高野下": "09:15",
+          "下古沢": "09:19",
+          "上古沢": "09:23",
+          "紀伊細川": "09:30",
+          "紀伊神谷": "09:35",
+          "極楽橋": "09:38"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "09:15",
+          "紀伊清水": "09:20",
+          "学文路": "09:23",
+          "九度山": "09:33",
+          "高野下": "09:36",
+          "下古沢": "09:41",
+          "上古沢": "09:45",
+          "紀伊細川": "09:53",
+          "紀伊神谷": "09:58",
+          "極楽橋": "10:02"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "10:24",
+          "紀伊清水": "10:28",
+          "学文路": "10:32",
+          "九度山": "10:35",
+          "高野下": "10:39",
+          "下古沢": "10:43",
+          "上古沢": "10:47",
+          "紀伊細川": "11:02",
+          "紀伊神谷": "11:07",
+          "極楽橋": "11:11"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "10:56",
+          "紀伊清水": "11:00",
+          "学文路": "11:04",
+          "九度山": "11:16",
+          "高野下": "11:19",
+          "下古沢": "11:23",
+          "上古沢": "11:27",
+          "紀伊細川": "11:34",
+          "紀伊神谷": "11:39",
+          "極楽橋": "11:43"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "11:58",
+          "紀伊清水": "12:02",
+          "学文路": "12:06",
+          "九度山": "12:19",
+          "高野下": "12:22",
+          "下古沢": "12:27",
+          "上古沢": "12:31",
+          "紀伊細川": "12:38",
+          "紀伊神谷": "12:44",
+          "極楽橋": "12:47"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "12:27",
+          "紀伊清水": "12:31",
+          "学文路": "12:35",
+          "九度山": "12:38",
+          "高野下": "12:41",
+          "下古沢": "12:46",
+          "上古沢": "12:49",
+          "紀伊細川": "12:56",
+          "紀伊神谷": "13:02",
+          "極楽橋": "13:05"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "12:56",
+          "紀伊清水": "13:00",
+          "学文路": "13:04",
+          "九度山": "13:07",
+          "高野下": "13:11",
+          "下古沢": "13:16",
+          "上古沢": "13:19",
+          "紀伊細川": "13:26",
+          "紀伊神谷": "13:32",
+          "極楽橋": "13:35"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "14:03",
+          "紀伊清水": "14:07",
+          "学文路": "14:11",
+          "九度山": "14:14",
+          "高野下": "14:18",
+          "下古沢": "14:22",
+          "上古沢": "14:26",
+          "紀伊細川": "14:33",
+          "紀伊神谷": "14:38",
+          "極楽橋": "14:42"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "14:30",
+          "紀伊清水": "14:34",
+          "学文路": "14:38",
+          "九度山": "14:41",
+          "高野下": "14:44",
+          "下古沢": "14:55",
+          "上古沢": "14:59",
+          "紀伊細川": "15:06",
+          "紀伊神谷": "15:12",
+          "極楽橋": "15:15"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "15:04",
+          "紀伊清水": "15:08",
+          "学文路": "15:12",
+          "九度山": "15:15",
+          "高野下": "15:21",
+          "下古沢": "15:29",
+          "上古沢": "15:32",
+          "紀伊細川": "15:39",
+          "紀伊神谷": "15:45",
+          "極楽橋": "15:48"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "15:33",
+          "紀伊清水": "15:39",
+          "学文路": "15:43",
+          "九度山": "15:46",
+          "高野下": "15:49",
+          "下古沢": "16:01",
+          "上古沢": "16:05",
+          "紀伊細川": "16:12",
+          "紀伊神谷": "16:17",
+          "極楽橋": "16:21"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "15:57",
+          "紀伊清水": "16:01",
+          "学文路": "16:05",
+          "九度山": "16:09",
+          "高野下": "16:12",
+          "下古沢": "16:16",
+          "上古沢": "16:20",
+          "紀伊細川": "16:27",
+          "紀伊神谷": "16:36",
+          "極楽橋": "16:40"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "16:38",
+          "紀伊清水": "16:42",
+          "学文路": "16:48",
+          "九度山": "16:51",
+          "高野下": "16:58",
+          "下古沢": "17:05",
+          "上古沢": "17:09",
+          "紀伊細川": "17:18",
+          "紀伊神谷": "17:24",
+          "極楽橋": "17:27"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "17:06",
+          "紀伊清水": "17:10",
+          "学文路": "17:14",
+          "九度山": "17:17",
+          "高野下": "17:21",
+          "下古沢": "17:29",
+          "上古沢": "17:33",
+          "紀伊細川": "17:39",
+          "紀伊神谷": "17:45",
+          "極楽橋": "17:48"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "17:33",
+          "紀伊清水": "17:38",
+          "学文路": "17:42",
+          "九度山": "17:45",
+          "高野下": "17:48",
+          "下古沢": "17:52",
+          "上古沢": "17:56",
+          "紀伊細川": "18:03",
+          "紀伊神谷": "18:09",
+          "極楽橋": "18:12"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "18:04",
+          "紀伊清水": "18:08",
+          "学文路": "18:12",
+          "九度山": "18:15",
+          "高野下": "18:19",
+          "下古沢": "18:23",
+          "上古沢": "18:27",
+          "紀伊細川": "18:34",
+          "紀伊神谷": "18:39",
+          "極楽橋": "18:42"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "18:47",
+          "紀伊清水": "18:51",
+          "学文路": "18:55",
+          "九度山": "18:58",
+          "高野下": "19:02",
+          "下古沢": "19:06",
+          "上古沢": "19:10",
+          "紀伊細川": "19:18",
+          "紀伊神谷": "19:24",
+          "極楽橋": "19:27"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "19:17",
+          "紀伊清水": "19:21",
+          "学文路": "19:25",
+          "九度山": "19:28",
+          "高野下": "19:34",
+          "下古沢": "19:38",
+          "上古沢": "19:41",
+          "紀伊細川": "19:48",
+          "紀伊神谷": "19:53",
+          "極楽橋": "19:57"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "20:02",
+          "紀伊清水": "20:06",
+          "学文路": "20:10",
+          "九度山": "20:14",
+          "高野下": "20:17",
+          "下古沢": "20:21",
+          "上古沢": "20:25",
+          "紀伊細川": "20:32",
+          "紀伊神谷": "20:37",
+          "極楽橋": "20:41"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "20:57",
+          "紀伊清水": "21:01",
+          "学文路": "21:05",
+          "九度山": "21:08",
+          "高野下": "21:12",
+          "下古沢": "21:16",
+          "上古沢": "21:20",
+          "紀伊細川": "21:27",
+          "紀伊神谷": "21:32",
+          "極楽橋": "21:35"
+        }
+      },
+      {
+        "train": "Koya Line Local",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "橋本": "21:57",
+          "紀伊清水": "22:01",
+          "学文路": "22:05",
+          "九度山": "22:08",
+          "高野下": "22:12",
+          "下古沢": "22:16",
+          "上古沢": "22:20",
+          "紀伊細川": "22:26",
+          "紀伊神谷": "22:32",
+          "極楽橋": "22:35"
+        }
+      }
+    ],
+    "allDay": true,
+    "valid": {
+      "from": "2026-12-02",
+      "to": "2026-12-02"
+    },
+    "stopCoordinates": {
+      "橋本": [
+        34.3184175,
+        135.6146092
+      ],
+      "紀伊清水": [
+        34.3074429,
+        135.6046161
+      ],
+      "学文路": [
+        34.2965572,
+        135.5800628
+      ],
+      "九度山": [
+        34.288069,
+        135.564599
+      ],
+      "高野下": [
+        34.2716971,
+        135.5663685
+      ],
+      "下古沢": [
+        34.2665086,
+        135.553091
+      ],
+      "上古沢": [
+        34.2575002,
+        135.5479954
+      ],
+      "紀伊細川": [
+        34.2358697,
+        135.5537617
+      ],
+      "紀伊神谷": [
+        34.2428762,
+        135.5710789
+      ],
+      "極楽橋": [
+        34.2340048,
+        135.5822669
+      ]
+    }
+  },
+  {
+    "id": "kansai-rinkan-koyasan-town-out",
+    "operator": "Nankai Rinkan Bus",
+    "service": "Koyasan Town Line",
+    "serviceNames": [
+      "南海りんかんバス",
+      "高野山内線",
+      "41 高野山内線",
+      "21 高野山内線",
+      "42 高野山内線",
+      "52 高野山内線"
+    ],
+    "kind": "bus",
+    "stationNames": {
+      "高野山駅前": "Koyasan Station",
+      "千手院橋（東）": "Senjuinbashi (East)",
+      "千手院橋（西）": "Senjuinbashi (West)"
+    },
+    "stopCoordinates": {
+      "高野山駅前": [
+        34.227382,
+        135.576993
+      ],
+      "千手院橋（東）": [
+        34.212987,
+        135.586975
+      ],
+      "千手院橋（西）": [
+        34.21331,
+        135.585723
+      ]
+    },
+    "valid": {
+      "from": "2026-04-23",
+      "to": "2027-03-31"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://api.gtfs-data.jp/v2/organizations/rinkan/feeds/koyasan/files/feed.zip",
+        "https://www.pref.wakayama.lg.jp/prefg/062500/kotsu/d00217817.html"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "All Koyasan Town Line buses between Koyasan Station and Senjuinbashi (East or West) on 2026-12-02. Times and bus stand coordinates come from the operator-published GTFS-JP feed, version 2026/03/28改正-見える化ver2.6h0, valid 2026-04-23 through 2027-03-31. calendar.txt and calendar_dates.txt were both applied for the travel date, including school-day service. Summer services are removed from 2026-12-01; they are not included. Rows use dates rather than weekdays because this feed has seasonal, school and public-holiday exceptions, including Monday 2026-11-23. Senjuinbashi West is about 45 m from 34.21320, 135.58627; East is about 70 m away. These stops serve the requested town location; Ichinohashi and Okunoin are farther east. Only the station and town boarding/alighting stops are shown. Station stands vary by route; the recorded coordinate is a used stand, with other included station stands within about 35 m. The operator website had a certificate error; current payment methods and service notices could not be checked. No express-bus reservation rule is assumed for these town buses."
+    },
+    "departures": [
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "06:35",
+          "千手院橋（東）": "06:51"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "06:59",
+          "千手院橋（東）": "07:15"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "07:33",
+          "千手院橋（東）": "07:49"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 21",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "07:50",
+          "千手院橋（東）": "08:06"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "08:21",
+          "千手院橋（東）": "08:37"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "08:45",
+          "千手院橋（東）": "09:01"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "09:20",
+          "千手院橋（東）": "09:36"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "09:37",
+          "千手院橋（東）": "09:53"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "09:54",
+          "千手院橋（東）": "10:10"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "10:12",
+          "千手院橋（東）": "10:28"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "10:21",
+          "千手院橋（東）": "10:37"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "10:53",
+          "千手院橋（東）": "11:09"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "11:02",
+          "千手院橋（東）": "11:18"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "11:26",
+          "千手院橋（東）": "11:42"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "11:53",
+          "千手院橋（東）": "12:09"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "12:03",
+          "千手院橋（東）": "12:19"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "12:21",
+          "千手院橋（東）": "12:37"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "13:09",
+          "千手院橋（東）": "13:25"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "13:23",
+          "千手院橋（東）": "13:39"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 42",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "13:58",
+          "千手院橋（東）": "14:14"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 52",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "14:20",
+          "千手院橋（西）": "14:36"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "14:41",
+          "千手院橋（東）": "14:57"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "15:15",
+          "千手院橋（東）": "15:31"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "15:35",
+          "千手院橋（東）": "15:51"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "16:08",
+          "千手院橋（東）": "16:24"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "16:34",
+          "千手院橋（東）": "16:50"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 52",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "17:02",
+          "千手院橋（西）": "17:18"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "17:42",
+          "千手院橋（東）": "17:58"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "18:04",
+          "千手院橋（東）": "18:20"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "18:58",
+          "千手院橋（東）": "19:14"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "19:41",
+          "千手院橋（東）": "19:57"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "高野山駅前": "20:15",
+          "千手院橋（東）": "20:31"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kansai-rinkan-koyasan-town-return",
+    "operator": "Nankai Rinkan Bus",
+    "service": "Koyasan Town Line",
+    "serviceNames": [
+      "南海りんかんバス",
+      "高野山内線",
+      "41 高野山内線",
+      "53 高野山内線",
+      "52 高野山内線",
+      "21 高野山内線"
+    ],
+    "kind": "bus",
+    "stationNames": {
+      "千手院橋（東）": "Senjuinbashi (East)",
+      "高野山駅前": "Koyasan Station",
+      "千手院橋（西）": "Senjuinbashi (West)"
+    },
+    "stopCoordinates": {
+      "千手院橋（東）": [
+        34.213027,
+        135.586626
+      ],
+      "高野山駅前": [
+        34.227634,
+        135.577184
+      ],
+      "千手院橋（西）": [
+        34.213219,
+        135.58579
+      ]
+    },
+    "valid": {
+      "from": "2026-04-23",
+      "to": "2027-03-31"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://api.gtfs-data.jp/v2/organizations/rinkan/feeds/koyasan/files/feed.zip",
+        "https://www.pref.wakayama.lg.jp/prefg/062500/kotsu/d00217817.html"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "All Koyasan Town Line buses between Koyasan Station and Senjuinbashi (East or West) on 2026-12-02. Times and bus stand coordinates come from the operator-published GTFS-JP feed, version 2026/03/28改正-見える化ver2.6h0, valid 2026-04-23 through 2027-03-31. calendar.txt and calendar_dates.txt were both applied for the travel date, including school-day service. Summer services are removed from 2026-12-01; they are not included. Rows use dates rather than weekdays because this feed has seasonal, school and public-holiday exceptions, including Monday 2026-11-23. Senjuinbashi West is about 45 m from 34.21320, 135.58627; East is about 70 m away. These stops serve the requested town location; Ichinohashi and Okunoin are farther east. Only the station and town boarding/alighting stops are shown. Station stands vary by route; the recorded coordinate is a used stand, with other included station stands within about 35 m. The operator website had a certificate error; current payment methods and service notices could not be checked. No express-bus reservation rule is assumed for these town buses."
+    },
+    "departures": [
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "06:10",
+          "高野山駅前": "06:32"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 53",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（西）": "06:34",
+          "高野山駅前": "06:56"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "07:09",
+          "高野山駅前": "07:31"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 52",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（西）": "07:53",
+          "高野山駅前": "08:15"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "08:09",
+          "高野山駅前": "08:31"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 52",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（西）": "08:28",
+          "高野山駅前": "08:50"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 21",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "08:32",
+          "高野山駅前": "08:52"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "08:59",
+          "高野山駅前": "09:21"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "09:28",
+          "高野山駅前": "09:50"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "09:58",
+          "高野山駅前": "10:20"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "10:15",
+          "高野山駅前": "10:37"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "10:48",
+          "高野山駅前": "11:10"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 52",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（西）": "11:01",
+          "高野山駅前": "11:23"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "11:03",
+          "高野山駅前": "11:25"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "11:27",
+          "高野山駅前": "11:49"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "11:40",
+          "高野山駅前": "12:02"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "12:04",
+          "高野山駅前": "12:26"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "12:31",
+          "高野山駅前": "12:53"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "12:59",
+          "高野山駅前": "13:21"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "13:34",
+          "高野山駅前": "13:56"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "13:47",
+          "高野山駅前": "14:09"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "14:08",
+          "高野山駅前": "14:30"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "14:42",
+          "高野山駅前": "15:04"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "15:19",
+          "高野山駅前": "15:41"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "15:53",
+          "高野山駅前": "16:15"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "16:09",
+          "高野山駅前": "16:31"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "16:27",
+          "高野山駅前": "16:49"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "16:48",
+          "高野山駅前": "17:10"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "17:17",
+          "高野山駅前": "17:39"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "18:04",
+          "高野山駅前": "18:26"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "18:26",
+          "高野山駅前": "18:48"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "18:46",
+          "高野山駅前": "19:08"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "19:36",
+          "高野山駅前": "19:58"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "20:19",
+          "高野山駅前": "20:41"
+        }
+      },
+      {
+        "train": "Nankai Rinkan Bus 41",
+        "dates": [
+          "2026-12-02"
+        ],
+        "stops": {
+          "千手院橋（東）": "20:49",
+          "高野山駅前": "21:11"
         }
       }
     ]

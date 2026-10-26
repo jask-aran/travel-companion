@@ -1,0 +1,1010 @@
+[
+  {
+    "id": "chubu-nohi-takayama-shinhotaka",
+    "operator": "Nohi Bus",
+    "service": "Hirayu–Shinhotaka Line toward Shinhotaka Ropeway",
+    "serviceNames": [
+      "濃飛バス",
+      "平湯・新穂高線",
+      "新穂高線",
+      "高山～新穂高線"
+    ],
+    "kind": "bus",
+    "stationNames": {
+      "高山濃飛バスセンター": "Takayama Nohi Bus Center",
+      "平湯温泉": "Hirayu Onsen",
+      "新穂高ロープウェイ": "Shinhotaka Ropeway"
+    },
+    "stopCoordinates": {
+      "高山濃飛バスセンター": [
+        36.14182,
+        137.25153
+      ],
+      "平湯温泉": [
+        36.190933,
+        137.551733
+      ],
+      "新穂高ロープウェイ": [
+        36.2856069,
+        137.5750969
+      ]
+    },
+    "valid": {
+      "from": "2026-04-01",
+      "to": "2026-11-30"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://www.nouhibus.co.jp/route_bus/shinhotaka-line/",
+        "https://www.nouhibus.co.jp/media/2026/04/55f7ce586fe162c54b178cf90a1cc74c.pdf",
+        "https://www.nouhibus.co.jp/routebus/",
+        "https://www.nouhibus.co.jp/260812/",
+        "https://maps.app.goo.gl/fnUvb3pUHPb4YWZ69",
+        "https://maps.app.goo.gl/73MrtszqAZiMuzXj6",
+        "https://maps.app.goo.gl/nMFNRqQA8emFJHth8",
+        "https://api.gtfs-data.jp/v2/organizations/nouhibus/feeds/nouhibus/files/feed.zip?rid=current"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "Full day for the public holiday Monday 2026-11-23 under the 2026-04-01 timetable. Thirteen buses run through from Takayama; the 07:00 and 07:40 Hirayu departures start there. No change is required on a through bus. The 07:40 Hirayu trip runs April 1–November 30. The 06:00 and 08:10 Takayama express buses run only July 18–October 12 and do not operate on this date. Other trips run year-round. The November schedule has no separate holiday times at the stops shown; exact dates restrict this curated day. The published road-work detour ends November 16. Coordinates use the operator-linked Google stop maps, checked against Nohi stop data. Buy tickets before boarding when the ticket office or machine is open; no reservation is required from Takayama or Hirayu. Snow and traffic can cause delays. Only the principal stops needed for these legs are shown."
+    },
+    "departures": [
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "平湯温泉": "07:00",
+          "新穂高ロープウェイ": "07:45"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "平湯温泉": "07:40",
+          "新穂高ロープウェイ": "08:16"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "07:00",
+          "平湯温泉": {
+            "arrive": "07:58",
+            "depart": "08:00"
+          },
+          "新穂高ロープウェイ": "08:45"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "07:40",
+          "平湯温泉": {
+            "arrive": "08:38",
+            "depart": "08:40"
+          },
+          "新穂高ロープウェイ": "09:16"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "08:40",
+          "平湯温泉": {
+            "arrive": "09:38",
+            "depart": "09:40"
+          },
+          "新穂高ロープウェイ": "10:16"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "09:40",
+          "平湯温泉": {
+            "arrive": "10:38",
+            "depart": "10:40"
+          },
+          "新穂高ロープウェイ": "11:16"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "10:40",
+          "平湯温泉": {
+            "arrive": "11:38",
+            "depart": "11:40"
+          },
+          "新穂高ロープウェイ": "12:25"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "11:40",
+          "平湯温泉": {
+            "arrive": "12:38",
+            "depart": "12:40"
+          },
+          "新穂高ロープウェイ": "13:16"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "12:40",
+          "平湯温泉": {
+            "arrive": "13:38",
+            "depart": "13:40"
+          },
+          "新穂高ロープウェイ": "14:16"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "13:40",
+          "平湯温泉": {
+            "arrive": "14:38",
+            "depart": "14:40"
+          },
+          "新穂高ロープウェイ": "15:25"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "14:40",
+          "平湯温泉": {
+            "arrive": "15:38",
+            "depart": "15:40"
+          },
+          "新穂高ロープウェイ": "16:25"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "15:40",
+          "平湯温泉": {
+            "arrive": "16:38",
+            "depart": "16:40"
+          },
+          "新穂高ロープウェイ": "17:25"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "16:40",
+          "平湯温泉": {
+            "arrive": "17:38",
+            "depart": "17:40"
+          },
+          "新穂高ロープウェイ": "18:25"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "17:40",
+          "平湯温泉": {
+            "arrive": "18:38",
+            "depart": "18:40"
+          },
+          "新穂高ロープウェイ": "19:25"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "高山濃飛バスセンター": "18:40",
+          "平湯温泉": {
+            "arrive": "19:35",
+            "depart": "19:37"
+          },
+          "新穂高ロープウェイ": "20:22"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chubu-nohi-shinhotaka-takayama",
+    "operator": "Nohi Bus",
+    "service": "Hirayu–Shinhotaka Line toward Takayama",
+    "serviceNames": [
+      "濃飛バス",
+      "平湯・新穂高線",
+      "新穂高線",
+      "高山～新穂高線"
+    ],
+    "kind": "bus",
+    "stationNames": {
+      "新穂高ロープウェイ": "Shinhotaka Ropeway",
+      "平湯温泉": "Hirayu Onsen",
+      "高山濃飛バスセンター": "Takayama Nohi Bus Center"
+    },
+    "stopCoordinates": {
+      "新穂高ロープウェイ": [
+        36.2856069,
+        137.5750969
+      ],
+      "平湯温泉": [
+        36.190933,
+        137.551733
+      ],
+      "高山濃飛バスセンター": [
+        36.141233,
+        137.251916
+      ]
+    },
+    "valid": {
+      "from": "2026-04-01",
+      "to": "2026-11-30"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://www.nouhibus.co.jp/route_bus/shinhotaka-line/",
+        "https://www.nouhibus.co.jp/media/2026/04/55f7ce586fe162c54b178cf90a1cc74c.pdf",
+        "https://www.nouhibus.co.jp/260812/",
+        "https://maps.app.goo.gl/fnUvb3pUHPb4YWZ69",
+        "https://maps.app.goo.gl/73MrtszqAZiMuzXj6",
+        "https://maps.app.goo.gl/nMFNRqQA8emFJHth8",
+        "https://api.gtfs-data.jp/v2/organizations/nouhibus/feeds/nouhibus/files/feed.zip?rid=current"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "Full day for the public holiday Monday 2026-11-23 under the 2026-04-01 timetable: fourteen departures from Shinhotaka Ropeway and the additional 07:30 Hirayu-origin trip. Twelve ropeway departures run through to Takayama. The last through departure is 16:55, arriving at Takayama 18:31. The 17:55 and 18:35 ropeway departures terminate at Hirayu; the published last Hirayu–Takayama departure is 17:30, so neither late bus connects to Takayama on this line. The 18:35 ropeway trip runs April 1–November 30; the other listed trips run year-round. No separate holiday times apply at the stops shown; exact dates restrict this curated day. The published road-work detour ends November 16. Takayama Bus Center is within 1.2 km of the supplied Nadamachi coordinates; no Nadamachi stop time is implied. Buy tickets before boarding when the ticket office or machine is open. No reservation is required for these boarding points. Coordinates use operator-linked Google stop maps and Nohi stop data; the Takayama arrival coordinate is the Nohi alighting stop. Only principal stops are shown."
+    },
+    "departures": [
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "06:01",
+          "平湯温泉": {
+            "arrive": "06:43",
+            "depart": "06:45"
+          },
+          "高山濃飛バスセンター": "07:41"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "平湯温泉": "07:30",
+          "高山濃飛バスセンター": "08:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "07:55",
+          "平湯温泉": {
+            "arrive": "08:28",
+            "depart": "08:30"
+          },
+          "高山濃飛バスセンター": "09:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "08:55",
+          "平湯温泉": {
+            "arrive": "09:28",
+            "depart": "09:30"
+          },
+          "高山濃飛バスセンター": "10:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "09:16",
+          "平湯温泉": {
+            "arrive": "09:58",
+            "depart": "10:00"
+          },
+          "高山濃飛バスセンター": "11:01"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "09:55",
+          "平湯温泉": {
+            "arrive": "10:28",
+            "depart": "10:30"
+          },
+          "高山濃飛バスセンター": "11:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "10:55",
+          "平湯温泉": {
+            "arrive": "11:28",
+            "depart": "11:30"
+          },
+          "高山濃飛バスセンター": "12:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "11:55",
+          "平湯温泉": {
+            "arrive": "12:28",
+            "depart": "12:30"
+          },
+          "高山濃飛バスセンター": "13:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "12:55",
+          "平湯温泉": {
+            "arrive": "13:28",
+            "depart": "13:30"
+          },
+          "高山濃飛バスセンター": "14:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "13:46",
+          "平湯温泉": {
+            "arrive": "14:28",
+            "depart": "14:30"
+          },
+          "高山濃飛バスセンター": "15:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "14:55",
+          "平湯温泉": {
+            "arrive": "15:28",
+            "depart": "15:30"
+          },
+          "高山濃飛バスセンター": "16:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "15:55",
+          "平湯温泉": {
+            "arrive": "16:28",
+            "depart": "16:30"
+          },
+          "高山濃飛バスセンター": "17:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "16:55",
+          "平湯温泉": {
+            "arrive": "17:28",
+            "depart": "17:30"
+          },
+          "高山濃飛バスセンター": "18:31"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "17:55",
+          "平湯温泉": "18:28"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      },
+      {
+        "train": "Nohi Bus Hirayu–Shinhotaka Line",
+        "stops": {
+          "新穂高ロープウェイ": "18:35",
+          "平湯温泉": "19:08"
+        },
+        "dates": [
+          "2026-11-23"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chubu-nohi-takayama-shirakawago",
+    "operator": "Nohi Bus / Hokutetsu / Toyama Chitetsu / Kaetsuno Bus / Iruka Kotsu",
+    "service": "Takayama–Shirakawa-go (including through services)",
+    "serviceNames": [
+      "濃飛バス",
+      "白川郷線",
+      "高山～白川郷線",
+      "高山～白川郷・金沢線",
+      "高山～白川郷～富山線",
+      "高山～白川郷～高岡線"
+    ],
+    "kind": "bus",
+    "stationNames": {
+      "高山濃飛バスセンター": "Takayama Nohi Bus Center",
+      "白川郷（荻町）": "Shirakawa-go (Ogimachi Bus Terminal)"
+    },
+    "stopCoordinates": {
+      "高山濃飛バスセンター": [
+        36.1419794,
+        137.2515176
+      ],
+      "白川郷（荻町）": [
+        36.261961,
+        136.9067567
+      ]
+    },
+    "valid": {
+      "from": "2026-04-01",
+      "to": "2026-11-30"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://www.nouhibus.co.jp/route_bus/shirakawago/",
+        "https://www.nouhibus.co.jp/media/2026/08/shirakawago_timetable.pdf",
+        "https://www.nouhibus.co.jp/261020-2/",
+        "https://www.hokutetsu.co.jp/highway-bus/takayama",
+        "https://www.google.com/maps/d/kml?mid=1BBFlZJ-USEbcHgLLH3np5VoicINCbJL4&forcekml=1",
+        "https://www.google.com/maps/d/kml?mid=1YEy-fm9rBfS4amwMi4itkWYuxXBgKW6W&forcekml=1"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "Every Takayama–Shirakawa-go departure for Wednesday 2026-11-25 in the 2026-04-01 timetable, including all joint-operator through buses. The December 1 revision does not apply. The 19:00 bus operates on this weekday; it does not operate on Saturdays, Sundays, public holidays, August 13–15 or December 29–January 3. Reservations are required for 07:20, 07:50, 08:10, 09:35, 11:20, 12:10, 12:50, 13:10, 13:20, 14:30, 16:20 and 16:30. Other listed departures do not require reservations. The 19:00 bus allows alighting only after Takayama. Takayama Bus Center is within 1.2 km of Nadamachi. Coordinates use boarding/alighting markers in the operator-linked Google terminal maps rather than village or station centres. Only the two relevant stops are shown. Traffic, snow or road closures can cause delays of two hours or more."
+    },
+    "departures": [
+      {
+        "train": "Iruka Kotsu Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "07:20",
+          "白川郷（荻町）": "08:10"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "07:50",
+          "白川郷（荻町）": "08:40"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "08:10",
+          "白川郷（荻町）": "09:00"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "08:50",
+          "白川郷（荻町）": "09:40"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "09:35",
+          "白川郷（荻町）": "10:25"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "10:50",
+          "白川郷（荻町）": "11:40"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "11:20",
+          "白川郷（荻町）": "12:10"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "11:50",
+          "白川郷（荻町）": "12:57"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Kaetsuno Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "12:10",
+          "白川郷（荻町）": "13:00"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "12:50",
+          "白川郷（荻町）": "13:40"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Toyama Chitetsu Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "13:10",
+          "白川郷（荻町）": "14:00"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Kaetsuno Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "13:20",
+          "白川郷（荻町）": "14:10"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "13:50",
+          "白川郷（荻町）": "14:57"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Toyama Chitetsu Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "14:30",
+          "白川郷（荻町）": "15:20"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "14:50",
+          "白川郷（荻町）": "15:57"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Iruka Kotsu Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "16:20",
+          "白川郷（荻町）": "17:10"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "16:30",
+          "白川郷（荻町）": "17:20"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "17:50",
+          "白川郷（荻町）": "18:47"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Takayama–Shirakawa-go",
+        "stops": {
+          "高山濃飛バスセンター": "19:00",
+          "白川郷（荻町）": "19:57"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chubu-nohi-hokutetsu-shirakawago-kanazawa",
+    "operator": "Nohi Bus / Hokutetsu",
+    "service": "Takayama–Shirakawa-go–Kanazawa express toward Kanazawa",
+    "serviceNames": [
+      "濃飛バス",
+      "北陸鉄道",
+      "白川郷・高山線",
+      "高山～白川郷・金沢線",
+      "白川郷～金沢線"
+    ],
+    "kind": "bus",
+    "stationNames": {
+      "白川郷（荻町）": "Shirakawa-go (Ogimachi Bus Terminal)",
+      "金沢駅西口": "Kanazawa Station West Exit"
+    },
+    "stopCoordinates": {
+      "白川郷（荻町）": [
+        36.2621394,
+        136.9069338
+      ],
+      "金沢駅西口": [
+        36.5788277,
+        136.6465795
+      ]
+    },
+    "valid": {
+      "from": "2026-04-01",
+      "to": "2026-11-30"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://www.nouhibus.co.jp/route_bus/shirakawago/",
+        "https://www.nouhibus.co.jp/media/2026/08/shirakawago_timetable.pdf",
+        "https://www.hokutetsu.co.jp/highway-bus/takayama",
+        "https://www.nouhibus.co.jp/261020-2/",
+        "https://www.google.com/maps/d/kml?mid=1YEy-fm9rBfS4amwMi4itkWYuxXBgKW6W&forcekml=1",
+        "https://www.google.com/maps/d/kml?mid=1dsGLXos701OgTKnA10mqve1wDDdo5iI&forcekml=1"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "All nine Shirakawa-go–Kanazawa departures of the Nohi/Hokutetsu joint service for Wednesday 2026-11-25. Nohi labels its sheet 2026-04-01; Hokutetsu labels its page 2025-04-01. Use the pre-December 1 timetable. Reservation required. IMPORTANT SOURCE CONFLICT: the 12:20 Shirakawa-go departure arrives at 13:35 in both the Nohi HTML table and its PDF, but at 13:25 on the Hokutetsu page; 13:35 is used here and needs confirmation before a tight connection. Other endpoint times agree. Five Hokutetsu trips also pick up at Gokayama Suganuma during April–November; only the requested endpoints are shown. The separate Nagoya–Kanazawa service supplies two more buses and has its own table. Coordinates use the Kanazawa-bound boarding marker at Shirakawa-go and the highway-bus alighting marker at Kanazawa West Exit from operator-linked Google maps. Snow and traffic can cause major delays."
+    },
+    "departures": [
+      {
+        "train": "Nohi Bus Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "08:50",
+          "金沢駅西口": "10:05"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "10:25",
+          "金沢駅西口": "11:50"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "10:55",
+          "金沢駅西口": "12:20"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "11:25",
+          "金沢駅西口": "12:50"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "12:20",
+          "金沢駅西口": "13:35"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Nohi Bus Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "13:50",
+          "金沢駅西口": "15:05"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "15:10",
+          "金沢駅西口": "16:35"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "15:55",
+          "金沢駅西口": "17:20"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Shirakawa-go–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "17:30",
+          "金沢駅西口": "18:45"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chubu-hokutetsu-meitetsu-shirakawago-kanazawa",
+    "operator": "Hokutetsu / Meitetsu Bus",
+    "service": "Nagoya–Shirakawa-go–Kanazawa express toward Kanazawa",
+    "serviceNames": [
+      "北陸鉄道",
+      "名鉄バス",
+      "白川郷・名古屋線",
+      "名古屋～白川郷・金沢線"
+    ],
+    "kind": "bus",
+    "stationNames": {
+      "白川郷（荻町）": "Shirakawa-go (Ogimachi Bus Terminal)",
+      "金沢駅西口": "Kanazawa Station West Exit"
+    },
+    "stopCoordinates": {
+      "白川郷（荻町）": [
+        36.2621394,
+        136.9069338
+      ],
+      "金沢駅西口": [
+        36.5788277,
+        136.6465795
+      ]
+    },
+    "valid": {
+      "from": "2026-10-26",
+      "to": "2026-11-25"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://www.hokutetsu.co.jp/highway-bus/shirakawa/",
+        "https://www.google.com/maps/d/kml?mid=1YEy-fm9rBfS4amwMi4itkWYuxXBgKW6W&forcekml=1",
+        "https://www.google.com/maps/d/kml?mid=1dsGLXos701OgTKnA10mqve1wDDdo5iI&forcekml=1"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "All two Kanazawa-bound departures from Shirakawa-go of the separate Nagoya–Kanazawa service for Wednesday 2026-11-25: Meitetsu Bus at 12:40 and Hokutetsu at 17:55. Included because these also serve the requested Shirakawa-go–Kanazawa leg; they are not Nohi joint-service departures. Official timetable revised 2025-04-01; no November seasonal restriction is shown. The valid range is conservatively limited to the retrieval date through the travel date, not a published expiry date. Reservation required; booking opens one month before travel. Only requested endpoints are shown. Coordinates use the operator-linked Google maps: Kanazawa-bound Shirakawa-go boarding stand and Kanazawa highway-bus alighting stand."
+    },
+    "departures": [
+      {
+        "train": "Meitetsu Bus Nagoya–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "12:40",
+          "金沢駅西口": "13:55"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      },
+      {
+        "train": "Hokutetsu Nagoya–Kanazawa",
+        "stops": {
+          "白川郷（荻町）": "17:55",
+          "金沢駅西口": "19:10"
+        },
+        "dates": [
+          "2026-11-25"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chubu-hidamaru-furukawa-yoshiki-tae",
+    "operator": "Hida City (Hidamaru)",
+    "service": "O22 Tae Line toward Tae via Yoshiki High School Entrance",
+    "serviceNames": [
+      "ひだまる",
+      "飛騨市営バス",
+      "太江線",
+      "O22 太江線",
+      "Ｏ２２ひだまる［太江線］"
+    ],
+    "kind": "bus",
+    "stationNames": {
+      "飛騨古川駅": "Hida-Furukawa Station",
+      "吉城高校口": "Yoshiki High School Entrance"
+    },
+    "stopCoordinates": {
+      "飛騨古川駅": [
+        36.236899,
+        137.189173
+      ],
+      "吉城高校口": [
+        36.2422233,
+        137.1938875
+      ]
+    },
+    "valid": {
+      "from": "2026-10-01",
+      "to": "2026-11-24"
+    },
+    "allDay": true,
+    "source": {
+      "urls": [
+        "https://www.city.hida.gifu.jp/uploaded/attachment/36171.pdf",
+        "https://www.city.hida.gifu.jp/site/koukyoukoutsuu/67009.html",
+        "https://www.city.hida.gifu.jp/uploaded/attachment/31631.pdf",
+        "https://api.gtfs-data.jp/v2/organizations/nouhibus/feeds/nouhibus/files/feed.zip?rid=current",
+        "https://www.kankou-gifu.jp/spot/detail_4288.html",
+        "https://hidamoriaruki.com/map/anbou/",
+        "https://www.nouhibus.co.jp/media/2026/04/furukawa-kamioka0401.pdf",
+        "https://www.nouhibus.co.jp/route_bus/takayama-furukawa-kamioka-line/",
+        "https://school.gifu-net.ed.jp/wordpress/yosiki-hs/",
+        "https://school.gifu-net.ed.jp/yosiki-hs/wordpress/gekkanyotei/r8_11gatsuyotei.pdf"
+      ],
+      "retrieved": "2026-10-26",
+      "note": "Both outward departures (runs 2 and 4) on Tuesday 2026-11-24 from the October 1, 2026 Hidamaru timetable, printed pages 16–17. Runs on weekdays, except December 31–January 3; no school-day restriction is shown for O22. Only the station and the stop useful for the trailhead are shown; buses continue toward Tae. Mt. Anbou Trailhead is the Kamikita-side hiking entrance to Anbo-san (安峰山), not a bus stop. No scheduled bus to the trailhead itself is listed. Yoshiki High School Entrance is about 1.02 km from the supplied coordinates in a straight line; the actual uphill walk is longer and has not been measured. This is a connection from Hida-Furukawa, not a direct bus from Nadamachi. The official visitor guide gives about 35 minutes on foot from Hida-Furukawa Station to the trailhead. Station and school-stop coordinates use Nohi public stop data for the shared stops. The valid range starts with the October revision and is conservatively bounded at the requested travel date; the operator gives no expiry date. Nohi also publishes two morning school extensions to Yoshiki High School Entrance, but their operation on November 24 could not be independently confirmed against the school closure calendar, so they are omitted. A complete Takayama–Furukawa feeder table is not included: Nohi HTML/PDF list 22:40 and 23:40 late buses absent from its current GTFS feed, so full-day operation was not resolved. Confirm the feeder or use rail/taxi to Hida-Furukawa. The school website links the November calendar, but its PDF could not be retrieved."
+    },
+    "departures": [
+      {
+        "train": "Hidamaru O22 Tae Line Run 2",
+        "stops": {
+          "飛騨古川駅": "12:10",
+          "吉城高校口": "12:14"
+        },
+        "dates": [
+          "2026-11-24"
+        ]
+      },
+      {
+        "train": "Hidamaru O22 Tae Line Run 4",
+        "stops": {
+          "飛騨古川駅": "16:20",
+          "吉城高校口": "16:24"
+        },
+        "dates": [
+          "2026-11-24"
+        ]
+      }
+    ]
+  }
+]
