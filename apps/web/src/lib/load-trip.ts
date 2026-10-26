@@ -16,10 +16,21 @@ declare const __TRIP_BASE__: string;
 const base = typeof __TRIP_BASE__ === "string" ? __TRIP_BASE__ : "/";
 const tripUrl = `${base}${tripIsEncrypted ? "trip.enc" : "trip.json"}`;
 
+/**
+ * The service worker's copy of the trip (vite.config.ts). On a first visit
+ * it isn't in charge until after this fetch, so without the page's own copy
+ * the trip only opened offline from the second visit on.
+ */
+const TRIP_CACHE = "trip-bundle";
+
 async function fetchPayload(): Promise<unknown> {
   const response = await fetch(tripUrl, { credentials: "same-origin" });
   if (!response.ok) {
     throw new Error(`Could not load trip data (${response.status})`);
+  }
+  if ("caches" in globalThis) {
+    const copy = response.clone();
+    void caches.open(TRIP_CACHE).then((cache) => cache.put(tripUrl, copy)).catch(() => undefined);
   }
   return response.json();
 }

@@ -70,6 +70,9 @@ export default function App() {
       if (isWrongPassphrase(error)) {
         forgetPassphrase();
         setUnlockError("That passphrase no longer opens this trip.");
+      } else {
+        // A saved copy would have answered even offline, so there is none yet.
+        setUnlockError("Couldn't load the trip, and this device has no saved copy yet. Try again with signal.");
       }
     } finally {
       setCheckingStored(false);
