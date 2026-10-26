@@ -36,6 +36,8 @@ export const PlacePhotoSchema = v.object({
   attributions: v.optional(
     v.array(v.object({ displayName: v.string(), uri: optionalString })),
   ),
+  /** When the name was fetched; a pull reuses names younger than a few days. */
+  fetchedAt: optionalString,
 });
 
 /** A single opening window. `day` is 0 = Sunday, matching Google. */

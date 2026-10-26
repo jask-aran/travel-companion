@@ -7,18 +7,23 @@ import type { TripBundle } from "../../trip-schema/src/index.js";
  * context-bound photo references that 403 for anyone but Wanderlog. The only
  * route to Google's POI imagery is to ask for a fresh photo name ourselves.
  *
- * Google forbids caching the image or the name (ToS 3.2.3(b)), and the name
- * expires, so this runs on every ingest and the image is fetched live in the
- * browser. Consequences, accepted deliberately: no photos offline, and the
- * browser key is visible in the built app (restrict it by HTTP referrer).
+ * The image is fetched live (through the app's worker, which holds the key),
+ * so there are no photos offline. Names do expire, so they are refreshed, but
+ * a name fetched in the last few days is reused: a pull then asks Google only
+ * about places that are new or stale. (These lookups bill as Place Details
+ * Essentials IDs Only, which is free; reuse makes a pull faster, not cheaper.)
  */
 
 const DETAILS_ENDPOINT = "https://places.googleapis.com/v1/places";
 /** Enough for a card thumbnail without paying for pixels nobody sees. */
 const REQUEST_CONCURRENCY = 6;
 
+/** How long a fetched photo name is reused before it is asked for again. */
+const REUSE_DAYS = 3;
+
 export type PhotoFetchReport = {
   requested: number;
+  reused: number;
   attached: number;
   failed: number;
   skipped: number;
@@ -68,9 +73,12 @@ async function inBatches<T>(items: T[], size: number, run: (item: T) => Promise<
 export async function attachPlacePhotos(
   bundle: TripBundle,
   apiKey: string | undefined,
+  previous?: Pick<TripBundle, "places">,
+  now = new Date(),
 ): Promise<PhotoFetchReport> {
   const report: PhotoFetchReport = {
     requested: 0,
+    reused: 0,
     attached: 0,
     failed: 0,
     skipped: 0,
@@ -87,6 +95,14 @@ export async function attachPlacePhotos(
     const placeId = googleId(place);
     if (!placeId) {
       report.skipped += 1;
+      return;
+    }
+
+    const earlier = previous?.places[place.id]?.photo;
+    const age = earlier?.fetchedAt ? now.getTime() - Date.parse(earlier.fetchedAt) : Infinity;
+    if (earlier && age >= 0 && age < REUSE_DAYS * 86_400_000) {
+      place.photo = earlier;
+      report.reused += 1;
       return;
     }
 
@@ -109,6 +125,7 @@ export async function attachPlacePhotos(
         ...(photo.widthPx ? { widthPx: photo.widthPx } : {}),
         ...(photo.heightPx ? { heightPx: photo.heightPx } : {}),
         ...(attributions.length ? { attributions } : {}),
+        fetchedAt: now.toISOString(),
       };
       report.attached += 1;
     } catch (error) {

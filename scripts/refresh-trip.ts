@@ -5,7 +5,7 @@ import { parse as parseYaml } from "yaml";
 import { acquireWithApi, acquireWithBrowser, acquireWithCli, type AcquiredSource } from "../packages/wanderlog-import/src/acquire.js";
 import { loadIngestionConfig } from "../packages/wanderlog-import/src/config.js";
 import { parseWanderlogSource } from "../packages/wanderlog-import/src/index.js";
-import { parseTripBundle } from "../packages/trip-schema/src/index.js";
+import { parseTripBundle, type TripBundle } from "../packages/trip-schema/src/index.js";
 import { normaliseCompleteWanderlog } from "../packages/trip-normaliser/src/complete.js";
 import { attachPlacePhotos } from "../packages/trip-normaliser/src/place-photos.js";
 import { attachPlaceDetails } from "../packages/trip-normaliser/src/place-details.js";
@@ -133,14 +133,18 @@ result.bundle.tripId = config.trip.publicId;
 // Wanderlog's own scraped POI records: categories, blurb, hours, visit length.
 const detailCount = attachPlaceDetails(result.bundle, parsed.data);
 
+const workingBundlePath = loaded.resolvePath(config.paths.workingBundle);
+
 /*
- * Google photo names expire and may not be cached, so they are refreshed here
- * on every ingest. Without a key the app simply renders no photos.
+ * Google photo names expire, so they are refreshed, but names fetched in the
+ * last few days are reused from the previous bundle. Without a key the app
+ * simply renders no photos.
  */
 const googleApiKey = process.env.GOOGLE_MAPS_API_KEY ?? config.google?.apiKey;
-const photoReport = await attachPlacePhotos(result.bundle, googleApiKey);
-
-const workingBundlePath = loaded.resolvePath(config.paths.workingBundle);
+const previousBundle = (await exists(workingBundlePath))
+  ? (JSON.parse(await readFile(workingBundlePath, "utf8")) as Pick<TripBundle, "places">)
+  : undefined;
+const photoReport = await attachPlacePhotos(result.bundle, googleApiKey, previousBundle);
 
 /*
  * Departure times for flight transfers and timed journeys: Google in Korea,
@@ -181,13 +185,13 @@ console.log(`Generated TripBundle: ${workingBundlePath}`);
 console.log(`Import report: ${reportPath}`);
 console.log(`Place details: ${detailCount} places enriched from Wanderlog metadata.`);
 if (localities) console.log(`Town names: ${localities} translated to English.`);
-if (photoReport.skipped && !photoReport.requested) {
+if (!googleApiKey) {
   console.log(
     "Place photos: skipped. Set google.apiKey in config/trip.local.yaml (or GOOGLE_MAPS_API_KEY) to fetch them.",
   );
 } else {
   console.log(
-    `Place photos: ${photoReport.attached} attached, ${photoReport.failed} failed, ${photoReport.skipped} skipped.`,
+    `Place photos: ${photoReport.attached} fetched, ${photoReport.reused} reused, ${photoReport.failed} failed, ${photoReport.skipped} skipped.`,
   );
   for (const message of photoReport.errors) console.warn(`  ! ${message}`);
 }
