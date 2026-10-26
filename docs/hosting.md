@@ -4,6 +4,10 @@ The live site is a static PWA on Cloudflare Pages, with one Pages Function in fr
 
 Production URL: `https://trips.jask-aran.com/japankorea2026/`. Pages project: `jask-aran`.
 
+## Photo storage
+
+Place photos persist in the private R2 bucket `travel-companian` (the spelling is the bucket's real name), bound as `PHOTOS`: Standard storage in OC, public `r2.dev` access disabled, no custom domain. All 91 photos of the trip were stored on 2026-10-26; after that a photo costs a Google request only for a place not seen before. Check it with a request to `api/photo`: `x-media-cache: r2-hit` means it came from R2, `r2-miss` that it was fetched and saved just now, and a missing or wrong token gets `401`.
+
 ## What the browser loads
 
 `apps/web` is a SolidJS app. It does not know Wanderlog's schema and does not call Wanderlog while you read the itinerary. It fetches one file, decrypts it, and renders a `TripBundle`.
@@ -41,7 +45,11 @@ anything else              → env.ASSETS.fetch(request)
 
 `env.ASSETS` is the static deployment: HTML, JS, CSS, fonts, icons, and the service worker. If the function stops calling it, the site breaks. A thrown error on a GET falls through to assets, so a KV fault does not take the shell down.
 
-Bindings live in `wrangler.jsonc`. The trip store is the KV namespace bound as `TRIP`. R2 is not used; it is not enabled on this account. The encrypted file is under 1 MB, which fits in KV.
+Bindings live in `wrangler.jsonc`. The trip store is the KV namespace bound as `TRIP`. The encrypted file is under 1 MB, which fits in KV.
+
+Place photos use the private R2 bucket `travel-companian`, bound as `PHOTOS`. The bucket already exists. Keep public bucket access disabled. The worker checks the trip token, serves a saved photo when present, or downloads and stores the photo on its first successful request. Objects have no application expiry; browser copies last 30 days. Images remain accessible to the Cloudflare account owner and are not encrypted with the trip passphrase.
+
+The object key includes the public trip ID, image width, and Google Place ID. A new Google photo reference therefore reuses the saved image. To replace a saved image, delete its object and let the next request fetch the current reference; an existing browser copy can remain for 30 days. An expired reference cannot populate a missing object until a local pull obtains a fresh reference. Static maps retain the one-day edge cache. `pnpm dev` forwards photos and maps to the live worker (`TRIP_ORIGIN` overrides it), so development reads the same saved photos and never calls Google itself. This persistent photo storage is a deliberate personal-use choice outside Google's standard caching terms.
 
 ## Two ways to update the trip
 
@@ -60,7 +68,7 @@ The function then:
 
 On `changed: false` the button says "Already up to date." and does nothing else. Otherwise it deletes the browser cache named `trip-bundle` and reloads. `revision` hashes the raw Wanderlog response, which can change without a real edit, so it is not used for the check. If the previous payload cannot be decrypted (a 310,000-iteration file), the refresh always writes.
 
-This path does not run `wanderlog-cli`, Playwright, or Vite. It does not call Google. Photo names are carried forward so a refresh stays inside the Workers subrequest limit. They go stale until the next `pnpm ship`, which still calls `attachPlacePhotos`.
+This path does not run `wanderlog-cli`, Playwright, or Vite. It does not call Google. Photo names are carried forward so a refresh stays inside the Workers subrequest limit. Use a local `pnpm trip:pull` to obtain fresh photo names, then `pnpm ship` to publish them; `ship` itself does not fetch photo names. Saved R2 images remain usable when their old Google photo reference expires.
 
 Departure boards (train and bus times for flight transfers and timed journeys) are carried forward the same way, for every leg that still exists. They are fetched only by a local pull: Google Routes for Korea, NAVITIME (via RapidAPI, key in `config/trip.local.yaml` under `navitime.apiKey`) for Japan, since Google's API has no Japanese transit. NAVITIME's plan allows 500 requests a month, so answers are cached for a week in `public-data/trips/<trip>/departures-cache.json`.
 

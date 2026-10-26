@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Plugin, ViteDevServer } from "vite";
 import { encryptTrip } from "../src/lib/trip-crypto";
-import { MEDIA_ROUTES, mediaUpstream } from "../src/lib/media";
+import { MEDIA_ROUTES, mediaToken } from "../src/lib/media";
 import { parse as parseYaml } from "yaml";
 
 const appDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -34,7 +34,6 @@ function refreshMode(): RefreshMode {
 
 export type LocalTripConfig = {
   workingBundle: string;
-  googleApiKey: string;
   passphrase: string;
 };
 
@@ -46,7 +45,6 @@ function readLocalConfig(): LocalTripConfig {
   }
   const raw = parseYaml(readFileSync(localConfigPath, "utf8")) as {
     paths?: { workingBundle?: string };
-    google?: { apiKey?: string };
     share?: { passphrase?: string };
   };
   const relative = raw.paths?.workingBundle;
@@ -55,15 +53,10 @@ function readLocalConfig(): LocalTripConfig {
   }
   return {
     workingBundle: resolve(projectRoot, relative),
-    googleApiKey: raw.google?.apiKey ?? "",
     passphrase: raw.share?.passphrase ?? "",
   };
 }
 
-/**
- * The Google browser key, for injecting into the client build. Place Photos
- * may not be cached or re-hosted, so the browser must call Google directly.
- */
 /**
  * Passphrase for the published payload. Empty means publish plaintext, which
  * is only appropriate when the site itself is access-controlled.
@@ -72,15 +65,6 @@ export function localPassphrase(): string {
   if (process.env.TRIP_PASSPHRASE) return process.env.TRIP_PASSPHRASE;
   try {
     return readLocalConfig().passphrase;
-  } catch {
-    return "";
-  }
-}
-
-export function localGoogleApiKey(): string {
-  if (process.env.GOOGLE_MAPS_API_KEY) return process.env.GOOGLE_MAPS_API_KEY;
-  try {
-    return readLocalConfig().googleApiKey;
   } catch {
     return "";
   }
@@ -108,6 +92,9 @@ function runRefresh(source: "auto" | "cli" | "html"): Promise<void> {
     });
   });
 }
+
+/** The deployed site, whose worker serves photos and maps to dev too. */
+const LIVE_ORIGIN = process.env.TRIP_ORIGIN ?? "https://trips.jask-aran.com";
 
 export function tripBundlePlugin(): Plugin {
   let workingBundle = "";
@@ -218,30 +205,28 @@ export function tripBundlePlugin(): Plugin {
           return;
         }
 
-        // Photos and maps, as the Pages worker serves them: the key is added
-        // here, server side, and never reaches the page.
+        // Photos and maps come from the live worker, so dev reuses its saved
+        // photos and map cache rather than billing Google for each one again.
         const route = path && Object.values(MEDIA_ROUTES).find((name) => path === `${basePath}${name}`);
         if (route) {
-          const upstream = mediaUpstream(route, new URL(req.url ?? "", "http://dev").searchParams, localGoogleApiKey());
-          if (!upstream) {
-            res.statusCode = 404;
-            res.end();
-            return;
-          }
-          fetch(upstream).then(
-            async (response) => {
-              res.statusCode = response.status;
-              res.setHeader("Content-Type", response.headers.get("content-type") ?? "application/octet-stream");
-              // As the worker does: Google's own answer can't be cached, so
-              // without this every reload, and every day reopened, is billed.
-              res.setHeader("Cache-Control", response.ok ? "private, max-age=86400" : "no-store");
-              res.end(Buffer.from(await response.arrayBuffer()));
-            },
-            () => {
-              res.statusCode = 502;
-              res.end();
-            },
-          );
+          const params = new URL(req.url ?? "", "http://dev").searchParams;
+          mediaToken(localPassphrase())
+            .then((token) => {
+              params.set("t", token);
+              return fetch(`${LIVE_ORIGIN}${basePath}${route}?${params}`);
+            })
+            .then(
+              async (response) => {
+                res.statusCode = response.status;
+                res.setHeader("Content-Type", response.headers.get("content-type") ?? "application/octet-stream");
+                res.setHeader("Cache-Control", response.headers.get("cache-control") ?? "no-store");
+                res.end(Buffer.from(await response.arrayBuffer()));
+              },
+              () => {
+                res.statusCode = 502;
+                res.end();
+              },
+            );
           return;
         }
 
