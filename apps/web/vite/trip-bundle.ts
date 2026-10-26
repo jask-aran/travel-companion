@@ -232,6 +232,9 @@ export function tripBundlePlugin(): Plugin {
             async (response) => {
               res.statusCode = response.status;
               res.setHeader("Content-Type", response.headers.get("content-type") ?? "application/octet-stream");
+              // As the worker does: Google's own answer can't be cached, so
+              // without this every reload, and every day reopened, is billed.
+              res.setHeader("Cache-Control", response.ok ? "private, max-age=86400" : "no-store");
               res.end(Buffer.from(await response.arrayBuffer()));
             },
             () => {
