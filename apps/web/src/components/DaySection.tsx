@@ -1,5 +1,5 @@
 import { For, Show, createEffect, createMemo, createSignal, on } from "solid-js";
-import type { DayItem, DepartureOption, RouteLeg, TripBundle, TripDay } from "@travel-companion/trip-schema";
+import type { DayItem, DepartureBoard, DepartureOption, RouteLeg, TripBundle, TripDay } from "@travel-companion/trip-schema";
 import {
   formatArrows,
   formatDayHeading,
@@ -25,6 +25,7 @@ import { departureKey } from "../lib/departure-targets";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { fold, unfold } from "../lib/fold-motion";
 import { shiftClock, sunTimes, type FlightTiming } from "../lib/day-times";
+import { clock } from "../lib/clock";
 import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
@@ -103,7 +104,7 @@ export function DaySection(props: {
    * first arrives: that is how an impossible connection shows up.
    */
   const legPlans = createMemo(() => {
-    const plans = new Map<string, { notBefore?: string; option?: DepartureOption }>();
+    const plans = new Map<string, { board: DepartureBoard; notBefore?: string; option?: DepartureOption }>();
     const ordered: [string, RouteLeg][] = [];
     for (const item of routeItems()) {
       const leg = item.type === "place" && !binding().supersededLegs.has(item.id) ? legs().get(item.id) : undefined;
@@ -112,21 +113,23 @@ export function DaySection(props: {
     const last = endLeg();
     if (last) ordered.push(["end", last]);
 
-    let ready: { at: string; placeId: string } | undefined;
+    let ready: { at: string; placeId: string; sight: boolean } | undefined;
     for (const [key, leg] of ordered) {
       const board = boardFor(leg);
-      const notBefore = ready?.placeId === leg.fromPlaceId ? ready.at : undefined;
+      const carried = ready?.placeId === leg.fromPlaceId ? ready : undefined;
       ready = undefined;
       if (!board) continue;
+      // After a sight, a timed board keeps the plan's time (you stay a while);
+      // a day board still can't pick a bus that leaves before you got there.
+      const notBefore = carried && (!carried.sight || board.target.kind === "day") ? carried.at : undefined;
       const { option } = pickDeparture(board, notBefore);
-      plans.set(key, { ...(notBefore ? { notBefore } : {}), ...(option ? { option } : {}) });
+      plans.set(key, { board, ...(notBefore ? { notBefore } : {}), ...(option ? { option } : {}) });
       // A day board's first bus of the day is no plan to carry on from.
       const at = board.target.kind !== "day" || notBefore ? readyAfter(option) : undefined;
-      if (at && isWaypoint(props.bundle.places[leg.toPlaceId])) ready = { at, placeId: leg.toPlaceId };
+      if (at) ready = { at, placeId: leg.toPlaceId, sight: !isWaypoint(props.bundle.places[leg.toPlaceId]) };
     }
     return plans;
   });
-  /** Out of the hotel by the recommended train, less the walk to it. */
   /**
    * Out of the hotel by the recommended train, less the walk to it. A walk
    * to the station first (hotel, then Nagoya Station, then the Hida) is
@@ -154,6 +157,7 @@ export function DaySection(props: {
   });
 
   const placeName = (placeId: string) => props.bundle.places[placeId]?.name;
+
   /** Today's role for the hotel at each end of the route, for its pill. */
   /**
    * When to leave the hotel you woke in: for the airport on a flight day,
@@ -187,6 +191,42 @@ export function DaySection(props: {
     if (!from || leavesFromCheckOut(timing)) return undefined;
     return `Leave ${placeName(from) ?? "for the airport"} by`;
   };
+  /**
+   * On the day itself, the next thing with a time: leaving the hotel, being
+   * at the airport, a flight, a train or bus to catch, a stop you gave a time.
+   * The one after it rides along, so a tight change is seen coming.
+   */
+  const upcoming = createMemo(() => {
+    const now = clock();
+    if (props.day.date !== now.date) return [];
+    const events: { time: string; text: string }[] = [];
+    const leave = leaveHotelBy();
+    const hotel = wokeIn()?.placeId && placeName(wokeIn()!.placeId!);
+    if (leave) events.push({ time: leave, text: hotel ? `Leave ${hotel}` : "Leave the hotel" });
+    for (const flight of flights()) {
+      const airport = flight.departCity ?? flight.departAirport;
+      const airportBy = timings().get(flight.id)?.airportBy;
+      if (airportBy) events.push({ time: airportBy, text: airport ? `At ${airport} airport` : "At the airport" });
+      const code = flight.flightNumber ? `${flight.airlineCode ?? ""}${flight.flightNumber}` : "Flight";
+      if (flight.departTime) events.push({ time: flight.departTime, text: `${code} departs` });
+    }
+    for (const plan of legPlans().values()) {
+      // A day board's pick is the first bus you can make; on the day, from now.
+      const from = [plan.notBefore, now.time].filter((time): time is string => Boolean(time)).sort().at(-1);
+      const option = plan.board.target.kind === "day" ? pickDeparture(plan.board, from).option : plan.option;
+      const ride = option?.segments[0];
+      if (option && ride) events.push({ time: option.departTime, text: ride.from ? `${ride.name} from ${ride.from}` : ride.name });
+    }
+    for (const item of routeItems()) {
+      if (item.type === "place" && item.startTime) {
+        events.push({ time: item.startTime, text: placeName(item.placeId) ?? "Next stop" });
+      }
+    }
+    return events
+      .filter((event) => event.time >= now.time)
+      .sort((a, b) => a.time.localeCompare(b.time))
+      .slice(0, 2);
+  });
   const legOutOf = (placeId: string | undefined) => legOutOfDay(routing(), placeId);
   /** 0 = Sunday, matching Google's opening-hours numbering. */
   const weekday = createMemo(() => parseTripDate(props.day.date).getDay());
@@ -347,6 +387,23 @@ export function DaySection(props: {
       </button>
 
       <div class="day-section__body">
+          <Show when={upcoming()[0]}>
+            {(next) => (
+              <p class="next-up">
+                <span class="next-up__label">Next</span>
+                <span class="next-up__main">
+                  <time class="next-up__time">{next().time}</time> {next().text}
+                </span>
+                <Show when={upcoming()[1]}>
+                  {(then) => (
+                    <span class="next-up__then">
+                      then <time>{then().time}</time> {then().text}
+                    </span>
+                  )}
+                </Show>
+              </p>
+            )}
+          </Show>
           {/* The shape of the day up front: how much of it is moving, where
               you sleep, whether you fly. An AI-written summary will sit
               between the figures and the bookings. */}

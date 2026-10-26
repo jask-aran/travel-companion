@@ -91,7 +91,7 @@
   --page-pad: max(1rem, env(safe-area-inset-left));
   --page-pad-right: max(1rem, env(safe-area-inset-right));
   --header-pad-top: max(0.75rem, env(safe-area-inset-top));
-  --tab-height: 3.4rem;
+  --tab-height: 2.9rem;
   --sticky-offset: calc(env(safe-area-inset-top, 0px) + var(--tab-height) + 0.5rem);
 }
 
@@ -277,7 +277,6 @@ p {
 }
 
 /* The one capitalised style. */
-.trip-header__eyebrow,
 .state-panel__eyebrow,
 .unlock__eyebrow,
 .day-section__date,
@@ -318,7 +317,6 @@ p {
 .leave-time,
 .card__detail-row,
 .day-stats dd,
-.trip-header__eyebrow,
 .state-panel__eyebrow,
 .unlock__eyebrow,
 .day-section__date,
@@ -360,11 +358,6 @@ p {
 
 .trip-header__inner {
   padding: var(--header-pad-top) calc(var(--page-pad-right) + 7.6rem) 0.9rem var(--page-pad);
-}
-
-.trip-header__eyebrow {
-  margin-bottom: 0.3rem;
-  opacity: 0.75;
 }
 
 .trip-header__title {
@@ -463,16 +456,16 @@ p {
 
 .day-tab {
   flex: 0 0 auto;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  column-gap: 0.5rem;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
   margin: 0;
-  padding: 0.3rem 0.75rem 0.3rem 0.6rem;
+  padding: 0.4rem 0.8rem;
   border: 1px solid rgb(var(--on-dark-rgb) / 16%);
   border-radius: 999px;
   background: rgb(var(--on-dark-rgb) / 6%);
-  text-align: left;
   line-height: 1.2;
+  white-space: nowrap;
   /* Centre, matching how the active pill is scrolled into focus. */
   scroll-snap-align: center;
   transition: background 160ms ease;
@@ -493,16 +486,10 @@ p {
   color: var(--on-seal);
 }
 
-.day-tab--active .day-tab__index {
-  opacity: 1;
-}
-
-.day-tab__index {
-  grid-row: 1 / span 2;
-  align-self: center;
-  font-family: var(--font-mono);
-  font-size: var(--fs-label);
-  opacity: 0.8;
+/* Today is ringed whichever day is in view, so it can be found again. */
+.day-tab--today:not(.day-tab--active) {
+  border-color: var(--seal);
+  box-shadow: inset 0 0 0 1px var(--seal);
 }
 
 .day-tab__weekday {
@@ -524,7 +511,7 @@ p {
 .day-section {
   position: relative;
   scroll-margin-top: var(--sticky-offset);
-  padding: 0.4rem 0.75rem 1.4rem;
+  padding: 0.4rem 0.75rem 0.9rem;
   /* Inline room for overhanging badges and shadows, cancelled by the
      negative margin; the day divider is inset to match. */
   margin-inline: -0.75rem;
@@ -612,6 +599,46 @@ p {
 }
 
 /* A folded route still leaves the summary, so the day keeps its full size. */
+
+/* Today's next thing with a time, above everything else in the day. */
+.next-up {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.7rem;
+  align-items: baseline;
+  margin: 0 0 1rem;
+  padding: 0.6rem var(--pad);
+  border: 1px solid rgb(var(--seal-rgb) / 35%);
+  border-left: 4px solid var(--seal);
+  border-radius: 10px;
+  background: rgb(var(--seal-rgb) / 7%);
+  color: var(--ink);
+}
+
+.next-up__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--seal);
+}
+
+.next-up__main {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.next-up__time,
+.next-up__then time {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.next-up__then {
+  grid-column: 2;
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+}
 
 .day-part {
   display: grid;
@@ -1432,10 +1459,6 @@ p {
 }
 
 /* An hour or more: a stretch of rail as long as the haul. */
-.travel--long .travel__inner {
-  min-height: var(--travel-height, 4rem);
-}
-
 .travel--long .travel__glyph,
 .travel--flight .travel__glyph,
 .day-summary__transfer .travel__glyph {
@@ -1699,10 +1722,6 @@ p {
 }
 
 /* In the summary a transfer is one line; the tall rail is for the route. */
-.day-summary__transfer .travel--long .travel__inner {
-  min-height: 2.7rem;
-}
-
 .stop__rating {
   font-family: var(--font-mono);
   font-size: var(--fs-label);
@@ -2438,12 +2457,3 @@ html {
   contain: layout paint;
 }
 
-/* A long leg with a timetable: the board follows the leg's line directly,
-   and the leg keeps its length (time on the rail) below the board. */
-.travel--long:has(> .departures) {
-  min-height: var(--travel-height, 4rem);
-}
-
-.travel--long:has(> .departures) .travel__inner {
-  min-height: 2.7rem;
-}

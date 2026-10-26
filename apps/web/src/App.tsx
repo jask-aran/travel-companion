@@ -27,6 +27,7 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { indexRouteLegs } from "./lib/route-legs";
 import { withLiveBoards } from "./lib/live-departures";
 import { keepMediaOffline } from "./lib/offline-media";
+import { clock } from "./lib/clock";
 
 export default function App() {
   /*
@@ -99,12 +100,19 @@ export default function App() {
     const ids = bundle.days.map((day) => day.id);
     // Untracked: reading it here re-ran this effect on every scroll update,
     // rebuilding the observer, which then reported day one again.
-    if (!untrack(activeDayId) && ids[0]) setActiveDayId(ids[0]);
+    // Opening during the trip lands on today; before or after it, on day one.
+    const today = untrack(activeDayId) ? undefined : bundle.days.find((day) => day.date === untrack(clock).date);
+    if (!untrack(activeDayId) && ids[0]) setActiveDayId(today?.id ?? ids[0]);
 
     stopObserver?.();
     stopObserver = undefined;
 
     const frame = requestAnimationFrame(() => {
+      if (today) {
+        holdSpy(600);
+        history.scrollRestoration = "manual";
+        document.getElementById(today.id)?.scrollIntoView({ block: "start", behavior: "instant" });
+      }
       stopObserver = observeActiveDay(
         ids,
         (id) => {
@@ -243,7 +251,6 @@ export default function App() {
                     <ThemeToggle />
                   </div>
                   <div class="trip-header__inner">
-                    <p class="trip-header__eyebrow">Itinerary</p>
                     <h1 class="trip-header__title">{formatArrows(data.trip.title)}</h1>
                     <p class="trip-header__range">
                       {formatTripRange(data.trip.startDate, data.trip.endDate)}
@@ -253,6 +260,7 @@ export default function App() {
                 <DayTabs
                   days={data.days}
                   activeDayId={activeDayId() || data.days[0]?.id || ""}
+                  today={clock().date}
                   onSelect={selectDay}
                 />
 

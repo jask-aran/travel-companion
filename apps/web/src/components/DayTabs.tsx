@@ -1,10 +1,22 @@
 import { For, createEffect, on } from "solid-js";
 import type { TripDay } from "@travel-companion/trip-schema";
-import { formatTabDayMonth, formatTabWeekday } from "../lib/format";
+import { formatTabDayMonth, formatTabWeekday, parseTripDate } from "../lib/format";
+
+/**
+ * "Mon 23" on one line; the month only where it changes (the first day, and
+ * the 1st), so a three-week trip still reads as one run of days.
+ */
+function tabDate(date: string, first: boolean): string {
+  return first || parseTripDate(date).getDate() === 1
+    ? formatTabDayMonth(date)
+    : String(parseTripDate(date).getDate());
+}
 
 export function DayTabs(props: {
   days: TripDay[];
   activeDayId: string;
+  /** The phone's date: that day's tab reads "Today". */
+  today: string;
   onSelect: (dayId: string) => void;
 }) {
   let scroller!: HTMLDivElement;
@@ -30,21 +42,22 @@ export function DayTabs(props: {
         <For each={props.days}>
           {(day, index) => {
             const active = () => day.id === props.activeDayId;
+            const today = () => day.date === props.today;
             return (
               <button
                 type="button"
                 role="tab"
                 class="day-tab"
-                classList={{ "day-tab--active": active() }}
+                classList={{ "day-tab--active": active(), "day-tab--today": today() }}
                 data-day-id={day.id}
                 aria-selected={active()}
+                aria-label={`Day ${index() + 1}, ${formatTabWeekday(day.date)} ${formatTabDayMonth(day.date)}${today() ? ", today" : ""}`}
                 id={`tab-${day.id}`}
                 tabindex={active() ? 0 : -1}
                 onClick={() => props.onSelect(day.id)}
               >
-                <span class="day-tab__index">{String(index() + 1).padStart(2, "0")}</span>
-                <span class="day-tab__weekday">{formatTabWeekday(day.date)}</span>
-                <span class="day-tab__date">{formatTabDayMonth(day.date)}</span>
+                <span class="day-tab__weekday">{today() ? "Today" : formatTabWeekday(day.date)}</span>
+                <span class="day-tab__date">{tabDate(day.date, index() === 0)}</span>
               </button>
             );
           }}

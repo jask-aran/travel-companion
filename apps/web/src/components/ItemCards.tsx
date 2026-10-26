@@ -116,16 +116,6 @@ export function RouteLegRow(props: {
       .filter(Boolean)
       .join(" · ");
 
-  /**
-   * Scale between the 1 h threshold and the longest real leg in a trip of this
-   * shape (~2.5 h). Clamped, so an outlier cannot blow out the page.
-   */
-  const blockHeight = () => {
-    const minutes = (props.leg.durationSeconds ?? 0) / 60;
-    const ratio = Math.min(1, Math.max(0, (minutes - 60) / (155 - 60)));
-    return `${3.4 + ratio * 5}rem`;
-  };
-
   /** Tapping a leg opens that hop, previous stop to next, in its own mode. */
   const directions = () => {
     const from = props.places[props.leg.fromPlaceId];
@@ -164,7 +154,6 @@ export function RouteLegRow(props: {
     <li
       class={`travel travel--${props.leg.travelMode}`}
       classList={{ "travel--long": long() }}
-      style={long() ? { "--travel-height": blockHeight() } : undefined}
     >
       <Show when={directions()} fallback={<div class="travel__inner">{contents()}</div>}>
         {(href) => (
@@ -300,12 +289,13 @@ function DepartureBoardView(props: { board: DepartureBoard; notBefore?: string |
   const [chosen, setChosen] = createSignal<DepartureOption>();
   const target = () => props.board.target;
   const timed = () => !props.board.approximate;
-  /** On the day itself, a day board starts from now. */
+  /** A day board starts when you get there, or on the day itself from now if that's later. */
   const from = () => {
-    if (props.notBefore || target().kind !== "day") return props.notBefore;
+    if (target().kind !== "day") return props.notBefore;
     const now = new Date();
     const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString();
-    return local.slice(0, 10) === target().date ? local.slice(11, 16) : undefined;
+    const today = local.slice(0, 10) === target().date ? local.slice(11, 16) : undefined;
+    return [props.notBefore, today].filter((time): time is string => Boolean(time)).sort().at(-1);
   };
   const picked = createMemo(() => pickDeparture(props.board, from()));
   const pick = () => picked().option;
