@@ -156,6 +156,19 @@ export function DaySection(props: {
     return option && chainOf(option);
   };
   /**
+   * When a summary leg runs, where something with a time fixes it: a time
+   * from Wanderlog or a flight (a timed board), or the ride before it (a day
+   * board picked from when you get there). The first bus of a day nobody has
+   * timed is no time to plan by, so it shows none. Estimates carry a "~".
+   */
+  const timesFor = (leg: RouteLeg) => {
+    const board = boardFor(leg);
+    const plan = board && [...legPlans().values()].find((candidate) => candidate.board === board);
+    const option = plan?.option;
+    if (!board || !option || (board.target.kind === "day" && !plan.notBefore)) return undefined;
+    return `${board.approximate ? "~" : ""}${option.departTime}→${option.arriveTime}`;
+  };
+  /**
    * Out of the hotel by the recommended train, less the walk to it. A walk
    * to the station first (hotel, then Nagoya Station, then the Hida) is
    * worked back through, as long as the stops before the train are only
@@ -507,7 +520,7 @@ export function DaySection(props: {
                       <Show when={timings().get(item.id)?.legs.length}>
                         <ol class="day-summary__transfer">
                           <For each={timings().get(item.id)?.legs}>
-                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} line={lineFor(leg)} showEnds />}
+                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} line={lineFor(leg)} times={timesFor(leg)} showEnds />}
                           </For>
                         </ol>
                       </Show>
@@ -521,7 +534,7 @@ export function DaySection(props: {
                       <Show when={legOutOf(item.arrivePlaceId)}>
                         {(leg) => (
                           <ol class="day-summary__transfer">
-                            <RouteLegRow leg={leg()} places={props.bundle.places} line={lineFor(leg())} showEnds />
+                            <RouteLegRow leg={leg()} places={props.bundle.places} line={lineFor(leg())} times={timesFor(leg())} showEnds />
                           </ol>
                         )}
                       </Show>
@@ -546,6 +559,7 @@ export function DaySection(props: {
                           leg={journey.leg}
                           places={props.bundle.places}
                           line={lineFor(journey.leg)}
+                          times={timesFor(journey.leg)}
                           showEnds
                         />
                       </ol>

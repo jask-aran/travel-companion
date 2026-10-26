@@ -645,9 +645,9 @@ p {
   margin-bottom: 1rem;
 }
 
+/* No rule under the label: a line here read as the divider between days. */
 .day-part__label {
   padding-bottom: 0.3rem;
-  border-bottom: var(--hairline);
   color: var(--ink-muted);
 }
 
@@ -660,7 +660,6 @@ p {
   min-height: 2.4rem;
   padding: 0.3rem 0 0.4rem;
   border: 0;
-  border-bottom: var(--hairline);
   background: none;
   text-align: left;
   cursor: pointer;
@@ -1461,6 +1460,13 @@ p {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--ink-muted);
+}
+
+/* When the ride runs, where a timed plan fixes it: read off a board. */
+.travel__times {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .travel__open {

@@ -106,6 +106,8 @@ export function RouteLegRow(props: {
   notBefore?: string | undefined;
   /** The train or bus taken, where a board knows it and isn't shown here. */
   line?: string | undefined;
+  /** "08:43→10:58", where a timed plan fixes the ride; stands in for the duration. */
+  times?: string | undefined;
 }) {
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
@@ -115,7 +117,7 @@ export function RouteLegRow(props: {
    */
   const detail = () =>
     [
-      formatDurationShort(props.leg.durationSeconds),
+      props.times ? undefined : formatDurationShort(props.leg.durationSeconds),
       props.leg.travelMode === "transit"
         ? props.board
           ? undefined
@@ -125,6 +127,20 @@ export function RouteLegRow(props: {
     ]
       .filter(Boolean)
       .join(" · ");
+
+  const detailLine = () => (
+    <>
+      <Show when={props.times}>
+        {(times) => (
+          <>
+            <span class="travel__times">{times()}</span>
+            {detail() ? " · " : ""}
+          </>
+        )}
+      </Show>
+      {detail()}
+    </>
+  );
 
   /** Tapping a leg opens that hop, previous stop to next, in its own mode. */
   const directions = () => {
@@ -143,8 +159,8 @@ export function RouteLegRow(props: {
       <Show
         when={props.showEnds}
         fallback={
-          <Show when={detail()}>
-            <span class="travel__detail">{detail()}</span>
+          <Show when={detail() || props.times}>
+            <span class="travel__detail">{detailLine()}</span>
           </Show>
         }
       >
@@ -152,8 +168,8 @@ export function RouteLegRow(props: {
           <span class="travel__ends">
             {props.places[props.leg.fromPlaceId]?.name} → {props.places[props.leg.toPlaceId]?.name}
           </span>
-          <Show when={detail()}>
-            <span class="travel__detail">{detail()}</span>
+          <Show when={detail() || props.times}>
+            <span class="travel__detail">{detailLine()}</span>
           </Show>
         </span>
       </Show>
@@ -210,7 +226,12 @@ function frequencyOf(options: DepartureOption[], service: string | undefined): n
 }
 
 /** "Skyliner › Oedo Line": the rides of an option, as one key. */
-export const chainOf = (option: DepartureOption) => option.segments.map((segment) => segment.name).join(" › ");
+/** The lines ridden, in order; a change between two trains of one line names it once. */
+export const chainOf = (option: DepartureOption) =>
+  option.segments
+    .map((segment) => segment.name)
+    .filter((name, index, names) => name !== names[index - 1])
+    .join(" › ");
 
 /** A line's name edged in its own colour, as station signs use it. */
 function LineChip(props: { segment: DepartureSegment }) {
