@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import type { Plugin, ViteDevServer } from "vite";
 import { encryptTrip } from "../src/lib/trip-crypto";
 import { MEDIA_ROUTES, mediaToken } from "../src/lib/media";
+import { DEPARTURES_ROUTE } from "../src/lib/departures-api";
 import { parse as parseYaml } from "yaml";
 
 const appDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -93,7 +94,7 @@ function runRefresh(source: "auto" | "cli" | "html"): Promise<void> {
   });
 }
 
-/** The deployed site, whose worker serves photos and maps to dev too. */
+/** The deployed site, whose worker serves photos, maps and live boards to dev too. */
 const LIVE_ORIGIN = process.env.TRIP_ORIGIN ?? "https://trips.jask-aran.com";
 
 export function tripBundlePlugin(): Plugin {
@@ -205,9 +206,9 @@ export function tripBundlePlugin(): Plugin {
           return;
         }
 
-        // Photos and maps come from the live worker, so dev reuses its saved
-        // photos and map cache rather than billing Google for each one again.
-        const route = path && Object.values(MEDIA_ROUTES).find((name) => path === `${basePath}${name}`);
+        // Photos, maps and live boards come from the live worker, so dev
+        // reuses what it has stored rather than asking Google or NAVITIME again.
+        const route = path && [...Object.values(MEDIA_ROUTES), DEPARTURES_ROUTE].find((name) => path === `${basePath}${name}`);
         if (route) {
           const params = new URL(req.url ?? "", "http://dev").searchParams;
           mediaToken(localPassphrase())

@@ -17,7 +17,8 @@ const base = typeof __TRIP_BASE__ === "string" ? __TRIP_BASE__ : "/";
 const [token, setToken] = createSignal("");
 export const setMediaToken = setToken;
 
-const mediaUrl = (route: string, params: Record<string, string>) =>
+/** A worker route, with the token that shows the caller can open the trip. */
+export const mediaUrl = (route: string, params: Record<string, string>) =>
   `${base}${route}?${new URLSearchParams({ ...params, t: token() }).toString()}`;
 
 export function placePhotoUrl(place: Place): string | undefined {

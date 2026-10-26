@@ -8,7 +8,7 @@ Production URL: `https://trips.jask-aran.com/japankorea2026/`. Pages project: `j
 
 Place photos and street maps persist in the private R2 bucket `travel-companian` (the spelling is the bucket's real name), bound as `MEDIA`: Standard storage in OC, public `r2.dev` access disabled, no custom domain. Each is fetched from Google once, the first time anyone opens it, and never again; all 91 photos of this trip were stored on 2026-10-26. Check it with a request to `api/photo` or `api/map`: `x-media-cache: r2-hit` means it came from R2, `r2-miss` that it was fetched and saved just now, and a missing or wrong token gets `401`.
 
-Departure boards are the one Google answer that is not stored this way: they belong to a date and time, so they come with each pull (below).
+Departure boards are not stored this way: they belong to a date and time, so they are fetched live (below).
 
 ## What the browser loads
 
@@ -72,7 +72,9 @@ On `changed: false` the button says "Already up to date." and does nothing else.
 
 This path does not run `wanderlog-cli`, Playwright, or Vite. It does not call Google. Photo names are carried forward so a refresh stays inside the Workers subrequest limit. A place added on the phone has no photo until a local `pnpm trip:pull` and `pnpm ship`; `ship` itself does not fetch photo names.
 
-Departure boards (train and bus times for flight transfers and timed journeys) are carried forward the same way, for every leg that still exists. They are fetched only by a local pull: Google Routes for Korea, NAVITIME (via RapidAPI, key in `config/trip.local.yaml` under `navitime.apiKey`) for Japan, since Google's API has no Japanese transit. NAVITIME's plan allows 500 requests a month, so answers are cached for a week in `public-data/trips/<trip>/departures-cache.json`.
+Departure boards (train and bus times for flight transfers and timed journeys) are carried forward the same way, for every leg that still exists. A local pull fetches them for every leg: Google Routes for Korea, NAVITIME (via RapidAPI, key in `config/trip.local.yaml` under `navitime.apiKey`) for Japan, since Google's API has no Japanese transit, with curated timetables from `data/trips/<trip>/` replacing NAVITIME's estimates where they match. NAVITIME's plan allows 500 requests a month, so a pull's answers are cached for a week in `public-data/trips/<trip>/departures-cache.json`.
+
+Over those, the app asks the function live (`api/departures`, `workers/refresh/live-boards.ts`) for today's and tomorrow's legs, where each leg starts, and for any later leg whose pulled board is missing or was fetched for another time (a stop added or moved on the phone). The question carries the two places and the target time, not the trip. The function builds the board as a pull does, with the curated timetables inlined into the worker bundle, and keeps it in KV under `boards/<hash of the question>`: everyone gets that copy until it is 12 hours old (a week for later days). A failed or unaskable request keeps nothing and serves the old copy, if any. Translations of line and station names are kept in KV under `translations`. Live NAVITIME requests stop at 300 a calendar month (`navitime/<YYYY-MM>`), leaving the rest for pulls. The service worker keeps the last answer for offline use, and without one the pulled board stands.
 
 **From the laptop.** `pnpm ship` rebuilds the shell, encrypts `working.json` into the static `trip.enc`, and uploads a new Pages deployment. Use that when the app itself changed, or after a pull. `pnpm trip:pull` and `pnpm trip:refresh` only update the local bundle. They do not touch the live site.
 
@@ -89,7 +91,10 @@ Set on the Pages project, not in git:
 | Secret | Used for |
 |--------|----------|
 | `WANDERLOG_TRIP_ID` | The plan-URL key. This is the edit key, not a view-only share link. |
-| `TRIP_PASSPHRASE` | Encrypt the new payload, and check the refresh request. |
+| `TRIP_PASSPHRASE` | Encrypt the new payload, and check the refresh request and the photo, map and board token. |
+| `GOOGLE_MAPS_API_KEY` | Photos, maps, Google Routes boards and name translation. |
+| `NAVITIME_API_KEY` | NAVITIME boards (the RapidAPI key, `navitime.apiKey` locally). |
+| `GOOGLE_PROJECT_NUMBER` | Selects the Translation LLM for names (`google.projectNumber` locally). |
 
 `PUBLIC_ID` is a plain var in `wrangler.jsonc` (`japan-korea-2026`). It becomes `TripBundle.tripId`. It is not a secret.
 

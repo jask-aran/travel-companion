@@ -94,6 +94,17 @@ export default defineConfig({
               expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
+          {
+            // Live departure boards: the worker's answer when online, the
+            // last one this phone got when not.
+            urlPattern: /\/api\/departures\?/,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "live-departures",
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 2 },
+            },
+          },
         ],
       },
       devOptions: {

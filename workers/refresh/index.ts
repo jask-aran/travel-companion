@@ -6,6 +6,8 @@ import { normaliseCompleteWanderlog } from "../../packages/trip-normaliser/src/c
 import { decryptTrip, encryptTrip, type EncryptedPayload } from "../../apps/web/src/lib/trip-crypto.js";
 import { MEDIA_ROUTES, PHOTO_WIDTH_PX, mediaToken, mediaUpstream } from "../../apps/web/src/lib/media.js";
 import { departureTargets } from "../../apps/web/src/lib/departure-targets.js";
+import { DEPARTURES_ROUTE } from "../../apps/web/src/lib/departures-api.js";
+import { liveBoard, type LiveBoardEnv } from "./live-boards.js";
 
 /**
  * Pages advanced-mode worker. Static files still come from the deployment.
@@ -40,7 +42,7 @@ type MediaStore = {
   }): Promise<unknown>;
 };
 
-type RefreshEnv = {
+type RefreshEnv = LiveBoardEnv & {
   ASSETS: { fetch(request: Request): Promise<Response> };
   TRIP: TripStore;
   /** Photos and maps, each fetched from Google once (R2). */
@@ -284,6 +286,13 @@ async function handle(request: Request, env: RefreshEnv): Promise<Response> {
   }
   const route = Object.values(MEDIA_ROUTES).find((name) => url.pathname.endsWith(`/${name}`));
   if (request.method === "GET" && route) return media(route, url, env);
+  if (request.method === "GET" && url.pathname.endsWith(`/${DEPARTURES_ROUTE}`)) {
+    if (!env.TRIP_PASSPHRASE) return new Response(null, { status: 503 });
+    if (!tokenMatches(url.searchParams.get("t") ?? "", await mediaToken(env.TRIP_PASSPHRASE))) {
+      return new Response(null, { status: 401 });
+    }
+    return liveBoard(url.searchParams.get("q"), env);
+  }
   if ((request.method === "GET" || request.method === "HEAD") && isTripPayload(url.pathname)) {
     try {
       const body = await env.TRIP.get(OBJECT_KEY);
@@ -308,7 +317,7 @@ export default {
       return await handle(request, env);
     } catch (error) {
       console.error(JSON.stringify({ message: "refresh worker failed", error: String(error) }));
-      if (Object.values(MEDIA_ROUTES).some((route) => new URL(request.url).pathname.endsWith(`/${route}`))) {
+      if ([...Object.values(MEDIA_ROUTES), DEPARTURES_ROUTE].some((route) => new URL(request.url).pathname.endsWith(`/${route}`))) {
         return new Response(null, { status: 502, headers: { "cache-control": "no-store" } });
       }
       if (request.method === "GET" || request.method === "HEAD") return env.ASSETS.fetch(request);

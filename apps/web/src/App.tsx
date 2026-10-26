@@ -25,6 +25,7 @@ import { RefreshTrip } from "./components/RefreshTrip";
 import { isDayCollapsed, setDayCollapsed } from "./lib/collapsed-days";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { indexRouteLegs } from "./lib/route-legs";
+import { withLiveBoards } from "./lib/live-departures";
 
 export default function App() {
   /*
@@ -43,6 +44,7 @@ export default function App() {
   );
   const [unlockError, setUnlockError] = createSignal("");
   const [trip] = createResource(passphrase, (secret) => loadTripBundle(secret));
+  const shown = withLiveBoards(trip);
 
   const isWrongPassphrase = (error: unknown) =>
     error instanceof WrongPassphraseError ||
@@ -247,7 +249,7 @@ export default function App() {
                     {(day, index) => (
                       <DaySection
                         day={day}
-                        bundle={data}
+                        bundle={shown() ?? data}
                         index={index()}
                         stays={stays}
                         legIndex={legIndex}
