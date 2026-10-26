@@ -201,7 +201,14 @@ async function fromAssets(request: Request, env: RefreshEnv): Promise<Response> 
  * so the key can't be spent on anything else. Not stored at the edge:
  * Google's terms forbid re-hosting photos.
  */
-async function media(route: string, url: URL, env: RefreshEnv): Promise<Response> {
+/** How long a photo or map stays in the shared edge cache: what Google's own image response allows. */
+const MEDIA_EDGE_SECONDS = 86_400;
+
+type WaitUntil = { waitUntil(promise: Promise<unknown>): void };
+/** Cloudflare's per-datacentre HTTP cache (`caches.default`), not in the DOM's CacheStorage type. */
+const edgeCache = () => (caches as unknown as { default: Cache }).default;
+
+async function media(route: string, url: URL, env: RefreshEnv, ctx: WaitUntil): Promise<Response> {
   const apiKey = env.GOOGLE_MAPS_API_KEY;
   const passphrase = env.TRIP_PASSPHRASE;
   if (!apiKey || !passphrase) return new Response(null, { status: 503 });
@@ -210,27 +217,58 @@ async function media(route: string, url: URL, env: RefreshEnv): Promise<Response
   }
   const upstream = mediaUpstream(route, url.searchParams, apiKey);
   if (!upstream) return new Response(null, { status: 404 });
+
+  /*
+   * Shared by everyone who opens the trip: Google bills each photo request,
+   * so a cache per phone costs one load per photo per phone per day; this
+   * one costs one per photo per day, however many people read the trip.
+   * Google's image response is `public, max-age=86400`, which permits a
+   * shared cache for a day, so that is how long it is kept. Keyed without
+   * the token or the API key; the token is checked before the cache is read.
+   */
+  const keyUrl = new URL(`${url.origin}/__media-cache/${route}`);
+  for (const name of ["name", "at"]) {
+    const value = url.searchParams.get(name);
+    if (value) keyUrl.searchParams.set(name, value);
+  }
+  const cacheKey = new Request(keyUrl.toString());
+  const toClient = (response: Response, state: "hit" | "miss") =>
+    new Response(response.body, {
+      status: response.status,
+      headers: {
+        "content-type": response.headers.get("content-type") ?? "application/octet-stream",
+        "cache-control": response.ok ? `private, max-age=${MEDIA_EDGE_SECONDS}` : "no-store",
+        "x-media-cache": state,
+      },
+    });
+
+  const cached = await edgeCache().match(cacheKey);
+  if (cached) return toClient(cached, "hit");
+
   const response = await fetch(upstream);
-  return new Response(response.body, {
-    status: response.status,
+  if (!response.ok) return toClient(response, "miss");
+  const stored = new Response(response.body, {
+    status: 200,
     headers: {
       "content-type": response.headers.get("content-type") ?? "application/octet-stream",
-      "cache-control": response.ok ? "private, max-age=86400" : "no-store",
+      "cache-control": `public, max-age=${MEDIA_EDGE_SECONDS}`,
     },
   });
+  ctx.waitUntil(edgeCache().put(cacheKey, stored.clone()));
+  return toClient(stored, "miss");
 }
 
 function isTripPayload(pathname: string): boolean {
   return pathname.endsWith("/trip.enc");
 }
 
-async function handle(request: Request, env: RefreshEnv): Promise<Response> {
+async function handle(request: Request, env: RefreshEnv, ctx: WaitUntil): Promise<Response> {
   const url = new URL(request.url);
   if (request.method === "POST" && url.pathname.endsWith("/api/refresh")) {
     return refresh(request, env);
   }
   const route = Object.values(MEDIA_ROUTES).find((name) => url.pathname.endsWith(`/${name}`));
-  if (request.method === "GET" && route) return media(route, url, env);
+  if (request.method === "GET" && route) return media(route, url, env, ctx);
   if ((request.method === "GET" || request.method === "HEAD") && isTripPayload(url.pathname)) {
     try {
       const body = await env.TRIP.get(OBJECT_KEY);
@@ -250,9 +288,9 @@ async function handle(request: Request, env: RefreshEnv): Promise<Response> {
 }
 
 export default {
-  async fetch(request: Request, env: RefreshEnv): Promise<Response> {
+  async fetch(request: Request, env: RefreshEnv, ctx: WaitUntil): Promise<Response> {
     try {
-      return await handle(request, env);
+      return await handle(request, env, ctx);
     } catch (error) {
       console.error(JSON.stringify({ message: "refresh worker failed", error: String(error) }));
       if (request.method === "GET" || request.method === "HEAD") return env.ASSETS.fetch(request);
