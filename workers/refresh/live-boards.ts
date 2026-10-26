@@ -117,9 +117,10 @@ async function askProviders(question: BoardQuestion, env: LiveBoardEnv, now: Dat
     report,
   );
   if (report.errors.length) console.error(JSON.stringify({ message: "live board failed", errors: report.errors }));
-  // Nothing sent (no key, or the month's NAVITIME spent) or something failed:
-  // not an answer to keep.
-  if (report.errors.length || report.requested.google + report.requested.navitime === 0) return undefined;
+  // A provider that was needed but couldn't be asked (no key, or the month's
+  // NAVITIME spent), or failed: not an answer to keep. A board from a
+  // timetable alone asks no one, and is one.
+  if (report.errors.length || report.skipped) return undefined;
   return boards.live ?? null;
 }
 

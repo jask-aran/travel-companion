@@ -19,6 +19,8 @@ export type BoardPick = {
 };
 
 /**
+ * - A day board (no time in the plan): the first you can catch after the
+ *   ride before, else the first of the day. Nothing to miss but the last one.
  * - Leave from a time: the first departure at or after it.
  * - Arrive by a time: the last arrival at or before it.
  * - Arrive within a window (an airport, 3 h to 2 h before the flight): the
@@ -31,6 +33,14 @@ export type BoardPick = {
 export function pickDeparture(board: DepartureBoard, notBefore?: string): BoardPick {
   const options = board.options;
   const { kind, time, until } = board.target;
+  if (kind === "day") {
+    const option = options.find((candidate) => candidate.departTime >= (notBefore ?? time));
+    // Listed from the pick on, as timed boards are: the ones before it can't be caught.
+    if (option) return { option, listed: options.slice(options.indexOf(option)) };
+    if (!notBefore) return { option: options[0], listed: options };
+    const last = options.at(-1);
+    return { option: last, listed: options, ...(last ? { missed: `Nothing after ${notBefore} today · last at ${last.departTime}` } : {}) };
+  }
   let option: DepartureOption | undefined;
   let listed = options;
   let missed: string | undefined;

@@ -6,9 +6,11 @@ import { isDomestic, shiftClock } from "./day-times.js";
 
 /**
  * Which legs get a departure board, and around what time. Only legs the day
- * summary shows (flight transfers and long journeys), by transit, and only
- * where a time pins them down: a flight, or a stop with a time set in
- * Wanderlog. A stop with a time is how you mark it as time-sensitive.
+ * summary shows (flight transfers and long journeys), by transit. A flight,
+ * or a stop with a time set in Wanderlog, pins a board to that time; a stop
+ * with a time is how you mark it as time-sensitive. A long journey with no
+ * time gets a "day" board instead: the day's departures, where a timetable
+ * lists them all (an Alps bus that runs every two hours matters most).
  * Use NAVITIME for Japan and Google elsewhere.
  */
 export type DepartureTarget = {
@@ -22,6 +24,9 @@ export type DepartureTarget = {
   /** For "arrive": any arrival from `time` up to this is fine. */
   until?: string;
 };
+
+/** Where a day board starts listing. */
+export const DAY_BOARD_FROM = "05:00";
 
 /**
  * Off the plane to on a train: from 90 minutes after an international
@@ -115,6 +120,7 @@ export function departureTargets(bundle: TripBundle): DepartureTarget[] {
       // it is the plan's own word on when you go.
       if (from?.type === "place" && from.endTime) add(journey.leg, "depart", day.date, from.endTime);
       else if (to?.type === "place" && to.startTime) add(journey.leg, "arrive", day.date, to.startTime);
+      else add(journey.leg, "day", day.date, DAY_BOARD_FROM);
     }
   }
 

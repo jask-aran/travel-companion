@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { DepartureBoard, Place, TripBundle } from "../packages/trip-schema/src/index.js";
 import { liveQuestions } from "../apps/web/src/lib/live-departures.js";
+import { departureTargets } from "../apps/web/src/lib/departure-targets.js";
+import { pickDeparture } from "../apps/web/src/lib/departure-pick.js";
 import {
   LATER_LIFETIME_MS,
   SOON_LIFETIME_MS,
@@ -127,5 +129,56 @@ describe("live departure boards", () => {
     expect(boardLifetimeMs({ date: "2026-12-03", from }, now)).toBe(SOON_LIFETIME_MS);
     expect(boardLifetimeMs({ date: "2026-12-04", from }, now)).toBe(LATER_LIFETIME_MS);
     expect(localDate({ utcOffsetMinutes: 540 }, now)).toBe("2026-12-02");
+  });
+});
+
+describe("day boards in the app", () => {
+  const untimed = () =>
+    ({
+      ...trip(),
+      places: {
+        tky: place("tky", 36.1411, 137.2514),
+        shh: place("shh", 36.2858, 137.5753),
+      },
+      routeLegs: { a: leg("tky", "shh", 99) },
+      days: [
+        {
+          id: "d1",
+          date: "2026-11-23",
+          title: "",
+          timezone: "Asia/Tokyo",
+          items: [
+            { id: "s1", type: "place", placeId: "tky" },
+            { id: "s2", type: "place", placeId: "shh" },
+          ],
+        },
+      ],
+    }) as unknown as TripBundle;
+
+  it("gives a long journey with no time a board for the whole day", () => {
+    expect(departureTargets(untimed())).toEqual([
+      { key: "tky>shh", fromPlaceId: "tky", toPlaceId: "shh", provider: "navitime", kind: "day", date: "2026-11-23", time: "05:00" },
+    ]);
+  });
+
+  const day = (...departs: string[]): DepartureBoard =>
+    ({
+      provider: "navitime",
+      target: { kind: "day", date: "2026-11-23", time: "05:00" },
+      fetchedAt: "2026-10-26T00:00:00Z",
+      options: departs.map((departTime) => ({ departTime, arriveTime: "23:00", minutes: 60, segments: [] })),
+    }) as unknown as DepartureBoard;
+
+  it("picks the first bus you can catch, else the day's first, and misses only the last", () => {
+    const board = day("06:50", "08:40", "14:10");
+    expect(pickDeparture(board).option?.departTime).toBe("06:50");
+    expect(pickDeparture(board).missed).toBeUndefined();
+    expect(pickDeparture(board, "08:00").option?.departTime).toBe("08:40");
+    expect(pickDeparture(board, "08:00").listed.map((option) => option.departTime)).toEqual(["08:40", "14:10"]);
+    expect(pickDeparture(board, "08:00").missed).toBeUndefined();
+    expect(pickDeparture(board, "15:00")).toMatchObject({
+      option: { departTime: "14:10" },
+      missed: "Nothing after 15:00 today · last at 14:10",
+    });
   });
 });

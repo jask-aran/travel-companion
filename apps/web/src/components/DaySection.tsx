@@ -120,7 +120,8 @@ export function DaySection(props: {
       if (!board) continue;
       const { option } = pickDeparture(board, notBefore);
       plans.set(key, { ...(notBefore ? { notBefore } : {}), ...(option ? { option } : {}) });
-      const at = readyAfter(option);
+      // A day board's first bus of the day is no plan to carry on from.
+      const at = board.target.kind !== "day" || notBefore ? readyAfter(option) : undefined;
       if (at && isWaypoint(props.bundle.places[leg.toPlaceId])) ready = { at, placeId: leg.toPlaceId };
     }
     return plans;
@@ -139,7 +140,8 @@ export function DaySection(props: {
       if (item.type !== "place") continue;
       const leg = legs().get(item.id);
       if (!previous || !leg || leg.fromPlaceId !== previous) return undefined;
-      const train = legPlans().get(item.id)?.option;
+      // A day board has no time to be out of the hotel for.
+      const train = boardFor(leg)?.target.kind === "day" ? undefined : legPlans().get(item.id)?.option;
       if (train) {
         const leave = leaveFor(train);
         return leave && shiftClock(leave, -lead);

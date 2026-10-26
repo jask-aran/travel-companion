@@ -123,7 +123,7 @@ export function readBoardQuestion(raw: string | null): BoardQuestion | undefined
   }
   if (!value || typeof value !== "object") return undefined;
   if (value.provider !== "google" && value.provider !== "navitime") return undefined;
-  if (value.kind !== "arrive" && value.kind !== "depart") return undefined;
+  if (value.kind !== "arrive" && value.kind !== "depart" && value.kind !== "day") return undefined;
   if (typeof value.date !== "string" || !DATE.test(value.date)) return undefined;
   if (typeof value.time !== "string" || !CLOCK.test(value.time)) return undefined;
   if (value.until !== undefined && !(typeof value.until === "string" && CLOCK.test(value.until))) return undefined;

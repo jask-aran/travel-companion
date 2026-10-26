@@ -300,7 +300,14 @@ function DepartureBoardView(props: { board: DepartureBoard; notBefore?: string |
   const [chosen, setChosen] = createSignal<DepartureOption>();
   const target = () => props.board.target;
   const timed = () => !props.board.approximate;
-  const picked = createMemo(() => pickDeparture(props.board, props.notBefore));
+  /** On the day itself, a day board starts from now. */
+  const from = () => {
+    if (props.notBefore || target().kind !== "day") return props.notBefore;
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString();
+    return local.slice(0, 10) === target().date ? local.slice(11, 16) : undefined;
+  };
+  const picked = createMemo(() => pickDeparture(props.board, from()));
   const pick = () => picked().option;
   /** Routes for an untimed board: one per chain of lines, quickest first. */
   const routes = () => {
@@ -318,6 +325,7 @@ function DepartureBoardView(props: { board: DepartureBoard; notBefore?: string |
   const missedTarget = () => (timed() ? picked().missed : undefined);
   const targetLabel = () => {
     const { kind, time, until } = target();
+    if (kind === "day") return "Through the day";
     if (kind === "depart") return `Leave from ${time}`;
     return until ? `Arrive ${time}–${until}` : `Arrive by ${time}`;
   };
