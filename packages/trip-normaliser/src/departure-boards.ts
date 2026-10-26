@@ -13,7 +13,7 @@ import {
   needsTranslation,
   stationQuery,
 } from "./line-names.js";
-import { curateDepartureBoard, type CuratedTimetable } from "./curated-timetables.js";
+import { curateDepartureBoard, directBoard, DAY_OPTIONS_KEPT, type CuratedTimetable } from "./curated-timetables.js";
 import type { TranslationReport } from "./translate-api.js";
 import { offsetMinutes } from "./time-zones.js";
 
@@ -45,6 +45,7 @@ const CACHE_DAYS = 7;
 /** Bump when the fields parsed from an answer change, so old entries are re-asked. */
 const CACHE_VERSION = 3;
 const OPTIONS_KEPT = 8;
+const DAY_PROBE_TIME = "09:00";
 /**
  * One ask returns a handful of options clustered at the time asked. Asking
  * again half an hour and an hour out (later to leave, earlier to arrive)
@@ -168,20 +169,55 @@ export async function buildBoards(
 
   const drafts: Record<string, DepartureBoard> = {};
   for (const request of requests) {
+    const target: DepartureBoard["target"] = {
+      kind: request.kind,
+      date: request.date,
+      time: request.time,
+      ...(request.kind !== "day" && request.until ? { until: request.until } : {}),
+    };
+    const direct = () => {
+      const from = context.places[request.fromPlaceId];
+      const to = context.places[request.toPlaceId];
+      if (!from || !to) return undefined;
+      return directBoard(
+        { provider: request.provider, target }, from, to, timetables, now,
+        (options) => tidy(plausible(options, request, context), request.kind === "day" ? DAY_OPTIONS_KEPT : OPTIONS_KEPT),
+      );
+    };
+    if (request.kind === "day") {
+      const located = direct();
+      if (located) {
+        drafts[request.key] = located;
+        continue;
+      }
+      if (request.provider !== "navitime") continue;
+      const entry = await answer({ ...request, kind: "depart", time: DAY_PROBE_TIME });
+      if (!entry) continue;
+      // The probe supplies the route only. Its estimated times must not limit the day window.
+      const curated = curateDepartureBoard({
+        provider: request.provider,
+        target,
+        fetchedAt: entry.fetchedAt,
+        options: entry.options,
+      }, timetables);
+      if (!curated.matched || !curated.board) continue;
+      const options = tidy(plausible(curated.board.options, request, context), DAY_OPTIONS_KEPT);
+      if (options.length) drafts[request.key] = { ...curated.board, options };
+      continue;
+    }
     const entries = (await Promise.all(samplesOf(request).map(answer))).filter(
       (entry): entry is CacheEntry => Boolean(entry),
     );
     entries.push(...(await windowTail(request, entries, answer)));
     const options = tidy(plausible(entries.flatMap((entry) => entry.options), request, context));
-    if (!options.length) continue;
+    if (!options.length) {
+      const located = direct();
+      if (located) drafts[request.key] = located;
+      continue;
+    }
     const board: DepartureBoard = {
       provider: request.provider,
-      target: {
-        kind: request.kind,
-        date: request.date,
-        time: request.time,
-        ...(request.until ? { until: request.until } : {}),
-      },
+      target,
       // The oldest answer is the one to doubt.
       fetchedAt: entries.map((entry) => entry.fetchedAt).sort()[0]!,
       ...(entries.some((entry) => entry.approximate) ? { approximate: true } : {}),
@@ -197,6 +233,9 @@ export async function buildBoards(
         const inWindow = plausible(curated.board.options, request, context);
         const options = tidy(inWindow.length ? inWindow : curated.board.options);
         drafts[request.key] = { ...curated.board, options };
+      } else {
+        const located = direct();
+        if (located) drafts[request.key] = located;
       }
       continue;
     }
@@ -615,7 +654,7 @@ function span(first: DepartureSegment, last: DepartureSegment): number {
  * arrive at 13:17 when the 08:34 Hida is in at 10:55. Same-time duplicates
  * (one train, different walks) go the same way.
  */
-function tidy(options: DepartureOption[]): DepartureOption[] {
+function tidy(options: DepartureOption[], cap = OPTIONS_KEPT): DepartureOption[] {
   const absolute = (option: DepartureOption) => {
     const depart = clockMinutes(option.departTime);
     return { depart, arrive: depart + option.minutes };
@@ -631,5 +670,5 @@ function tidy(options: DepartureOption[]): DepartureOption[] {
       return beats && (strictly || otherIndex < index);
     });
   });
-  return kept.sort((a, b) => a.departTime.localeCompare(b.departTime)).slice(0, OPTIONS_KEPT);
+  return kept.sort((a, b) => a.departTime.localeCompare(b.departTime)).slice(0, cap);
 }

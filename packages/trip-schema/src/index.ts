@@ -222,9 +222,13 @@ export const DepartureOptionSchema = v.object({
  */
 export const DepartureBoardSchema = v.object({
   provider: v.picklist(["google", "navitime"]),
-  /** "arrive" by the time (a flight, a booked start) or "depart" at it. */
+  /**
+   * "arrive" by the time (a flight, a booked start) or "depart" at it.
+   * "day" for a leg the plan gives no time: the day's departures from
+   * timetables that list every one, from `time` on.
+   */
   target: v.object({
-    kind: v.picklist(["arrive", "depart"]),
+    kind: v.picklist(["arrive", "depart", "day"]),
     date: isoDate,
     time: clockTime,
     /**
