@@ -500,7 +500,7 @@ p {
 .day-section {
   position: relative;
   scroll-margin-top: var(--sticky-offset);
-  padding: 0.4rem 0.75rem 0.6rem;
+  padding: 0.4rem 0.75rem 1rem;
   /* Inline room for overhanging badges and shadows, cancelled by the
      negative margin; the day divider is inset to match. */
   margin-inline: -0.75rem;
@@ -512,7 +512,17 @@ p {
 
 /* The rule between days spans the cards, not the section's overhang room. */
 .day-section + .day-section {
-  padding-top: 1rem;
+  padding-top: 1.4rem;
+}
+
+/* A folded day is a summary and a "Day route" row: without more air around
+   its divider, a run of them reads as one long list. */
+.day-section--collapsed {
+  padding-bottom: 1.6rem;
+}
+
+.day-section--collapsed + .day-section {
+  padding-top: 1.9rem;
 }
 
 .day-section + .day-section::before {
