@@ -24,7 +24,7 @@ function setup() {
   const env = {
     ASSETS: { fetch: vi.fn(async () => new Response(null, { status: 404 })) },
     TRIP: { get: async () => null, put: async () => {} },
-    PHOTOS: photos,
+    MEDIA: photos,
     PUBLIC_ID: "trip-a",
     TRIP_PASSPHRASE: "secret",
     GOOGLE_MAPS_API_KEY: "key",
@@ -32,8 +32,12 @@ function setup() {
   const request = async (name = "places/abc/photos/old", token?: string) =>
     worker.fetch(new Request(`https://example.test/api/photo?${new URLSearchParams({
       name, t: token ?? await mediaToken("secret"),
-    })}`), env, { waitUntil: vi.fn() });
-  return { env, photos, objects, request };
+    })}`), env);
+  const map = async (at: string) =>
+    worker.fetch(new Request(`https://example.test/api/map?${new URLSearchParams({
+      at, t: await mediaToken("secret"),
+    })}`), env);
+  return { env, photos, objects, request, map };
 }
 
 afterEach(() => {
@@ -41,7 +45,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("persistent place photos", () => {
+describe("photos and maps kept in R2", () => {
   it("saves image bytes and reuses them across photo references and trip namespaces", async () => {
     const { env, photos, objects, request } = setup();
     const upstream = vi.fn(async () => new Response("image bytes", { headers: { "content-type": "image/jpeg" } }));
@@ -59,6 +63,38 @@ describe("persistent place photos", () => {
     await request();
     expect(upstream).toHaveBeenCalledTimes(2);
     expect([...objects.keys()]).toEqual(["trip-a/photos/480/abc", "trip-b/photos/480/abc"]);
+  });
+
+  it("asks for a place's current photo name when the stored one has expired", async () => {
+    const { objects, request } = setup();
+    const upstream = vi.fn(async (url: string, _init?: RequestInit) => {
+      if (url.includes("/photos/old/media")) return new Response("expired", { status: 400 });
+      if (url === "https://places.googleapis.com/v1/places/abc") {
+        return Response.json({ photos: [{ name: "places/abc/photos/current" }] });
+      }
+      if (url.includes("/photos/current/media")) return new Response("image bytes", { headers: { "content-type": "image/jpeg" } });
+      return new Response(null, { status: 500 });
+    });
+    vi.stubGlobal("fetch", upstream);
+    const response = await request();
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("image bytes");
+    expect(upstream.mock.calls[1]?.[1]?.headers).toMatchObject({ "X-Goog-FieldMask": "photos" });
+    expect([...objects.keys()]).toEqual(["trip-a/photos/480/abc"]);
+  });
+
+  it("keeps a map per point and per look, fetched once", async () => {
+    const { objects, map } = setup();
+    const upstream = vi.fn(async () => new Response("map bytes", { headers: { "content-type": "image/png" } }));
+    vi.stubGlobal("fetch", upstream);
+    expect((await map("35.17,136.88")).headers.get("x-media-cache")).toBe("r2-miss");
+    const again = await map("35.17,136.88");
+    expect(again.headers.get("x-media-cache")).toBe("r2-hit");
+    expect(again.headers.get("content-type")).toBe("image/png");
+    expect(await again.text()).toBe("map bytes");
+    await map("35.18,136.88");
+    expect(upstream).toHaveBeenCalledTimes(2);
+    expect([...objects.keys()].every((key) => /^trip-a\/maps\/35\.1[78],136\.88\/[0-9a-f]{12}$/.test(key))).toBe(true);
   });
 
   it("checks authentication and validates names before accessing storage or Google", async () => {

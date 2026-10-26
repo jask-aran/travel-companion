@@ -4,9 +4,11 @@ The live site is a static PWA on Cloudflare Pages, with one Pages Function in fr
 
 Production URL: `https://trips.jask-aran.com/japankorea2026/`. Pages project: `jask-aran`.
 
-## Photo storage
+## Photo and map storage
 
-Place photos persist in the private R2 bucket `travel-companian` (the spelling is the bucket's real name), bound as `PHOTOS`: Standard storage in OC, public `r2.dev` access disabled, no custom domain. All 91 photos of the trip were stored on 2026-10-26; after that a photo costs a Google request only for a place not seen before. Check it with a request to `api/photo`: `x-media-cache: r2-hit` means it came from R2, `r2-miss` that it was fetched and saved just now, and a missing or wrong token gets `401`.
+Place photos and street maps persist in the private R2 bucket `travel-companian` (the spelling is the bucket's real name), bound as `MEDIA`: Standard storage in OC, public `r2.dev` access disabled, no custom domain. Each is fetched from Google once, the first time anyone opens it, and never again; all 91 photos of this trip were stored on 2026-10-26. Check it with a request to `api/photo` or `api/map`: `x-media-cache: r2-hit` means it came from R2, `r2-miss` that it was fetched and saved just now, and a missing or wrong token gets `401`.
+
+Departure boards are the one Google answer that is not stored this way: they belong to a date and time, so they come with each pull (below).
 
 ## What the browser loads
 
@@ -30,7 +32,7 @@ wrangler pages deploy apps/web/.publish --project-name jask-aran --branch main -
 wrangler kv key put trip.enc --path apps/web/dist/trip.enc --binding TRIP --remote
 ```
 
-The last step matters. The function serves the KV copy whenever one exists, so after a phone refresh a ship that only uploaded the static `trip.enc` would never be seen. Writing KV too makes the ship's payload, with fresh photo names, the live one.
+The last step matters. The function serves the KV copy whenever one exists, so after a phone refresh a ship that only uploaded the static `trip.enc` would never be seen. Writing KV too makes the ship's payload, with its departure boards and any new places' photo names, the live one.
 
 Wrangler is a dev dependency. `cf pages deploy` does not upload this project. Its help text says the directory is not deployed by `cf`.
 
@@ -47,9 +49,9 @@ anything else              → env.ASSETS.fetch(request)
 
 Bindings live in `wrangler.jsonc`. The trip store is the KV namespace bound as `TRIP`. The encrypted file is under 1 MB, which fits in KV.
 
-Place photos use the private R2 bucket `travel-companian`, bound as `PHOTOS`. The bucket already exists. Keep public bucket access disabled. The worker checks the trip token, serves a saved photo when present, or downloads and stores the photo on its first successful request. Objects have no application expiry; browser copies last 30 days. Images remain accessible to the Cloudflare account owner and are not encrypted with the trip passphrase.
+Photos and maps use the R2 bucket bound as `MEDIA`. Keep public bucket access disabled. The worker checks the trip token, serves a saved image when present, or downloads and stores it on its first successful request. Objects have no application expiry; browser copies last 30 days. Images remain accessible to the Cloudflare account owner and are not encrypted with the trip passphrase.
 
-The object key includes the public trip ID, image width, and Google Place ID. A new Google photo reference therefore reuses the saved image. To replace a saved image, delete its object and let the next request fetch the current reference; an existing browser copy can remain for 30 days. An expired reference cannot populate a missing object until a local pull obtains a fresh reference. Static maps retain the one-day edge cache. `pnpm dev` forwards photos and maps to the live worker (`TRIP_ORIGIN` overrides it), so development reads the same saved photos and never calls Google itself. This persistent photo storage is a deliberate personal-use choice outside Google's standard caching terms.
+A photo's key is the public trip ID, image width, and Google place ID (`<trip>/photos/480/<place>`), so a place keeps its image whatever photo name the trip carries. A pull keeps the photo name a place already has and asks Google only about new places; if that name has expired by the time the place is first opened, the worker asks for the current one (Place Details IDs Only, free). A map's key is its point and a hash of how it is drawn (`<trip>/maps/<lat,lng>/<hash>`), so changing its size or style draws new ones. To replace a saved image, delete its object; an existing browser copy can remain for 30 days. `pnpm dev` forwards photos and maps to the live worker (`TRIP_ORIGIN` overrides it), so development reads the same saved images and never calls Google itself. This persistent storage is a deliberate personal-use choice outside Google's standard caching terms.
 
 ## Two ways to update the trip
 
@@ -68,11 +70,11 @@ The function then:
 
 On `changed: false` the button says "Already up to date." and does nothing else. Otherwise it deletes the browser cache named `trip-bundle` and reloads. `revision` hashes the raw Wanderlog response, which can change without a real edit, so it is not used for the check. If the previous payload cannot be decrypted (a 310,000-iteration file), the refresh always writes.
 
-This path does not run `wanderlog-cli`, Playwright, or Vite. It does not call Google. Photo names are carried forward so a refresh stays inside the Workers subrequest limit. Use a local `pnpm trip:pull` to obtain fresh photo names, then `pnpm ship` to publish them; `ship` itself does not fetch photo names. Saved R2 images remain usable when their old Google photo reference expires.
+This path does not run `wanderlog-cli`, Playwright, or Vite. It does not call Google. Photo names are carried forward so a refresh stays inside the Workers subrequest limit. A place added on the phone has no photo until a local `pnpm trip:pull` and `pnpm ship`; `ship` itself does not fetch photo names.
 
 Departure boards (train and bus times for flight transfers and timed journeys) are carried forward the same way, for every leg that still exists. They are fetched only by a local pull: Google Routes for Korea, NAVITIME (via RapidAPI, key in `config/trip.local.yaml` under `navitime.apiKey`) for Japan, since Google's API has no Japanese transit. NAVITIME's plan allows 500 requests a month, so answers are cached for a week in `public-data/trips/<trip>/departures-cache.json`.
 
-**From the laptop.** `pnpm ship` rebuilds the shell, encrypts `working.json` into the static `trip.enc`, and uploads a new Pages deployment. Use that when the app itself changed, or when photo names need a fresh Google fetch. `pnpm trip:pull` and `pnpm trip:refresh` only update the local bundle. They do not touch the live site.
+**From the laptop.** `pnpm ship` rebuilds the shell, encrypts `working.json` into the static `trip.enc`, and uploads a new Pages deployment. Use that when the app itself changed, or after a pull. `pnpm trip:pull` and `pnpm trip:refresh` only update the local bundle. They do not touch the live site.
 
 ## Encryption
 

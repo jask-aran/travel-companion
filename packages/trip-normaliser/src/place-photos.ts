@@ -7,19 +7,16 @@ import type { TripBundle } from "../../trip-schema/src/index.js";
  * context-bound photo references that 403 for anyone but Wanderlog. The only
  * route to Google's POI imagery is to ask for a fresh photo name ourselves.
  *
- * The image is fetched live (through the app's worker, which holds the key),
- * so there are no photos offline. Names do expire, so they are refreshed, but
- * a name fetched in the last few days is reused: a pull then asks Google only
- * about places that are new or stale. (These lookups bill as Place Details
- * Essentials IDs Only, which is free; reuse makes a pull faster, not cheaper.)
+ * A place keeps the photo name it has, so a pull asks Google only about new
+ * places. The worker stores each place's image the first time it is opened
+ * and keeps it, so the name is needed once; if it has expired by then, the
+ * worker asks for the current one itself. (These lookups bill as Place
+ * Details Essentials IDs Only, which is free.)
  */
 
 const DETAILS_ENDPOINT = "https://places.googleapis.com/v1/places";
 /** Enough for a card thumbnail without paying for pixels nobody sees. */
 const REQUEST_CONCURRENCY = 6;
-
-/** How long a fetched photo name is reused before it is asked for again. */
-const REUSE_DAYS = 3;
 
 export type PhotoFetchReport = {
   requested: number;
@@ -46,7 +43,8 @@ function googleId(place: { googlePlaceId?: string | undefined; id: string }): st
   return match?.[1];
 }
 
-async function fetchPhoto(placeId: string, apiKey: string): Promise<GooglePhoto | undefined> {
+/** A place's current first photo, also how the worker renews an expired name. */
+export async function fetchPhoto(placeId: string, apiKey: string): Promise<GooglePhoto | undefined> {
   const response = await fetch(`${DETAILS_ENDPOINT}/${encodeURIComponent(placeId)}`, {
     headers: {
       "X-Goog-Api-Key": apiKey,
@@ -99,8 +97,7 @@ export async function attachPlacePhotos(
     }
 
     const earlier = previous?.places[place.id]?.photo;
-    const age = earlier?.fetchedAt ? now.getTime() - Date.parse(earlier.fetchedAt) : Infinity;
-    if (earlier && age >= 0 && age < REUSE_DAYS * 86_400_000) {
+    if (earlier) {
       place.photo = earlier;
       report.reused += 1;
       return;

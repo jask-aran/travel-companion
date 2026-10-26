@@ -1,6 +1,7 @@
 import { parseTripBundle, type TripBundle } from "../../packages/trip-schema/src/index.js";
 import { parseWanderlogSource } from "../../packages/wanderlog-import/src/index.js";
 import { attachPlaceDetails } from "../../packages/trip-normaliser/src/place-details.js";
+import { fetchPhoto } from "../../packages/trip-normaliser/src/place-photos.js";
 import { normaliseCompleteWanderlog } from "../../packages/trip-normaliser/src/complete.js";
 import { decryptTrip, encryptTrip, type EncryptedPayload } from "../../apps/web/src/lib/trip-crypto.js";
 import { MEDIA_ROUTES, PHOTO_WIDTH_PX, mediaToken, mediaUpstream } from "../../apps/web/src/lib/media.js";
@@ -12,7 +13,7 @@ import { departureTargets } from "../../apps/web/src/lib/departure-targets.js";
  *
  * Google photo names are copied from the previous payload. Refetching them
  * would be one subrequest per place and can kill the invocation on the free
- * plan. A local `pnpm ship` still refreshes photos.
+ * plan. A local pull fetches them for new places.
  *
  * Departure boards are carried the same way, for every leg that still
  * exists: NAVITIME's plan counts each request, and a phone tap must not
@@ -29,7 +30,7 @@ type TripStore = {
 };
 
 /** The R2 operations this worker uses, following the existing TripStore pattern. */
-type PhotoStore = {
+type MediaStore = {
   get(key: string): Promise<{
     body: ReadableStream<Uint8Array>;
     httpMetadata?: { contentType?: string };
@@ -42,7 +43,8 @@ type PhotoStore = {
 type RefreshEnv = {
   ASSETS: { fetch(request: Request): Promise<Response> };
   TRIP: TripStore;
-  PHOTOS?: PhotoStore;
+  /** Photos and maps, each fetched from Google once (R2). */
+  MEDIA: MediaStore;
   PUBLIC_ID: string;
   WANDERLOG_TRIP_ID?: string;
   TRIP_PASSPHRASE?: string;
@@ -210,17 +212,31 @@ async function fromAssets(request: Request, env: RefreshEnv): Promise<Response> 
  * A place photo or street map from Google, with the key added here so it
  * never ships to the browser. Only for a caller who can open the trip (the
  * token is a hash of the passphrase), and only photos and maps of a point,
- * so the key can't be spent on anything else. Photos persist in private R2
- * storage when PHOTOS is bound. Maps retain the one-day edge cache.
+ * so the key can't be spent on anything else.
+ *
+ * Each image is fetched from Google once and kept in R2 for everyone after:
+ * the operator's choice for this personal app, outside Google's standard
+ * caching terms.
  */
-/** Lifetime of temporary edge entries; persistent photos use R2 instead. */
-const MEDIA_EDGE_SECONDS = 86_400;
+const BROWSER_CACHE_SECONDS = 30 * 86_400;
 
-type WaitUntil = { waitUntil(promise: Promise<unknown>): void };
-/** Cloudflare's per-datacentre HTTP cache (`caches.default`), not in the DOM's CacheStorage type. */
-const edgeCache = () => (caches as unknown as { default: Cache }).default;
+/** The place in a validated photo name, `places/<place>/photos/<photo>`. */
+const placeOf = (params: URLSearchParams) => (params.get("name") ?? "").split("/")[1] ?? "";
 
-async function media(route: string, url: URL, env: RefreshEnv, ctx: WaitUntil): Promise<Response> {
+/**
+ * Photos by place, not by photo name: a name changes when it is fetched
+ * again and expires, the place's image doesn't. Maps by everything that
+ * draws them, so a new size or style is a new object, not a stale one.
+ */
+async function storedAt(route: string, params: URLSearchParams, publicId: string): Promise<string> {
+  if (route === MEDIA_ROUTES.photo) return `${publicId}/photos/${PHOTO_WIDTH_PX}/${placeOf(params)}`;
+  const drawn = new TextEncoder().encode(mediaUpstream(route, params, "") ?? "");
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", drawn));
+  const hash = [...digest.slice(0, 6)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${publicId}/maps/${params.get("at")}/${hash}`;
+}
+
+async function media(route: string, url: URL, env: RefreshEnv): Promise<Response> {
   const apiKey = env.GOOGLE_MAPS_API_KEY;
   const passphrase = env.TRIP_PASSPHRASE;
   if (!apiKey || !passphrase) return new Response(null, { status: 503 });
@@ -230,83 +246,44 @@ async function media(route: string, url: URL, env: RefreshEnv, ctx: WaitUntil): 
   const upstream = mediaUpstream(route, url.searchParams, apiKey);
   if (!upstream) return new Response(null, { status: 404 });
 
-  if (route === MEDIA_ROUTES.photo && env.PHOTOS) {
-    // mediaUpstream validated the name. Use the place ID, not the expiring
-    // photo reference, so a trip rebuild keeps the same saved image.
-    const placeId = (url.searchParams.get("name") ?? "").split("/")[1];
-    const key = `${env.PUBLIC_ID}/photos/${PHOTO_WIDTH_PX}/${placeId}`;
-    const saved = await env.PHOTOS.get(key);
-    const photoResponse = (body: ReadableStream<Uint8Array>, contentType: string, state: "r2-hit" | "r2-miss") =>
-      new Response(body, { headers: {
-        "content-type": contentType,
-        "cache-control": "private, max-age=2592000",
-        "x-media-cache": state,
-      } });
-    if (saved) {
-      return photoResponse(saved.body, saved.httpMetadata?.contentType ?? "image/jpeg", "r2-hit");
-    }
-    const response = await fetch(upstream);
-    const contentType = response.headers.get("content-type") ?? "";
-    if (!response.ok || !response.body || !contentType.startsWith("image/")) {
-      return new Response(null, { status: response.ok ? 502 : response.status, headers: { "cache-control": "no-store" } });
-    }
-    const copy = response.clone();
-    if (copy.body) {
-      await env.PHOTOS.put(key, copy.body, { httpMetadata: { contentType } });
-    }
-    return photoResponse(response.body, contentType, "r2-miss");
+  const key = await storedAt(route, url.searchParams, env.PUBLIC_ID);
+  const toClient = (body: ReadableStream<Uint8Array>, contentType: string, state: "r2-hit" | "r2-miss") =>
+    new Response(body, { headers: {
+      "content-type": contentType,
+      "cache-control": `private, max-age=${BROWSER_CACHE_SECONDS}`,
+      "x-media-cache": state,
+    } });
+  const saved = await env.MEDIA.get(key);
+  if (saved) return toClient(saved.body, saved.httpMetadata?.contentType ?? "image/jpeg", "r2-hit");
+
+  let response = await fetch(upstream);
+  // Pulls keep a place's photo name, which can expire before anyone opens
+  // the place: ask for its current one (Place Details IDs Only, free).
+  if (route === MEDIA_ROUTES.photo && response.status >= 400 && response.status < 500) {
+    const current = await fetchPhoto(placeOf(url.searchParams), apiKey).catch(() => undefined);
+    const retry = current?.name && mediaUpstream(route, new URLSearchParams({ name: current.name }), apiKey);
+    if (retry) response = await fetch(retry);
   }
-
-  /*
-   * Shared by everyone who opens the trip: Google bills each photo request,
-   * so a cache per phone costs one load per photo per phone per day; this
-   * one costs one per photo per day, however many people read the trip.
-   * Maps, and photos without an R2 binding, use this temporary cache. Keyed without
-   * the token or the API key; the token is checked before the cache is read.
-   */
-  const keyUrl = new URL(`${url.origin}/__media-cache/${route}`);
-  for (const name of ["name", "at"]) {
-    const value = url.searchParams.get(name);
-    if (value) keyUrl.searchParams.set(name, value);
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!response.ok || !response.body || !contentType.startsWith("image/")) {
+    return new Response(null, { status: response.ok ? 502 : response.status, headers: { "cache-control": "no-store" } });
   }
-  const cacheKey = new Request(keyUrl.toString());
-  const toClient = (response: Response, state: "hit" | "miss") =>
-    new Response(response.body, {
-      status: response.status,
-      headers: {
-        "content-type": response.headers.get("content-type") ?? "application/octet-stream",
-        "cache-control": response.ok ? `private, max-age=${MEDIA_EDGE_SECONDS}` : "no-store",
-        "x-media-cache": state,
-      },
-    });
-
-  const cached = await edgeCache().match(cacheKey);
-  if (cached) return toClient(cached, "hit");
-
-  const response = await fetch(upstream);
-  if (!response.ok) return toClient(response, "miss");
-  const stored = new Response(response.body, {
-    status: 200,
-    headers: {
-      "content-type": response.headers.get("content-type") ?? "application/octet-stream",
-      "cache-control": `public, max-age=${MEDIA_EDGE_SECONDS}`,
-    },
-  });
-  ctx.waitUntil(edgeCache().put(cacheKey, stored.clone()));
-  return toClient(stored, "miss");
+  const copy = response.clone();
+  if (copy.body) await env.MEDIA.put(key, copy.body, { httpMetadata: { contentType } });
+  return toClient(response.body, contentType, "r2-miss");
 }
 
 function isTripPayload(pathname: string): boolean {
   return pathname.endsWith("/trip.enc");
 }
 
-async function handle(request: Request, env: RefreshEnv, ctx: WaitUntil): Promise<Response> {
+async function handle(request: Request, env: RefreshEnv): Promise<Response> {
   const url = new URL(request.url);
   if (request.method === "POST" && url.pathname.endsWith("/api/refresh")) {
     return refresh(request, env);
   }
   const route = Object.values(MEDIA_ROUTES).find((name) => url.pathname.endsWith(`/${name}`));
-  if (request.method === "GET" && route) return media(route, url, env, ctx);
+  if (request.method === "GET" && route) return media(route, url, env);
   if ((request.method === "GET" || request.method === "HEAD") && isTripPayload(url.pathname)) {
     try {
       const body = await env.TRIP.get(OBJECT_KEY);
@@ -326,9 +303,9 @@ async function handle(request: Request, env: RefreshEnv, ctx: WaitUntil): Promis
 }
 
 export default {
-  async fetch(request: Request, env: RefreshEnv, ctx: WaitUntil): Promise<Response> {
+  async fetch(request: Request, env: RefreshEnv): Promise<Response> {
     try {
-      return await handle(request, env, ctx);
+      return await handle(request, env);
     } catch (error) {
       console.error(JSON.stringify({ message: "refresh worker failed", error: String(error) }));
       if (Object.values(MEDIA_ROUTES).some((route) => new URL(request.url).pathname.endsWith(`/${route}`))) {

@@ -12,7 +12,7 @@ Playwright HTML fallback ─┘
 
 Raw Wanderlog output never belongs in git. The Wanderlog trip id lives only in a gitignored local config. How the live site is served, and how a phone can refresh it, is in [docs/hosting.md](docs/hosting.md).
 
-Production photos persist in the private R2 bucket `travel-companian`, bound as `PHOTOS`. See [photo storage](docs/hosting.md#photo-storage).
+Production photos and maps persist in the private R2 bucket `travel-companian`, bound as `MEDIA`, each fetched from Google once. See [photo and map storage](docs/hosting.md#photo-and-map-storage).
 
 ## One-time setup
 

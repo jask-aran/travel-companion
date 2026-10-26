@@ -9,7 +9,7 @@
     { "binding": "TRIP", "id": "24c73aa9cc8d47a2aab5fdfab10516a4" }
   ],
   "r2_buckets": [
-    { "binding": "PHOTOS", "bucket_name": "travel-companian" }
+    { "binding": "MEDIA", "bucket_name": "travel-companian" }
   ],
   "vars": {
     "PUBLIC_ID": "japan-korea-2026"
