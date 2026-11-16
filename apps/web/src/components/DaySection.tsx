@@ -21,7 +21,7 @@ import {
 import { bindFlights } from "../lib/flight-binding";
 import { dayRidingSeconds, dayWalking, isWaypoint, stopsBetween, type RouteLegIndex } from "../lib/route-legs";
 import { leaveFor, pickDeparture, readyAfter } from "../lib/departure-pick";
-import { placeSequences } from "../lib/day-map";
+import { placeSequences, type MapPath, type MapVisit } from "../lib/day-map";
 import { DayMap } from "./DayMap";
 import { dayRouting, legOutOf as legOutOfDay } from "../lib/day-routing";
 import { departureKey } from "../lib/departure-targets";
@@ -30,7 +30,7 @@ import { fold, unfold } from "../lib/fold-motion";
 import { shiftClock, sunTimes, type FlightTiming } from "../lib/day-times";
 import { clock } from "../lib/clock";
 import { dayOpened } from "../lib/live-departures";
-import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow, StayLine } from "./ItemCards";
+import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, PlaceRow, RouteLegRow, StayLine } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
 /**
@@ -182,6 +182,37 @@ export function DaySection(props: {
   });
 
   const placeName = (placeId: string) => props.bundle.places[placeId]?.name;
+
+  /**
+   * The Day map's step card draws stops and legs exactly as the route below
+   * does. A hotel that bookends the day isn't a route item, so it stands in
+   * as one, with no plan of its own.
+   */
+  const mapStop = (visit: MapVisit) => {
+    const index = routeItems().findIndex((item) => item.id === visit.id);
+    const listed = routeItems()[index];
+    const item = listed?.type === "place" ? listed : { id: visit.id, type: "place" as const, placeId: visit.place.id };
+    return (
+      <ul class="timeline">
+        <PlaceRow item={item} place={visit.place} sequence={sequences()[index] ?? 0} isStay={props.stayPlaceIds.has(visit.place.id)} weekday={weekday()} />
+      </ul>
+    );
+  };
+  const mapLeg = (path: MapPath) => {
+    const leg = path.leg;
+    if (!leg) return undefined;
+    return (
+      <ol class="timeline">
+        <RouteLegRow
+          leg={leg}
+          places={props.bundle.places}
+          board={boardFor(leg)}
+          ride={rideFor(leg)}
+          notBefore={path.planKey ? legPlans().get(path.planKey)?.notBefore : undefined}
+        />
+      </ol>
+    );
+  };
 
   /**
    * When to leave the hotel you woke in: for the airport on a flight day,
@@ -635,7 +666,7 @@ export function DaySection(props: {
               </Show>
             </div>
           </Show>
-          <DayMap routing={routing()} bundle={props.bundle} stayPlaceIds={props.stayPlaceIds} />
+          <DayMap routing={routing()} bundle={props.bundle} stayPlaceIds={props.stayPlaceIds} renderStop={mapStop} renderLeg={mapLeg} />
       </div>
     </section>
   );

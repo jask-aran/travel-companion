@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DayItem, Place } from "../packages/trip-schema/src/index.js";
-import { buildDayMap, dayMapPoints, dayMapVisits, decodePolyline, placeSequences, stopKind } from "../apps/web/src/lib/day-map.js";
+import { buildDayMap, dayMapPoints, dayMapVisits, decodePolyline, legInto, placeSequences, stopKind } from "../apps/web/src/lib/day-map.js";
 import type { DayRouting } from "../apps/web/src/lib/day-routing.js";
 
 const place = (id: string, latitude = 35, longitude = 139): Place => ({ id, name: id, latitude, longitude });
@@ -47,7 +47,24 @@ describe("day map geometry", () => {
       flights: [{ id: "flight", type: "flight", departPlaceId: "depart", arrivePlaceId: "arrive" }],
       legs: new Map([["arrive", { id: "bogus", fromPlaceId: "depart", toPlaceId: "arrive", travelMode: "ferry" }]]),
     }), { places: { depart: place("depart"), arrive: place("arrive", 37, 127) } }, new Set());
-    expect(data.paths).toEqual([{ fromPlaceId: "depart", toPlaceId: "arrive", mode: "flight", approximate: true, points: [[35, 139], [37, 127]] }]);
+    expect(data.paths).toEqual([{
+      fromPlaceId: "depart", toPlaceId: "arrive", fromVisitId: "depart", toVisitId: "arrive", mode: "flight", approximate: true,
+      points: [[35, 139], [37, 127]], durationSeconds: undefined, distanceMetres: undefined,
+    }]);
+  });
+  it("ties each leg to its visits, so a place visited twice steps to the right leg", () => {
+    const data = buildDayMap(routing({
+      routeItems: [stop("a"), stop("b"), stop("a-again", "a"), stop("c")],
+      legs: new Map([
+        ["b", { id: "ab", fromPlaceId: "a", toPlaceId: "b", travelMode: "walking", durationSeconds: 600, distanceMetres: 800 }],
+        ["a-again", { id: "ba", fromPlaceId: "b", toPlaceId: "a", travelMode: "transit", durationSeconds: 900 }],
+        ["c", { id: "ac", fromPlaceId: "a", toPlaceId: "c", travelMode: "transit", durationSeconds: 1200 }],
+      ]),
+    }), { places: { a: place("a"), b: place("b", 35.1), c: place("c", 35.2) } }, new Set());
+    expect(data.paths.map((path) => [path.fromVisitId, path.toVisitId, path.durationSeconds])).toEqual([["a", "b", 600], ["b", "a-again", 900], ["a-again", "c", 1200]]);
+    expect(legInto(data, "a-again", false)?.mode).toBe("transit");
+    expect(legInto(data, "b", false)?.distanceMetres).toBe(800);
+    expect(legInto(data, "a", false)).toBeUndefined();
   });
   it("does not bridge over a stop with missing coordinates", () => {
     const data = buildDayMap(routing({ routeItems: [stop("one"), stop("missing"), stop("two")] }), {

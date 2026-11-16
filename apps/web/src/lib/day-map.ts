@@ -1,6 +1,7 @@
 import type { DayItem, Place, RouteLeg, TripBundle } from "@travel-companion/trip-schema";
 import type { DayRouting } from "./day-routing.js";
 import { bindFlights } from "./flight-binding.js";
+import type { MapTheme } from "./map-style.js";
 
 export type MapPoint = [latitude: number, longitude: number];
 export type MapStopKind = "hotel" | "airport" | "station" | "poi";
@@ -16,24 +17,41 @@ export type MapStop = { place: Place; point: MapPoint; labels: string[]; roles: 
 export type MapPath = {
   fromPlaceId: string;
   toPlaceId: string;
+  /** The visits at each end: a place visited twice has one stop but two visits. */
+  fromVisitId: string | undefined;
+  toVisitId: string | undefined;
   points: MapPoint[];
   mode: RouteLeg["travelMode"] | "connection";
   approximate: boolean;
+  durationSeconds: number | undefined;
+  distanceMetres: number | undefined;
+  /** The route leg itself, for the step card's departure board; none for flights and bare connections. */
+  leg: RouteLeg | undefined;
+  /** Where the day's departure plans file this leg: the arriving item's id, or "end" for the way home. */
+  planKey: string | undefined;
 };
-export const MAP_MODES: Record<MapPath["mode"], { label: string; colour: string }> = {
-  walking: { label: "Walk", colour: "#267969" },
-  transit: { label: "Transit", colour: "#246caa" },
-  driving: { label: "Drive", colour: "#9a6018" },
-  cycling: { label: "Cycle", colour: "#267969" },
-  ferry: { label: "Ferry", colour: "#246caa" },
-  flight: { label: "Flight", colour: "#8550a1" },
-  connection: { label: "Connection", colour: "#697582" },
+/** Route line colours; `dark` is for the dark base map. Walks are slate so they don't read as the green Start pin. */
+export const MAP_MODES: Record<MapPath["mode"], { label: string; colour: string; dark: string }> = {
+  walking: { label: "Walk", colour: "#4d6275", dark: "#b3c2d0" },
+  transit: { label: "Transit", colour: "#246caa", dark: "#5fa2e0" },
+  driving: { label: "Drive", colour: "#9a6018", dark: "#e0a052" },
+  cycling: { label: "Cycle", colour: "#4d6275", dark: "#b3c2d0" },
+  ferry: { label: "Ferry", colour: "#246caa", dark: "#5fa2e0" },
+  flight: { label: "Flight", colour: "#8550a1", dark: "#c193dc" },
+  connection: { label: "Connection", colour: "#8a7f6c", dark: "#c9bda8" },
 };
 export type DayMapData = { stops: MapStop[]; visits: MapVisit[]; paths: MapPath[]; missingPlaces: number };
 export type DayMapView = {
+  /** The whole day (or the ground route), every leg at full strength. */
   fit(includeFlights?: boolean): void;
-  focus(visitId: string): void;
+  /** A leg step: frame the leg that arrives at this visit and fade the others. */
+  focusLeg(visitId: string): void;
+  /** A stop step: the stop close up, every leg at full strength. */
+  focusStop(visitId: string): void;
   highlight(visitId: string): void;
+  setTheme(theme: MapTheme): void;
+  /** Map mode: one finger moves the map instead of the page. */
+  setInteractive(on: boolean): void;
   retry(): void;
   destroy(): void;
 };
@@ -52,6 +70,11 @@ export function dayMapPoints(data: DayMapData, includeFlights: boolean): MapPoin
     if (ground.length) return ground;
   }
   return [...data.stops.map((stop) => stop.point), ...data.paths.flatMap((path) => path.points)];
+}
+
+/** The leg that arrives at a visit, if the map draws one. */
+export function legInto(data: DayMapData, visitId: string, includeFlights: boolean): MapPath | undefined {
+  return data.paths.find((path) => path.toVisitId === visitId && (includeFlights || path.mode !== "flight"));
 }
 
 export function dayMapVisits(data: DayMapData, includeFlights: boolean): MapVisit[] {
@@ -125,7 +148,7 @@ export function buildDayMap(routing: DayRouting, bundle: Pick<TripBundle, "place
       if (!existing.roles.includes(role)) existing.roles.push(role);
     } else stops.set(id, { place, point, labels: [label], roles: [role] });
   };
-  const addPath = (fromId: string | undefined, toId: string, leg: RouteLeg | undefined) => {
+  const addPath = (fromId: string | undefined, toId: string, leg: RouteLeg | undefined, fromVisitId: string | undefined, toVisitId: string | undefined, planKey: string) => {
     if (!fromId || fromId === toId) return;
     const from = pointOf(bundle.places[fromId]);
     const to = pointOf(bundle.places[toId]);
@@ -134,9 +157,15 @@ export function buildDayMap(routing: DayRouting, bundle: Pick<TripBundle, "place
     paths.push({
       fromPlaceId: fromId,
       toPlaceId: toId,
+      fromVisitId,
+      toVisitId,
       points: geometry.length >= 2 ? geometry : [from, to],
       mode: leg?.travelMode ?? "connection",
       approximate: geometry.length < 2,
+      durationSeconds: leg?.durationSeconds,
+      distanceMetres: leg?.distanceMetres,
+      leg,
+      planKey: leg ? planKey : undefined,
     });
   };
   const binding = bindFlights(routing.routeItems, routing.flights);
@@ -144,14 +173,19 @@ export function buildDayMap(routing: DayRouting, bundle: Pick<TripBundle, "place
   let previous = routing.wokeInSlot?.stay.placeId;
   addStop(previous, "H", "Start hotel");
   addVisit("start", previous, "H");
+  // The visit now standing at `placeId`, if it was mapped.
+  const visitAt = (placeId: string | undefined) => { const last = visits.at(-1); return last && last.place.id === placeId ? last.id : undefined; };
+  let previousVisit = visitAt(previous);
   for (const [index, item] of routing.routeItems.entries()) {
     if (item.type !== "place") continue;
     const hotel = stayPlaceIds.has(item.placeId);
     addStop(item.placeId, hotel ? "H" : String(sequences[index]), hotel ? "Hotel" : `Stop ${sequences[index]}`);
     // Wanderlog can also list a hotel as a stop immediately beside its bookend.
     if (visits.at(-1)?.place.id !== item.placeId) addVisit(item.id, item.placeId, hotel ? "H" : String(sequences[index]), item.startTime);
-    if (!binding.supersededLegs.has(item.id)) addPath(previous, item.placeId, routing.legs.get(item.id));
+    const here = visitAt(item.placeId);
+    if (!binding.supersededLegs.has(item.id)) addPath(previous, item.placeId, routing.legs.get(item.id), previousVisit, here, item.id);
     previous = item.placeId;
+    previousVisit = here;
   }
   const end = routing.sleepsIn?.placeId;
   if (end) {
@@ -159,13 +193,18 @@ export function buildDayMap(routing: DayRouting, bundle: Pick<TripBundle, "place
     if (visits.at(-1)?.place.id !== end) addVisit("finish", end, "H");
     const lastItem = routing.routeItems.filter((item) => item.type === "place").at(-1);
     // A departure flight replaces the onward surface journey.
-    if (!lastItem || !binding.after.has(lastItem.id)) addPath(previous, end, routing.endLeg);
+    if (!lastItem || !binding.after.has(lastItem.id)) addPath(previous, end, routing.endLeg, previousVisit, visitAt(end), "end");
   }
   for (const flight of routing.flights) {
     // Only flights represented in this day's route, including added airports.
     const from = flight.departPlaceId && stops.get(flight.departPlaceId);
     const to = flight.arrivePlaceId && stops.get(flight.arrivePlaceId);
-    if (from && to) paths.push({ fromPlaceId: from.place.id, toPlaceId: to.place.id, points: [from.point, to.point], mode: "flight", approximate: true });
+    if (from && to) paths.push({
+      fromPlaceId: from.place.id, toPlaceId: to.place.id,
+      fromVisitId: visits.findLast((visit) => visit.place.id === from.place.id)?.id,
+      toVisitId: visits.find((visit) => visit.place.id === to.place.id)?.id,
+      points: [from.point, to.point], mode: "flight", approximate: true, durationSeconds: undefined, distanceMetres: undefined, leg: undefined, planKey: undefined,
+    });
   }
   return { stops: [...stops.values()], visits, paths, missingPlaces: missing.size };
 }

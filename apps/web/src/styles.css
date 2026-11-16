@@ -1664,20 +1664,28 @@ p {
 
 /* --- Footer, toast, states --- */
 
-.itinerary-footer {
-  display: grid;
-  gap: 0.35rem;
-  margin-top: 0.4rem;
-  padding-top: 1rem;
-  border-top: var(--hairline);
+/*
+ * The trip menu (TripMenu): the app's version and the connector link, under
+ * the header's More button. A popover in the top layer, pinned under the header.
+ */
+.trip-menu {
+  position: fixed;
+  inset: auto;
+  top: calc(env(safe-area-inset-top, 0px) + 4.25rem);
+  right: max(0.75rem, env(safe-area-inset-right, 0px));
+  width: min(20rem, calc(100vw - 1.5rem));
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: var(--hairline);
+  border-radius: var(--card-radius);
+  background: var(--paper-elevated);
+  color: var(--ink);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 25%);
   font-size: var(--fs-label);
-  color: var(--ink-muted);
 }
-
-/* The footer's rule closes the last day, so that day needs no air under it. */
-.day-section:last-of-type {
-  padding-bottom: 0.5rem;
-}
+.trip-menu:popover-open { display: grid; gap: 0.9rem; }
+.trip-menu p { margin: 0; color: var(--ink-muted); }
+.trip-menu .refresh-trip + .refresh-trip { padding-top: 0.9rem; border-top: var(--hairline); }
 
 /* One line: when the app was built, and the way to get a newer one. */
 .refresh-trip {
@@ -2901,34 +2909,96 @@ html {
 .day-section__date,
 .day-section__subtitle,
 .day-part__label,
-.day-part__empty,
-.itinerary-footer {
+.day-part__empty {
   color: var(--on-dark);
 }
 
-/* Interactive day map. The isolated stack keeps renderer controls below DayTabs. */
-.day-map { margin-top: 1rem; scroll-margin-top: var(--sticky-offset); }
-.day-map__heading { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
-.day-map__actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+/*
+ * Interactive day map. The isolated stack keeps renderer controls below DayTabs.
+ * Colours on the map surface (pins, captions, controls) follow the base map's
+ * own theme through these tokens, so dark mode is dark all the way through.
+ */
+.day-map {
+  --map-paper: #fffdf8;
+  --map-ink: #193140;
+  --map-ink-muted: #536773;
+  --map-ground: #f5f3ee;
+  --map-shadow: rgb(10 30 42 / 22%);
+  --map-chip-active: #193e55;
+  --map-chip-active-ink: #fffaf0;
+  margin-top: 1rem;
+  scroll-margin-top: var(--sticky-offset);
+}
+:root[data-theme="dark"] .day-map {
+  --map-paper: #1c2631;
+  --map-ink: #e3e9ef;
+  --map-ink-muted: #9ba6b1;
+  --map-ground: #18202a;
+  --map-shadow: rgb(0 0 0 / 45%);
+  --map-chip-active: #cfe1f0;
+  --map-chip-active-ink: #10161d;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .day-map {
+    --map-paper: #1c2631;
+    --map-ink: #e3e9ef;
+    --map-ink-muted: #9ba6b1;
+    --map-ground: #18202a;
+    --map-shadow: rgb(0 0 0 / 45%);
+    --map-chip-active: #cfe1f0;
+    --map-chip-active-ink: #10161d;
+  }
+}
+
+/*
+ * Map mode. A Day map with places fills the screen under the day tabs and is
+ * a scroll-snap point, so scrolling near it settles onto it. svh, not dvh: the
+ * browser bar retracting during that very scroll must not resize the map.
+ */
+html:has(.day-map--snap) { scroll-snap-type: y proximity; }
+html.map-snap-off { scroll-snap-type: none; }
+.day-map--live {
+  display: flex;
+  flex-direction: column;
+  height: calc(100svh - var(--sticky-offset) - 0.75rem);
+  min-height: 30rem;
+}
+.day-map--snap { scroll-snap-align: start; }
+.day-map--live .journey-map__card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.day-map--live .day-map__surface { flex: 1; min-height: 12rem; }
+.journey-map__card { transition: box-shadow 200ms ease; }
+.day-map--engaged .journey-map__card { box-shadow: 0 0 0 2px rgb(var(--sea-rgb) / 60%), var(--card-shadow); }
+
+.day-map__heading { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 2.5rem; margin-bottom: 0.5rem; }
 .day-map__heading h3 { margin: 0; padding: 0; font-size: var(--fs-label); font-weight: 500; }
-.day-map__button { min-height: 2.5rem; padding: 0.35rem 0.65rem; border: 1px solid rgb(var(--on-dark-rgb) / 30%); border-radius: 999px; background: rgb(11 31 51 / 72%); color: var(--on-dark); font-size: var(--fs-label); }
+.day-map__button { min-height: 2.5rem; padding: 0.35rem 0.9rem; border: 1px solid rgb(var(--on-dark-rgb) / 30%); border-radius: 999px; background: rgb(11 31 51 / 72%); color: var(--on-dark); font-size: var(--fs-label); }
 .day-map__button:hover { background: #1f4f68; }
 .day-map__button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-.day-map__surface { position: relative; z-index: 0; isolation: isolate; overflow: hidden; background: #e8e5dd; }
-.day-map__canvas { width: 100%; background: #e8e5dd; color: #172a3c; font-family: var(--font-sans); }
-.day-map__state { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem; margin: 0; color: #172a3c; }
+.day-map__surface { position: relative; z-index: 0; isolation: isolate; overflow: hidden; min-height: 8rem; background: var(--map-ground); }
+/* Two classes, so MapLibre's own `.maplibregl-map { position: relative }` doesn't collapse it. */
+.day-map .day-map__canvas { position: absolute; inset: 0; background: var(--map-ground); color: var(--map-ink); font-family: var(--font-sans); }
+.day-map__state { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem; margin: 0; color: var(--map-ink); }
 .day-map__notice { margin-top: 0.5rem; font-size: var(--fs-label); color: var(--on-dark); }
-.day-map__legend { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; }
+.day-map__legend { display: flex; flex-wrap: wrap; gap: 0.3rem 0.9rem; }
 .day-map__legend > span { display: inline-flex; align-items: center; gap: 0.35rem; }
 .day-map__line { display: inline-block; width: 1.2rem; border-top: 3px solid var(--map-line-colour); }
-/* MapLibre's own controls, in the app's paper and ink. */
-.day-map .maplibregl-ctrl-attrib { background: rgb(255 253 248 / 92%); color: #172a3c; font-family: var(--font-sans); font-size: 10px; }
-.day-map .maplibregl-ctrl-attrib a { color: #205c7d; }
-.day-map .maplibregl-ctrl-group { border-radius: 10px; background: rgb(255 253 248 / 94%); box-shadow: 0 2px 9px rgb(10 30 42 / 15%); }
+.day-map__line--dashed { border-top-style: dashed; border-top-color: var(--map-ink-muted); }
+/* MapLibre's own controls, in the map's paper and ink. */
+.day-map .maplibregl-ctrl-attrib { background: color-mix(in srgb, var(--map-paper) 92%, transparent); color: var(--map-ink); font-family: var(--font-sans); font-size: 10px; }
+.day-map .maplibregl-ctrl-attrib a { color: var(--sea); }
+.day-map .maplibregl-ctrl-attrib-button { filter: none; }
+.day-map .maplibregl-ctrl-group { border-radius: 10px; background: color-mix(in srgb, var(--map-paper) 94%, transparent); box-shadow: 0 2px 9px var(--map-shadow); }
 .day-map .maplibregl-ctrl-group button { width: 34px; height: 34px; }
+.day-map .maplibregl-ctrl-group button + button { border-top-color: rgb(127 127 127 / 25%); }
+:root[data-theme="dark"] .day-map .maplibregl-ctrl-icon,
+:root[data-theme="dark"] .day-map .maplibregl-ctrl-attrib-button { filter: invert(1) hue-rotate(180deg); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .day-map .maplibregl-ctrl-icon,
+  :root:not([data-theme="light"]) .day-map .maplibregl-ctrl-attrib-button { filter: invert(1) hue-rotate(180deg); }
+}
 .day-map .maplibregl-cooperative-gesture-screen { background: rgb(11 31 51 / 55%); font-family: var(--font-sans); font-size: var(--fs-small); }
 
-/* The Day map reads as a journey: bookends, map, selected place, then the stops. */
+/* The Day map reads as a journey: the map, the stop you're on and how you got there, then every stop. */
 .journey-map__subheading {
   margin-top: 0.3rem;
   color: rgb(var(--on-dark-rgb) / 78%);
@@ -2944,89 +3014,29 @@ html {
   box-shadow: var(--card-shadow);
 }
 
-.journey-map__bookends {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.65rem;
-  padding: 1rem;
-}
-
-.journey-map__bookends button {
-  display: grid;
-  gap: 0.35rem;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--ink);
-  text-align: left;
-}
-
-.journey-map__bookends strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--fs-small);
-}
-
-.journey-map__eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: var(--fs-label);
-  color: var(--ink-muted);
-}
-
-.journey-map__bookends .journey-map__eyebrow {
-  overflow: hidden;
-  display: block;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.journey-map__dot {
-  display: inline-block;
-  width: 0.45rem;
-  height: 0.45rem;
-  margin-right: 0.25rem;
-  border-radius: 50%;
-}
-
-.journey-map__dot--start { background: #25816e; }
-.journey-map__dot--finish { background: #c23b42; }
-.journey-map__arrow { color: var(--ink-muted); }
-
-.journey-map .day-map__canvas {
-  height: clamp(26rem, 63dvh, 38rem);
-}
-
-.journey-map.day-map--expanded .day-map__canvas { height: 78dvh; }
-
 .journey-map__tools {
   position: absolute;
   z-index: 500;
   top: 0.75rem;
   left: 0.75rem;
-  right: 0.75rem;
+  right: 3.6rem;
   display: flex;
   justify-content: flex-end;
   align-items: start;
   gap: 0.5rem;
   pointer-events: none;
 }
+.journey-map__tools > * { pointer-events: auto; }
 
-.journey-map__tools button { pointer-events: auto; }
-
-.journey-map__scope {
-  border: 1px solid rgb(25 49 64 / 14%);
+.journey-map__scope,
+.journey-map__fit {
+  border: 1px solid rgb(127 127 127 / 18%);
   border-radius: 999px;
-  background: rgb(255 253 248 / 94%);
-  color: #193140;
-  box-shadow: 0 2px 9px rgb(10 30 42 / 15%);
+  background: color-mix(in srgb, var(--map-paper) 94%, transparent);
+  color: var(--map-ink);
+  box-shadow: 0 2px 9px var(--map-shadow);
   backdrop-filter: blur(8px);
 }
-
 .journey-map__scope { display: flex; margin-right: auto; padding: 3px; }
 .journey-map__scope button {
   min-height: 2rem;
@@ -3034,20 +3044,75 @@ html {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: #193140;
+  color: var(--map-ink);
   font-size: var(--fs-label);
 }
-.journey-map__scope button[aria-pressed="true"] { background: #193e55; color: #fffaf0; }
+.journey-map__scope button[aria-pressed="true"] { background: var(--map-chip-active); color: var(--map-chip-active-ink); }
+.journey-map__fit { display: inline-flex; align-items: center; gap: 0.35rem; min-height: 2.35rem; padding: 0.25rem 0.75rem; font-size: var(--fs-label); }
+.journey-map__fit svg { width: 1rem; height: 1rem; }
 
-.journey-map__selection {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.25rem 0.75rem;
-  min-height: 7.25rem;
-  padding: 1rem;
-  border-top: var(--hairline);
+/*
+ * The dock, over the map's foot: a translucent legend, then the step card.
+ * The step card takes the day one step at a time, a stop then the leg to the
+ * next, drawn with the Day route's own stop card and leg row. Its other mode
+ * is the step strip. It floats, so the map keeps its full height; a long
+ * departure board scrolls inside it.
+ */
+.journey-map__dock {
+  position: absolute;
+  z-index: 500;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  pointer-events: none;
 }
+.journey-map__dock > * { pointer-events: auto; }
+.journey-map__step {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgb(127 127 127 / 16%);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--paper-elevated) 94%, transparent);
+  box-shadow: 0 6px 22px var(--map-shadow);
+  backdrop-filter: blur(10px);
+}
+.journey-map__step-head {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem 2.25rem;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.4rem 0;
+}
+.journey-map__step-title { margin: 0; overflow: hidden; color: var(--ink-muted); font-size: var(--fs-label); text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.journey-map__step-body { max-height: 34svh; overflow-y: auto; overscroll-behavior: contain; padding: 0 0.25rem 0.25rem; }
+.journey-map__leg { margin: 0.5rem var(--pad) 0.75rem; color: var(--ink-muted); font-size: var(--fs-small); }
+/* The reused route rows, at home in the card: no card-in-card, no route rail. */
+.journey-map__step .stop { border: 0; box-shadow: none; background: transparent; }
+.journey-map__step .stop:has(.stop__photo) { min-height: 7rem; }
+.journey-map__step .travel::before { display: none; }
+.journey-map__step-button {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgb(var(--ink-rgb) / 14%);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.journey-map__step-button:disabled { opacity: 0.3; }
+.journey-map__step-button:not(:disabled):active { background: rgb(var(--ink-rgb) / 8%); }
+.journey-map__step-button:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+.journey-map__step-button--list { border-color: transparent; }
+.journey-map__step-button--list[aria-pressed="true"] { background: rgb(var(--sea-rgb) / 14%); }
+.journey-map__step-button svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
 .journey-map__badge {
   display: grid;
@@ -3061,51 +3126,57 @@ html {
   font-family: var(--font-mono);
   font-weight: 600;
 }
+.journey-map__badge--small { width: 1.5rem; height: 1.5rem; border-radius: 0.45rem; font-size: 0.75rem; }
 .journey-map__badge svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
+.journey-map__badge--small svg { width: 0.95rem; height: 0.95rem; }
 .journey-map__badge--hotel { background: rgb(var(--lodging-rgb) / 14%); color: var(--kind-lodging); }
 .journey-map__badge--station { background: rgb(var(--travel-rgb) / 14%); color: var(--kind-travel); }
 .journey-map__badge--airport { background: rgb(var(--flight-rgb) / 14%); color: var(--kind-flight); }
 
-.journey-map__selected-copy { display: grid; gap: 0.25rem; min-width: 0; }
-.journey-map__selected-copy > strong { font-size: var(--fs-name); line-height: 1.35; overflow-wrap: anywhere; }
-.journey-map__category { color: var(--ink-muted); font-size: var(--fs-label); }
-.journey-map__directions { display: grid; place-items: center; gap: 0.25rem; color: var(--sea); font-size: var(--fs-label); text-decoration: none; }
-.journey-map__directions svg { width: 1.35rem; height: 1.35rem; }
-.journey-map__place-link { grid-column: 2; width: fit-content; color: var(--sea); font-size: var(--fs-label); text-underline-offset: 3px; }
-
+/* The step strip: every stop and leg of the day, to jump straight to one. */
 .journey-map__stops {
   display: flex;
-  gap: 0.5rem;
-  padding: 0.7rem 1rem 0.9rem;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.6rem 0.6rem;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-  border-top: var(--hairline);
-  background: rgb(var(--ink-rgb) / 3%);
+  scrollbar-width: none;
 }
-
+.journey-map__stops::-webkit-scrollbar { display: none; }
 .journey-map__stop {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  flex: 0 0 12.5rem;
-  min-width: 0;
-  padding: 0.6rem;
-  border: 1px solid transparent;
-  border-radius: 0.75rem;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  max-width: 10rem;
+  min-height: 2.5rem;
+  padding: 0.3rem 0.65rem 0.3rem 0.35rem;
+  border: 1px solid rgb(var(--ink-rgb) / 10%);
+  border-radius: 999px;
   background: transparent;
+  color: var(--ink);
   text-align: left;
 }
-.journey-map__stop--selected { border-color: rgb(var(--sea-rgb) / 45%); background: var(--paper-elevated); box-shadow: 0 2px 5px rgb(0 0 0 / 5%); }
-.journey-map__stop > span:last-child { min-width: 0; display: grid; gap: 0.3rem; }
-.journey-map__stop small { color: var(--ink-muted); font-size: var(--fs-label); }
-.journey-map__stop strong { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--fs-small); font-weight: 500; }
-.journey-map__bookends button:focus-visible,
+.journey-map__stop--leg { min-height: 2rem; padding: 0.2rem 0.55rem; border-style: dashed; color: var(--kind-travel); }
+.journey-map__mode { width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.journey-map__stop--selected { border: 1px solid rgb(var(--sea-rgb) / 60%); background: rgb(var(--sea-rgb) / 10%); }
+.journey-map__stop-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--fs-label); }
 .journey-map__stops button:focus-visible { outline: 2px solid var(--sea); outline-offset: -2px; }
 
-.journey-map .day-map__legend { margin: 0; padding: 0.8rem 1rem; border-top: var(--hairline); color: var(--ink-muted); font-size: var(--fs-label); }
+.journey-map .day-map__legend {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--map-paper) 72%, transparent);
+  backdrop-filter: blur(6px);
+  color: var(--map-ink);
+  font-size: 0.7rem;
+  pointer-events: none;
+}
 .journey-map .day-map__line { box-shadow: none; }
-.journey-map .day-map__state { background: rgb(243 239 228 / 92%); z-index: 600; }
+.journey-map .day-map__state { background: color-mix(in srgb, var(--map-ground) 92%, transparent); z-index: 600; }
 .journey-map .day-map__state > svg { width: 2rem; height: 2rem; }
 /*
  * A stop on the Day map. MapLibre places the zero-size wrapper (.day-map__pin)
@@ -3126,7 +3197,7 @@ html {
   width: max-content;
   gap: 6px;
   font-family: var(--font-sans);
-  color: #193140;
+  color: var(--map-ink);
   cursor: pointer;
 }
 
@@ -3137,11 +3208,11 @@ html {
   min-width: 36px;
   height: 36px;
   padding: 0 6px;
-  border: 2px solid #fffaf0;
+  border: 2px solid var(--map-paper);
   border-radius: 12px 12px 12px 3px;
   background: #bd422d;
   color: #fffaf0;
-  box-shadow: 0 3px 8px rgb(10 30 42 / 30%);
+  box-shadow: 0 3px 8px var(--map-shadow);
   font-family: var(--font-mono);
   font-weight: 600;
   font-size: 14px;
@@ -3153,9 +3224,9 @@ html {
 .journey-pin[data-phase="start"] .journey-pin__badge,
 .journey-pin[data-phase="return"] .journey-pin__badge { background: #24725f; }
 .journey-pin[data-phase="finish"] .journey-pin__badge { background: #a43c4c; }
-.journey-pin__number { position: absolute; right: -6px; top: -6px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 3px; border-radius: 50%; background: #fffaf0; color: #38596d; border: 1px solid #38596d; font-size: 10px; }
-.journey-pin__caption { display: none; flex-direction: column; gap: 3px; max-width: 165px; padding: 6px 9px; border-radius: 8px; background: #fffdf8; box-shadow: 0 2px 8px rgb(10 30 42 / 22%); text-align: left; }
-.journey-pin__caption small { color: #536773; font-size: 9px; font-weight: 500; letter-spacing: 0.02em; }
+.journey-pin__number { position: absolute; right: -6px; top: -6px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 3px; border-radius: 50%; background: var(--map-paper); color: var(--map-ink); border: 1px solid #38596d; font-size: 10px; }
+.journey-pin__caption { display: none; flex-direction: column; gap: 3px; max-width: 165px; padding: 6px 9px; border-radius: 8px; background: var(--map-paper); color: var(--map-ink); box-shadow: 0 2px 8px var(--map-shadow); text-align: left; }
+.journey-pin__caption small { color: var(--map-ink-muted); font-size: 9px; font-weight: 500; letter-spacing: 0.02em; }
 .journey-pin__caption strong { font-size: 11px; line-height: 1.25; font-weight: 600; }
 .journey-pin[data-phase="start"] .journey-pin__caption,
 .journey-pin[data-phase="finish"] .journey-pin__caption,
@@ -3165,13 +3236,10 @@ html {
 .journey-pin__caption { order: -1; }
 /* A caption that would cover a more important pin: the badge stays, the words go. After the rules above, so it wins. */
 .journey-pin.journey-pin--quiet .journey-pin__caption { display: none; }
-.journey-pin--selected .journey-pin__badge { outline: 4px solid rgb(36 108 170 / 24%); }
-
-@media (min-width: 700px) {
-  .journey-map__bookends { padding: 1rem 1.25rem; gap: 1.5rem; }
-  .journey-map__bookends strong { font-size: var(--fs-name); }
-  .journey-map__selection { padding: 1rem 1.25rem; }
-}
+.journey-pin--selected .journey-pin__badge { outline: 4px solid rgb(36 108 170 / 30%); }
+/* A stop crowded under a more important one shrinks to a dot; zooming in brings it back. */
+.journey-pin--dot .journey-pin__badge { min-width: 14px; width: 14px; height: 14px; padding: 0; border-radius: 50%; font-size: 0; box-shadow: 0 1px 4px var(--map-shadow); }
+.journey-pin--dot .journey-pin__badge > * { display: none; }
 
 .journey-map button { scroll-margin-top: calc(var(--sticky-offset) + 0.75rem); }
 

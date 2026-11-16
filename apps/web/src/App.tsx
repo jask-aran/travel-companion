@@ -19,25 +19,25 @@ import { forgetPassphrase, readPassphrase, rememberPassphrase } from "./lib/pass
 import { WrongPassphraseError } from "./lib/trip-crypto";
 import { Unlock } from "./components/Unlock";
 import { collectStays } from "./lib/lodging";
-import { AgentLink } from "./components/AgentLink";
-import { AppUpdate } from "./components/AppUpdate";
+import { TripMenu } from "./components/TripMenu";
 import { RefreshTrip } from "./components/RefreshTrip";
 import { hasPagesFunction } from "./lib/pages-function";
 
 /**
- * The refresh button and the connector link need the Pages function (dev
- * reruns the local pull instead, so it keeps the button). Chosen here, not
- * with <Show>, so a static build leaves the components out of the bundle.
+ * The refresh button needs the Pages function (dev reruns the local pull
+ * instead, so it keeps the button). Chosen here, not with <Show>, so a static
+ * build leaves the component out of the bundle. The trip menu decides the
+ * connector link itself.
  */
 const nothing = (_props: { passphrase: string; revision?: string }) => null;
 const RefreshButton = !import.meta.env.PROD || hasPagesFunction ? RefreshTrip : nothing;
-const ConnectorLink = hasPagesFunction ? AgentLink : nothing;
 import { setDayCollapsed } from "./lib/collapsed-days";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { indexRouteLegs } from "./lib/route-legs";
 import { withLiveBoards } from "./lib/live-departures";
 import { keepMediaOffline } from "./lib/offline-media";
 import { clock } from "./lib/clock";
+import { holdMapSnap } from "./lib/map-snap";
 
 export default function App() {
   /*
@@ -113,6 +113,7 @@ export default function App() {
     setDayCollapsed(dayId, false);
     setActiveDayId(dayId);
     // Read the new layout after Solid has replaced the previous day.
+    holdMapSnap();
     requestAnimationFrame(() => {
       document.querySelector(".itinerary")?.scrollIntoView({ block: "start", behavior: "instant" });
     });
@@ -181,6 +182,7 @@ export default function App() {
                         {(day) => <CollapseRoute day={day()} />}
                       </Show>
                       <ThemeToggle />
+                      <TripMenu revision={data.revision} passphrase={passphrase()} connector={hasPagesFunction} />
                     </div>
                   </div>
                 </header>
@@ -204,23 +206,6 @@ export default function App() {
                       />
                     )}
                   </For>
-                  <footer class="itinerary-footer">
-                    {/* Dev has no shell to update, so it shows the revision instead. */}
-                    <Show
-                      when={import.meta.env.PROD}
-                      fallback={
-                        <p>
-                          Revision <code>{data.revision}</code>
-                        </p>
-                      }
-                    >
-                      <AppUpdate revision={data.revision} />
-                    </Show>
-                    {/* Only the live site's function has the connector, and a passphrase to make its link from. */}
-                    <Show when={import.meta.env.PROD && passphrase()}>
-                      {(secret) => <ConnectorLink passphrase={secret()} />}
-                    </Show>
-                  </footer>
                 </main>
               </>
             );

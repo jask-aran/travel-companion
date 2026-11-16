@@ -1,3 +1,4 @@
+import { holdMapSnap } from "./map-snap.js";
 /**
  * Scroll-spy for day sections: the active day is the first one crossing a
  * band just under the sticky tabs. Sections are contiguous, so the topmost
@@ -83,6 +84,7 @@ export async function scrollToDay(dayId: string): Promise<void> {
   if (!el) return;
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const release = holdMapSnap(6000);
   const target = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
   const offBy = () => el.getBoundingClientRect().top - target;
 
@@ -93,6 +95,7 @@ export async function scrollToDay(dayId: string): Promise<void> {
     }
   }
   await land(el, offBy);
+  release();
 }
 
 /** Resolves when a scroll stops. Safari lacks scrollend, hence the timer. */
@@ -136,6 +139,7 @@ async function land(el: HTMLElement, offBy: () => number): Promise<void> {
 export function pinOnScreen(el: HTMLElement, ms: number): void {
   const top = el.getBoundingClientRect().top;
   const until = performance.now() + ms;
+  holdMapSnap(ms + 200);
   const step = () => {
     const drift = el.getBoundingClientRect().top - top;
     if (Math.abs(drift) >= 1) window.scrollBy({ top: drift, behavior: "instant" });
