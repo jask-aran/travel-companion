@@ -73,6 +73,16 @@ CC BY 4.0 design, credited in the attribution); every colour is ours.
 - **Trip menu** (`TripMenu`): the header's More button, a native popover. It holds the app
   version ("Get latest app version") and the connector link ("Copy connector link"), which used
   to be the itinerary footer.
+- **Landing in map mode:** a thud haptic, the card settles with a small spring and its edge
+  glows, the map controls drop in and the dock rises, and Done slides in. Leaving gives a
+  selection haptic. Stepping slides the card the way you went, and the new stop's pin pops. All
+  of it is off for reduced motion. The step buttons sit at the card's foot, so they stay put
+  while the card's height changes.
+- **Haptics** (`lib/haptics.ts`): selection (day tabs, steps, chips, pins, scope switch, via
+  `data-haptic="selection"`), tick (other buttons), thud (map mode), success and failure (refresh,
+  copy). Android uses the Vibration API. iOS has none, so each pulse toggles a hidden
+  `<input type="checkbox" switch>`. That is an iOS 18 workaround with one strength, and it is
+  untested on a device.
 - Offline: the service worker keeps OpenFreeMap fonts and tiles in the `base-map` cache
   (CacheFirst). The style itself is in the bundle now.
 - In dev only, `window.dayMap` is the live map, for inspecting layers.

@@ -37,7 +37,7 @@ export function DayTabs(props: {
   );
 
   return (
-    <div class="day-tabs" role="tablist" aria-label="Trip days">
+    <div class="day-tabs" role="tablist" aria-label="Trip days" data-haptic="selection">
       <div class="day-tabs__scroller" ref={scroller}>
         <For each={props.days}>
           {(day, index) => {

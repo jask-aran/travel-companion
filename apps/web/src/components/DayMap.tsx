@@ -5,6 +5,7 @@ import { MAP_MODES, buildDayMap, dayMapVisits, legInto, type DayMapView, type Ma
 import type { MapTheme } from "../lib/map-style";
 import { formatDistance, formatDurationShort } from "../lib/format";
 import { holdMapSnap } from "../lib/map-snap";
+import { selection, thud } from "../lib/haptics";
 import { theme } from "../lib/theme";
 import { TRAVEL_ICON_PATHS } from "../lib/travel-icons";
 import { Icon } from "./Icon";
@@ -68,6 +69,8 @@ export function DayMap(props: {
     const path = index > 0 ? legInto(data(), visit.id, includeFlights()) : undefined;
     return path ? [{ key: `leg:${visit.id}`, kind: "leg", visit, path }, stop] : [stop];
   }));
+  /** Which way the last step went, for the card's slide: 1 forward, -1 back. */
+  const [direction, setDirection] = createSignal(1);
   const stepIndex = () => Math.max(0, steps().findIndex((step) => step.key === stepKey()));
   const current = () => steps()[stepIndex()];
   /** The visit the current step is about: the stop, or where the leg arrives. */
@@ -105,13 +108,15 @@ export function DayMap(props: {
     const settled = () => {
       measure();
       const on = hasMap() && aligned();
+      // Felt as the map lands: a firmer pulse than a tap.
+      if (on && !engaged()) thud();
       setEngaged(on);
       // The snap is for coming in. Once in, it stands down, or a scroll away would be pulled straight back.
       if (on) setSnapRested(true);
     };
     const onScroll = () => {
       // Leaving is immediate, so the page never scrolls under a map that grabs one finger.
-      if (engaged() && !aligned()) setEngaged(false);
+      if (engaged() && !aligned()) { setEngaged(false); selection(); }
       // Half a screen away, the next approach snaps again.
       if (snapRested() && Math.abs(offset()) > window.innerHeight * 0.5) setSnapRested(false);
       if (!("onscrollend" in window)) { clearTimeout(settle); settle = setTimeout(settled, 120); }
@@ -176,6 +181,8 @@ export function DayMap(props: {
   const go = (key: string) => {
     const step = steps().find((candidate) => candidate.key === key);
     if (!step) return;
+    const from = stepIndex();
+    setDirection(steps().indexOf(step) >= from ? 1 : -1);
     setStepKey(step.key);
     if (step.kind === "leg") view()?.focusLeg(step.visit.id);
     else if (step.visit.id === first()?.id) { view()?.fit(includeFlights()); view()?.highlight(step.visit.id); }
@@ -224,7 +231,7 @@ export function DayMap(props: {
         <div class="day-map__surface">
           <div class="day-map__canvas" ref={canvas} role="region" aria-label="Interactive day map" />
           <Show when={view()}><div class="journey-map__tools" data-map-overlay="top">
-            <Show when={hasFlights()}><div class="journey-map__scope" role="group" aria-label="Map area"><button type="button" aria-pressed={!includeFlights()} onClick={() => showWholeDay(false)}>Ground route</button><button type="button" aria-pressed={includeFlights()} onClick={() => showWholeDay(true)}>Whole day</button></div></Show>
+            <Show when={hasFlights()}><div class="journey-map__scope" role="group" aria-label="Map area" data-haptic="selection"><button type="button" aria-pressed={!includeFlights()} onClick={() => showWholeDay(false)}>Ground route</button><button type="button" aria-pressed={includeFlights()} onClick={() => showWholeDay(true)}>Whole day</button></div></Show>
             <button type="button" class="journey-map__fit" onClick={fitDay}><Icon name="map" /><span>Fit day</span></button>
           </div></Show>
           {/* Over the map's foot: the legend, then the step card (or the step strip). */}
@@ -234,16 +241,8 @@ export function DayMap(props: {
               <Show when={anyApproximate()}><span><i class="day-map__line day-map__line--dashed" />Approximate</span></Show>
             </div>
             <div class="journey-map__step" classList={{ "journey-map__step--leg": current()?.kind === "leg" }}>
-              <div class="journey-map__step-head">
-                <button type="button" class="journey-map__step-button" aria-label="Previous step" disabled={stepIndex() <= 0} onClick={() => step_(-1)}>‹</button>
-                <p class="journey-map__step-title" aria-live="polite">{current() ? stepTitle(current()!) : ""}</p>
-                <button type="button" class="journey-map__step-button journey-map__step-button--list" aria-label={listing() ? "Back to the card" : "All stops and legs"} aria-pressed={listing()} onClick={() => setListing(!listing())}>
-                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d={listing() ? "M3 3h10v10H3Z" : "M2.5 4h11M2.5 8h11M2.5 12h11"} /></svg>
-                </button>
-                <button type="button" class="journey-map__step-button" aria-label="Next step" disabled={stepIndex() >= steps().length - 1} onClick={() => step_(1)}>›</button>
-              </div>
               <Show when={!listing()} fallback={
-                <div class="journey-map__stops" ref={centreStrip} role="group" aria-label="Day stops and legs">
+                <div class="journey-map__stops" ref={centreStrip} role="group" aria-label="Day stops and legs" data-haptic="selection">
                   <For each={steps()}>{(item) => <button type="button" class="journey-map__stop" classList={{ "journey-map__stop--leg": item.kind === "leg", "journey-map__stop--selected": item.key === current()?.key }} aria-pressed={item.key === current()?.key} aria-label={stepTitle(item)} onClick={() => jump(item.key)}>
                     <Show when={item.kind === "leg" && item.path} fallback={<><span aria-hidden="true" class={`journey-map__badge journey-map__badge--small journey-map__badge--${item.visit.kind}`}><StopIcon visit={item.visit} /></span><span class="journey-map__stop-name">{item.visit.place.name}</span></>}>
                       {(path) => <><svg class="journey-map__mode" viewBox="0 0 16 16" aria-hidden="true"><path d={TRAVEL_ICON_PATHS[path().mode === "connection" ? "transit" : path().mode] ?? ""} /></svg><span class="journey-map__stop-name">{formatDurationShort(path().durationSeconds) ?? MAP_MODES[path().mode].label}</span></>}
@@ -252,12 +251,21 @@ export function DayMap(props: {
                 </div>
               }>
                 {/* Keyed: each step draws its own card, so a photo or departure board never carries over. */}
-                <Show when={current()} keyed>{(step) => <div class="journey-map__step-body">
+                <Show when={current()} keyed>{(step) => <div class="journey-map__step-body" classList={{ "is-back": direction() < 0 }}>
                   {step.kind === "leg" && step.path
                     ? props.renderLeg(step.path) ?? <p class="journey-map__leg">{legFallback(step.path)}</p>
                     : props.renderStop(step.visit)}
                 </div>}</Show>
               </Show>
+              {/* At the card's foot: the card grows upward, so the step buttons stay put from step to step, under the thumb. */}
+              <div class="journey-map__step-head">
+                <button type="button" class="journey-map__step-button" data-haptic="selection" aria-label="Previous step" disabled={stepIndex() <= 0} onClick={() => step_(-1)}>‹</button>
+                <p class="journey-map__step-title" aria-live="polite">{current() ? stepTitle(current()!) : ""}</p>
+                <button type="button" class="journey-map__step-button journey-map__step-button--list" aria-label={listing() ? "Back to the card" : "All stops and legs"} aria-pressed={listing()} onClick={() => setListing(!listing())}>
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d={listing() ? "M3 3h10v10H3Z" : "M2.5 4h11M2.5 8h11M2.5 12h11"} /></svg>
+                </button>
+                <button type="button" class="journey-map__step-button" data-haptic="selection" aria-label="Next step" disabled={stepIndex() >= steps().length - 1} onClick={() => step_(1)}>›</button>
+              </div>
             </div>
           </div></Show>
           <Show when={!nearby() || loading()}><p class="day-map__state" role="status">Loading map…</p></Show>

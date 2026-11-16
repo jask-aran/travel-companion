@@ -36,6 +36,7 @@ import { LONG_LEG_SECONDS } from "../lib/route-legs";
 import { stayDisplay } from "../lib/lodging";
 import type { FlightTiming } from "../lib/day-times";
 import { Hidden, Icon } from "./Icon";
+import { success } from "../lib/haptics";
 
 function StatusPill(props: { status?: DayItem["status"] | undefined }) {
   return (
@@ -570,6 +571,7 @@ function CopyAddress(props: { address?: string | undefined }) {
   const copy = async (address: string) => {
     try {
       await navigator.clipboard.writeText(address);
+      success();
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {

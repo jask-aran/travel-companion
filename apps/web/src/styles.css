@@ -2966,8 +2966,36 @@ html.map-snap-off { scroll-snap-type: none; }
 .day-map--snap { scroll-snap-align: start; }
 .day-map--live .journey-map__card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .day-map--live .day-map__surface { flex: 1; min-height: 12rem; }
-.journey-map__card { transition: box-shadow 200ms ease; }
+.journey-map__card { transition: box-shadow 260ms ease; }
 .day-map--engaged .journey-map__card { box-shadow: 0 0 0 2px rgb(var(--sea-rgb) / 60%), var(--card-shadow); }
+
+/*
+ * Landing in map mode. The card settles with a little spring and its edge
+ * glows then calms; the map's own controls arrive from the edges they live
+ * on; Done slides in. Stepping slides the step card the way you went, and the
+ * stop you land on pops. All of it rests at its normal state, so nothing is
+ * left scaled or blurred, and none of it runs for reduced motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .day-map--engaged .journey-map__card { animation: map-land 560ms cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+  .day-map--engaged .journey-map__tools,
+  .day-map--engaged .maplibregl-ctrl-top-right { animation: map-chrome-drop 440ms 70ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+  .day-map--engaged .journey-map__dock { animation: map-chrome-rise 480ms 90ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
+  .day-map--engaged .day-map__heading .day-map__button { animation: map-done-in 280ms 120ms ease-out both; }
+  .journey-map__step-body { --step-from: 14px; animation: map-step-in 240ms ease-out both; }
+  .journey-map__step-body.is-back { --step-from: -14px; }
+  .journey-pin--selected .journey-pin__badge { animation: map-pin-pop 380ms cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+}
+@keyframes map-land {
+  0% { transform: scale(0.985); box-shadow: 0 0 0 0 rgb(var(--sea-rgb) / 0%), var(--card-shadow); }
+  55% { transform: scale(1.004); box-shadow: 0 0 0 6px rgb(var(--sea-rgb) / 28%), var(--card-shadow); }
+  100% { transform: none; box-shadow: 0 0 0 2px rgb(var(--sea-rgb) / 60%), var(--card-shadow); }
+}
+@keyframes map-chrome-drop { from { opacity: 0.55; transform: translateY(-10px); } }
+@keyframes map-chrome-rise { from { opacity: 0.7; transform: translateY(14px); } }
+@keyframes map-done-in { from { opacity: 0; transform: translateX(8px); } }
+@keyframes map-step-in { from { opacity: 0; transform: translateX(var(--step-from)); } }
+@keyframes map-pin-pop { from { transform: scale(0.78); } }
 
 .day-map__heading { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 2.5rem; margin-bottom: 0.5rem; }
 .day-map__heading h3 { margin: 0; padding: 0; font-size: var(--fs-label); font-weight: 500; }
@@ -3086,10 +3114,11 @@ html.map-snap-off { scroll-snap-type: none; }
   grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem 2.25rem;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.35rem 0.4rem 0;
+  padding: 0.3rem 0.4rem 0.4rem;
+  border-top: 1px solid rgb(var(--ink-rgb) / 8%);
 }
 .journey-map__step-title { margin: 0; overflow: hidden; color: var(--ink-muted); font-size: var(--fs-label); text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-.journey-map__step-body { max-height: 34svh; overflow-y: auto; overscroll-behavior: contain; padding: 0 0.25rem 0.25rem; }
+.journey-map__step-body { max-height: 34svh; overflow-y: auto; overscroll-behavior: contain; padding: 0.25rem 0.25rem 0.15rem; }
 .journey-map__leg { margin: 0.5rem var(--pad) 0.75rem; color: var(--ink-muted); font-size: var(--fs-small); }
 /* The reused route rows, at home in the card: no card-in-card, no route rail. */
 .journey-map__step .stop { border: 0; box-shadow: none; background: transparent; }

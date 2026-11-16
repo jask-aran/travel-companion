@@ -176,6 +176,7 @@ export async function mountMapLibreDayMap(
     wrapper.className = "day-map__pin";
     wrapper.tabIndex = 0;
     wrapper.setAttribute("role", "button");
+    wrapper.dataset.haptic = "selection";
     wrapper.setAttribute("aria-label", `${stop.roles.join(" · ")}: ${stop.place.name}`);
     wrapper.append(node);
     const choose = (event: Event) => {
