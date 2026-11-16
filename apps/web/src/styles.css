@@ -2921,9 +2921,12 @@ html {
 .day-map__legend { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; }
 .day-map__legend > span { display: inline-flex; align-items: center; gap: 0.35rem; }
 .day-map__line { display: inline-block; width: 1.2rem; border-top: 3px solid var(--map-line-colour); }
-.day-map__marker:focus-visible { outline: 3px solid #246caa; outline-offset: 3px; border-radius: 12px; }
-.day-map .leaflet-control-attribution { background: rgb(255 255 255 / 92%); color: #172a3c; }
-.day-map .leaflet-control-attribution a { color: #205c7d; }
+/* MapLibre's own controls, in the app's paper and ink. */
+.day-map .maplibregl-ctrl-attrib { background: rgb(255 253 248 / 92%); color: #172a3c; font-family: var(--font-sans); font-size: 10px; }
+.day-map .maplibregl-ctrl-attrib a { color: #205c7d; }
+.day-map .maplibregl-ctrl-group { border-radius: 10px; background: rgb(255 253 248 / 94%); box-shadow: 0 2px 9px rgb(10 30 42 / 15%); }
+.day-map .maplibregl-ctrl-group button { width: 34px; height: 34px; }
+.day-map .maplibregl-cooperative-gesture-screen { background: rgb(11 31 51 / 55%); font-family: var(--font-sans); font-size: var(--fs-small); }
 
 /* The Day map reads as a journey: bookends, map, selected place, then the stops. */
 .journey-map__subheading {
@@ -3036,8 +3039,6 @@ html {
 }
 .journey-map__scope button[aria-pressed="true"] { background: #193e55; color: #fffaf0; }
 
-.journey-map .leaflet-top { top: 3.5rem; }
-
 .journey-map__selection {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -3106,13 +3107,15 @@ html {
 .journey-map .day-map__line { box-shadow: none; }
 .journey-map .day-map__state { background: rgb(243 239 228 / 92%); z-index: 600; }
 .journey-map .day-map__state > svg { width: 2rem; height: 2rem; }
-/* Before Explore map: the shared cached overview, and the button that starts a billed Google map. */
-.day-map__gate { position: absolute; inset: 0; z-index: 600; display: flex; align-items: flex-end; justify-content: center; padding: 1rem; background: rgb(243 239 228 / 92%); }
-.day-map__preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.day-map__explore { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 2px 10px rgb(23 42 60 / 25%); }
-.day-map__explore > svg { width: 1.1rem; height: 1.1rem; }
+/*
+ * A stop on the Day map. MapLibre places the zero-size wrapper (.day-map__pin)
+ * on the stop; the pin hangs above it, the badge's foot on the point.
+ */
+.day-map__pin { width: 0; height: 0; cursor: pointer; }
+.day-map__pin:focus-visible { outline: none; }
+.day-map__pin:focus-visible .journey-pin__badge { outline: 3px solid #246caa; outline-offset: 2px; }
+.day-map__pin > .journey-pin { position: absolute; bottom: 0; left: 0; }
 
-/* Shared marker artwork for Google Maps and the setup fallback. */
 .journey-pin {
   display: flex;
   flex-direction: column;
@@ -3160,6 +3163,8 @@ html {
 .journey-pin[data-kind="poi"] .journey-pin__caption,
 .journey-pin--selected .journey-pin__caption { display: flex; }
 .journey-pin__caption { order: -1; }
+/* A caption that would cover a more important pin: the badge stays, the words go. After the rules above, so it wins. */
+.journey-pin.journey-pin--quiet .journey-pin__caption { display: none; }
 .journey-pin--selected .journey-pin__badge { outline: 4px solid rgb(36 108 170 / 24%); }
 
 @media (min-width: 700px) {

@@ -27,13 +27,10 @@ const RawConfigSchema = v.object({
     }),
     {},
   ),
-  /** Server APIs and separately restricted browser maps credentials. */
+  /** Used at pull time and by the Pages function; never shipped to the browser. */
   google: v.optional(
     v.object({
       apiKey: v.optional(v.string()),
-      /** Public website-restricted key for Maps JavaScript API; never reuse apiKey. */
-      browserApiKey: v.optional(v.string()),
-      mapId: v.optional(v.string()),
       /** Project number, for the Translation LLM (line names); standard model without it. */
       projectNumber: v.optional(v.union([v.string(), v.number()])),
     }),
@@ -90,11 +87,6 @@ export type IngestionConfig = Omit<RawConfig, "wanderlog" | "paths" | "site"> & 
   };
   site: { base: string; origin?: string | undefined };
 };
-
-/** The server key is deliberately not a fallback for a public browser key. */
-export function browserMapSettings(config: Pick<IngestionConfig, "google">): { key: string; mapId: string } {
-  return { key: config.google?.browserApiKey ?? "", mapId: config.google?.mapId ?? "DEMO_MAP_ID" };
-}
 
 /** Validate a parsed YAML document and fill in the defaults. */
 export function parseIngestionConfig(raw: unknown): IngestionConfig {

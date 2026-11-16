@@ -1,58 +1,56 @@
-# Handoff: Day map and Google billing safety
+# Handoff: Day map
 
 Last updated 2026-11-16. Read this before shipping again.
 
-## Goal
+## Decision
 
-The Day map (`DayMap`, `apps/web/src/components/DayMap.tsx`) uses Google's Maps JavaScript API.
-Google bills one map load each time a `google.maps.Map` is created. An earlier Places key was
-drained by testing, which is why every server-side Google request is cached in R2 and counted
-by the provider guard (`workers/refresh/guard.ts`). The Day map must keep that discipline.
+The Day map (`DayMap`, `apps/web/src/components/DayMap.tsx`) is drawn by **MapLibre GL** on the
+phone over OpenFreeMap's **Liberty** style, used as published. No Google API is used for it.
 
-## What is live
+Why not Google's Maps JavaScript API: it bills per map created, its tiles can't be cached at
+Cloudflare (terms §3.2.3 forbid storing Google Maps content), and its map data in South Korea is
+thin. OpenFreeMap needs no key and has no bill. The operator chose "clean, recognisable, like
+Google" over a custom-designed base map, so the style is not restyled; only our route and pins
+are ours.
 
-The last deploy (commit `d56594b`, 2026-11-16 19:02 AEDT) went out before the browser key existed.
-**The live site shows OpenStreetMap (Leaflet) and makes no Maps JavaScript API calls.** The next
-`pnpm ship` changes that, because `config/trip.local.yaml` now has `google.browserApiKey`.
+## How it fits together
 
-## What is committed but not deployed
+- `apps/web/src/lib/maplibre-view.ts` mounts the map and returns a `DayMapView`. It fetches the
+  Liberty style once per page; if that fails (offline), it draws the route and pins on a blank
+  base and the Day map shows "Street map unavailable".
+- Route: one GeoJSON source (`journey-route`) with casing, solid, approximate (dashed), walk
+  (dotted) and flight (dashed, hidden until Whole day) layers, plus arrowheads in each line's
+  colour.
+- Pins: the existing `journey-pin` artwork (`map-pin.ts`) inside a zero-size `.day-map__pin`
+  MapLibre marker. `declutter()` hides captions (never badges) that would cover a more important
+  pin or the Ground route / Whole day switch: selected, then Start/Finish, then points of interest.
+- Gestures: two fingers move the map (`cooperativeGestures`), no rotation or tilt.
+- Offline: the service worker precaches MapLibre (`*.mjs` included) and keeps OpenFreeMap style,
+  fonts and tiles in the `base-map` cache (CacheFirst, 4000 entries, 60 days).
+- In dev only, `window.dayMap` is the live map, for inspecting layers.
 
-- **Explore map gate.** With a browser key, the Day map shows the cached day overview and an
-  *Explore map* button. Google's map loads only after the tap. Changing days remounts `DayMap`
-  (only the selected day renders), so each tap on a new day costs one billed load.
-- **Day overview (`api/day-map`).** A Static Maps picture of the day, drawn by the worker from
-  the stored trip (`dayMap` in `workers/refresh/media-routes.ts`, URL built by
-  `apps/web/src/lib/day-map-preview.ts`). It is kept in R2 under
-  `<PUBLIC_ID>/day-maps/<sha256 of the drawing>`, so every traveller shares one Google request per
-  drawing. It goes through the same token check, guard and one-hour failure memory as `api/map`.
-- **Cache-only checks.** Requests carrying the `x-trip-cache-only: 1` header (`CACHE_ONLY_HEADER`)
-  use `cacheOnlyGuard`: they read R2 but never ask a provider and skip the idle Wanderlog refresh.
-  `pnpm ship:check` (`scripts/verify-live.ts`) sends it on every request.
-- **Dev makes no paid calls by default.** `pnpm dev` returns 503 for media and departure routes
-  and ships no browser key unless `TRIP_LIVE_PROVIDERS=1` is set.
+## Removed
 
-Tests: `tests/media-storage.test.ts` covers the day overview (one Google call, then R2 hits;
-nothing asked for an unknown day, a stale revision or a bad token) and cache-only mode.
+Google's interactive renderer, the Explore map gate, the `api/day-map` Static Maps overview,
+Leaflet, `@googlemaps/js-api-loader`, and the `google.browserApiKey` / `google.mapId` config keys
+(old values in `config/trip.local.yaml` are ignored).
 
-## Not yet verified
+## Also in place
 
-- The gate and overview have not been checked visually in a browser.
-- No live Static Maps request has been made for a day overview, so the URL length limit and
-  marker labels are only checked by code reading.
-- `google.mapId` is not set, so the map uses `DEMO_MAP_ID`. Advanced markers need a map ID;
-  whether Google's demo ID suits production has not been checked.
+- `x-trip-cache-only: 1` (`CACHE_ONLY_HEADER`) makes the worker read R2 only; `pnpm ship:check`
+  sends it, so checks never spend Google or NAVITIME quota.
+- `pnpm dev` asks no paid provider unless `TRIP_LIVE_PROVIDERS=1`.
 
-## Operator actions still open
+## Not verified
 
-1. Restrict the browser key in Google Cloud: API restriction *Maps JavaScript API* only, website
-   restriction `https://trips.jask-aran.com/*` and `http://localhost:5173/*`. The operator chose
-   no restrictions; the key is public in the shipped JavaScript once deployed.
-2. Set a daily request quota on Maps JavaScript API and Maps Static API in the project's
-   *Quotas* page. The worker guard does not see browser map loads; Google's quota is the only cap.
-3. Consider a budget alert on the billing account.
+- Only checked in desktop Chromium at a 412px-wide viewport, not on a phone.
+- Offline opening of a previously viewed map has not been tried.
+- The station label classes in Liberty were not checked against Japanese and Korean data beyond
+  the screenshots.
 
-## Next steps
+## Known open items
 
-- After the operator agrees, `pnpm ship`, then open one day and tap *Explore map* once.
-- Possible later saving: keep one `google.maps.Map` alive across day changes instead of one per
-  mount.
+- `api/map` (stay cards' street map) still stores Google Static Maps images in R2, which Google's
+  FAQ says not to do. It could move to a MapLibre snapshot.
+- After billing was restored, the live guard's breaker held Google closed until 19:59 on
+  2026-11-16; `pnpm ship:check` reports that as FAIL until it lapses.

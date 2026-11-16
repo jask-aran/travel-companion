@@ -11,7 +11,7 @@ import { needsTranslation } from "../../packages/trip-normaliser/src/line-names.
 import { liveBoard, translateStored, type LiveBoardEnv } from "./live-boards.js";
 import { boardSession, connectorBoards } from "./connector-boards.js";
 import { createGuard, guardStatus, cacheOnlyGuard, type Defer, type Guard } from "./guard.js";
-import { map, photo, dayMap, type MediaStore } from "./media-routes.js";
+import { map, photo, type MediaStore } from "./media-routes.js";
 import { OBJECT_KEY, storedCiphertext, storedTrip } from "./stored-trip.js";
 import {
   AGENT_LIMIT,
@@ -350,7 +350,7 @@ async function media(route: string, url: URL, invocation: Invocation): Promise<R
     trip: () => storedTrip(env, invocation.tripAsset, passphrase),
     defer: invocation.defer,
   };
-  return route === MEDIA_ROUTES.photo ? photo(url, context) : route === MEDIA_ROUTES.dayMap ? dayMap(url, context) : map(url, context);
+  return route === MEDIA_ROUTES.photo ? photo(url, context) : map(url, context);
 }
 
 /** `<base>/mcp/<token>`: the agent link (agent-link.ts). */

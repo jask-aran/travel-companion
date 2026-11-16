@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";
 import {
   loadIngestionConfigSync,
-  browserMapSettings,
   normaliseBase,
   parseIngestionConfig,
   parseWanderlogId,
@@ -183,13 +182,9 @@ describe("generated wrangler config", () => {
   });
 });
 
-describe("browser map settings", () => {
-  it("never exposes or falls back to the server key", () => {
-    const config = parseIngestionConfig({ trip: { wanderlogId: "trip" }, google: { apiKey: "server-only" } });
-    expect(browserMapSettings(config)).toEqual({ key: "", mapId: "DEMO_MAP_ID" });
-  });
-  it("keeps the dedicated browser key and map ID", () => {
+describe("retired browser map settings", () => {
+  it("ignores an old browserApiKey and never passes it on", () => {
     const config = parseIngestionConfig({ trip: { wanderlogId: "trip" }, google: { apiKey: "server-only", browserApiKey: "website-only", mapId: "my-map" } });
-    expect(browserMapSettings(config)).toEqual({ key: "website-only", mapId: "my-map" });
+    expect(config.google).toEqual({ apiKey: "server-only" });
   });
 });

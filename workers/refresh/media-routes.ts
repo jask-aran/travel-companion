@@ -16,11 +16,6 @@ import {
 } from "../../apps/web/src/lib/media.js";
 import { FAILURE_REMEMBERED_MS, counting, type Defer, type Fetcher, type Guard } from "./guard.js";
 import { shared } from "./stored-trip.js";
-import { dayStaticMapUpstream } from "../../apps/web/src/lib/day-map-preview.js";
-import { buildDayMap } from "../../apps/web/src/lib/day-map.js";
-import { dayRouting } from "../../apps/web/src/lib/day-routing.js";
-import { collectStays } from "../../apps/web/src/lib/lodging.js";
-import { indexRouteLegs } from "../../apps/web/src/lib/route-legs.js";
 
 /**
  * `api/photo` and `api/map`: a place photo or street map from Google, kept
@@ -310,44 +305,3 @@ export async function map(url: URL, context: MediaContext): Promise<Response> {
   });
 }
 
-/** A day overview drawn from the stored trip only, shared by every traveller. */
-export async function dayMap(url: URL, context: MediaContext): Promise<Response> {
-  const dayId = url.searchParams.get("day");
-  if (!dayId || !isTripPlaceId(dayId)) return notInTrip();
-  const bundle = await context.trip();
-  const day = bundle?.days.find((candidate) => candidate.id === dayId);
-  if (!bundle || !day) return notInTrip();
-  const revision = url.searchParams.get("v");
-  if (revision && revision !== bundle.revision) return blankReply("unavailable");
-  const stays = collectStays(bundle);
-  const hotels = new Set(stays.flatMap((stay) => stay.placeId ? [stay.placeId] : []));
-  const data = buildDayMap(dayRouting(bundle, day, stays, indexRouteLegs(bundle)), bundle, hotels);
-  const drawing = dayStaticMapUpstream(data, "");
-  if (!drawing) return blankReply("none");
-  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(drawing)));
-  const hash = [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-  // Drawing changes spend again; edited notes, arbitrary query parameters and a new revision don't.
-  const key = `${context.publicId}/day-maps/${hash}`;
-  const saved = await context.store.get(key);
-  if (saved) {
-    const type = saved.httpMetadata?.contentType ?? "image/png";
-    if (type !== FAILED_TYPE) return imageReply(saved.body, type, "r2-hit");
-    if (await failedRecently(saved)) return blankReply("unavailable");
-  }
-  if (context.cacheOnly) return blankReply("unavailable");
-  return kept(key, context, async () => {
-    if (!(await context.guard.available("google"))) return { kind: "unavailable" };
-    const upstream = new URL(drawing);
-    upstream.searchParams.set("key", context.apiKey);
-    const asked = counting(context.guard.fetch);
-    const response = await ask(asked.fetch, upstream.toString());
-    if (!response || !isImage(response)) {
-      if (asked.sent()) await markFailed(context.store, key);
-      return { kind: "unavailable" };
-    }
-    const contentType = response.headers.get("content-type") ?? "image/png";
-    const bytes = await response.arrayBuffer();
-    await keep(context.store, key, bytes.slice(0), { httpMetadata: { contentType } });
-    return { kind: "image", bytes, contentType };
-  });
-}

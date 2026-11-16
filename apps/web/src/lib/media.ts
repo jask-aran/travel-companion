@@ -12,7 +12,7 @@ import type { Place } from "@travel-companion/trip-schema";
  * only someone who can open the trip can see its photos.
  */
 
-export const MEDIA_ROUTES = { photo: "api/photo", map: "api/map", dayMap: "api/day-map" } as const;
+export const MEDIA_ROUTES = { photo: "api/photo", map: "api/map" } as const;
 /** What the worker's guard holds for each provider (requests counted, last refusal), for `pnpm ship:check`. */
 export const STATUS_ROUTE = "api/status";
 /** Verification requests may read cached data but must not contact a provider. */

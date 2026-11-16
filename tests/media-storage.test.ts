@@ -235,38 +235,14 @@ describe("maps kept in R2", () => {
   });
 });
 
-describe("day overview maps kept in R2", () => {
-  it("draws the day from the stored trip, asks Google once, then serves R2 to everyone", async () => {
-    const { objects, upstream, get } = setup(() => image("day bytes", "image/png"));
-    const first = await get("api/day-map", { day: "day-1", v: "r" });
-    expect(first.headers.get("x-media-cache")).toBe("r2-miss");
-    expect(await first.text()).toBe("day bytes");
-    const again = await get("api/day-map", { day: "day-1", v: "r", extra: "ignored" });
-    expect(again.headers.get("x-media-cache")).toBe("r2-hit");
-    expect(upstream).toHaveBeenCalledTimes(1);
-    const asked = new URL(String(upstream.mock.calls[0]?.[0]));
-    expect(asked.pathname).toBe("/maps/api/staticmap");
-    expect(asked.searchParams.get("key")).toBe("key");
-    expect([...objects.keys()].some((key) => /^trip-a\/day-maps\/[0-9a-f]{64}$/.test(key))).toBe(true);
-  });
-  it("asks nothing for an unknown day, a stale revision or a bad token", async () => {
-    const { upstream, get } = setup();
-    expect((await get("api/day-map", { day: "day-9" })).status).toBe(404);
-    expect((await get("api/day-map", { day: "day-1", v: "old" })).headers.get("x-media")).toBe("unavailable");
-    expect((await get("api/day-map", { day: "day-1" }, "wrong")).status).toBe(401);
-    expect(upstream).not.toHaveBeenCalled();
-  });
-});
-
 describe("cache-only requests (ship:check)", () => {
   const cacheOnly = { "x-trip-cache-only": "1" };
-  it("never asks Google on a miss for a photo, a map or a day map, and stores nothing", async () => {
+  it("never asks Google on a miss for a photo or a map, and stores nothing", async () => {
     const { objects, upstream, get } = setup();
     for (const [route, params] of [
       ["api/photo", { place: "abc" }],
       ["api/photo", { place: "bare" }],
       ["api/map", { place: "source-block:1", at: "35.17,136.88" }],
-      ["api/day-map", { day: "day-1" }],
     ] as const) {
       const response = await get(route, params, undefined, cacheOnly);
       expect(response.headers.get("x-media")).toBe("unavailable");

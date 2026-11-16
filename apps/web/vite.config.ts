@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 import { VitePWA } from "vite-plugin-pwa";
-import { localPassphrase, localSite, localBrowserMaps, tripBundlePlugin } from "./vite/trip-bundle";
+import { localPassphrase, localSite, tripBundlePlugin } from "./vite/trip-bundle";
 import { optionalFontsPlugin } from "./vite/optional-fonts";
 
 /** Only the build encrypts: dev serves the working bundle as plaintext trip.json. */
@@ -15,7 +15,6 @@ const tripEncrypted = isBuild && localPassphrase().length > 0;
  */
 const site = localSite();
 const base = site.base;
-const browserMaps = localBrowserMaps();
 const liveProviders = isBuild || process.env.TRIP_LIVE_PROVIDERS === "1";
 
 /**
@@ -40,7 +39,7 @@ const functionCaching = [
     // Photos and maps never change for a place, so the copy on the
     // phone wins (offline-media.ts fills this cache up front). Only real
     // images: a blank "no photo" or "Google refused" answer is not kept here.
-    urlPattern: /\/api\/(photo|map|day-map)\?/,
+    urlPattern: /\/api\/(photo|map)\?/,
     handler: "CacheFirst" as const,
     options: {
       cacheName: "media",
@@ -63,8 +62,6 @@ const functionCaching = [
 export default defineConfig({
   base,
   define: {
-    __GOOGLE_MAPS_BROWSER_KEY__: JSON.stringify(liveProviders ? process.env.GOOGLE_MAPS_BROWSER_KEY ?? browserMaps.key : ""),
-    __GOOGLE_MAP_ID__: JSON.stringify(browserMaps.mapId),
     __TRIP_ENCRYPTED__: JSON.stringify(tripEncrypted),
     __TRIP_BASE__: JSON.stringify(base),
     __TRIP_FUNCTION__: JSON.stringify(hasFunction),
@@ -114,7 +111,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2,json}"],
+        // mjs: MapLibre's tile worker, so the Day map opens offline.
+        globPatterns: ["**/*.{js,mjs,css,html,svg,png,ico,woff2,json}"],
         // `registerType: "autoUpdate"` does not set these in vite-plugin-pwa 1.x;
         // without them a new worker waits until every tab on the old one closes.
         skipWaiting: true,
@@ -134,6 +132,17 @@ export default defineConfig({
               networkTimeoutSeconds: 4,
               cacheName: "trip-bundle",
               expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            // OpenFreeMap's style, fonts, icons and map tiles: a place seen once
+            // is still drawn offline. Tiles for a planet build never change.
+            urlPattern: /^https:\/\/tiles\.openfreemap\.org\//,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "base-map",
+              expiration: { maxEntries: 4000, maxAgeSeconds: 60 * 60 * 24 * 60 },
+              cacheableResponse: { statuses: [200] },
             },
           },
           // Only the Pages function answers these; a static build has neither.
