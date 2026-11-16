@@ -2987,7 +2987,7 @@ html.map-snap-off { scroll-snap-type: none; }
 .day-map .maplibregl-ctrl-attrib { background: color-mix(in srgb, var(--map-paper) 92%, transparent); color: var(--map-ink); font-family: var(--font-sans); font-size: 10px; }
 .day-map .maplibregl-ctrl-attrib a { color: var(--sea); }
 .day-map .maplibregl-ctrl-attrib-button { filter: none; }
-.day-map .maplibregl-ctrl-group { border-radius: 10px; background: color-mix(in srgb, var(--map-paper) 94%, transparent); box-shadow: 0 2px 9px var(--map-shadow); }
+.day-map .maplibregl-ctrl-group { border-radius: 10px; background: color-mix(in srgb, var(--map-paper) 78%, transparent); box-shadow: 0 2px 9px var(--map-shadow); backdrop-filter: blur(10px) saturate(1.2); }
 .day-map .maplibregl-ctrl-group button { width: 34px; height: 34px; }
 .day-map .maplibregl-ctrl-group button + button { border-top-color: rgb(127 127 127 / 25%); }
 :root[data-theme="dark"] .day-map .maplibregl-ctrl-icon,
@@ -3032,10 +3032,10 @@ html.map-snap-off { scroll-snap-type: none; }
 .journey-map__fit {
   border: 1px solid rgb(127 127 127 / 18%);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--map-paper) 94%, transparent);
+  background: color-mix(in srgb, var(--map-paper) 78%, transparent);
   color: var(--map-ink);
   box-shadow: 0 2px 9px var(--map-shadow);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px) saturate(1.2);
 }
 .journey-map__scope { display: flex; margin-right: auto; padding: 3px; }
 .journey-map__scope button {
@@ -3077,9 +3077,9 @@ html.map-snap-off { scroll-snap-type: none; }
   overflow: hidden;
   border: 1px solid rgb(127 127 127 / 16%);
   border-radius: 16px;
-  background: color-mix(in srgb, var(--paper-elevated) 94%, transparent);
+  background: color-mix(in srgb, var(--paper-elevated) 82%, transparent);
   box-shadow: 0 6px 22px var(--map-shadow);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px) saturate(1.2);
 }
 .journey-map__step-head {
   display: grid;
@@ -3169,8 +3169,8 @@ html.map-snap-off { scroll-snap-type: none; }
   margin: 0;
   padding: 0.25rem 0.65rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--map-paper) 72%, transparent);
-  backdrop-filter: blur(6px);
+  background: color-mix(in srgb, var(--map-paper) 62%, transparent);
+  backdrop-filter: blur(8px) saturate(1.2);
   color: var(--map-ink);
   font-size: 0.7rem;
   pointer-events: none;

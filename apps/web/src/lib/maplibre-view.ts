@@ -256,6 +256,7 @@ export async function mountMapLibreDayMap(
       entry.shown = show;
     }
     const box = bounds(dayMapPoints(data, includeFlights));
+    map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
     if (!box.isEmpty()) map.fitBounds(box, { padding: padding(), maxZoom: 16, duration: duration(450) });
     declutter();
   };
@@ -283,6 +284,7 @@ export async function mountMapLibreDayMap(
       applyLegState();
       // Frame the way in: where you came from, the line, and where you arrive.
       const box = bounds(leg ? [...leg.points, visit.point] : [visit.point]);
+      map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
       map.fitBounds(box, { padding: padding(), maxZoom: visit.kind === "airport" ? 13 : 16.5, duration: duration(600) });
     },
     focusStop(visitId) {
@@ -293,7 +295,10 @@ export async function mountMapLibreDayMap(
       applyLegState();
       // Close enough to see what is around the stop: its streets, stations and food.
       const zoom = visit.kind === "airport" ? 13 : Math.max(map.getZoom(), 15.5);
-      map.easeTo({ center: lngLat(visit.point), zoom, padding: padding(), duration: duration(600) });
+      // Centred in the space the overlays leave, by offset: `padding` here would stay on the
+      // map and be counted again by every later fitBounds, which then can't fit and does nothing.
+      const room = padding();
+      map.easeTo({ center: lngLat(visit.point), zoom, offset: [(room.left - room.right) / 2, (room.top - room.bottom) / 2], duration: duration(600) });
     },
     setTheme(next) {
       if (next === theme) return;

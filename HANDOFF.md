@@ -31,6 +31,10 @@ CC BY 4.0 design, credited in the attribution); every colour is ours.
   - `fit()`: the whole day.
   - `focus()`: frames the leg into a visit and fades the other legs (feature-state `dim`).
   - `setTheme()`: swaps the style; the route and markers are re-added in the new colours.
+  - Never pass `padding` to `easeTo`/`flyTo`: MapLibre keeps it on the map, and every later
+    `fitBounds` subtracts it again, so on a phone the fit can't fit and does nothing (Fit day,
+    Ground route and Whole day went dead this way). `focusStop` uses `offset`, and every fit
+    clears padding first.
   - `setInteractive()`: one-finger panning on or off.
   - Tile errors show "Street map unavailable", with the route still drawn on the plain ground.
 - Route: one GeoJSON source (`journey-route`) with casing, solid, approximate (dashed), walk
