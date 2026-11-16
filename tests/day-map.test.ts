@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DayItem, Place } from "../packages/trip-schema/src/index.js";
-import { buildDayMap, decodePolyline, placeSequences } from "../apps/web/src/lib/day-map.js";
+import { buildDayMap, dayMapPoints, dayMapVisits, decodePolyline, placeSequences, stopKind } from "../apps/web/src/lib/day-map.js";
 import type { DayRouting } from "../apps/web/src/lib/day-routing.js";
 
 const place = (id: string, latitude = 35, longitude = 139): Place => ({ id, name: id, latitude, longitude });
@@ -47,7 +47,7 @@ describe("day map geometry", () => {
       flights: [{ id: "flight", type: "flight", departPlaceId: "depart", arrivePlaceId: "arrive" }],
       legs: new Map([["arrive", { id: "bogus", fromPlaceId: "depart", toPlaceId: "arrive", travelMode: "ferry" }]]),
     }), { places: { depart: place("depart"), arrive: place("arrive", 37, 127) } }, new Set());
-    expect(data.paths).toEqual([{ mode: "flight", approximate: true, points: [[35, 139], [37, 127]] }]);
+    expect(data.paths).toEqual([{ fromPlaceId: "depart", toPlaceId: "arrive", mode: "flight", approximate: true, points: [[35, 139], [37, 127]] }]);
   });
   it("does not bridge over a stop with missing coordinates", () => {
     const data = buildDayMap(routing({ routeItems: [stop("one"), stop("missing"), stop("two")] }), {
@@ -58,7 +58,33 @@ describe("day map geometry", () => {
     expect(data.paths).toEqual([]);
   });
   it("accepts empty days and zero-valued coordinates", () => {
-    expect(buildDayMap(routing(), { places: {} }, new Set())).toEqual({ stops: [], paths: [], missingPlaces: 0 });
+    expect(buildDayMap(routing(), { places: {} }, new Set())).toEqual({ stops: [], visits: [], paths: [], missingPlaces: 0 });
     expect(buildDayMap(routing({ routeItems: [stop("zero")] }), { places: { zero: place("zero", 0, 0) } }, new Set()).stops[0]?.point).toEqual([0, 0]);
+  });
+  it("keeps the hotel return in the stop strip without duplicating consecutive hotel stops", () => {
+    const data = buildDayMap(routing({
+      wokeInSlot: { role: "morning", stay }, sleepsIn: stay,
+      routeItems: [stop("listed-hotel", "hotel"), stop("poi")],
+    }), { places: { hotel: place("hotel"), poi: place("poi", 35.1) } }, new Set(["hotel"]));
+    expect(data.visits.map((visit) => [visit.id, visit.place.id, visit.kind])).toEqual([
+      ["start", "hotel", "hotel"], ["poi", "poi", "poi"], ["finish", "hotel", "hotel"],
+    ]);
+  });
+  it("starts a long flight day on the ground route and can fit the whole day", () => {
+    const data = buildDayMap(routing({
+      routeItems: [stop("depart"), stop("arrive"), stop("poi")],
+      flights: [{ id: "flight", type: "flight", departPlaceId: "depart", arrivePlaceId: "arrive" }],
+    }), { places: { depart: place("depart", -37, 145), arrive: place("arrive", 35, 140), poi: place("poi", 35.2, 139.7) } }, new Set());
+    expect(dayMapPoints(data, false)).not.toContainEqual([-37, 145]);
+    expect(dayMapPoints(data, true)).toContainEqual([-37, 145]);
+    expect(dayMapPoints(data, false)).toContainEqual([35.2, 139.7]);
+    expect(dayMapVisits(data, false)[0]?.place.id).toBe("arrive");
+    expect(dayMapVisits(data, true)[0]?.place.id).toBe("depart");
+  });
+  it("distinguishes hotels, airports, stations and points of interest", () => {
+    expect(stopKind({ ...place("hotel"), category: "lodging" }, new Set(["hotel"]))).toBe("hotel");
+    expect(stopKind({ ...place("airport"), category: "international_airport" }, new Set())).toBe("airport");
+    expect(stopKind({ ...place("station"), category: "train_station" }, new Set())).toBe("station");
+    expect(stopKind({ ...place("shrine"), category: "shinto_shrine" }, new Set())).toBe("poi");
   });
 });

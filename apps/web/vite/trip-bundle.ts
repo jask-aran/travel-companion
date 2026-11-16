@@ -8,6 +8,7 @@ import { MEDIA_ROUTES, mediaToken } from "../src/lib/media";
 import { DEPARTURES_ROUTE } from "../src/lib/departures-api";
 import {
   loadIngestionConfigSync,
+  browserMapSettings,
   readSiteSettings,
   type SiteSettings,
 } from "../../../packages/wanderlog-import/src/config";
@@ -49,6 +50,13 @@ function readLocalConfig(): LocalTripConfig {
 /** Base, origin and Cloudflare settings: neutral defaults until a config exists. */
 export function localSite(): SiteSettings {
   return readSiteSettings(localConfigPath);
+}
+
+/** Only these dedicated public map settings may enter the client bundle. */
+export function localBrowserMaps(): { key: string; mapId: string } {
+  if (!existsSync(localConfigPath)) return { key: "", mapId: "DEMO_MAP_ID" };
+  const { config } = loadIngestionConfigSync(localConfigPath);
+  return browserMapSettings(config);
 }
 
 /**

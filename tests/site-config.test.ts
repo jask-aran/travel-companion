@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";
 import {
   loadIngestionConfigSync,
+  browserMapSettings,
   normaliseBase,
   parseIngestionConfig,
   parseWanderlogId,
@@ -179,5 +180,16 @@ describe("generated wrangler config", () => {
 
   it("refuses a config with no cloudflare section", () => {
     expect(() => wranglerConfig(site(undefined))).toThrow(/no cloudflare section/);
+  });
+});
+
+describe("browser map settings", () => {
+  it("never exposes or falls back to the server key", () => {
+    const config = parseIngestionConfig({ trip: { wanderlogId: "trip" }, google: { apiKey: "server-only" } });
+    expect(browserMapSettings(config)).toEqual({ key: "", mapId: "DEMO_MAP_ID" });
+  });
+  it("keeps the dedicated browser key and map ID", () => {
+    const config = parseIngestionConfig({ trip: { wanderlogId: "trip" }, google: { apiKey: "server-only", browserApiKey: "website-only", mapId: "my-map" } });
+    expect(browserMapSettings(config)).toEqual({ key: "website-only", mapId: "my-map" });
   });
 });

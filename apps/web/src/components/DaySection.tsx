@@ -1,5 +1,5 @@
 import { For, Show, createEffect, createMemo, createSignal, on, type JSX } from "solid-js";
-import type { DayItem, DepartureBoard, DepartureOption, RouteLeg, TripBundle, TripDay } from "@travel-companion/trip-schema";
+import type { DepartureBoard, DepartureOption, RouteLeg, TripBundle, TripDay } from "@travel-companion/trip-schema";
 import {
   formatArrows,
   formatDayHeading,

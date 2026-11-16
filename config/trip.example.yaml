@@ -8,11 +8,16 @@ trip:
 # share:
 #   passphrase: ""        # encrypts the published trip; empty publishes plaintext
 
-# Optional keys, used only by the site on Cloudflare (stored there as secrets); the local pull uses none.
+# Optional server keys, stored as Cloudflare secrets; the local pull uses none.
 # `pnpm trip:keys` tests them and changes them here and on Cloudflare.
 # google:
 #   apiKey: ""            # billing on; enable Places API (New), Maps Static API, Routes API, Cloud Translation API
 #   projectNumber: ""     # same project's number (digits): line and town names use the Translation LLM
+#   browserApiKey: ""     # separate public key: Maps JavaScript API, billing enabled, website referrer restrictions
+#   mapId: DEMO_MAP_ID    # optional Google map ID for Advanced Markers; Google's demo map is the default
+# Restrict browserApiKey to your live origin and http://localhost:5173/*; never reuse apiKey.
+# Browser map settings enter the app at build time, so run `pnpm ship` after changing them.
+# GOOGLE_MAPS_BROWSER_KEY can supply the public browser key in a build environment.
 
 # navitime:
 #   apiKey: ""            # RapidAPI key subscribed to NAVITIME's route API (navitime-route-totalnavi): times in Japan

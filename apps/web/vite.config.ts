@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 import { VitePWA } from "vite-plugin-pwa";
-import { localPassphrase, localSite, tripBundlePlugin } from "./vite/trip-bundle";
+import { localPassphrase, localSite, localBrowserMaps, tripBundlePlugin } from "./vite/trip-bundle";
 import { optionalFontsPlugin } from "./vite/optional-fonts";
 
 /** Only the build encrypts: dev serves the working bundle as plaintext trip.json. */
@@ -15,6 +15,7 @@ const tripEncrypted = isBuild && localPassphrase().length > 0;
  */
 const site = localSite();
 const base = site.base;
+const browserMaps = localBrowserMaps();
 
 /**
  * Whether the Pages function (workers/refresh) is behind this app. A build has
@@ -60,6 +61,8 @@ const functionCaching = [
 export default defineConfig({
   base,
   define: {
+    __GOOGLE_MAPS_BROWSER_KEY__: JSON.stringify(process.env.GOOGLE_MAPS_BROWSER_KEY ?? browserMaps.key),
+    __GOOGLE_MAP_ID__: JSON.stringify(browserMaps.mapId),
     __TRIP_ENCRYPTED__: JSON.stringify(tripEncrypted),
     __TRIP_BASE__: JSON.stringify(base),
     __TRIP_FUNCTION__: JSON.stringify(hasFunction),
