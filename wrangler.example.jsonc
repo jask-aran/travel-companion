@@ -1,0 +1,21 @@
+// The shape of wrangler.jsonc, which `pnpm ship` and `pnpm trip:init` generate
+// from config/trip.local.yaml (scripts/wrangler-config.ts). The real file is
+// gitignored; edit the cloudflare section of the local config instead.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "my-pages-project",
+  "pages_build_output_dir": "apps/web/.publish",
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "limits": { "cpu_ms": 30000 },
+  "kv_namespaces": [
+    { "binding": "TRIP", "id": "<cloudflare.kvNamespaceId>" }
+  ],
+  // Only when cloudflare.mediaBucket is set.
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "<cloudflare.mediaBucket>" }
+  ],
+  "vars": {
+    "PUBLIC_ID": "<trip.publicId>"
+  }
+}

@@ -55,24 +55,13 @@ describe("trip payload encryption", () => {
 describe("insecure context", () => {
   // Browsers withhold crypto.subtle on plain http:// unless the host is
   // localhost, so a LAN or Tailscale IP has no Web Crypto at all.
-  it("reports a missing secure context instead of failing obscurely", async () => {
+  it("reports a missing secure context, not a wrong passphrase", async () => {
+    const encrypted = await encryptTrip("payload", "phrase", FAST);
     const real = Object.getOwnPropertyDescriptor(globalThis, "crypto");
     Object.defineProperty(globalThis, "crypto", { value: {}, configurable: true });
     try {
-      await expect(encryptTrip("x", "y", 1000)).rejects.toBeInstanceOf(InsecureContextError);
-    } finally {
-      if (real) Object.defineProperty(globalThis, "crypto", real);
-    }
-  });
-
-  it("does not mistake a missing secure context for a wrong passphrase", async () => {
-    const encrypted = await encryptTrip("payload", "phrase", 1000);
-    const real = Object.getOwnPropertyDescriptor(globalThis, "crypto");
-    Object.defineProperty(globalThis, "crypto", { value: {}, configurable: true });
-    try {
-      await expect(decryptTrip(encrypted, "phrase")).rejects.toBeInstanceOf(
-        InsecureContextError,
-      );
+      await expect(encryptTrip("x", "y", FAST)).rejects.toBeInstanceOf(InsecureContextError);
+      await expect(decryptTrip(encrypted, "phrase")).rejects.toBeInstanceOf(InsecureContextError);
     } finally {
       if (real) Object.defineProperty(globalThis, "crypto", real);
     }

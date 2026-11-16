@@ -4,9 +4,7 @@ import { liveQuestions } from "../apps/web/src/lib/live-departures.js";
 import { departureTargets } from "../apps/web/src/lib/departure-targets.js";
 import { pickDeparture } from "../apps/web/src/lib/departure-pick.js";
 import {
-  LATER_LIFETIME_MS,
-  SOON_LIFETIME_MS,
-  boardLifetimeMs,
+  boardIsFresh,
   boardQuestion,
   localDate,
   readBoardQuestion,
@@ -63,7 +61,8 @@ const trip = (departures?: Record<string, DepartureBoard>) =>
 const pulled = (kind: "arrive" | "depart", date: string, time: string): DepartureBoard =>
   ({ provider: "navitime", target: { kind, date, time }, fetchedAt: "2026-10-26T00:00:00Z", options: [] }) as DepartureBoard;
 
-const keys = (bundle: TripBundle, now: string) => liveQuestions(bundle, new Date(now)).map((entry) => entry.key);
+const keys = (bundle: TripBundle, now: string, opened: string[] = []) =>
+  liveQuestions(bundle, new Date(now), new Set(opened)).map((entry) => entry.key);
 
 describe("live departure boards", () => {
   it("asks about today's and tomorrow's legs, even with a pulled board", () => {
@@ -74,11 +73,14 @@ describe("live departure boards", () => {
     expect(keys(bundle, "2026-12-05T23:00:00Z")).toEqual(["nrt>shinjuku", "shinjuku>nagoya"]);
   });
 
-  it("for a later day, asks only where the pull has no board for the leg as it now stands", () => {
+  it("for a later day once opened, asks only where the trip has no board for the leg as it now stands", () => {
     const now = "2026-11-01T00:00:00Z";
-    expect(keys(trip({ "nrt>shinjuku": pulled("depart", "2026-12-06", "14:20") }), now)).toEqual(["shinjuku>nagoya"]);
+    const day = ["2026-12-06"];
+    // Not opened: a trip with no boards asks nothing at load.
+    expect(keys(trip(), now)).toEqual([]);
+    expect(keys(trip({ "nrt>shinjuku": pulled("depart", "2026-12-06", "14:20") }), now, day)).toEqual(["shinjuku>nagoya"]);
     // The stop moved since the pull: its board answers another question.
-    expect(keys(trip({ "nrt>shinjuku": pulled("depart", "2026-12-06", "13:00") }), now)).toEqual([
+    expect(keys(trip({ "nrt>shinjuku": pulled("depart", "2026-12-06", "13:00") }), now, day)).toEqual([
       "nrt>shinjuku",
       "shinjuku>nagoya",
     ]);
@@ -122,12 +124,18 @@ describe("live departure boards", () => {
     expect(readBoardQuestion(with_({ from: { ...question.from, name: "x".repeat(3000) } }))).toBeUndefined();
   });
 
-  it("keeps a soon board half a day and a later one a week", () => {
+  it("keeps a board fetched since its day became tomorrow, and an earlier one a week", () => {
     const from = { timeZone: "Asia/Seoul" };
     const now = new Date("2026-12-01T15:30:00Z"); // 00:30 on the 2nd in Seoul
     expect(localDate(from, now)).toBe("2026-12-02");
-    expect(boardLifetimeMs({ date: "2026-12-03", from }, now)).toBe(SOON_LIFETIME_MS);
-    expect(boardLifetimeMs({ date: "2026-12-04", from }, now)).toBe(LATER_LIFETIME_MS);
+    const hoursAgo = (hours: number) => new Date(now.getTime() - hours * 3_600_000);
+    // The 3rd is tomorrow: a board from half an hour ago (the 2nd) stands, one from an hour ago (the 1st) doesn't.
+    expect(boardIsFresh({ date: "2026-12-03", from }, hoursAgo(0.4), now)).toBe(true);
+    expect(boardIsFresh({ date: "2026-12-03", from }, hoursAgo(1), now)).toBe(false);
+    // Fetched as tomorrow's, it stands all of its own day.
+    expect(boardIsFresh({ date: "2026-12-03", from }, hoursAgo(0.4), new Date("2026-12-03T14:00:00Z"))).toBe(true);
+    expect(boardIsFresh({ date: "2026-12-04", from }, hoursAgo(6 * 24), now)).toBe(true);
+    expect(boardIsFresh({ date: "2026-12-04", from }, hoursAgo(8 * 24), now)).toBe(false);
     expect(localDate({ utcOffsetMinutes: 540 }, now)).toBe("2026-12-02");
   });
 });

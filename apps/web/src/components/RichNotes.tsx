@@ -32,7 +32,6 @@ function NoteRun(props: { inline: NoteInline }): JSX.Element {
   );
 }
 
-/** A line of runs. */
 function NoteLine(props: { inlines: NoteInline[] }): JSX.Element {
   return <For each={props.inlines}>{(inline) => <NoteRun inline={inline} />}</For>;
 }

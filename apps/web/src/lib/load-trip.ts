@@ -36,6 +36,23 @@ async function fetchPayload(): Promise<unknown> {
 }
 
 /**
+ * The revision of the trip the server holds now, bypassing every cache, and
+ * that copy put in the trip cache for the reload. Undefined if it can't be read.
+ */
+export async function serverRevision(passphrase: string): Promise<string | undefined> {
+  try {
+    const response = await fetch(tripUrl, { credentials: "same-origin", cache: "no-store" });
+    if (!response.ok) return undefined;
+    if ("caches" in globalThis) await (await caches.open(TRIP_CACHE)).put(tripUrl, response.clone());
+    const payload = await response.json();
+    const text = tripIsEncrypted ? await decryptTrip(payload as EncryptedPayload, passphrase) : JSON.stringify(payload);
+    return (JSON.parse(text) as { revision?: string }).revision;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Load the trip payload, decrypting it when the build is encrypted. The
  * passphrase itself is never sent anywhere; only a hash of it rides along
  * on photo requests (media.ts).

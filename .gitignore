@@ -3,8 +3,6 @@ node_modules/
 dist/
 .vite/
 coverage/
-playwright-report/
-test-results/
 
 # Environment and local tooling
 .env
@@ -17,13 +15,19 @@ test-results/
 config/trip.local.yaml
 config/trip.yaml
 
+# Generated from config/trip.local.yaml at ship time (scripts/wrangler-config.ts);
+# wrangler.example.jsonc shows the shape
+wrangler.jsonc
+
 # Private Wanderlog ingestion inputs and reports
 private-import/
 *-raw.json
-*.wanderlog.html
 
 # Local generated working data and any app-copied trip payload
 public-data/
 apps/web/public/trip.json
 apps/web/dist/
 apps/web/.publish/
+
+# Druk Wide Super is a commercial typeface: the licensed file stays out of git
+apps/web/public/fonts/druk-wide-super.woff2

@@ -22,6 +22,13 @@ export type DayLodgingPlan = {
   end: LodgingSlot[];
 };
 
+/** Which stay a lodging item belongs to: its booking block, else its dates and name. */
+export function stayKey(item: LodgingItem): string {
+  return item.sourceBlockId !== undefined
+    ? `block:${item.sourceBlockId}`
+    : `${item.checkInDate}|${item.checkOutDate}|${item.name}`;
+}
+
 /**
  * Unique stays from lodging items (hotels section emits check-in/out edges).
  * Requires checkInDate + checkOutDate on the items.
@@ -36,10 +43,7 @@ export function collectStays(bundle: TripBundle): Stay[] {
       const checkOutDate = item.checkOutDate;
       if (!checkInDate || !checkOutDate) continue;
 
-      const key =
-        item.sourceBlockId !== undefined
-          ? `block:${item.sourceBlockId}`
-          : `${checkInDate}|${checkOutDate}|${item.name}`;
+      const key = stayKey(item);
 
       const existing = map.get(key);
       if (existing) {
@@ -137,20 +141,14 @@ export function slotToLodgingItem(slot: LodgingSlot): LodgingItem {
 }
 
 /**
- * Flatten a day's lodging into the summary list.
- *
- * A day where you check in produces both a `check-in` slot and an `evening`
- * ("Tonight") slot for the same stay; a day where you check out produces both
- * `check-out` and `morning`. While these sat at opposite ends of the day the
- * repetition was invisible — collected into one summary block it reads as the
- * same hotel listed twice, so keep only the more informative edge.
+ * Flatten a day's lodging into the summary list. A check-in day yields both
+ * `check-in` and `evening` for one stay, a check-out day `check-out` and
+ * `morning`; only the more informative of each pair is kept.
  */
 export function daySummarySlots(plan: DayLodgingPlan): LodgingSlot[] {
   const slots = [...plan.start, ...plan.end];
 
-  // A day in the middle of a stay yields "Woke here" and "Tonight" for the
-  // same hotel. Side by side in one block that is the same fact twice, so
-  // collapse it to a single band.
+  // A middle day of a stay yields "Woke here" and "Tonight": one band.
   const isMidStay =
     slots.length === 2 &&
     slots[0]?.stay.key === slots[1]?.stay.key &&

@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createMemo, createSignal, on } from "solid-js";
+import { For, Show, createEffect, createMemo, createSignal, on, type JSX } from "solid-js";
 import type { DayItem, DepartureBoard, DepartureOption, RouteLeg, TripBundle, TripDay } from "@travel-companion/trip-schema";
 import {
   formatArrows,
@@ -19,7 +19,7 @@ import {
   type LodgingSlot,
 } from "../lib/lodging";
 import { bindFlights } from "../lib/flight-binding";
-import { dayTravelSeconds, dayWalking, isWaypoint, stopsBetween, type RouteLegIndex } from "../lib/route-legs";
+import { dayRidingSeconds, dayWalking, isWaypoint, stopsBetween, type RouteLegIndex } from "../lib/route-legs";
 import { leaveFor, pickDeparture, readyAfter } from "../lib/departure-pick";
 import { dayRouting, legOutOf as legOutOfDay } from "../lib/day-routing";
 import { departureKey } from "../lib/departure-targets";
@@ -27,25 +27,26 @@ import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 import { fold, unfold } from "../lib/fold-motion";
 import { shiftClock, sunTimes, type FlightTiming } from "../lib/day-times";
 import { clock } from "../lib/clock";
-import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow, StayLine, chainOf } from "./ItemCards";
+import { dayOpened } from "../lib/live-departures";
+import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, RouteLegRow, StayLine } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
-/** A stat's name as an icon, the word kept for screen readers. */
-function StatName(props: { icon: IconName; label: string }) {
-  return (
-    <dt class={`day-stats__name day-stats__name--${props.icon}`} title={props.label}>
-      <Icon name={props.icon} />
-      <Hidden>{props.label}</Hidden>
-    </dt>
-  );
-}
+/**
+ * Under this much walking between stops the figure says nothing about the
+ * day: it is the hotel-to-station hop on a day spent on trains.
+ */
+const WALK_WORTH_SHOWING_METRES = 1000;
 
-/** What a figure is, in words under it; the stat's name already tells screen readers. */
-function StatCaption(props: { children: string }) {
+/** One of the day's figures: its name over the number, as a board labels a column. */
+function Stat(props: { icon: IconName; label: string; title?: string | undefined; children: JSX.Element }) {
   return (
-    <span class="day-stats__caption" aria-hidden="true">
-      {props.children}
-    </span>
+    <div class={`day-stats__tile day-stats__tile--${props.icon}`} title={props.title}>
+      <dt>
+        <Icon name={props.icon} />
+        {props.label}
+      </dt>
+      <dd>{props.children}</dd>
+    </div>
   );
 }
 
@@ -80,6 +81,7 @@ function LodgingSlotView(props: {
           place={stayPlace(props.bundle, props.slot.stay)}
           role={props.slot.role}
           checkOutBy={props.slot.role === "check-out" ? props.checkOutBy : undefined}
+          compact={props.slot.role === "check-out"}
         />
       }
     >
@@ -148,12 +150,11 @@ export function DaySection(props: {
     }
     return plans;
   });
-  /** What a leg rides, for the summary, which shows no board: the picked option's lines. */
-  const lineFor = (leg: RouteLeg) => {
+  /** What a leg rides: the option picked for it, whose lines name and colour the leg. */
+  const rideFor = (leg: RouteLeg) => {
     const board = boardFor(leg);
     if (!board) return undefined;
-    const option = [...legPlans().values()].find((plan) => plan.board === board)?.option ?? board.options[0];
-    return option && chainOf(option);
+    return [...legPlans().values()].find((plan) => plan.board === board)?.option ?? board.options[0];
   };
   /**
    * When a summary leg runs, where something with a time fixes it: a time
@@ -166,7 +167,7 @@ export function DaySection(props: {
     const plan = board && [...legPlans().values()].find((candidate) => candidate.board === board);
     const option = plan?.option;
     if (!board || !option || (board.target.kind === "day" && !plan.notBefore)) return undefined;
-    return `${board.approximate ? "~" : ""}${option.departTime}→${option.arriveTime}`;
+    return { depart: option.departTime, arrive: option.arriveTime, approximate: Boolean(board.approximate) };
   };
   /**
    * Out of the hotel by the recommended train, less the walk to it. A walk
@@ -196,7 +197,6 @@ export function DaySection(props: {
 
   const placeName = (placeId: string) => props.bundle.places[placeId]?.name;
 
-  /** Today's role for the hotel at each end of the route, for its pill. */
   /**
    * When to leave the hotel you woke in: for the airport on a flight day,
    * otherwise in time for the first stop you gave a time in Wanderlog.
@@ -277,10 +277,17 @@ export function DaySection(props: {
     if (leg) all.set("end", leg);
     return all;
   });
-  const movingLabel = createMemo(() => formatDurationShort(dayTravelSeconds(allLegs())));
-  /** On foot, time over distance: total distance mixed trains in and meant little. */
+  /** Time on trains, buses and in cars: walking has its own figure. */
+  const ridingLabel = createMemo(() => formatDurationShort(dayRidingSeconds(allLegs().values())));
+  /**
+   * On foot between stops. It is a floor, not the day's walking: nothing in
+   * the plan measures the walking inside a sight, a station or a market, so
+   * the figure carries a "+" and is left out when it is too small to mean
+   * anything.
+   */
   const walking = createMemo(() => {
     const walk = dayWalking(allLegs().values());
+    if (walk.metres < WALK_WORTH_SHOWING_METRES) return undefined;
     const time = formatDurationShort(walk.seconds);
     const distance = formatDistance(walk.metres);
     return time && distance ? { time, distance } : undefined;
@@ -342,7 +349,7 @@ export function DaySection(props: {
     return times.sunrise && times.sunset ? { rise: times.sunrise, set: times.sunset } : undefined;
   });
   const hasStats = createMemo(
-    () => stopCount() > 0 || Boolean(movingLabel()) || Boolean(walking()) || Boolean(sun()),
+    () => Boolean(ridingLabel()) || Boolean(walking()) || Boolean(sun()),
   );
   const hasSummary = createMemo(
     () => hasStats() || summarySlots().length > 0 || flights().length > 0,
@@ -360,6 +367,8 @@ export function DaySection(props: {
    * is unmounted after: a folded route costs nothing, photos included.
    */
   const [shown, setShown] = createSignal(!collapsed());
+  // An open route is the cue to fetch boards its legs don't have yet.
+  createEffect(() => shown() && dayOpened(props.day.date));
   let body: HTMLOListElement | undefined;
   createEffect(
     on(
@@ -452,56 +461,42 @@ export function DaySection(props: {
               <div class="day-summary">
                 <Show when={hasStats()}>
                   <dl class="day-stats">
-                    <Show when={stopCount() > 0}>
-                      <div>
-                        <StatName icon="pin" label="Stops" />
-                        <dd>
-                          {stopCount()}
-                          <StatCaption>{stopCount() === 1 ? "stop" : "stops"}</StatCaption>
-                        </dd>
-                      </div>
-                    </Show>
-                    <Show when={movingLabel()}>
+                    <Show when={ridingLabel()}>
                       {(label) => (
-                        <div>
-                          <StatName icon="clock" label="Moving" />
-                          <dd>
-                            {label()}
-                            <StatCaption>in transit</StatCaption>
-                          </dd>
-                        </div>
+                        <Stat icon="clock" label="Transit">
+                          {label()}
+                        </Stat>
                       )}
                     </Show>
                     <Show when={walking()}>
                       {(walk) => (
-                        <div>
-                          <StatName icon="walk" label="Walking" />
-                          <dd class="day-stats__pair">
-                            <span>{walk().time}</span>
-                            <span>{walk().distance}</span>
-                            <StatCaption>walking</StatCaption>
-                          </dd>
-                        </div>
+                        <Stat
+                          icon="walk"
+                          label="Walk"
+                          title={`${walk().time} on foot between stops. Walking inside sights and stations is not counted.`}
+                        >
+                          {walk().distance}
+                          <span class="day-stats__mark" aria-hidden="true">
+                            +
+                          </span>
+                          <Hidden> or more</Hidden>
+                        </Stat>
                       )}
                     </Show>
                     <Show when={sun()}>
                       {(times) => (
-                        <div>
-                          <StatName icon="sunset" label="Sunrise and sunset" />
-                          <dd class="day-stats__pair">
-                            <span>
-                              <span aria-hidden="true">↑</span>
-                              <Hidden>Sunrise </Hidden>
-                              {times().rise}
-                            </span>
-                            <span>
-                              <span aria-hidden="true">↓</span>
-                              <Hidden>Sunset </Hidden>
-                              {times().set}
-                            </span>
-                            <StatCaption>daylight</StatCaption>
-                          </dd>
-                        </div>
+                        <Stat icon="sunset" label="Daylight">
+                          <span class="day-stats__mark" aria-hidden="true">
+                            ↑
+                          </span>
+                          <Hidden>Sunrise </Hidden>
+                          {times().rise}
+                          <span class="day-stats__mark day-stats__mark--set" aria-hidden="true">
+                            ↓
+                          </span>
+                          <Hidden> Sunset </Hidden>
+                          {times().set}
+                        </Stat>
                       )}
                     </Show>
                   </dl>
@@ -520,7 +515,7 @@ export function DaySection(props: {
                       <Show when={timings().get(item.id)?.legs.length}>
                         <ol class="day-summary__transfer">
                           <For each={timings().get(item.id)?.legs}>
-                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} line={lineFor(leg)} times={timesFor(leg)} showEnds />}
+                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} ride={rideFor(leg)} times={timesFor(leg)} showEnds />}
                           </For>
                         </ol>
                       </Show>
@@ -534,7 +529,7 @@ export function DaySection(props: {
                       <Show when={legOutOf(item.arrivePlaceId)}>
                         {(leg) => (
                           <ol class="day-summary__transfer">
-                            <RouteLegRow leg={leg()} places={props.bundle.places} line={lineFor(leg())} times={timesFor(leg())} showEnds />
+                            <RouteLegRow leg={leg()} places={props.bundle.places} ride={rideFor(leg())} times={timesFor(leg())} showEnds />
                           </ol>
                         )}
                       </Show>
@@ -542,13 +537,12 @@ export function DaySection(props: {
                   )}
                 </For>
                 {/* Stop counts between journeys give the day its shape: a
-                    handful between two long legs is a day out, none is a
-                    change of train. */}
+                    handful between two long legs is a day out. No stops is a
+                    change of train, and two journeys in a row already say so. */}
                 <For each={journeys()}>
                   {(journey, index) => (
                     <>
-                      {/* Not `when={count}`: a count of 0 is the case that matters most. */}
-                      <Show when={index() > 0}>
+                      <Show when={index() > 0 && (stopsBefore(index()) ?? 0) > 0}>
                         <p class="day-summary__between with-icon">
                           <Icon name="pin" />
                           {stopsLabel(stopsBefore(index()) ?? 0)}
@@ -558,7 +552,7 @@ export function DaySection(props: {
                         <RouteLegRow
                           leg={journey.leg}
                           places={props.bundle.places}
-                          line={lineFor(journey.leg)}
+                          ride={rideFor(journey.leg)}
                           times={timesFor(journey.leg)}
                           showEnds
                         />
@@ -617,6 +611,7 @@ export function DaySection(props: {
                             leg={leg()}
                             places={props.bundle.places}
                             board={boardFor(leg())}
+                            ride={rideFor(leg())}
                             notBefore={legPlans().get(item.id)?.notBefore}
                           />
                         )}
@@ -640,6 +635,7 @@ export function DaySection(props: {
                       leg={leg()}
                       places={props.bundle.places}
                       board={boardFor(leg())}
+                      ride={rideFor(leg())}
                       notBefore={legPlans().get("end")?.notBefore}
                     />
                   )}

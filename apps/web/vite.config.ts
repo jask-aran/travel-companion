@@ -1,32 +1,74 @@
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 import { VitePWA } from "vite-plugin-pwa";
-import { localPassphrase, tripBundlePlugin } from "./vite/trip-bundle";
+import { localPassphrase, localSite, tripBundlePlugin } from "./vite/trip-bundle";
+import { optionalFontsPlugin } from "./vite/optional-fonts";
 
-/**
- * Only the build encrypts. The dev server serves the working bundle as
- * plaintext, so flagging dev as encrypted made the app fetch a trip.enc that
- * does not exist there and sit behind a passphrase gate it could never pass.
- */
+/** Only the build encrypts: dev serves the working bundle as plaintext trip.json. */
 const isBuild = process.argv.includes("build");
 const tripEncrypted = isBuild && localPassphrase().length > 0;
 
 /**
- * Served from a path, not a host root, so every asset URL and the service
- * worker scope must carry it. Overridable for a different deployment.
+ * Where the app is served (`site.base` in config/trip.local.yaml, default
+ * "/"; `TRIP_BASE` overrides). Every asset URL and the service worker scope
+ * carry it.
  */
-const base = process.env.TRIP_BASE ?? "/japankorea2026/";
+const site = localSite();
+const base = site.base;
+
+/**
+ * Whether the Pages function (workers/refresh) is behind this app. A build has
+ * it when the config has a cloudflare section; dev has it when there is a live
+ * site (site.origin) to proxy to. `TRIP_FUNCTION=1` or `0` overrides either.
+ */
+const functionOverride = process.env.TRIP_FUNCTION;
+const hasFunction =
+  functionOverride === "1" || functionOverride === "true"
+    ? true
+    : functionOverride === "0" || functionOverride === "false"
+      ? false
+      : isBuild
+        ? Boolean(site.cloudflare)
+        : Boolean(site.origin);
+
+/** Runtime caching for the Pages function's routes (photos, maps, live boards). */
+const functionCaching = [
+  {
+    // Photos and maps never change for a place, so the copy on the
+    // phone wins (offline-media.ts fills this cache up front). Only real
+    // images: a blank "no photo" or "Google refused" answer is not kept here.
+    urlPattern: /\/api\/(photo|map)\?/,
+    handler: "CacheFirst" as const,
+    options: {
+      cacheName: "media",
+      cacheableResponse: { statuses: [200], headers: { "x-media": "image" } },
+    },
+  },
+  {
+    // Live departure boards: the worker's answer when online, the
+    // last one this phone got when not.
+    urlPattern: /\/api\/departures\?/,
+    handler: "NetworkFirst" as const,
+    options: {
+      cacheName: "live-departures",
+      networkTimeoutSeconds: 5,
+      expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 2 },
+    },
+  },
+];
 
 export default defineConfig({
   base,
   define: {
     __TRIP_ENCRYPTED__: JSON.stringify(tripEncrypted),
     __TRIP_BASE__: JSON.stringify(base),
+    __TRIP_FUNCTION__: JSON.stringify(hasFunction),
     // Shown in the footer, so you can tell which shell a device is running.
     __APP_BUILT_AT__: JSON.stringify(new Date().toISOString()),
   },
   plugins: [
     solid(),
+    optionalFontsPlugin(),
     tripBundlePlugin(),
     VitePWA({
       registerType: "autoUpdate",
@@ -68,53 +110,29 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2,json}"],
-        /*
-         * `registerType: "autoUpdate"` does not set these in vite-plugin-pwa
-         * 1.x: without them a new worker installs and then waits until every
-         * tab on the old one closes, which a reload does not do. A phone sat
-         * on one build through three deploys. With them, a new build takes
-         * over as soon as it installs and autoUpdate reloads onto it.
-         */
+        // `registerType: "autoUpdate"` does not set these in vite-plugin-pwa 1.x;
+        // without them a new worker waits until every tab on the old one closes.
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        // The trip payload is deliberately NOT precached. Precaching it would
-        // put ~430 KB of content into the app-shell revision, so every trip
-        // edit would force a full service-worker update cycle before the app
-        // could show new data. Runtime caching below serves it instantly from
-        // cache and refreshes it in the background instead.
+        // The trip is not precached: in the app-shell revision, every trip edit
+        // would force a service-worker update before the app showed it.
         globIgnores: ["trip.json", "trip.enc"],
         navigateFallback: `${base}index.html`,
         runtimeCaching: [
           {
+            // The server's copy when online, so an open shows the latest
+            // trip; the kept copy when offline or slow.
             urlPattern: /\/trip\.(json|enc)$/,
-            handler: "StaleWhileRevalidate",
+            handler: "NetworkFirst",
             options: {
+              networkTimeoutSeconds: 4,
               cacheName: "trip-bundle",
               expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
-          {
-            // Photos and maps never change for a place, so the copy on the
-            // phone wins (offline-media.ts fills this cache up front).
-            urlPattern: /\/api\/(photo|map)\?/,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "media",
-              cacheableResponse: { statuses: [200] },
-            },
-          },
-          {
-            // Live departure boards: the worker's answer when online, the
-            // last one this phone got when not.
-            urlPattern: /\/api\/departures\?/,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "live-departures",
-              networkTimeoutSeconds: 5,
-              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 2 },
-            },
-          },
+          // Only the Pages function answers these; a static build has neither.
+          ...(hasFunction ? functionCaching : []),
         ],
       },
       devOptions: {

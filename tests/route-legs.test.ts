@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { TripBundle } from "../packages/trip-schema/src/index.js";
 import {
   closingLeg,
-  dayTravelSeconds,
+  dayRidingSeconds,
   dayWalking,
   isJourney,
   stopsBetween,
@@ -55,19 +55,14 @@ describe("route leg pairing", () => {
     // Keyed by the id of the item the leg leads *into*.
     expect(legs.get("i2")?.travelMode).toBe("walking");
     expect(legs.get("i3")?.travelMode).toBe("transit");
-  });
-
-  it("has no leg before the first stop", () => {
-    expect(legsForDay(items, index).get("i1")).toBeUndefined();
+    expect(legs.get("i1")).toBeUndefined();
   });
 
   it("routes the first stop from the hotel the day starts at", () => {
     // Wanderlog draws this leg without listing the hotel as a stop.
     const legs = legsForDay(items.slice(2), index, "p1");
     expect(legs.get("i2")?.durationSeconds).toBe(843);
-  });
-
-  it("draws no leg when the day starts at its own first stop", () => {
+    // No leg when the day starts at its own first stop.
     expect(legsForDay(items, index, "p1").get("i1")).toBeUndefined();
   });
 
@@ -159,26 +154,12 @@ describe("legs that cannot fit inside a day", () => {
     { id: "s4", type: "place", placeId: "dmz" },
   ] as TripBundle["days"][number]["items"];
 
-  it("drops a leg longer than the day that contains it", () => {
-    expect(legsForDay(day, index).get("s2")).toBeUndefined();
-  });
-
-  it("applies the rule without needing a flight item on the day", () => {
-    const withFlight = [
-      { id: "f1", type: "flight", airline: "JL", flightNumber: "1" },
-      ...day,
-    ] as TripBundle["days"][number]["items"];
-    expect(legsForDay(withFlight, index).get("s2")).toBeUndefined();
-  });
-
-  it("keeps ordinary legs, including a genuinely long 2 h one", () => {
+  it("drops a leg longer than the day, keeping ordinary legs and a genuinely long 2 h one", () => {
     const legs = legsForDay(day, index);
+    expect(legs.get("s2")).toBeUndefined();
     expect(legs.get("s3")?.durationSeconds).toBe(28 * 60);
     expect(legs.get("s4")?.durationSeconds).toBe(127 * 60);
-  });
-
-  it("excludes only the dropped leg from the day's moving total", () => {
-    expect(dayTravelSeconds(legsForDay(day, index))).toBe((28 + 127) * 60);
+    expect(dayRidingSeconds(legs.values())).toBe((28 + 127) * 60);
   });
 });
 
@@ -203,35 +184,18 @@ describe("very short legs", () => {
     { id: "b", type: "place", placeId: "p2" },
   ] as TripBundle["days"][number]["items"];
 
-  it("keeps a sub-minute leg rather than inventing a reason to drop it", () => {
+  it("keeps a sub-minute leg and renders it the way Wanderlog does", () => {
     expect(legsForDay(items, indexRouteLegs(bundle)).get("b")?.distanceMetres).toBe(15);
-  });
-
-  it("renders it the way Wanderlog does", () => {
     expect(formatDuration(20)).toBe("< 1 min");
     expect(formatDuration(0)).toBeUndefined();
   });
 });
 
 describe("passenger list de-duplication", () => {
-  const names = ["Jaskaran Singh", "Mathew Knowles", "Georgia Campbell"];
-
-  it("treats a note that is only the passenger list as redundant", () => {
-    expect(
-      noteRestatesNames("For Jaskaran Singh, Mathew Knowles, and Georgia Campbell", names),
-    ).toBe(true);
-  });
-
-  it("keeps a note that adds anything beyond the names", () => {
-    expect(
-      noteRestatesNames(
-        "For Jaskaran Singh, Mathew Knowles, and Georgia Campbell - check bags",
-        names,
-      ),
-    ).toBe(false);
-  });
-
-  it("keeps a note when the names are absent", () => {
+  it("drops a note that is only the passenger list, and keeps any other", () => {
+    const names = ["Pat Example", "Sam Example", "Alex Example"];
+    expect(noteRestatesNames("For Pat Example, Sam Example, and Alex Example", names)).toBe(true);
+    expect(noteRestatesNames("For Pat Example, Sam Example, and Alex Example - check bags", names)).toBe(false);
     expect(noteRestatesNames("Window seats booked", names)).toBe(false);
     expect(noteRestatesNames(undefined, names)).toBe(false);
   });
@@ -247,26 +211,21 @@ describe("journeys worth a place in the summary", () => {
   const leg = (from: string, to: string, minutes: number) =>
     ({ id: `${from}-${to}`, fromPlaceId: from, toPlaceId: to, travelMode: "transit", durationSeconds: minutes * 60 }) as const;
 
-  it("calls out a change of town", () => {
+  it("calls out a change of town or a long ride, not a 66-minute ride across one city", () => {
     expect(isJourney(leg("nagoya", "takayama", 155), places)).toBe(true);
-  });
-
-  it("leaves a long ride within one city alone", () => {
-    // 66 minutes, but only 13 km across Seoul.
     expect(isJourney(leg("coex", "yeonhui", 66), places)).toBe(false);
-  });
-
-  it("calls out anything long enough on its own", () => {
     expect(isJourney(leg("coex", "yeonhui", 80), places)).toBe(true);
   });
 
-  it("totals only the walking", () => {
-    const walk = dayWalking([
+  it("splits a day's legs into walking and riding", () => {
+    const legs = [
       { id: "a", fromPlaceId: "x", toPlaceId: "y", travelMode: "walking", durationSeconds: 600, distanceMetres: 800 },
       { id: "b", fromPlaceId: "y", toPlaceId: "z", travelMode: "transit", durationSeconds: 3000, distanceMetres: 40000 },
-      { id: "c", fromPlaceId: "z", toPlaceId: "w", travelMode: "walking", durationSeconds: 300, distanceMetres: 400 },
-    ]);
-    expect(walk).toEqual({ seconds: 900, metres: 1200 });
+      { id: "c", fromPlaceId: "z", toPlaceId: "w", travelMode: "driving", durationSeconds: 300, distanceMetres: 4000 },
+      { id: "d", fromPlaceId: "w", toPlaceId: "v", travelMode: "walking", durationSeconds: 300, distanceMetres: 400 },
+    ] as const;
+    expect(dayWalking([...legs])).toEqual({ seconds: 900, metres: 1200 });
+    expect(dayRidingSeconds([...legs])).toBe(3300);
   });
 });
 
@@ -285,11 +244,8 @@ describe("stops between journeys", () => {
     expect(stopsBetween(items, 0, 4, places, new Set())).toBe(2);
   });
 
-  it("reads a straight change of train as none", () => {
+  it("reads a straight change of train as none, and counts a destination you arrive at directly", () => {
     expect(stopsBetween([stop("station")], 0, 0, places, new Set())).toBe(0);
-  });
-
-  it("counts a destination you arrive at directly", () => {
     expect(stopsBetween([stop("shrine")], 0, 0, places, new Set())).toBe(1);
   });
 
@@ -307,13 +263,10 @@ describe("stops between journeys", () => {
 });
 
 describe("areaOf", () => {
-  it("gives the ward and city, not the street", () => {
+  it("gives the ward and city, not the street, from either address order", () => {
     expect(areaOf("1 Chome-1-4 Meieki, Nakamura Ward, Nagoya, Aichi, Japan")).toBe("Nakamura Ward, Nagoya");
     expect(areaOf("1 Chome Marunouchi, Chiyoda City, Tokyo 100-0005, Japan")).toBe("Chiyoda City, Tokyo");
     expect(areaOf("347-20 Seogyo-dong, Mapo-gu, Seoul, South Korea")).toBe("Mapo-gu, Seoul");
-  });
-
-  it("reads a country-first Japanese address the same way", () => {
     expect(
       areaOf("Japan, 〒453-0015 Aichi, Nagoya, Nakamura Ward, Tsubakicho, 9−13 9番13号 ９−９−１３ 9番13号 13号"),
     ).toBe("Nakamura Ward, Nagoya");

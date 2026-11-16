@@ -6,12 +6,15 @@
  *   --fs-small   everything secondary: meta, addresses, notes, travel,
  *                buttons. 400; buttons and travel modes 600.
  *   --fs-name    the name of a thing: a stop, a hotel. 650.
- *   --fs-figure  the numbers you came for: stats, flight times. 650 (500 mono).
- *   --fs-title   a day or the trip. 650.
+ *   --fs-figure  the numbers you came for (flight times), and a day's title.
+ *                650 (500 mono); a day's title 600.
+ *   --fs-title   the trip. 650.
  *
  * Capitals belong to --fs-label and nothing else. Two voices: Sora says what
  * a thing is (names, titles, notes); Paper Mono says what is known about it
- * (labels, categories, addresses, times, distances).
+ * (labels, categories, addresses, times, distances). Druk Wide Super is the
+ * display face and sets two things at their own fluid sizes: the trip title
+ * and the app's name on the unlock screen.
  *
  * Colour is a kind or "you can tap this" (sea). Each kind owns a hue (flight
  * blue, lodging amber, travel slate, places seal red) and tints the surfaces
@@ -32,6 +35,10 @@
 
   --font-sans: "Sora", system-ui, sans-serif;
   --font-mono: "Paper Mono", ui-monospace, monospace;
+  /* The trip title and the unlock wordmark. The file holds letters, digits,
+     comma, hyphen, full stop and curly quotes; any other character falls
+     through to Sora. */
+  --font-display: "Druk Wide Super", var(--font-sans);
 
   --ink-rgb: 11 31 51;
   --line-rgb: 154 143 122;
@@ -278,7 +285,7 @@ p {
 
 /* The one capitalised style. */
 .state-panel__eyebrow,
-.unlock__eyebrow,
+.trip-header__range,
 .day-section__date,
 .day-part__label,
 .day-stats dt,
@@ -292,11 +299,6 @@ p {
   text-transform: uppercase;
 }
 
-/*
- * Two voices: Sora for everything in words (names, notes, categories,
- * addresses, what a figure means), Paper Mono for what you'd read off a
- * board: clock times, codes, the day's figures, and the capitalised labels.
- */
 .day-stats dd {
   font-family: var(--font-mono);
 }
@@ -305,7 +307,7 @@ p {
    reads as a phrase, not three tokens. */
 .day-stats dd,
 .state-panel__eyebrow,
-.unlock__eyebrow,
+.trip-header__range,
 .day-section__date,
 .day-part__label,
 .day-stats dt,
@@ -343,27 +345,40 @@ p {
   color: var(--on-dark);
 }
 
+/* The date line and the actions share the top row; the title has the full
+   width under them, because Druk Wide runs about 40% wider than Sora. */
 .trip-header__inner {
-  padding: var(--header-pad-top) calc(var(--page-pad-right) + 7.6rem) 0.9rem var(--page-pad);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "range actions"
+    "title title";
+  align-items: center;
+  gap: 0.95rem 0.75rem;
+  padding: var(--header-pad-top) var(--page-pad-right) 0.95rem var(--page-pad);
 }
 
 .trip-header__title {
   margin: 0;
-  font-size: var(--fs-title);
-  font-weight: 650;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  grid-area: title;
+  font-family: var(--font-display);
+  /* Scales with the screen so a title this long stays on one line from a
+     320px phone up; a longer one wraps, balanced. */
+  font-size: clamp(1.125rem, 6.2vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0;
+  text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .trip-header__range {
-  margin-top: 0.3rem;
+  grid-area: range;
   opacity: 0.8;
 }
 
 .trip-header__actions {
-  position: absolute;
-  top: var(--header-pad-top);
-  right: var(--page-pad-right);
+  grid-area: actions;
   display: flex;
   gap: 0.45rem;
 }
@@ -492,6 +507,7 @@ p {
 /* --- Itinerary and days --- */
 
 .itinerary {
+  scroll-margin-top: var(--sticky-offset);
   width: min(64rem, 100%);
   margin: 0 auto;
   padding: 1.1rem var(--page-pad) calc(2.5rem + env(safe-area-inset-bottom));
@@ -505,9 +521,8 @@ p {
      negative margin; the day divider is inset to match. */
   margin-inline: -0.75rem;
   min-width: 0;
-  /* No content-visibility: its guessed heights for unrendered days made the
-     page jump as each one laid out. Folded days unmount their bodies and
-     photos load lazily, so laying out the rest is cheap. */
+  /* No content-visibility: its guessed heights made the page jump as each
+     day laid out. */
 }
 
 /* The rule between days spans the cards, not the section's overhang room. */
@@ -575,20 +590,24 @@ p {
   min-width: 0;
 }
 
+/* The date and the town sit on one centre line: the pin is taller than the
+   capitals, and on a baseline it pushed the town's name down. */
 .day-section__date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.7rem;
+  line-height: 1.3;
   color: var(--ink-muted);
 }
 
-.day-section__city {
-  margin-left: 0.7rem;
-}
-
+/* A step below the trip title, so a long one is not two heavy lines under it. */
 .day-section__title {
-  margin: 0.1rem 0 0;
-  font-size: var(--fs-title);
-  font-weight: 650;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  margin: 0.15rem 0 0;
+  font-size: var(--fs-figure);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   overflow-wrap: break-word;
 }
 
@@ -645,7 +664,6 @@ p {
   margin-bottom: 1rem;
 }
 
-/* No rule under the label: a line here read as the divider between days. */
 .day-part__label {
   padding-bottom: 0.3rem;
   color: var(--ink-muted);
@@ -795,76 +813,89 @@ p {
   border-top: var(--hairline);
 }
 
-/* The day's figures: equal columns, a small label over a medium-weight
-   value, divided by short rules that stop clear of the card edges. */
+/*
+ * The day's figures: a capitalised name over each number, as a board labels
+ * its columns. Every tile is one line of figure, so none outweighs another;
+ * each is as wide as what it holds, and the row shares out what is left.
+ */
 .day-stats {
   margin: 0;
+  display: flex;
+  padding: 0.55rem 0 0.6rem;
+}
+
+.day-stats__tile {
+  flex: 1 1 auto;
+  min-width: 0;
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  padding: 0.2rem 0;
+  align-content: start;
+  gap: 0.2rem;
+  padding: 0 0.5rem 0 0.7rem;
 }
 
-.day-stats > div {
-  position: relative;
-  padding: 0.65rem 0.75rem 0.7rem;
-}
-
-.day-stats > div:first-child {
+.day-stats__tile:first-child {
   padding-left: var(--pad);
 }
 
-.day-stats > div + div::before {
-  content: "";
-  position: absolute;
-  top: 0.75rem;
-  bottom: 0.75rem;
-  left: 0;
+.day-stats__tile + .day-stats__tile {
   border-left: var(--hairline);
 }
 
 .day-stats dt {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   color: var(--ink-muted);
 }
 
-.day-stats__name {
-  display: flex;
-  height: 1rem;
+.day-stats dt .mode-glyph {
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
-.day-stats__name .mode-glyph {
-  width: 1rem;
-  height: 1rem;
-}
-
-.day-stats .day-stats__name--pin {
-  color: var(--seal);
-}
-
-.day-stats .day-stats__name--clock,
-.day-stats .day-stats__name--route {
+/* The icon carries the colour: slate for riding, sea for walking, amber for the sun. */
+.day-stats__tile--clock .mode-glyph {
   color: var(--kind-travel);
 }
 
-.day-stats .day-stats__name--sunset {
+.day-stats__tile--walk .mode-glyph {
+  color: var(--sea);
+}
+
+.day-stats__tile--sunset .mode-glyph {
   color: var(--warn);
 }
 
 .day-stats dd {
-  margin: 0.35rem 0 0;
-  font-size: var(--fs-small);
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-/* Two figures in one cell: walking time over distance, sunrise over sunset. */
-.day-stats__pair {
-  display: grid;
-  gap: 0.1rem;
+/* An arrow or a "+" beside a figure: part of how it reads, not of the number. */
+.day-stats__mark {
+  color: var(--ink-muted);
+  font-weight: 400;
 }
 
-.day-stats .day-stats__name--walk {
-  color: var(--kind-travel);
+.day-stats__mark--set {
+  margin-left: 0.45em;
+}
+
+/* The narrowest phones: three tiles still fit on the one row. */
+@media (max-width: 350px) {
+  .day-stats__tile {
+    padding: 0 0.3rem 0 0.5rem;
+  }
+
+  .day-stats dd {
+    font-size: var(--fs-small);
+  }
 }
 
 .lodging-band--out .kind-badge--lodging {
@@ -939,15 +970,6 @@ p {
   grid-template-columns: auto minmax(2rem, 1fr) auto;
   align-items: center;
   gap: 0.6rem;
-}
-
-.flight-end {
-  display: grid;
-}
-
-.flight-end--arrive {
-  justify-items: end;
-  text-align: right;
 }
 
 .flight-end__time {
@@ -1063,6 +1085,7 @@ p {
   font-family: var(--font-mono);
   font-size: var(--fs-label);
   letter-spacing: 0.04em;
+  word-spacing: -0.3em;
   text-transform: uppercase;
   color: var(--kind-lodging);
 }
@@ -1096,9 +1119,8 @@ p {
     var(--paper-elevated);
 }
 
-/* Rows stretch to the column. Sized to content instead, the clamped notes
-   (a -webkit-box, whose minimum width is its whole unwrapped line) pushed
-   the card wider than the screen. */
+/* Rows stretch to the column: sized to content, the clamped notes (a
+   -webkit-box) would push the card wider than the screen. */
 /* One column that cannot grow: a wide top row would otherwise widen every
    line in the card and push the address and notes under the photo. */
 .stop__body {
@@ -1462,11 +1484,33 @@ p {
   color: var(--ink-muted);
 }
 
-/* When the ride runs, where a timed plan fixes it: read off a board. */
+/* When a ride runs, or how long it takes: read off a board. */
 .travel__times {
   font-family: var(--font-mono);
-  font-weight: 600;
+  font-size: var(--fs-name);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: var(--ink);
+}
+
+.travel__times strong {
+  font-weight: 600;
+}
+
+.travel__arrow {
+  margin-inline: 0.2em;
+  color: var(--ink-muted);
+}
+
+/* A leg whose line has a colour of its own is drawn in it: rail and badge. */
+.travel--lined::before {
+  border-left-color: var(--line);
+}
+
+.travel--lined .travel__glyph {
+  box-shadow: inset 0 0 0 1.5px var(--line);
 }
 
 .travel__open {
@@ -1491,6 +1535,12 @@ p {
   box-shadow: none;
 }
 
+.travel--lined.travel--long .travel__glyph,
+.day-summary__transfer .travel--lined .travel__glyph {
+  background: var(--line);
+  color: var(--on-line);
+}
+
 .travel--flight {
   color: var(--kind-flight);
 }
@@ -1507,21 +1557,73 @@ p {
 /* A note belongs to the stop above it: tucked under the card, on a rule that
    runs unbroken through consecutive notes. */
 .note-item {
-  padding: 0.3rem var(--pad) 0.3rem calc(var(--text-x) + 0.75rem);
-}
-
-.note-item::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--text-x);
-  border-left: 2px solid rgb(var(--line-rgb) / 55%);
+  padding: 0.45rem 0 0.45rem var(--text-x);
+  font-size: var(--fs-small);
 }
 
 .note-text {
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: rgb(var(--line-rgb) / 16%);
   color: var(--ink-soft);
   overflow-wrap: break-word;
+}
+
+/* Notes in a row are one block: square where they meet, one gap between. */
+.note-item + .note-item {
+  padding-top: 0;
+}
+
+.note-item:has(+ .note-item) {
+  padding-bottom: 0;
+}
+
+.note-item + .note-item .note-text {
+  padding-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.note-item:has(+ .note-item) .note-text {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* A small mark on the rail ties the block to the stop above it. */
+.note-item__mark {
+  position: absolute;
+  z-index: 1;
+  top: 0.95rem;
+  left: calc(var(--rail-x) - 0.6rem);
+  width: 1.2rem;
+  height: 1.2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink-muted);
+}
+
+.note-item__mark .mode-glyph {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.note-item + .note-item .note-item__mark {
+  display: none;
+}
+
+/* A long note: its first line, opening in place like a stop's notes. */
+.note-text--fold {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 0.5rem;
+  cursor: pointer;
+}
+
+.note-text--fold.is-open {
+  color: var(--ink);
 }
 
 /* --- Footer, toast, states --- */
@@ -1529,16 +1631,34 @@ p {
 .itinerary-footer {
   display: grid;
   gap: 0.35rem;
-  margin-top: 1.6rem;
+  margin-top: 0.4rem;
   padding-top: 1rem;
   border-top: var(--hairline);
+  font-size: var(--fs-label);
   color: var(--ink-muted);
 }
 
+/* The footer's rule closes the last day, so that day needs no air under it. */
+.day-section:last-of-type {
+  padding-bottom: 0.5rem;
+}
+
+/* One line: when the app was built, and the way to get a newer one. */
 .refresh-trip {
-  display: grid;
-  gap: 0.3rem;
-  justify-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
+}
+
+/* The connector link, shown only when the clipboard refused it: one
+   unbroken string, so it wraps anywhere and selects in one press. */
+.agent-link {
+  flex-basis: 100%;
+  overflow-wrap: anywhere;
+  user-select: all;
+  font-size: var(--fs-label);
+  color: var(--ink-soft);
 }
 
 .toast {
@@ -1604,20 +1724,13 @@ p {
   box-shadow: var(--shadow);
 }
 
-.unlock__eyebrow {
-  color: var(--ink-muted);
-}
-
-.unlock__title {
-  margin: 0;
-  font-size: var(--fs-title);
-  font-weight: 650;
-  letter-spacing: -0.02em;
-}
-
-.unlock__body {
-  margin-bottom: 0.4rem;
-  color: var(--ink-soft);
+/* The app's name in the display face, sized to stay on one line in the card. */
+.unlock__wordmark {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 5.2vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.1;
 }
 
 .unlock__input {
@@ -1652,8 +1765,11 @@ p {
   color: #fff;
 }
 
+/* Nothing to submit yet: an outline, so the fill arrives with the first character. */
 .btn--primary:disabled {
-  opacity: 0.55;
+  border-color: rgb(var(--line-rgb) / 60%);
+  background: transparent;
+  color: var(--ink-muted);
   cursor: default;
 }
 
@@ -1665,16 +1781,48 @@ p {
 /* --- Wide screens: header, tabs and content share one measure --- */
 
 @media (min-width: 720px) {
-  .trip-header__inner,
-  .day-tabs__scroller {
-    width: min(64rem, 100%);
+  /*
+   * A wide screen gets a reading column, not a stretched phone: 46rem keeps a
+   * card near the proportions it was drawn for. The header and the tabs line
+   * up with the cards, which sit 0.75rem inside the itinerary.
+   */
+  .trip-header__inner {
+    width: min(46rem, 100% - 1.5rem);
     margin: 0 auto;
     padding-left: 0;
     padding-right: 0;
+    /* There is room beside the title here, so the date range moves up onto
+       its line and the header is one row. A long title wraps in its column. */
+    grid-template-columns: minmax(0, auto) minmax(max-content, 1fr) auto;
+    grid-template-areas: "title range actions";
+    align-items: baseline;
+    column-gap: 1rem;
+  }
+
+  .trip-header__title {
+    font-size: var(--fs-title);
+  }
+
+  .trip-header__range {
+    white-space: nowrap;
+  }
+
+  .trip-header__actions {
+    align-self: center;
+  }
+
+  /* The pills start on the same line, but the 0.75rem stays inside the
+     scroller as padding: its edge fade is that wide, and would dim the first
+     pill if the pill sat on the edge. */
+  .day-tabs__scroller {
+    width: min(47.5rem, 100%);
+    margin: 0 auto;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 
   .itinerary {
-    width: min(65.5rem, 100%);
+    width: min(47.5rem, 100%);
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
@@ -1719,13 +1867,6 @@ p {
   background: rgb(var(--travel-rgb) / var(--tint-travel));
 }
 
-/* --- Cleanup: wrapping and spacing --- */
-
-.nowrap {
-  white-space: nowrap;
-}
-
-/* The Google Maps pin on links that open Maps; the pin is taller than wide. */
 /* Opens the leg in Maps: a quiet line icon, not the brand pin on every leg. */
 .travel__open {
   display: grid;
@@ -1765,11 +1906,35 @@ p {
   white-space: nowrap;
 }
 
-/* A journey in the summary names its ends, with the figures beneath. */
+/*
+ * A journey in the summary, laid out as the departure board under a route
+ * leg is: when it runs and what you ride on one line, its two ends beneath.
+ */
 .travel__text {
   min-width: 0;
   display: grid;
-  gap: 0.1rem;
+  gap: 0.15rem;
+}
+
+/* The line chips drop under the times when both will not fit. */
+.travel__lead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.55rem;
+}
+
+.line-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.travel__text .travel__detail {
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 /* Wraps rather than truncating: the destination is the point. */
@@ -1777,11 +1942,13 @@ p {
   overflow-wrap: break-word;
   font-size: var(--fs-small);
   font-weight: 600;
+  line-height: 1.3;
   color: var(--ink);
 }
 
 .day-summary__transfer .travel__inner:has(.travel__text) {
-  padding-block: 0.55rem;
+  align-items: flex-start;
+  padding-block: 0.5rem;
 }
 
 /* Between journeys: how much of the day is spent somewhere, in one line. */
@@ -1950,66 +2117,75 @@ html {
  */
 .departures {
   --step-time: 2.6rem;
-  padding: 0 0 0.6rem calc(var(--rail-x) + 0.7rem);
-  margin-top: -0.25rem;
+  padding: 0 var(--pad) 0.6rem calc(var(--rail-x) + 0.7rem);
 }
 
-/* Keep the times fixed; only the line chain gives up width on a phone. */
-.departures__toggle {
+/*
+ * A ride with departures is one row: the badge, when it runs and the line
+ * are one button that opens the timetable (marked by its icon); Maps is a
+ * button of its own beside it, one tap away.
+ */
+.travel__inner--ride {
+  gap: 0;
+  padding: 0;
+}
+
+.travel__ride {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  width: 100%;
-  min-height: 2rem;
-  padding: 0.3rem 0.55rem;
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  background: var(--paper-elevated);
-  color: var(--ink);
-  font-size: var(--fs-small);
+  gap: 0.6rem;
+  min-height: 2.7rem;
+  padding: 0.4rem 0 0.4rem var(--pad);
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  font: inherit;
   text-align: left;
-  white-space: nowrap;
   cursor: pointer;
 }
 
-.departures__toggle > .mode-glyph {
-  flex: none;
-  color: var(--kind-travel);
-}
-
-.departures__when {
-  flex: none;
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-}
-
-.departures__chain {
+.travel__ride .travel__lead {
   flex: 1 1 auto;
   min-width: 0;
-  overflow: hidden;
-  color: var(--ink-soft);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.departures__chevron {
+.travel__ride:focus-visible,
+.travel__inner--ride .travel__open:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: -2px;
+}
+
+.travel__timetable {
   flex: none;
-  width: 0.4rem;
-  height: 0.4rem;
-  margin: 0 0.15rem 0.15rem 0.1rem;
-  border-right: 1.5px solid var(--ink-muted);
-  border-bottom: 1.5px solid var(--ink-muted);
-  transform: rotate(45deg);
-  transition: transform 160ms ease;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  color: var(--ink-muted);
+  transition: background 160ms ease;
 }
 
-.departures__chevron.is-open {
-  transform: translateY(0.2rem) rotate(225deg);
+.travel__timetable .mode-glyph {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
-.departures__body {
-  margin-top: 0.35rem;
+/* Open: the button stays pressed in. */
+.travel__timetable.is-open {
+  background: rgb(var(--travel-rgb) / 16%);
+  color: var(--ink);
+}
+
+.travel__inner--ride .travel__open {
+  flex: none;
+  align-self: stretch;
+  margin-left: 0;
+  padding: 0 var(--pad) 0 0.35rem;
+  border-radius: 10px;
 }
 
 .departures__target,
@@ -2020,16 +2196,30 @@ html {
 }
 
 .departures__source {
-  margin-top: 0.3rem;
+  margin-top: 0.55rem;
   overflow-wrap: anywhere;
+}
+
+/* "Arrive by 11:00" leads the departures it chose between, on their line. */
+.departures__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.7rem;
+  margin-top: 0.2rem;
+}
+
+.departures__target {
+  flex: none;
 }
 
 /* Choices scroll inside the leg, without a visible scrollbar. */
 .departures__choices {
+  flex: 1 1 9rem;
+  min-width: 0;
   display: flex;
   gap: 0.4rem;
-  margin: 0.4rem 0 0.3rem;
-  padding: 0.1rem 0 0.35rem;
+  padding: 0.15rem 0;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   scrollbar-width: none;
@@ -2081,21 +2271,51 @@ html {
   outline-offset: -2px;
 }
 
-/* Fixed time column; the route and station details use the remaining width. */
+/*
+ * The picked way through, as a line diagram: a fixed time column, then a dot
+ * per station on a rail in the line's colour, then the station and its ride.
+ */
 .departure-steps {
+  --dot-x: calc(var(--step-time) + 0.75rem);
   display: grid;
-  gap: 0.2rem;
-  margin: 0.55rem 0 0;
+  margin: 0.6rem 0 0;
   padding: 0;
   list-style: none;
 }
 
 .departure-steps__ride,
 .departure-steps__end {
+  position: relative;
   display: grid;
   grid-template-columns: var(--step-time) minmax(0, 1fr);
   align-items: start;
-  column-gap: 0.5rem;
+  column-gap: 1.75rem;
+}
+
+.departure-steps__ride {
+  padding-bottom: 0.75rem;
+}
+
+.departure-steps__ride::before {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  bottom: -0.5rem;
+  left: calc(var(--dot-x) - 1.5px);
+  border-left: 3px solid var(--line, var(--kind-travel));
+}
+
+.departure-steps__ride::after,
+.departure-steps__end::after {
+  content: "";
+  position: absolute;
+  top: 0.3rem;
+  left: calc(var(--dot-x) - 5px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 2.5px var(--line, var(--kind-travel));
 }
 
 /* An untimed route shows each ride's length ("~1h 42m") in that column. */
@@ -2104,26 +2324,56 @@ html {
 }
 
 .departure-steps__time {
-  padding-top: 0.1rem;
-  color: var(--ink-soft);
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: var(--fs-label);
+  font-size: var(--fs-small);
   font-variant-numeric: tabular-nums;
+  line-height: 1.35;
   white-space: nowrap;
+}
+
+.departure-steps__ride .departure-steps__time {
+  font-weight: 600;
 }
 
 .departure-steps__what {
   display: grid;
-  justify-items: start;
-  gap: 0.15rem;
+  gap: 0.2rem;
   min-width: 0;
 }
 
-/* Change notes sit in the text column, with a dotted link between rides. */
+/* The station, with how long the ride from it is at the row's far end. */
+.departure-steps__station {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  color: var(--ink);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.departure-steps__dur {
+  flex: none;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 400;
+  word-spacing: -0.3em;
+}
+
+.departure-steps__sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.45rem;
+}
+
+/* A change sits in the text column, between one ride's rail and the next. */
 .departure-steps__change {
-  margin: 0.05rem 0 0.05rem calc(var(--step-time) + 0.5rem);
-  padding: 0.1rem 0 0.1rem 0.55rem;
-  border-left: 1px dotted rgb(var(--travel-rgb) / 70%);
+  margin: 0 0 0.55rem calc(var(--dot-x) + 1rem);
   color: var(--ink-muted);
   font-size: var(--fs-label);
   line-height: 1.35;
@@ -2134,10 +2384,6 @@ html {
   font-size: var(--fs-label);
   line-height: 1.35;
   overflow-wrap: anywhere;
-}
-
-.departure-steps__end {
-  margin-top: 0.1rem;
 }
 
 /* Keep complete service names visible, even when a long name needs two lines. */
@@ -2164,50 +2410,6 @@ html {
 .departures__target.is-missed {
   color: var(--warn);
   font-weight: 600;
-}
-
-/* --- Compact stats: icon beside its figure, not above it --- */
-.day-stats > div {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.4rem;
-  padding: 0.5rem 0.5rem 0.55rem;
-}
-
-.day-stats > div + div::before {
-  top: 0.55rem;
-  bottom: 0.55rem;
-}
-
-.day-stats dd {
-  margin: 0;
-  font-size: var(--fs-label);
-  line-height: 1.35;
-}
-
-/* The figure, then what it is: "6h 2m / in transit". */
-.day-stats dd {
-  display: grid;
-  gap: 0.1rem;
-}
-
-.day-stats__caption {
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
-  line-height: 1.2;
-  color: var(--ink-muted);
-  word-spacing: normal;
-  white-space: normal;
-}
-
-.day-stats__name {
-  height: auto;
-  padding-top: 0.05rem;
-}
-
-.day-stats__name .mode-glyph {
-  width: 0.9rem;
-  height: 0.9rem;
 }
 
 /* An icon that is a link or a button: Maps, call, website, copy. Tap-sized, quiet. */
@@ -2292,6 +2494,43 @@ html {
 .stop__actions .icon-link .mode-glyph {
   width: 0.9rem;
   height: 0.9rem;
+}
+
+/*
+ * Tap areas. The small controls keep their drawn size and place; an invisible
+ * box around each takes the touch, 2.75rem (44px) tall and out to half the gap
+ * to its neighbour. A stop's icons sit edge to edge, so theirs only grows
+ * upward, away from the stop's name beneath.
+ */
+.header-button,
+.day-tab,
+.stop__actions .icon-link {
+  position: relative;
+}
+
+.header-button::after,
+.day-tab::after,
+.stop__actions .icon-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: calc(var(--hit-x, 0rem) * -1);
+  top: 50%;
+  height: max(100%, 2.75rem);
+  transform: translateY(-50%);
+}
+
+.header-button {
+  --hit-x: 0.2rem;
+}
+
+.day-tab {
+  --hit-x: 0.25rem;
+}
+
+.stop__actions .icon-link::after {
+  top: auto;
+  bottom: -0.25rem;
+  transform: none;
 }
 
 /* The planned time: a calendar pill at the row's end, or pinned to the
@@ -2470,6 +2709,13 @@ html {
   white-space: normal;
 }
 
+/* A stay's dates and nights are figures, like a ride's times: Paper Mono, so
+   a summary is not one run of Sora from the hotel's name to the next one's. */
+.lodging-band .stop__notes-text {
+  font-family: var(--font-mono);
+  word-spacing: -0.3em;
+}
+
 /* A day's route opens and closes on its hotel, one line like a flight. */
 .hotel-pill .flight-pill__card {
   background-image: var(--lodging-wash);
@@ -2534,4 +2780,82 @@ html {
   flex: none;
   font-size: var(--fs-small);
   color: var(--ink-muted);
+}
+
+/* The hotel you check out of: one line, which opens to the whole band. */
+.stay-line--fold {
+  width: 100%;
+  border: 0;
+  background-color: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stay-line--fold .lodging-band__phase {
+  flex: none;
+}
+
+.stay-line--fold .stay-line__name {
+  font-size: var(--fs-small);
+}
+
+.stay-line--fold .stay-line__night {
+  font-family: var(--font-mono);
+  word-spacing: -0.3em;
+}
+
+.stay-line--fold:focus-visible,
+.lodging-band__fold:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: -2px;
+}
+
+/* Opened, the band's own label folds it back. */
+.lodging-band__fold {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/*
+ * The day summary, tightened: a day with a flight, a train and two hotels
+ * should not fill the screen. Only the space between things gives; no text
+ * is smaller than it is in the route.
+ */
+.day-summary .card {
+  padding-block: 0.6rem 0.65rem;
+}
+
+.day-summary .card__body {
+  gap: 0.4rem;
+}
+
+.day-summary .lodging-band > .stop__body {
+  gap: 0.15rem;
+  padding-block: 0.6rem 0.65rem;
+}
+
+.day-summary .lodging-band:has(> .stop__photo) {
+  min-height: 7rem;
+}
+
+.day-summary .stop__top {
+  margin-bottom: 0.2rem;
+}
+
+.day-summary .stop__notes {
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+}
+
+.day-summary .stay-line {
+  min-height: 2.6rem;
+  padding-block: 0.3rem;
+}
+
+.day-summary__between {
+  padding-block: 0.35rem;
 }

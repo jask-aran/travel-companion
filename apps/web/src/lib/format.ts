@@ -110,7 +110,6 @@ function compactCount(count: number): string {
   return `${thousands >= 100 ? Math.round(thousands) : thousands.toFixed(1)}k`;
 }
 
-/** "4.3 · 29.6k" — rating is only meaningful alongside how many rated it. */
 /** "★ 4.5 (12.9k)" for a card's meta line. */
 export function formatRatingLabel(rating?: number, ratingCount?: number): string | undefined {
   if (rating == null || !Number.isFinite(rating) || rating <= 0) return undefined;
@@ -126,13 +125,6 @@ export function formatCategory(category?: string): string | undefined {
   return words ? words.charAt(0).toUpperCase() + words.slice(1) : undefined;
 }
 
-/**
- * Google addresses arrive with the country appended, a postal code inline, and
- * — for Japanese addresses — the block number repeated in romaji and kanji.
- * None of that helps on a card: "Open in Maps" is one tap away, so what's
- * wanted here is a short locality that orients you. Keep the broadest few
- * named parts and drop codes and block numbers entirely.
- */
 const COUNTRY = /^(japan|south korea|korea)$/i;
 const POSTAL = /^\u3012?\d{3}-?\d{4}$/;
 /** Block numbers: digits, dashes and Japanese counter kanji, but no name. */

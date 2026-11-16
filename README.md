@@ -1,103 +1,82 @@
 # Travel Companion
 
-A fast, mobile-first PWA for viewing a shared trip itinerary.
+A phone-first web app that shows one shared trip itinerary, built from a [Wanderlog](https://wanderlog.com) plan. Travellers open a link, type a passphrase once, and can install it and read it offline. Their own chat agent (Claude, ChatGPT) can read the trip too.
 
-The operator pipeline is local and semi-deterministic:
+## Start
 
-```text
-Wanderlog API (primary)  ─┐
-                          ├─→ normaliser → TripBundle (gitignored) → local PWA build
-Playwright HTML fallback ─┘
-```
-
-Raw Wanderlog output never belongs in git. The Wanderlog trip id lives only in a gitignored local config. How the live site is served, and how a phone can refresh it, is in [docs/hosting.md](docs/hosting.md).
-
-Production photos and maps persist in the private R2 bucket `travel-companian`, bound as `MEDIA`, each fetched from Google once. See [photo and map storage](docs/hosting.md#photo-and-map-storage).
-
-## One-time setup
+You need Node 22+, pnpm, and the id from your plan's URL (`wanderlog.com/plan/<id>/…`). Treat that id as a secret: it lets anyone read and edit the plan.
 
 ```bash
 pnpm install
-pnpm exec playwright install chromium   # backup scraper only
-
-cp config/trip.example.yaml config/trip.local.yaml
-# edit trip.local.yaml: wanderlogId, publicId, wanderlog.web.url, paths.workingBundle
+pnpm trip:init
 ```
 
-The pull is a plain `GET https://wanderlog.com/api/tripPlans/<wanderlogId>?clientSchemaVersion=2`, the same call the Pages refresh function makes. No login is needed: the plan-URL key is the credential, so treat it as a secret.
+The wizard:
 
-`wanderlog-cli` is no longer needed for a pull. See [When to use wanderlog-cli](docs/ingestion.md#when-to-use-wanderlog-cli) for editing the trip and other account work.
+1. Asks for the plan id (or the whole URL) and three optional keys, and tests the keys.
+2. Pulls the trip, builds the site, and prints the passphrase your travellers type once on each phone.
+3. Offers a menu:
+   - preview the site on this computer
+   - run the connector on this computer, for a chat agent there
+   - put the site and connector online
+   - put only the connector online
+   - test or change the keys
 
-## Operator loop
+Putting it online uses Cloudflare's free plan. The wizard logs you in (browser, or a pasted API token), asks for a name, a path and an optional custom domain, shows what it will create, and creates nothing until you agree. After that the site pulls plan changes from Wanderlog by itself.
 
-```bash
-pnpm trip:refresh    # API first, HTML scraper on API failure
-pnpm dev             # serves the generated working.json as /trip.json
-```
+Everything it asks is saved in `config/trip.local.yaml`, which is not committed. `config/trip.example.yaml` lists every setting.
 
-Forced sources:
+### Optional keys
 
-```bash
-pnpm trip:pull             # API only
-pnpm trip:pull:cli         # wanderlog-cli only
-pnpm trip:scrape           # browser scraper only, headless
-pnpm trip:scrape:headed    # visible browser (auth if needed)
-```
+All three are used only once the site is on Cloudflare. Add or change them any time with `pnpm trip:keys`, which tests them and updates Cloudflare too.
 
-`trip:refresh` reads **`config/trip.local.yaml`** (gitignored). It:
+| Key | Adds | Where to get it |
+|---|---|---|
+| Google Maps key | Place photos, street maps, transit times outside Japan | A Google Cloud API key on a project with billing on and Places API (New), Maps Static API, Routes API and Cloud Translation API enabled |
+| Google project number | Better English names for lines and towns | The same project's number, on the Cloud console dashboard |
+| NAVITIME key | Transit times in Japan | Your RapidAPI key, subscribed to NAVITIME's route API (`navitime-route-totalnavi`) |
 
-1. fetches the trip JSON from the Wanderlog API;
-2. validates and saves raw JSON under `private-import/` (gitignored);
-3. falls back to Playwright when API acquisition fails;
-4. normalises through the shared allow-listed pipeline;
-5. writes `public-data/trips/<publicId>/working.json` (gitignored) plus private reports.
+Google is asked once per photo or map, and the answer is kept, so a trip costs a few hundred requests in total. The site also stops itself at 300 Google requests a day and stops asking for an hour after a refusal. Set daily quotas in the Google Cloud console as well: they are the only hard limit.
 
-Viewing the itinerary never talks to Wanderlog. Vite serves that local `working.json` as `/trip.json` in dev and embeds it into `dist/` on `pnpm build`. The production refresh button asks the Pages function to pull Wanderlog. See [docs/hosting.md](docs/hosting.md).
+## How it works
 
-```bash
-pnpm build
-pnpm preview
-```
+1. **Pull.** `pnpm trip:pull` downloads the plan from Wanderlog and reduces it to one file, the `TripBundle` (`public-data/trips/<id>/working.json`): days, stops, stays, flights, booking references and routes between stops. It asks only Wanderlog.
+2. **Build.** `pnpm build` writes a static site to `apps/web/dist/`. The trip is in it as `trip.enc`, encrypted with the passphrase and decrypted in the browser, so the site can sit on any public host.
+3. **Host.** Either copy `apps/web/dist/` to any static host, or use Cloudflare Pages, which adds a small server function (`workers/refresh`). On Pages the function keeps the trip in KV and pulls it itself; until its first pull it serves the build's `trip.enc`. After setup the laptop is not needed for trip changes, and a deploy only replaces the app.
 
-Build fails closed if you have not refreshed a local bundle yet.
+The Cloudflare function adds what a static host cannot:
 
-## Checks
+- **Fresh trips.** It pulls Wanderlog itself when someone presses the refresh button, and when the trip is read after an idle hour. No rebuild is needed for a plan edit.
+- **Photos and maps**, fetched from Google once and kept in an R2 bucket.
+- **Live departure times** for today and tomorrow.
+- **The connector.** "Copy connector link" in the app's footer gives a traveller an address to paste into Claude or ChatGPT as a custom connector. The link is the secret: whoever has it can read the whole trip.
 
-```bash
-pnpm typecheck
-pnpm test
-```
+## Commands
 
-## What is private
+| Command | Does |
+|---|---|
+| `pnpm trip:init` | The wizard: set up, or come back to its menu |
+| `pnpm trip:keys` | Test the keys; change them here and on Cloudflare (then redeploys) |
+| `pnpm trip:pull` | Download the plan again |
+| `pnpm dev` | Run the site locally (no passphrase) |
+| `pnpm mcp` | Local connector at `http://127.0.0.1:4190/mcp`, for agents on this computer |
+| `pnpm build` | Build the static site |
+| `pnpm ship` | Deploy the app and function to Cloudflare (only the function for a connector-only setup); the live trip is left alone |
+| `pnpm ship:dry` | Build and stage a deploy, upload nothing |
+| `pnpm ship:check` | Check the online site works, with Google's and NAVITIME's request counts and last refusal; run it when photos or times stop loading |
+| `pnpm typecheck`, `pnpm test` | Checks |
 
-| Path | Role |
-|------|------|
-| `config/trip.local.yaml` | Wanderlog trip id, plan URL, local paths |
-| `private-import/` | Raw trip JSON, scraped HTML, browser profile, overrides, reports |
-| `public-data/**/working.json` | Normalised TripBundle used by the PWA |
-| `apps/web/dist/` | Local build output (may contain the bundle) |
-
-Committed: `config/trip.example.yaml` (placeholders only), schema, normaliser, PWA shell.
-
-## Repository layout
+## Layout
 
 ```text
-apps/web                 SolidJS itinerary PWA
-packages/trip-schema     Canonical TripBundle schema
-packages/trip-normaliser Wanderlog → TripBundle
-packages/wanderlog-import API/CLI/HTML acquisition adapters
-config/trip.example.yaml Template for local config
-config/trip.local.yaml   Your trip id (gitignored)
-docs/                    Product spec, ingestion, and hosting
-workers/refresh          Pages function: serve trip.enc from KV, refresh from Wanderlog
+apps/web                 the app (SolidJS)
+workers/refresh          the Cloudflare Pages function, including the connector
+packages/trip-schema     the TripBundle shape
+packages/trip-normaliser Wanderlog plan → TripBundle
+packages/trip-brief      TripBundle → text for chat agents
+packages/wanderlog-import downloading the plan, reading the config
+data/trips/<id>          timetables copied by hand, for services the APIs lack
+scripts                  the wizard, pull, deploy and local connector
 ```
 
-## Tracking
-
-1. [Ingestion and schema](https://github.com/jask-aran/travel-companion/issues/1) (done)
-2. [Continuous itinerary PWA](https://github.com/jask-aran/travel-companion/issues/2) (done)
-3. [Map interaction](https://github.com/jask-aran/travel-companion/issues/3)
-4. [Publishing and updates](https://github.com/jask-aran/travel-companion/issues/4)
-5. [Optional live-editing backend](https://github.com/jask-aran/travel-companion/issues/5)
-
-See [docs/project-spec.md](docs/project-spec.md) and [docs/ingestion.md](docs/ingestion.md).
+MIT licensed.

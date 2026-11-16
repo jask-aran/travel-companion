@@ -17,16 +17,19 @@ export function translationModel(projectNumber?: string): string | undefined {
 
 /**
  * English for each text, from the cache or the API. Without a key, or if the
- * API refuses, the missing ones are simply absent and show as given.
+ * API refuses, the missing ones are simply absent and show as given. `limit`
+ * caps how many missing texts are sent (the rest wait for a later call).
+ * Requests go through the caller's `fetch` (the worker's guard.ts).
  */
 export async function translateMissing(
   texts: Iterable<string>,
   apiKey: string | undefined,
   cache: Record<string, string>,
-  model?: string,
+  model: string | undefined,
+  options: { fetch: (input: string, init?: RequestInit) => Promise<Response>; limit?: number; signal?: AbortSignal },
 ): Promise<{ translations: Record<string, string>; report: TranslationReport }> {
   const wanted = [...new Set(texts)];
-  const missing = wanted.filter((text) => !(text in cache));
+  const missing = wanted.filter((text) => !(text in cache)).slice(0, options.limit);
   const report: TranslationReport = {
     translated: 0,
     cached: wanted.length - missing.length,
@@ -37,10 +40,11 @@ export async function translateMissing(
     try {
       for (let index = 0; index < missing.length; index += BATCH) {
         const batch = missing.slice(index, index + BATCH);
-        const response = await fetch(`${ENDPOINT}?key=${encodeURIComponent(apiKey)}`, {
+        const response = await options.fetch(`${ENDPOINT}?key=${encodeURIComponent(apiKey)}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ q: batch, target: "en", format: "text", ...(model ? { model } : {}) }),
+          ...(options.signal ? { signal: options.signal } : {}),
         });
         if (!response.ok) throw new Error(`${response.status} ${(await response.text()).slice(0, 160)}`);
         const json = (await response.json()) as {

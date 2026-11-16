@@ -6,23 +6,31 @@ import {
   createEffect,
   createResource,
   createSignal,
-  onCleanup,
   onMount,
   untrack,
 } from "solid-js";
 import { DaySection } from "./components/DaySection";
 import { DayTabs } from "./components/DayTabs";
-import { observeActiveDay, pinOnScreen, scrollToDay } from "./lib/active-day";
 import { formatArrows, formatTripRange } from "./lib/format";
 import { loadTripBundle, tripIsEncrypted } from "./lib/load-trip";
 import { forgetPassphrase, readPassphrase, rememberPassphrase } from "./lib/passphrase";
 import { WrongPassphraseError } from "./lib/trip-crypto";
 import { Unlock } from "./components/Unlock";
 import { collectStays } from "./lib/lodging";
+import { AgentLink } from "./components/AgentLink";
 import { AppUpdate } from "./components/AppUpdate";
-import { CollapseAll } from "./components/CollapseAll";
 import { RefreshTrip } from "./components/RefreshTrip";
-import { isDayCollapsed, setDayCollapsed } from "./lib/collapsed-days";
+import { hasPagesFunction } from "./lib/pages-function";
+
+/**
+ * The refresh button and the connector link need the Pages function (dev
+ * reruns the local pull instead, so it keeps the button). Chosen here, not
+ * with <Show>, so a static build leaves the components out of the bundle.
+ */
+const nothing = (_props: { passphrase: string; revision?: string }) => null;
+const RefreshButton = !import.meta.env.PROD || hasPagesFunction ? RefreshTrip : nothing;
+const ConnectorLink = hasPagesFunction ? AgentLink : nothing;
+import { setDayCollapsed } from "./lib/collapsed-days";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { indexRouteLegs } from "./lib/route-legs";
 import { withLiveBoards } from "./lib/live-departures";
@@ -31,12 +39,9 @@ import { clock } from "./lib/clock";
 
 export default function App() {
   /*
-   * The passphrase is the decryption key, so nothing loads without one.
-   *
-   * A remembered passphrase is validated before it is adopted. Letting the
-   * resource discover it was stale instead meant `trip.error` lingered while
-   * the next fetch was in flight, and the clearing logic then wiped the
-   * passphrase the reader had just typed.
+   * The passphrase is the decryption key, so nothing loads without one. A
+   * remembered one is checked before it is adopted, so a stale one cannot
+   * clear the passphrase the reader has just typed.
    */
   const [passphrase, setPassphrase] = createSignal<string | undefined>(
     tripIsEncrypted ? undefined : "",
@@ -89,109 +94,26 @@ export default function App() {
   };
 
   const [activeDayId, setActiveDayId] = createSignal("");
-  const [tabLocked, setTabLocked] = createSignal(false);
-  let unlockTimer: ReturnType<typeof setTimeout> | undefined;
-  let stopObserver: (() => void) | undefined;
-
+  // Selection owns the visible day; scrolling no longer changes the selection.
   createEffect(() => {
     const bundle = trip();
     if (!bundle) return;
-
-    const ids = bundle.days.map((day) => day.id);
-    // Untracked: reading it here re-ran this effect on every scroll update,
-    // rebuilding the observer, which then reported day one again.
-    // Opening during the trip lands on today; before or after it, on day one.
-    const today = untrack(activeDayId) ? undefined : bundle.days.find((day) => day.date === untrack(clock).date);
-    if (!untrack(activeDayId) && ids[0]) setActiveDayId(today?.id ?? ids[0]);
-
-    stopObserver?.();
-    stopObserver = undefined;
-
-    const frame = requestAnimationFrame(() => {
-      if (today) {
-        holdSpy(600);
-        history.scrollRestoration = "manual";
-        document.getElementById(today.id)?.scrollIntoView({ block: "start", behavior: "instant" });
-      }
-      stopObserver = observeActiveDay(
-        ids,
-        (id) => {
-          if (!tabLocked()) setActiveDayId(id);
-        },
-        { topOffsetPx: 108 },
-      );
-    });
-
-    onCleanup(() => {
-      cancelAnimationFrame(frame);
-      stopObserver?.();
-      stopObserver = undefined;
-    });
+    const selected = untrack(activeDayId);
+    if (bundle.days.some((day) => day.id === selected)) return;
+    const day = bundle.days.find((day) => day.date === untrack(clock).date) ?? bundle.days[0];
+    if (!day) return;
+    setDayCollapsed(day.id, false);
+    setActiveDayId(day.id);
   });
 
-  onCleanup(() => {
-    if (unlockTimer) clearTimeout(unlockTimer);
-  });
-
-  /**
-   * Make a day the active one, holding off the scroll-spy while the page
-   * scrolls there so the pill does not flick through the days in between.
-   */
-  const holdSpy = (releaseAfterMs?: number) => {
-    setTabLocked(true);
-    if (unlockTimer) clearTimeout(unlockTimer);
-    if (releaseAfterMs !== undefined) {
-      unlockTimer = setTimeout(() => setTabLocked(false), releaseAfterMs);
-    }
-  };
-
-  /**
-   * Fold or open every day without losing your place: the day you are on keeps
-   * its header where it is while the days around it change height, and stays
-   * the active tab. Without this the page shrinks to a few headers and the
-   * spy reads "scrolled to the bottom" as the last day.
-   */
-  const keepActiveDay = () => {
-    const section = document.getElementById(activeDayId());
-    holdSpy(900);
-    if (!section) return;
-    if (section.getBoundingClientRect().top < 0) {
-      section.scrollIntoView({ block: "start", behavior: "instant" });
-    }
-    pinOnScreen(section, 700);
-  };
-
-  /** A header tap: the page is already there, so only a short hold. */
-  const focusDay = (dayId: string) => {
-    setActiveDayId(dayId);
-    holdSpy(700);
-  };
-
-  /**
-   * A tab tap opens its day; tapping the tab of the day already open and in
-   * focus folds it again.
-   */
   const selectDay = (dayId: string) => {
-    const day = trip()?.days.find((candidate) => candidate.id === dayId);
-    const open = day ? !isDayCollapsed(day.id, day.date) : false;
-    const closing = dayId === activeDayId() && open;
-    setActiveDayId(dayId);
-    // Hold until the page has actually arrived, however far that is.
-    holdSpy();
-    if (closing) {
-      // Closing the day you are in: bring its header up first, then fold, so
-      // the page shrinks below a header that stays put instead of under you.
-      const section = document.getElementById(dayId);
-      // scroll-margin-top keeps it clear of the sticky tabs.
-      if (section && section.getBoundingClientRect().top < 0) {
-        section.scrollIntoView({ block: "start", behavior: "instant" });
-      }
-      setDayCollapsed(dayId, true);
-      holdSpy(500);
-      return;
-    }
+    if (dayId === activeDayId() || !trip()?.days.some((day) => day.id === dayId)) return;
     setDayCollapsed(dayId, false);
-    void scrollToDay(dayId).then(() => holdSpy(150));
+    setActiveDayId(dayId);
+    // Read the new layout after Solid has replaced the previous day.
+    requestAnimationFrame(() => {
+      document.querySelector(".itinerary")?.scrollIntoView({ block: "start", behavior: "instant" });
+    });
   };
 
   return (
@@ -245,16 +167,15 @@ export default function App() {
                   * away.
                   */}
                 <header class="trip-header">
-                  <div class="trip-header__actions">
-                    <RefreshTrip passphrase={passphrase() ?? ""} />
-                    <CollapseAll days={data.days} onToggle={keepActiveDay} />
-                    <ThemeToggle />
-                  </div>
                   <div class="trip-header__inner">
                     <h1 class="trip-header__title">{formatArrows(data.trip.title)}</h1>
                     <p class="trip-header__range">
                       {formatTripRange(data.trip.startDate, data.trip.endDate)}
                     </p>
+                    <div class="trip-header__actions">
+                      <RefreshButton passphrase={passphrase() ?? ""} revision={data.revision} />
+                      <ThemeToggle />
+                    </div>
                   </div>
                 </header>
                 <DayTabs
@@ -265,25 +186,33 @@ export default function App() {
                 />
 
                 <main class="itinerary" aria-label="Trip itinerary">
-                  <For each={data.days}>
-                    {(day, index) => (
+                  <For each={data.days.filter((day) => day.id === activeDayId())}>
+                    {(day) => (
                       <DaySection
                         day={day}
                         bundle={shown() ?? data}
-                        index={index()}
+                        index={data.days.findIndex((candidate) => candidate.id === day.id)}
                         stays={stays}
                         legIndex={legIndex}
                         stayPlaceIds={stayPlaceIds}
-                        onFocus={focusDay}
                       />
                     )}
                   </For>
                   <footer class="itinerary-footer">
-                    <p>
-                      Revision <code>{data.revision}</code>
-                    </p>
-                    <Show when={import.meta.env.PROD}>
-                      <AppUpdate />
+                    {/* Dev has no shell to update, so it shows the revision instead. */}
+                    <Show
+                      when={import.meta.env.PROD}
+                      fallback={
+                        <p>
+                          Revision <code>{data.revision}</code>
+                        </p>
+                      }
+                    >
+                      <AppUpdate revision={data.revision} />
+                    </Show>
+                    {/* Only the live site's function has the connector, and a passphrase to make its link from. */}
+                    <Show when={import.meta.env.PROD && passphrase()}>
+                      {(secret) => <ConnectorLink passphrase={secret()} />}
                     </Show>
                   </footer>
                 </main>

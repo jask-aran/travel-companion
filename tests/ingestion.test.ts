@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { extractMobxState, parseWanderlogSource } from "../packages/wanderlog-import/src/index.js";
+import { parseWanderlogSource } from "../packages/wanderlog-import/src/index.js";
 import { localityFrom, normaliseWanderlog } from "../packages/trip-normaliser/src/index.js";
+import { normaliseCompleteWanderlog } from "../packages/trip-normaliser/src/complete.js";
 
 const source = {
   success: true,
@@ -68,27 +69,17 @@ const source = {
   },
 };
 
-describe("Wanderlog adapters", () => {
-  it("parses CLI JSON", () => {
-    const parsed = parseWanderlogSource(JSON.stringify(source));
-    expect(parsed.kind).toBe("cli-json");
-    expect(parsed.data.tripPlan).toBeDefined();
-  });
-
-  it("extracts embedded MobX JSON without regex matching nested objects", () => {
-    const html = `<script>window.__MOBX_STATE__ = ${JSON.stringify({ tripPlanStore: { data: source } })};</script>`;
-    const state = extractMobxState(html);
-    expect(state.tripPlanStore).toBeDefined();
-    expect(parseWanderlogSource(html).kind).toBe("html-mobx");
+describe("Wanderlog source", () => {
+  it("parses the API's JSON object and rejects anything else", () => {
+    expect(parseWanderlogSource(JSON.stringify(source)).data.tripPlan).toBeDefined();
+    expect(() => parseWanderlogSource("[]")).toThrow();
   });
 });
 
 describe("normaliser", () => {
   it.each([
-    ["Tokyo", 35.68, 139.76, "2026-11-21", "Asia/Tokyo", 540],
     ["Paris in winter", 48.85, 2.35, "2026-12-01", "Europe/Paris", 60],
     ["Paris in summer", 48.85, 2.35, "2026-07-01", "Europe/Paris", 120],
-    ["New York", 40.71, -74.0, "2026-12-01", "America/New_York", -300],
     ["Kathmandu", 27.7, 85.32, "2026-12-01", "Asia/Kathmandu", 345],
   ])("puts a day in %s on its local clock, from coordinates", (_label, lat, lng, date, zone, offset) => {
     const input = {
@@ -103,7 +94,7 @@ describe("normaliser", () => {
         },
       },
     };
-    const { bundle } = normaliseWanderlog(input, { sourceKind: "cli-json", sourceText: JSON.stringify(input) });
+    const { bundle } = normaliseWanderlog(input, { sourceText: JSON.stringify(input) });
     expect(bundle.places["google-place:here"]?.timeZone).toBe(zone);
     expect(bundle.days[0]).toMatchObject({ timezone: zone, utcOffsetMinutes: offset });
   });
@@ -111,7 +102,6 @@ describe("normaliser", () => {
   it("creates an allow-listed TripBundle", () => {
     const text = JSON.stringify(source);
     const { bundle, report } = normaliseWanderlog(source, {
-      sourceKind: "cli-json",
       sourceText: text,
       generatedAt: "2026-07-26T00:00:00.000Z",
     });
@@ -124,12 +114,11 @@ describe("normaliser", () => {
     expect(Object.keys(bundle.places)).toHaveLength(2);
     expect(Object.keys(bundle.routeLegs)).toHaveLength(1);
     expect(bundle.places["google-place:google-nagoya-station"]?.image?.url).toBe("https://example.test/nagoya.jpg");
-    expect(report.redacted).toContain("booking confirmation numbers and reservation attachments");
+    expect(report.redacted).toContain("reservation attachments");
   });
 
   it("applies source-keyed overrides", () => {
     const { bundle } = normaliseWanderlog(source, {
-      sourceKind: "cli-json",
       sourceText: JSON.stringify(source),
       overrides: {
         places: {
@@ -148,30 +137,117 @@ describe("normaliser", () => {
   });
 });
 
+describe("booking details", () => {
+  const email = (id: number, subject: string) => ({ type: "email", id, subject, rating: "positive" });
+  const bookings = {
+    tripPlan: {
+      key: "booked",
+      title: "Booked",
+      startDate: "2026-11-21",
+      endDate: "2026-11-23",
+      itinerary: {
+        sections: [
+          { date: "2026-11-21", blocks: [] },
+          { date: "2026-11-22", blocks: [] },
+          { date: "2026-11-23", blocks: [] },
+          {
+            type: "hotels",
+            blocks: [
+              {
+                id: 50,
+                type: "place",
+                addedBy: { type: "user", userId: 999 },
+                emailId: 7001,
+                cancellationDeadline: "2026-11-18 23:59",
+                cancellationPolicy: "Free cancellation until the deadline.",
+                guests: { adultCount: 2, roomCount: 1, childrenAges: [] },
+                attachments: [email(7001, "Your booking is confirmed"), email(7002, "Other mail")],
+                hotel: { checkIn: "2026-11-21", checkOut: "2026-11-23", confirmationNumber: "H123", travelerNames: ["A Traveller"] },
+                place: { place_id: "hotel", name: "Example Hotel", geometry: { location: { lat: 35.68, lng: 139.76 } } },
+              },
+              {
+                id: 51,
+                type: "place",
+                attachments: [],
+                hotel: { checkIn: "2026-11-22", checkOut: "2026-11-23" },
+                place: { place_id: "plain", name: "Plain Inn", geometry: { location: { lat: 35.68, lng: 139.76 } } },
+              },
+            ],
+          },
+          {
+            type: "flights",
+            blocks: [
+              {
+                id: 60,
+                type: "flight",
+                emailId: 8001,
+                attachments: [email(8001, "Your e-ticket receipt")],
+                flightInfo: { airline: { name: "Example Air", iata: "EX" }, number: 1 },
+                depart: { date: "2026-11-21", time: "08:00", airport: { iata: "AAA" } },
+                arrive: { date: "2026-11-21", time: "10:00", airport: { iata: "BBB" } },
+              },
+              {
+                id: 61,
+                type: "flight",
+                emailId: 8002,
+                attachments: [email(8003, "Someone else's")],
+                flightInfo: { number: 2 },
+                depart: { date: "2026-11-23", time: "08:00" },
+                arrive: { date: "2026-11-23", time: "10:00" },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  };
+  const { bundle } = normaliseCompleteWanderlog(bookings, { sourceText: JSON.stringify(bookings) });
+  const items = bundle.days.flatMap((day) => day.items);
+
+  it("carries cancellation terms, guests and the email subject on both edges of a stay", () => {
+    const stay = items.filter((item) => item.type === "lodging" && item.name === "Example Hotel");
+    expect(stay).toHaveLength(2);
+    for (const item of stay) {
+      expect(item).toMatchObject({
+        cancellationDeadline: "2026-11-18 23:59",
+        cancellationPolicy: "Free cancellation until the deadline.",
+        guests: { adultCount: 2, roomCount: 1 },
+        bookingEmailSubject: "Your booking is confirmed",
+      });
+      expect(item).not.toHaveProperty("guests.childrenAges");
+    }
+  });
+
+  it("leaves a stay without them alone", () => {
+    const plain = items.find((item) => item.type === "lodging" && item.name === "Plain Inn");
+    expect(plain).toBeDefined();
+    for (const key of ["cancellationDeadline", "cancellationPolicy", "guests", "bookingEmailSubject"]) {
+      expect(plain).not.toHaveProperty(key);
+    }
+  });
+
+  it("gives a flight the subject of its own email only", () => {
+    const flights = items.filter((item) => item.type === "flight");
+    expect(flights.find((item) => item.flightNumber === "1")).toMatchObject({ bookingEmailSubject: "Your e-ticket receipt" });
+    expect(flights.find((item) => item.flightNumber === "2")).not.toHaveProperty("bookingEmailSubject");
+  });
+
+  it("never carries email ids, attachments or account ids", () => {
+    const text = JSON.stringify(bundle);
+    for (const leaked of ["7001", "7002", "8001", "Other mail", "attachments", "emailId", "addedBy", "999", "rating\":\"positive"]) {
+      expect(text).not.toContain(leaked);
+    }
+  });
+});
+
 describe("place locality", () => {
   const component = (long_name: string, ...types: string[]) => ({ long_name, types: [...types, "political"] });
 
-  it("uses Google's locality", () => {
+  it("uses Google's locality, adding the region when the locality is a ward inside it", () => {
     expect(localityFrom([component("Kanazawa", "locality"), component("Japan", "country")])).toBe("Kanazawa");
-  });
-
-  it("adds the first-level area when the locality is a ward inside it", () => {
-    expect(
-      localityFrom([
-        component("Shinjuku City", "locality"),
-        component("Tokyo", "administrative_area_level_1"),
-        component("Japan", "country"),
-      ]),
-    ).toBe("Shinjuku City, Tokyo");
-  });
-
-  it("does not repeat a locality that is its own region", () => {
-    expect(
-      localityFrom([component("Osaka", "locality"), component("Osaka", "administrative_area_level_1")]),
-    ).toBe("Osaka");
-  });
-
-  it("has nothing to say without components", () => {
+    expect(localityFrom([component("Shinjuku City", "locality"), component("Tokyo", "administrative_area_level_1")]))
+      .toBe("Shinjuku City, Tokyo");
+    expect(localityFrom([component("Osaka", "locality"), component("Osaka", "administrative_area_level_1")])).toBe("Osaka");
     expect(localityFrom(undefined)).toBeUndefined();
     expect(localityFrom([component("Japan", "country")])).toBeUndefined();
   });

@@ -1,5 +1,6 @@
 import { createSignal, onCleanup, Show } from "solid-js";
 import { checkForAppUpdate } from "../lib/app-update";
+import { serverRevision } from "../lib/load-trip";
 import { failure, success } from "../lib/haptics";
 
 declare const __TRIP_BASE__: string;
@@ -11,7 +12,7 @@ const base = typeof __TRIP_BASE__ === "string" ? __TRIP_BASE__ : "/";
  * passphrase already unlocked this device, so it is the credential. In dev
  * the Vite plugin's hook reruns the local pull instead.
  */
-export function RefreshTrip(props: { passphrase: string }) {
+export function RefreshTrip(props: { passphrase: string; revision: string }) {
   const [message, setMessage] = createSignal("");
   const [busy, setBusy] = createSignal(false);
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
@@ -23,21 +24,23 @@ export function RefreshTrip(props: { passphrase: string }) {
     if (linger) hideTimer = setTimeout(() => setMessage(""), 4000);
   };
 
-  const pullTrip = async (): Promise<boolean> => {
+  /** "recent": the function ignored the press, as someone checked Wanderlog in the last two minutes. */
+  const pullTrip = async (): Promise<"changed" | "unchanged" | "recent"> => {
     if (!import.meta.env.PROD) {
       const response = await fetch(`${base}__trip/refresh`);
       if (!response.ok) throw new Error(`Refresh failed (${response.status})`);
-      return true;
+      return "changed";
     }
     const response = await fetch(`${base}api/refresh`, {
       method: "POST",
       headers: { Authorization: `Bearer ${props.passphrase}` },
     });
     const body = (await response.json().catch(() => null)) as
-      | { error?: string; changed?: boolean }
+      | { error?: string; changed?: boolean; checkedRecently?: boolean }
       | null;
     if (!response.ok) throw new Error(body?.error ?? `Refresh failed (${response.status})`);
-    return body?.changed !== false;
+    if (body?.changed !== false) return "changed";
+    return body.checkedRecently ? "recent" : "unchanged";
   };
 
   const refresh = async () => {
@@ -45,13 +48,17 @@ export function RefreshTrip(props: { passphrase: string }) {
     setBusy(true);
     say("Pulling Wanderlog…", false);
     try {
-      const tripChanged = await pullTrip();
+      const pulled = await pullTrip();
       const app = await checkForAppUpdate().catch(() => "unavailable" as const);
       if (app === "updating") {
         say("New app version. Reloading…", false);
         return;
       }
-      if (tripChanged) {
+      // Wanderlog may be unchanged since the server's last pull while this
+      // phone still shows an older copy (someone else pulled first).
+      const latest = pulled !== "changed" && import.meta.env.PROD ? await serverRevision(props.passphrase) : undefined;
+      const behind = latest !== undefined && latest !== props.revision;
+      if (pulled === "changed" || behind) {
         success();
         await caches.delete("trip-bundle").catch(() => false);
         say("Updated. Reloading…", false);
@@ -59,7 +66,7 @@ export function RefreshTrip(props: { passphrase: string }) {
         return;
       }
       success();
-      say("Already up to date.");
+      say(pulled === "recent" ? "Checked a moment ago. Try again in two minutes." : "Already up to date.");
     } catch (error) {
       failure();
       say(error instanceof Error ? error.message : "Refresh failed");

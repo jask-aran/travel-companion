@@ -81,7 +81,7 @@ const request = (overrides: Partial<DepartureRequest>): DepartureRequest => ({
   ...overrides,
 });
 
-const newReport = (): DepartureReport => ({ boards: 0, cached: 0, requested: { google: 0, navitime: 0 }, skipped: 0, errors: [] });
+const newReport = (): DepartureReport => ({ requested: { google: 0, navitime: 0 }, skipped: 0, errors: [] });
 
 function run(requests: DepartureRequest[], timetables: CuratedTimetable[], options: { navitime?: string; estimate?: number } = {}) {
   const fetchMock = vi.fn(async (url: string) => new Response(options.navitime ?? navitime));
@@ -91,8 +91,8 @@ function run(requests: DepartureRequest[], timetables: CuratedTimetable[], optio
     context(options.estimate),
     requests,
     {
+      fetch: (input) => fetchMock(input),
       keys: { navitime: "nkey" },
-      cache: {},
       timetables,
       translate: async () => ({ translations: {} }),
       mayAskNavitime: () => true,

@@ -6,17 +6,17 @@ import type { Plugin, ViteDevServer } from "vite";
 import { encryptTrip } from "../src/lib/trip-crypto";
 import { MEDIA_ROUTES, mediaToken } from "../src/lib/media";
 import { DEPARTURES_ROUTE } from "../src/lib/departures-api";
-import { parse as parseYaml } from "yaml";
+import {
+  loadIngestionConfigSync,
+  readSiteSettings,
+  type SiteSettings,
+} from "../../../packages/wanderlog-import/src/config";
 
 const appDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const projectRoot = resolve(appDir, "../..");
 const localConfigPath = resolve(projectRoot, "config/trip.local.yaml");
 
-/**
- * How stale a bundle may be before `pnpm dev` re-pulls it in the background.
- * Wanderlog edits during a trip are frequent enough that a day is too long and
- * a minute would hammer the CLI on every restart.
- */
+/** How stale a bundle may be before `pnpm dev` re-pulls it in the background. */
 const STALE_AFTER_MS = 6 * 60 * 60 * 1000;
 
 /**
@@ -39,23 +39,16 @@ export type LocalTripConfig = {
 };
 
 function readLocalConfig(): LocalTripConfig {
-  if (!existsSync(localConfigPath)) {
-    throw new Error(
-      `Missing ${localConfigPath}. Copy config/trip.example.yaml to config/trip.local.yaml and set your Wanderlog trip id (gitignored).`,
-    );
-  }
-  const raw = parseYaml(readFileSync(localConfigPath, "utf8")) as {
-    paths?: { workingBundle?: string };
-    share?: { passphrase?: string };
-  };
-  const relative = raw.paths?.workingBundle;
-  if (!relative) {
-    throw new Error("config/trip.local.yaml is missing paths.workingBundle");
-  }
+  const { config, resolvePath } = loadIngestionConfigSync(localConfigPath);
   return {
-    workingBundle: resolve(projectRoot, relative),
-    passphrase: raw.share?.passphrase ?? "",
+    workingBundle: resolvePath(config.paths.workingBundle),
+    passphrase: config.share?.passphrase ?? "",
   };
+}
+
+/** Base, origin and Cloudflare settings: neutral defaults until a config exists. */
+export function localSite(): SiteSettings {
+  return readSiteSettings(localConfigPath);
 }
 
 /**
@@ -71,18 +64,14 @@ export function localPassphrase(): string {
   }
 }
 
-/**
- * Run scripts/refresh-trip.ts (Wanderlog CLI, with the browser scraper as
- * fallback). Spawns the local tsx binary directly rather than going through
- * pnpm so the child inherits our stdio cleanly and there is no extra process.
- */
-function runRefresh(source: "auto" | "cli" | "html"): Promise<void> {
+/** Run scripts/refresh-trip.ts: pull the plan from Wanderlog. */
+function runRefresh(): Promise<void> {
   const tsx = resolve(projectRoot, "node_modules/.bin/tsx");
   if (!existsSync(tsx)) {
     return Promise.reject(new Error(`tsx not found at ${tsx} — run pnpm install`));
   }
   return new Promise((resolvePromise, rejectPromise) => {
-    const child = spawn(tsx, ["scripts/refresh-trip.ts", "--source", source], {
+    const child = spawn(tsx, ["scripts/refresh-trip.ts"], {
       cwd: projectRoot,
       stdio: "inherit",
     });
@@ -94,17 +83,20 @@ function runRefresh(source: "auto" | "cli" | "html"): Promise<void> {
   });
 }
 
-/** The deployed site, whose worker serves photos, maps and live boards to dev too. */
-const LIVE_ORIGIN = process.env.TRIP_ORIGIN ?? "https://trips.jask-aran.com";
+/**
+ * The deployed site, whose worker serves photos, maps and live boards to dev
+ * too (`site.origin`, or `TRIP_ORIGIN`). Without one dev has none of them.
+ */
+const LIVE_ORIGIN = localSite().origin;
 
 export function tripBundlePlugin(): Plugin {
   let workingBundle = "";
   let inFlight: Promise<void> | null = null;
   let server: ViteDevServer | undefined;
 
-  /** Collapse concurrent triggers (startup + endpoint) into one CLI run. */
-  const refreshOnce = (source: "auto" | "cli" | "html" = "auto"): Promise<void> => {
-    inFlight ??= runRefresh(source).finally(() => {
+  /** Collapse concurrent triggers (startup + endpoint) into one run. */
+  const refreshOnce = (): Promise<void> => {
+    inFlight ??= runRefresh().finally(() => {
       inFlight = null;
     });
     return inFlight;
@@ -131,7 +123,7 @@ export function tripBundlePlugin(): Plugin {
     },
 
     async buildStart() {
-      // Dev handles its own (non-blocking) refresh in configureServer.
+      // Dev refreshes in configureServer, without blocking startup.
       if (server) return;
       const mode = refreshMode();
       if (mode === "never") return;
@@ -150,8 +142,6 @@ export function tripBundlePlugin(): Plugin {
       const mode = refreshMode();
       const log = devServer.config.logger;
 
-      // Never block dev server startup on the network: the page can boot from
-      // whatever bundle is on disk while the refresh runs behind it.
       const kick = (reason: string) => {
         log.info(`  ➜  trip:  ${reason} — refreshing from Wanderlog…`);
         refreshOnce()
@@ -167,8 +157,7 @@ export function tripBundlePlugin(): Plugin {
       else if (mode === "auto" && !existsSync(workingBundle)) kick("no bundle on disk");
       else if (mode === "auto" && isStale()) kick(`bundle is ${ageLabel()} old`);
 
-      // A finished refresh rewrites working.json outside Vite's module graph,
-      // so watch it explicitly and push a reload when new content lands.
+      // working.json is outside Vite's module graph, so watch it explicitly.
       devServer.watcher.add(workingBundle);
       devServer.watcher.on("change", (file) => {
         if (resolve(file) !== workingBundle) return;
@@ -176,8 +165,6 @@ export function tripBundlePlugin(): Plugin {
         devServer.ws.send({ type: "full-reload" });
       });
 
-      // The app requests the bundle relative to the configured base, so match
-      // both that and the bare path rather than assuming the app is at root.
       const basePath = devServer.config.base || "/";
       const tripPaths = new Set(["/trip.json", `${basePath}trip.json`.replace(/\/{2,}/g, "/")]);
       const refreshPaths = new Set([
@@ -188,7 +175,6 @@ export function tripBundlePlugin(): Plugin {
       devServer.middlewares.use((req, res, next) => {
         const path = req.url?.split("?")[0];
 
-        // Dev-only hook so a refresh can be triggered without leaving the app.
         if (path && refreshPaths.has(path)) {
           res.setHeader("Content-Type", "application/json; charset=utf-8");
           refreshOnce().then(
@@ -209,6 +195,11 @@ export function tripBundlePlugin(): Plugin {
         // Photos, maps and live boards come from the live worker, so dev
         // reuses what it has stored rather than asking Google or NAVITIME again.
         const route = path && [...Object.values(MEDIA_ROUTES), DEPARTURES_ROUTE].find((name) => path === `${basePath}${name}`);
+        if (route && !LIVE_ORIGIN) {
+          res.statusCode = 404;
+          res.end();
+          return;
+        }
         if (route) {
           const params = new URL(req.url ?? "", "http://dev").searchParams;
           mediaToken(localPassphrase())
@@ -245,7 +236,7 @@ export function tripBundlePlugin(): Plugin {
                 {
                   error: "TripBundle not generated yet",
                   workingBundle,
-                  hint: "A refresh may still be running — check the dev server output. Otherwise run `pnpm trip:refresh`.",
+                  hint: "A refresh may still be running — check the dev server output. Otherwise run `pnpm trip:pull`.",
                 },
                 null,
                 2,
@@ -274,7 +265,7 @@ export function tripBundlePlugin(): Plugin {
       if (!existsSync(workingBundle)) {
         throw new Error(
           `Cannot build the PWA without a trip bundle at ${workingBundle}.\n` +
-            "Run `pnpm trip:refresh`, or unset TRIP_REFRESH=never to let the build pull it.",
+            "Run `pnpm trip:pull`, or unset TRIP_REFRESH=never to let the build pull it.",
         );
       }
       const body = readFileSync(workingBundle, "utf8");

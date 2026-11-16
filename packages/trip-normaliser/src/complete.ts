@@ -1,6 +1,7 @@
 import { parseTripBundle, type Place } from "@travel-companion/trip-schema";
 import {
   localityFrom,
+  lodgingBookingFields,
   normaliseWanderlog,
   resourcesFrom,
   routesFrom,
@@ -11,7 +12,6 @@ import {
 type JsonRecord = Record<string, unknown>;
 
 interface Options {
-  sourceKind: "cli-json" | "html-mobx";
   sourceText: string;
   overrides?: ImportOverrides;
   generatedAt?: string;
@@ -98,8 +98,6 @@ function addGlobalLodging(
     bundle.places[placeId] = place;
 
     const itemOverride = overrides?.items?.[`source-block:${sourceBlockId}`];
-    // Wanderlog stores no check-in/out *times*, only these dates — but it does
-    // carry the booking details you actually need at the desk.
     const placeRecord = record(block.place);
     const confirmationNumber =
       string(hotel?.confirmationNumber) || string(block.confirmationNumber);
@@ -120,6 +118,7 @@ function addGlobalLodging(
       ...(phone ? { phone } : {}),
       ...(website ? { website } : {}),
       ...(travellerNames?.length ? { travellerNames } : {}),
+      ...lodgingBookingFields(block),
       ...(itemOverride?.startTime ? { startTime: itemOverride.startTime } : {}),
       ...(itemOverride?.endTime ? { endTime: itemOverride.endTime } : {}),
       ...(itemOverride?.notes ? { notes: itemOverride.notes } : {}),

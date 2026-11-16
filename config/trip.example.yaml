@@ -1,47 +1,40 @@
-# Copy to config/trip.local.yaml and fill in your trip.
-# trip.local.yaml is gitignored — never commit Wanderlog IDs or private URLs.
+# Copy to config/trip.local.yaml (gitignored), or let `pnpm trip:init` write it.
+# Only trip.wanderlogId is required.
 
 trip:
-  # From the Wanderlog plan URL: https://wanderlog.com/plan/<wanderlogId>/...
-  wanderlogId: YOUR_WANDERLOG_TRIP_ID
-  # Public slug used only for local output paths and TripBundle.tripId (not a secret,
-  # but kept local so the repo does not advertise a specific trip).
-  publicId: my-trip
+  wanderlogId: YOUR_WANDERLOG_TRIP_ID   # from wanderlog.com/plan/<id>/...; the whole URL works too
+  # publicId: trip                      # slug for output paths, storage keys and data/trips/<publicId>/
 
-wanderlog:
-  api:
-    # Default source: GET wanderlog.com/api/tripPlans/<wanderlogId>. No login.
-    timeoutMs: 60000
-  cli:
-    # Only for `pnpm trip:pull:cli`, or editing the trip (docs/ingestion.md).
-    # Modern shape: wanderlog-cli trips show <wanderlogId> --output json
-    # Do not use the legacy singular `trip` command — it mishandles flags.
-    # Scripts spawn the binary directly (shell aliases like `wanderlog=...` are ignored).
-    command: wanderlog-cli
-    timeoutMs: 60000
-  web:
-    # Canonical plan page for the Playwright fallback scraper.
-    url: https://wanderlog.com/plan/YOUR_WANDERLOG_TRIP_ID/your-trip-slug
-    browserProfileDir: private-import/browser-profile
-    headless: true
-    timeoutMs: 60000
+# share:
+#   passphrase: ""        # encrypts the published trip; empty publishes plaintext
 
-google:
-  # Google Maps browser key, used for Place Photos. Optional — without it the
-  # app renders no photos. Google forbids caching the images, so the key ships
-  # in the built app and the browser loads each photo directly: restrict the
-  # key by HTTP referrer in the Cloud console, and enable "Places API (New)".
-  apiKey: ""
+# Optional keys, used only by the site on Cloudflare (stored there as secrets); the local pull uses none.
+# `pnpm trip:keys` tests them and changes them here and on Cloudflare.
+# google:
+#   apiKey: ""            # billing on; enable Places API (New), Maps Static API, Routes API, Cloud Translation API
+#   projectNumber: ""     # same project's number (digits): line and town names use the Translation LLM
 
-share:
-  # Passphrase that encrypts the published trip payload. With this set, the
-  # build writes trip.enc instead of trip.json and the app asks for it once.
-  # Leave empty to publish plaintext (only safe on a private host).
-  passphrase: ""
+# navitime:
+#   apiKey: ""            # RapidAPI key subscribed to NAVITIME's route API (navitime-route-totalnavi): times in Japan
 
-paths:
-  rawJson: private-import/wanderlog-trip.json
-  rawHtml: private-import/wanderlog-page.html
-  overrides: private-import/overrides.yaml
-  workingBundle: public-data/trips/my-trip/working.json
-  report: private-import/import-report.json
+# site:
+#   base: /                             # TRIP_BASE overrides it
+#   origin: https://trips.example.com   # live site, for dev proxying and the post-deploy check; TRIP_ORIGIN overrides it
+
+# cloudflare:             # filled in by the deploy step of `pnpm trip:init`
+#   project: my-pages-project
+#   kvNamespaceId: ""
+#   mediaBucket: ""       # R2 bucket for photos and maps; without it they are off
+#   accountId: ""         # needed when your login has several accounts
+#   apiToken: ""          # instead of `wrangler login`; passed to wrangler as CLOUDFLARE_API_TOKEN
+#   connectorOnly: true   # only the hosted connector, no app: `pnpm ship` uploads the function alone
+
+# wanderlog:
+#   api:
+#     timeoutMs: 60000
+
+# paths:
+#   rawJson: private-import/wanderlog-trip.json
+#   overrides: private-import/overrides.yaml
+#   workingBundle: public-data/trips/trip/working.json   # default uses <publicId>
+#   report: private-import/import-report.json

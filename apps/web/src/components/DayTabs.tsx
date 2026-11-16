@@ -51,10 +51,26 @@ export function DayTabs(props: {
                 classList={{ "day-tab--active": active(), "day-tab--today": today() }}
                 data-day-id={day.id}
                 aria-selected={active()}
+                aria-controls={day.id}
                 aria-label={`Day ${index() + 1}, ${formatTabWeekday(day.date)} ${formatTabDayMonth(day.date)}${today() ? ", today" : ""}`}
                 id={`tab-${day.id}`}
                 tabindex={active() ? 0 : -1}
                 onClick={() => props.onSelect(day.id)}
+                onKeyDown={(event) => {
+                  let next: number;
+                  switch (event.key) {
+                    case "ArrowRight": next = (index() + 1) % props.days.length; break;
+                    case "ArrowLeft": next = (index() - 1 + props.days.length) % props.days.length; break;
+                    case "Home": next = 0; break;
+                    case "End": next = props.days.length - 1; break;
+                    default: return;
+                  }
+                  const target = props.days[next];
+                  if (!target) return;
+                  event.preventDefault();
+                  props.onSelect(target.id);
+                  document.getElementById(`tab-${target.id}`)?.focus({ preventScroll: true });
+                }}
               >
                 <span class="day-tab__weekday">{today() ? "Today" : formatTabWeekday(day.date)}</span>
                 <span class="day-tab__date">{tabDate(day.date, index() === 0)}</span>

@@ -1,4 +1,4 @@
-import { For, Show, createMemo, createSignal, type JSX } from "solid-js";
+import { For, Show, createEffect, createMemo, createSignal, type JSX } from "solid-js";
 import type {
   DepartureBoard,
   DepartureOption,
@@ -30,7 +30,7 @@ import { notesPreview } from "../lib/rich-notes";
 import { pickDeparture } from "../lib/departure-pick";
 import { RichNotes } from "./RichNotes";
 import { buildGoogleMapsUrl, buildGooglePlaceUrl, buildLegDirectionsUrl } from "../lib/maps";
-import { photoAttribution, placePhotoUrl, staticMapUrl } from "../lib/place-photo";
+import { findPlacePhoto, hasNamedPhoto, markMediaFailed, mediaFailed, photoAttribution, placePhotoUrl, staticMapUrl, type PhotoFound } from "../lib/place-photo";
 import { LONG_LEG_SECONDS } from "../lib/route-legs";
 import { stayDisplay } from "../lib/lodging";
 import type { FlightTiming } from "../lib/day-times";
@@ -81,14 +81,12 @@ function ModeGlyph(props: { mode: string }) {
   );
 }
 
+/** When a ride leaves and arrives; an estimate is shown with a "~". */
+export type RideTimes = { depart: string; arrive: string; approximate: boolean };
+
 /**
- * Travel between two stops. Wanderlog computes these but stores them outside
- * the day list, so nothing rendered them before.
- *
- * Under an hour it is a thin tinted strip — clearly a different kind of thing
- * from a stop, but subordinate to it. An hour or more is a haul, and gets a
- * block whose height grows with the duration so a long transfer *feels* long
- * when you scroll past it.
+ * Travel between two stops. An hour or more is a haul, drawn taller so a long
+ * transfer feels long when you scroll past it.
  */
 export function RouteLegRow(props: {
   leg: RouteLeg;
@@ -104,43 +102,30 @@ export function RouteLegRow(props: {
   board?: DepartureBoard | undefined;
   /** When the ride before gets you to this leg's start (see departure-pick). */
   notBefore?: string | undefined;
-  /** The train or bus taken, where a board knows it and isn't shown here. */
-  line?: string | undefined;
-  /** "08:43→10:58", where a timed plan fixes the ride; stands in for the duration. */
-  times?: string | undefined;
+  /** The train or bus taken, where a board knows it: names the leg and colours it. */
+  ride?: DepartureOption | undefined;
+  /** When the ride runs, where a timed plan fixes it; stands in for the duration. */
+  times?: RideTimes | undefined;
 }) {
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
-  /**
-   * How long, then what you ride: a rail distance says nothing you'd act on.
-   * A board beneath names the line itself; walks and drives keep distance.
-   */
+  const transit = () => props.leg.travelMode === "transit";
+  /** In its line's own colour, as the station signs have it. */
+  const colour = () => (transit() ? lineColour(props.ride) : undefined);
+
+  /** In the route: how long, then how far on foot or by car. A board beneath names the line. */
   const detail = () =>
     [
-      props.times ? undefined : formatDurationShort(props.leg.durationSeconds),
-      props.leg.travelMode === "transit"
-        ? props.board
-          ? undefined
-          : props.line
-        : formatDistance(props.leg.distanceMetres),
+      formatDurationShort(props.leg.durationSeconds),
+      transit() ? undefined : formatDistance(props.leg.distanceMetres),
       props.note,
     ]
       .filter(Boolean)
       .join(" · ");
 
-  const detailLine = () => (
-    <>
-      <Show when={props.times}>
-        {(times) => (
-          <>
-            <span class="travel__times">{times()}</span>
-            {detail() ? " · " : ""}
-          </>
-        )}
-      </Show>
-      {detail()}
-    </>
-  );
+  /** In the summary, under the two ends: what the lead line didn't say. */
+  const aside = () =>
+    [transit() ? undefined : formatDistance(props.leg.distanceMetres), props.note].filter(Boolean).join(" · ");
 
   /** Tapping a leg opens that hop, previous stop to next, in its own mode. */
   const directions = () => {
@@ -159,48 +144,83 @@ export function RouteLegRow(props: {
       <Show
         when={props.showEnds}
         fallback={
-          <Show when={detail() || props.times}>
-            <span class="travel__detail">{detailLine()}</span>
+          <Show when={detail()}>
+            <span class="travel__detail">{detail()}</span>
           </Show>
         }
       >
+        {/* Read as the departure board under a route leg reads: when, then
+            what you ride; the two ends beneath. */}
         <span class="travel__text">
+          <span class="travel__lead">
+            <span class="travel__times">
+              <Show when={props.times} fallback={formatDurationShort(props.leg.durationSeconds)}>
+                {(times) => (
+                  <>
+                    {times().approximate ? "~" : ""}
+                    <strong>{times().depart}</strong>
+                    <span class="travel__arrow">→</span>
+                    {times().arrive}
+                  </>
+                )}
+              </Show>
+            </span>
+            <Show when={transit() && props.ride}>{(ride) => <LineChips option={ride()} />}</Show>
+          </span>
           <span class="travel__ends">
             {props.places[props.leg.fromPlaceId]?.name} → {props.places[props.leg.toPlaceId]?.name}
           </span>
-          <Show when={detail() || props.times}>
-            <span class="travel__detail">{detailLine()}</span>
+          <Show when={aside()}>
+            <span class="travel__detail">{aside()}</span>
           </Show>
         </span>
       </Show>
     </>
   );
 
+  const label = () =>
+    `${formatTravelMode(props.leg.travelMode)} directions, ${props.places[props.leg.fromPlaceId]?.name} to ${
+      props.places[props.leg.toPlaceId]?.name
+    }`;
+
   return (
     <li
       class={`travel travel--${props.leg.travelMode}`}
-      classList={{ "travel--long": long() }}
+      classList={{ "travel--long": long(), "travel--lined": Boolean(colour()) }}
+      style={colour() ? { "--line": colour()!.line, "--on-line": colour()!.on } : undefined}
     >
-      <Show when={directions()} fallback={<div class="travel__inner">{contents()}</div>}>
-        {(href) => (
-          <a
-            class="travel__inner travel__link"
-            href={href()}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`${formatTravelMode(props.leg.travelMode)} directions, ${
-              props.places[props.leg.fromPlaceId]?.name
-            } to ${props.places[props.leg.toPlaceId]?.name}`}
-          >
-            {contents()}
-            <span class="travel__open">
-              <Icon name="map" />
-            </span>
-          </a>
+      {/* A leg with departures is one row drawn by its board: when, what you
+          ride, a button for the timetable and one for Maps. */}
+      <Show
+        when={!props.showEnds && props.board}
+        fallback={
+          <Show when={directions()} fallback={<div class="travel__inner">{contents()}</div>}>
+            {(href) => (
+              <a
+                class="travel__inner travel__link"
+                href={href()}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label()}
+              >
+                {contents()}
+                <span class="travel__open">
+                  <Icon name="map" />
+                </span>
+              </a>
+            )}
+          </Show>
+        }
+      >
+        {(board) => (
+          <DepartureBoardView
+            board={board()}
+            notBefore={props.notBefore}
+            mode={props.leg.travelMode}
+            mapsHref={directions()}
+            mapsLabel={label()}
+          />
         )}
-      </Show>
-      <Show when={props.board}>
-        {(board) => <DepartureBoardView board={board()} notBefore={props.notBefore} />}
       </Show>
     </li>
   );
@@ -225,13 +245,45 @@ function frequencyOf(options: DepartureOption[], service: string | undefined): n
   return gaps[Math.floor(gaps.length / 2)];
 }
 
-/** "Skyliner › Oedo Line": the rides of an option, as one key. */
-/** The lines ridden, in order; a change between two trains of one line names it once. */
+/** "Skyliner › Oedo Line": the lines ridden, in order; one line changed onto itself is named once. */
 export const chainOf = (option: DepartureOption) =>
   option.segments
     .map((segment) => segment.name)
     .filter((name, index, names) => name !== names[index - 1])
     .join(" › ");
+
+/**
+ * The colour a leg is drawn in: that of the ride that carries most of it,
+ * with ink that reads on it (dark on the Ginza line's yellow, light on the
+ * Chuo line's orange). Only six-digit hex colours are trusted.
+ */
+function lineColour(option: DepartureOption | undefined): { line: string; on: string } | undefined {
+  const longest = option?.segments
+    .filter((segment) => /^#[0-9a-f]{6}$/i.test(segment.color ?? ""))
+    .sort(
+      (a, b) => minutesBetween(b.departTime, b.arriveTime) - minutesBetween(a.departTime, a.arriveTime),
+    )[0];
+  const line = longest?.color;
+  if (!line) return undefined;
+  const [red, green, blue] = [1, 3, 5].map((at) => {
+    const channel = parseInt(line.slice(at, at + 2), 16) / 255;
+    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  }) as [number, number, number];
+  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+  // Whichever of near-black and near-white contrasts more with the line.
+  return { line, on: luminance > 0.179 ? "#0b1f33" : "#fffaf0" };
+}
+
+/** The lines an option rides, in order, each as a chip; one line changed onto itself is named once. */
+function LineChips(props: { option: DepartureOption }) {
+  const segments = () =>
+    props.option.segments.filter((segment, index, all) => segment.name !== all[index - 1]?.name);
+  return (
+    <span class="line-chips">
+      <For each={segments()}>{(segment) => <LineChip segment={segment} />}</For>
+    </span>
+  );
+}
 
 /** A line's name edged in its own colour, as station signs use it. */
 function LineChip(props: { segment: DepartureSegment }) {
@@ -247,46 +299,51 @@ function LineChip(props: { segment: DepartureSegment }) {
 }
 
 /**
- * One way through, ride by ride: where to board and which way the train is
- * headed (what the platform signs show), and where to change. A timetabled
+ * One way through, drawn as a line: a dot at each station, the rail between
+ * in the line's colour. The station is the bold thing, since it is what you
+ * look for on the platform; the line and where it is headed (what the signs
+ * show) sit under it, how long the ride is at the row's end. A timetabled
  * option gives clock times; an untimed one gives each ride's typical length.
  */
 function DepartureSteps(props: { option: DepartureOption; timed: boolean }) {
   const last = () => props.option.segments.at(-1);
+  const lineOf = (segment: DepartureSegment | undefined) =>
+    segment?.color ? { "--line": segment.color } : undefined;
   return (
     <ol class="departure-steps" classList={{ "departure-steps--untimed": !props.timed }}>
       <For each={props.option.segments}>
         {(segment, index) => {
           const previous = () => props.option.segments[index() - 1];
           const wait = () => previous() && minutesBetween(previous()!.arriveTime, segment.departTime);
+          /** A walk between stations, e.g. Keisei Ueno to Ueno-Okachimachi. */
+          const walks = () => Boolean(previous()?.to && segment.from && segment.from !== previous()!.to);
+          const station = () => segment.from ?? previous()?.to;
+          const riding = () => formatDurationShort(minutesBetween(segment.departTime, segment.arriveTime) * 60);
           return (
             <>
               <Show when={previous()}>
                 {(before) => (
                   <li class="departure-steps__change">
-                    Change{before().to ? ` at ${before().to}` : ""}
-                    {/* A walk between stations, e.g. Keisei Ueno to Ueno-Okachimachi. */}
-                    <Show when={segment.from && segment.from !== before().to}>, walk to {segment.from}</Show>
+                    {walks() ? `Change at ${before().to}, walk` : "Change"}
                     <Show when={props.timed && wait()}>{(minutes) => ` · ${minutes()} min`}</Show>
                   </li>
                 )}
               </Show>
-              <li class="departure-steps__ride">
-                <span class="departure-steps__time">
-                  {props.timed
-                    ? segment.departTime
-                    : `~${formatDurationShort(minutesBetween(segment.departTime, segment.arriveTime) * 60)}`}
-                </span>
+              <li class="departure-steps__ride" style={lineOf(segment)}>
+                <span class="departure-steps__time">{props.timed ? segment.departTime : `~${riding()}`}</span>
                 <span class="departure-steps__what">
-                  <LineChip segment={segment} />
-                  <Show when={(index() === 0 && segment.from) || segment.headsign}>
-                    <span class="departure-steps__where">
-                      {/* After a change, the change row has said where you board. */}
-                      {[index() === 0 && segment.from && `From ${segment.from}`, segment.headsign && `towards ${segment.headsign}`]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </span>
-                  </Show>
+                  <span class="departure-steps__station">
+                    <span>{station() ?? "Board"}</span>
+                    <Show when={props.timed}>
+                      <span class="departure-steps__dur">{riding()}</span>
+                    </Show>
+                  </span>
+                  <span class="departure-steps__sub">
+                    <LineChip segment={segment} />
+                    <Show when={segment.headsign}>
+                      {(headsign) => <span class="departure-steps__where">towards {headsign()}</span>}
+                    </Show>
+                  </span>
                 </span>
               </li>
             </>
@@ -294,9 +351,9 @@ function DepartureSteps(props: { option: DepartureOption; timed: boolean }) {
         }}
       </For>
       <Show when={props.timed || last()?.to}>
-        <li class="departure-steps__end">
+        <li class="departure-steps__end" style={lineOf(last())}>
           <span class="departure-steps__time">{props.timed ? props.option.arriveTime : ""}</span>
-          <span class="departure-steps__where">{last()?.to ? `Arrive ${last()!.to}` : "Arrive"}</span>
+          <span class="departure-steps__station">{last()?.to ?? "Arrive"}</span>
         </li>
       </Show>
     </ol>
@@ -315,7 +372,15 @@ function DepartureSteps(props: { option: DepartureOption; timed: boolean }) {
  * (Japan) has none, only routes and typical ride times, so those boards pick
  * between routes and show no clock times rather than invented departures.
  */
-function DepartureBoardView(props: { board: DepartureBoard; notBefore?: string | undefined }) {
+function DepartureBoardView(props: {
+  board: DepartureBoard;
+  notBefore?: string | undefined;
+  /** The leg's travel mode, for the badge that leads the row. */
+  mode: string;
+  /** Directions for the leg in Maps: one tap, beside the timetable button. */
+  mapsHref?: string | undefined;
+  mapsLabel?: string | undefined;
+}) {
   const [open, setOpen] = createSignal(false);
   const [chosen, setChosen] = createSignal<DepartureOption>();
   const target = () => props.board.target;
@@ -359,33 +424,54 @@ function DepartureBoardView(props: { board: DepartureBoard; notBefore?: string |
       .join(" · ");
 
   return (
-    <div class="departures" classList={{ "is-open": open() }}>
-      <button
-        type="button"
-        class="departures__toggle"
-        aria-expanded={open()}
-        onClick={() => setOpen((value) => !value)}
-      >
-        <Icon name={timed() ? "clock" : "route"} />
-        <Show when={shown()}>
-          {(option) => (
-            <>
-              <span class="departures__when">
-                <Show
-                  when={timed()}
-                  fallback={<>~{formatDurationShort(option().minutes * 60)}</>}
-                >
-                  <strong>{option().departTime}</strong>→{option().arriveTime}
-                </Show>
+    <>
+      <div class="travel__inner travel__inner--ride">
+        <button
+          type="button"
+          class="travel__ride"
+          aria-expanded={open()}
+          aria-label={`${open() ? "Hide" : "Show"} the timetable`}
+          onClick={() => setOpen((value) => !value)}
+        >
+          <span class="travel__glyph">
+            <ModeGlyph mode={props.mode} />
+          </span>
+          <Show when={shown()}>
+            {(option) => (
+              <span class="travel__lead">
+                <span class="travel__times">
+                  <Show when={timed()} fallback={<>~{formatDurationShort(option().minutes * 60)}</>}>
+                    <strong>{option().departTime}</strong>
+                    <span class="travel__arrow">→</span>
+                    {option().arriveTime}
+                  </Show>
+                </span>
+                <LineChips option={option()} />
               </span>
-              <span class="departures__chain">{chainOf(option())}</span>
-            </>
+            )}
+          </Show>
+          <span class="travel__timetable" classList={{ "is-open": open() }}>
+            <Icon name="timetable" />
+          </span>
+        </button>
+        <Show when={props.mapsHref}>
+          {(href) => (
+            <a
+              class="travel__open"
+              href={href()}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={props.mapsLabel}
+            >
+              <Icon name="map" />
+            </a>
           )}
         </Show>
-        <span class="departures__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
-      </button>
+      </div>
       <Show when={open()}>
-        <div class="departures__body">
+        <div class="departures departures__body">
+          {/* What to aim for and the departures to pick from share a line. */}
+          <div class="departures__head">
           <p class="departures__target" classList={{ "is-missed": Boolean(missedTarget()) }}>
             {heading()}
           </p>
@@ -407,20 +493,20 @@ function DepartureBoardView(props: { board: DepartureBoard; notBefore?: string |
               </For>
             </div>
           </Show>
+          </div>
           <Show when={shown()}>
             {(option) => (
               <>
                 <DepartureSteps option={option()} timed={timed()} />
+                {/* One ride's length is on its row; a change makes the total worth saying. */}
                 <p class="departures__source">
-                  <Show
-                    when={timed()}
-                    fallback={<>~{formatDurationShort(option().minutes * 60)} riding · NAVITIME estimate, not a timetable</>}
-                  >
-                    <Show
-                      when={props.board.source?.type === "curated"}
-                      fallback={<>{formatDurationShort(option().minutes * 60)} riding · Times from Google</>}
-                    >
-                      {formatDurationShort(option().minutes * 60)} riding · Times: {props.board.source?.operator} timetable
+                  <Show when={!timed() || option().segments.length > 1}>
+                    {timed() ? "" : "~"}
+                    {formatDurationShort(option().minutes * 60)} riding ·{" "}
+                  </Show>
+                  <Show when={timed()} fallback={<>NAVITIME estimate, not a timetable</>}>
+                    <Show when={props.board.source?.type === "curated"} fallback={<>Times from Google</>}>
+                      Times: {props.board.source?.operator} timetable
                     </Show>
                   </Show>
                 </p>
@@ -429,21 +515,42 @@ function DepartureBoardView(props: { board: DepartureBoard; notBefore?: string |
           </Show>
         </div>
       </Show>
-    </div>
+    </>
   );
 }
 
 /**
- * Loaded straight from Google — the licence forbids re-hosting, so there is no
- * local copy and nothing to show offline. A failed load removes the slot
- * entirely rather than leaving a broken frame.
+ * A failed load removes the slot rather than leaving a broken frame. A
+ * place the trip names no photo for gets its slot only once the worker has
+ * found one, so a place with none never shows a frame that then goes.
  */
 function PlacePhoto(props: { place: Place; mapFallback?: boolean | undefined }) {
-  const [failed, setFailed] = createSignal(false);
-  const photo = () => placePhotoUrl(props.place);
+  const [blank, setBlank] = createSignal(false);
+  const [found, setFound] = createSignal<PhotoFound>();
+  createEffect(() => {
+    const url = placePhotoUrl(props.place);
+    setFound(undefined);
+    if (!url || hasNamedPhoto(props.place)) return;
+    void findPlacePhoto(url).then((photo) => {
+      if (photo && placePhotoUrl(props.place) === url) setFound(photo);
+    });
+  });
+  const photo = () => (hasNamedPhoto(props.place) ? placePhotoUrl(props.place) : found()?.url);
   /** A stay without a photo shows its streets instead. */
   const map = () => (!photo() && props.mapFallback ? staticMapUrl(props.place) : undefined);
   const url = () => photo() ?? map();
+  const credit = () => (photo() ? photoAttribution(props.place) ?? found()?.credit : undefined);
+  /** Blank or failed this session (place-photo.ts): not shown, and not asked for again on a remount. */
+  const failed = () => blank() || Boolean(url() && mediaFailed(url()!));
+  const fail = () => {
+    const src = url();
+    if (src) markMediaFailed(src);
+    setBlank(true);
+  };
+  /** The worker's blank image: no photo after all, or Google unavailable. */
+  const onLoad = (event: Event) => {
+    if ((event.currentTarget as HTMLImageElement).naturalWidth <= 1) fail();
+  };
 
   return (
     <Show when={!failed() && url()}>
@@ -457,9 +564,9 @@ function PlacePhoto(props: { place: Place; mapFallback?: boolean | undefined }) 
             rel="noopener noreferrer"
             aria-label={`Open ${props.place.name} in Google Maps`}
           >
-            <img src={src()} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)} />
+            <img src={src()} alt="" loading="lazy" decoding="async" onLoad={onLoad} onError={fail} />
           </a>
-          <Show when={photoAttribution(props.place)}>
+          <Show when={credit()}>
             {(credit) => <figcaption>{credit()}</figcaption>}
           </Show>
         </figure>
@@ -623,10 +730,6 @@ export function PlaceRow(props: {
 }
 
 /**
- * The in-route form of a flight: the full card lives in the day summary, so
- * here it only has to say "this hop is the flight, not a ground route".
- */
-/**
  * Your notes as a card's last line: the first line as a preview with a
  * chevron, opening in place to the whole note, formatted as in Wanderlog.
  * The whole line toggles, except a link inside the opened note.
@@ -665,8 +768,7 @@ export function FlightConnector(props: { item: FlightItem }) {
   const nextDay = () =>
     Boolean(props.item.arriveDate && props.item.departDate && props.item.arriveDate !== props.item.departDate);
 
-  /* A thin one-line card, as Wanderlog draws a flight in the day: the full
-     card with timings and booking lives in the day summary. */
+  /* The in-route form of a flight; the full card lives in the day summary. */
   return (
     <li class="flight-pill">
       <div class="flight-pill__card">
@@ -904,29 +1006,63 @@ export function FlightRow(props: {
   );
 }
 
+/** A note longer than this, or of more than one line, starts folded to its first line. */
+const LONG_NOTE_CHARACTERS = 140;
+
+/**
+ * A note between stops: a quiet block hung off the route rail, formatted as
+ * in Wanderlog. A long one starts as its first line and opens in place, the
+ * way a stop's notes do; consecutive notes join into one block (in CSS).
+ */
 export function NoteRow(props: { item: NoteItem }) {
+  const [open, setOpen] = createSignal(false);
+  const text = () => formatArrows(props.item.text).trim();
+  const long = () => text().includes("\n") || text().length > LONG_NOTE_CHARACTERS;
+  const toggle = (event: MouseEvent) => {
+    if ((event.target as Element).closest("a")) return;
+    setOpen((value) => !value);
+  };
   return (
     <li class="note-item">
-      <RichNotes text={formatArrows(props.item.text)} class="note-text" />
+      <span class="note-item__mark" aria-hidden="true">
+        <Icon name="note" />
+      </span>
+      <Show when={long()} fallback={<RichNotes text={text()} class="note-text" />}>
+        <div class="note-text note-text--fold" classList={{ "is-open": open() }} onClick={toggle}>
+          <Show when={open()} fallback={<span class="stop__notes-text">{notesPreview(text())}</span>}>
+            <RichNotes text={text()} />
+          </Show>
+          <button
+            type="button"
+            class="stop__notes-toggle"
+            aria-expanded={open()}
+            aria-label={open() ? "Show less of the note" : "Show the whole note"}
+          >
+            <span class="stop__chevron" classList={{ "is-open": open() }} aria-hidden="true" />
+          </button>
+        </div>
+      </Show>
     </li>
   );
 }
 
 export type LodgingCardRole = "check-out" | "check-in" | "morning" | "evening" | "stay";
 
-/**
- * Lodging is a day bookend, not a stop: it reads as a slim band above or below
- * the day's timeline. Full check-in/out dates expand only on the days the stay
- * actually starts or ends.
- */
+/** A stay as a day bookend, above or below the day's timeline. */
 export function LodgingBand(props: {
   item: LodgingItem;
   place?: Place | undefined;
   role?: LodgingCardRole | undefined;
   /** When to leave for the airport, on the day you check out. */
   checkOutBy?: string | undefined;
+  /**
+   * Starts as one line that opens to the whole band: for the hotel you are
+   * leaving, whose address and photo you no longer need at a glance.
+   */
+  compact?: boolean | undefined;
 }) {
   const [open, setOpen] = createSignal(false);
+  const [folded, setFolded] = createSignal(true);
 
   const role = (): LodgingCardRole => {
     if (props.role) return props.role;
@@ -973,6 +1109,27 @@ export function LodgingBand(props: {
   const shownName = () => stayDisplay(props.item.name, props.place);
 
   return (
+    <Show
+      when={!(props.compact && folded())}
+      fallback={
+        <button
+          type="button"
+          class="stay-line stay-line--fold"
+          aria-expanded="false"
+          aria-label={`${phaseLabel()}, ${shownName().name}: show the hotel`}
+          onClick={() => setFolded(false)}
+        >
+          <span class="kind-badge kind-badge--lodging" aria-hidden="true">
+            <ModeGlyph mode="lodging" />
+          </span>
+          <span class="lodging-band__phase">{phaseLabel()}</span>
+          <span class="stay-line__name">{shownName().name}</span>
+          <Show when={props.checkOutBy} fallback={<span class="stay-line__night">{nightsLabel()}</span>}>
+            {(time) => <span class="stay-line__night">by {time()}</span>}
+          </Show>
+        </button>
+      }
+    >
     <div
       class="lodging-band"
       classList={{
@@ -988,7 +1145,18 @@ export function LodgingBand(props: {
           <span class="kind-badge kind-badge--lodging" aria-hidden="true">
             <ModeGlyph mode="lodging" />
           </span>
-          <span class="lodging-band__phase">{phaseLabel()}</span>
+          <Show when={props.compact} fallback={<span class="lodging-band__phase">{phaseLabel()}</span>}>
+            {/* The label folds the band back to its one line. */}
+            <button
+              type="button"
+              class="lodging-band__phase lodging-band__fold"
+              aria-expanded="true"
+              aria-label={`${phaseLabel()}: show less`}
+              onClick={() => setFolded(true)}
+            >
+              {phaseLabel()}
+            </button>
+          </Show>
           <span class="stop__actions">
             <Show when={rating() ? props.place?.rating : undefined}>
               {(score) => (
@@ -1076,6 +1244,7 @@ export function LodgingBand(props: {
       {/* The hotel's photo, or for an address-only stay the streets round it. */}
       <Show when={props.place}>{(place) => <PlacePhoto place={place()} mapFallback />}</Show>
     </div>
+    </Show>
   );
 }
 

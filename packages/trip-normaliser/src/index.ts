@@ -16,7 +16,6 @@ export interface ImportWarning {
 }
 
 export interface ImportReport {
-  sourceKind: "cli-json" | "html-mobx";
   sourceFingerprint: string;
   counts: {
     days: number;
@@ -51,7 +50,6 @@ export interface ImportOverrides {
 }
 
 interface NormaliseOptions {
-  sourceKind: "cli-json" | "html-mobx";
   sourceText: string;
   overrides?: ImportOverrides;
   generatedAt?: string;
@@ -253,6 +251,50 @@ function placeFromBlock(
   return place;
 }
 
+/**
+ * Subject of the booking email a block was read from. Wanderlog keeps the
+ * email as an `attachments` entry (`type: "email"`) whose id is the block's
+ * `emailId`; only the subject is carried, never the id or the attachment.
+ */
+export function bookingEmailSubject(block: JsonRecord): string | undefined {
+  const emailId = asNumber(block.emailId) ?? asString(block.emailId);
+  if (emailId === undefined) return undefined;
+  const email = asRecords(block.attachments).find(
+    (attachment) => asString(attachment.type) === "email" && attachment.id === emailId,
+  );
+  return asString(email?.subject);
+}
+
+/** Cancellation terms, guest counts and email subject from a lodging block. */
+export function lodgingBookingFields(block: JsonRecord): {
+  cancellationDeadline?: string;
+  cancellationPolicy?: string;
+  guests?: { adultCount?: number; roomCount?: number; childrenAges?: number[] };
+  bookingEmailSubject?: string;
+} {
+  const out: ReturnType<typeof lodgingBookingFields> = {};
+  const deadline = asString(block.cancellationDeadline);
+  if (deadline) out.cancellationDeadline = deadline;
+  const policy = asString(block.cancellationPolicy) ?? quillToMarkdown(block.cancellationPolicy);
+  if (policy) out.cancellationPolicy = policy;
+  const rawGuests = asRecord(block.guests);
+  if (rawGuests) {
+    const guests: NonNullable<typeof out.guests> = {};
+    const adults = asNumber(rawGuests.adultCount);
+    if (adults !== undefined) guests.adultCount = adults;
+    const rooms = asNumber(rawGuests.roomCount);
+    if (rooms !== undefined) guests.roomCount = rooms;
+    const ages = Array.isArray(rawGuests.childrenAges)
+      ? rawGuests.childrenAges.filter((age): age is number => asNumber(age) !== undefined)
+      : [];
+    if (ages.length) guests.childrenAges = ages;
+    if (Object.keys(guests).length) out.guests = guests;
+  }
+  const subject = bookingEmailSubject(block);
+  if (subject) out.bookingEmailSubject = subject;
+  return out;
+}
+
 function commonItemFields(block: JsonRecord, overrides: ImportOverrides | undefined): {
   id: string;
   sourceBlockId?: number;
@@ -297,7 +339,9 @@ function itemFromBlock(
       if (!place) return undefined;
       // A stop's own block beats the bare airport a flight registered first.
       if (!places[place.id]?.sourceBlockId) places[place.id] = place;
-      if (block.hotel) return { ...common, type: "lodging", placeId: place.id, name: place.name };
+      if (block.hotel) {
+        return { ...common, type: "lodging", placeId: place.id, name: place.name, ...lodgingBookingFields(block) };
+      }
       return { ...common, type: "place", placeId: place.id };
     }
     case "note": {
@@ -330,6 +374,7 @@ function itemFromBlock(
       assign("departDate", asString(depart?.date));
       assign("arriveDate", asString(arrive?.date));
       assign("confirmationNumber", asString(block.confirmationNumber));
+      assign("bookingEmailSubject", bookingEmailSubject(block));
 
       /**
        * The flight's airports as places in their own right, so a flight can
@@ -512,7 +557,6 @@ export function normaliseWanderlog(
   return {
     bundle,
     report: {
-      sourceKind: options.sourceKind,
       sourceFingerprint: fingerprint,
       counts: {
         days: bundle.days.length,
@@ -523,9 +567,10 @@ export function normaliseWanderlog(
       },
       redacted: [
         "account and contributor identifiers",
-        "booking confirmation numbers and reservation attachments",
+        "reservation attachments",
+        "booking email ids (only the email's subject is kept)",
         "Google review bodies and full photo collections",
-        "phone numbers, websites, address components, and browser state",
+        "address components and browser state",
       ],
       warnings,
     },

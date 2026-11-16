@@ -14,7 +14,6 @@ import {
   stationQuery,
 } from "./line-names.js";
 import { curateDepartureBoard, directBoard, DAY_OPTIONS_KEPT, type CuratedTimetable } from "./curated-timetables.js";
-import type { TranslationReport } from "./translate-api.js";
 import { offsetMinutes } from "./time-zones.js";
 
 /** What to fetch; the trip's own rules pick these (departure-targets). */
@@ -31,19 +30,14 @@ export type DepartureRequest = {
 };
 
 export type DepartureReport = {
-  boards: number;
-  cached: number;
   requested: { google: number; navitime: number };
   skipped: number;
-  translation?: TranslationReport;
   errors: string[];
 };
 
-export type CacheEntry = { version?: number; fetchedAt: string; approximate?: boolean; options: DepartureOption[] };
+/** One provider answer. */
+type Answer = { fetchedAt: string; approximate?: boolean; options: DepartureOption[] };
 
-const CACHE_DAYS = 7;
-/** Bump when the fields parsed from an answer change, so old entries are re-asked. */
-const CACHE_VERSION = 3;
 const OPTIONS_KEPT = 8;
 const DAY_PROBE_TIME = "09:00";
 /**
@@ -63,12 +57,6 @@ const SAMPLE_OFFSETS_MINUTES: Record<DepartureBoard["provider"], number[]> = {
 };
 
 type Sample = DepartureRequest & { time: string };
-
-const cacheKey = (sample: Sample) =>
-  [sample.provider, sample.fromPlaceId, sample.toPlaceId, sample.kind, `${sample.date}T${sample.time}`].join("|");
-
-const fresh = (entry: CacheEntry | undefined, now: Date) =>
-  entry?.version === CACHE_VERSION && now.getTime() - Date.parse(entry!.fetchedAt) < CACHE_DAYS * 86_400_000;
 
 /** "HH:MM" moved by minutes, or undefined if that leaves the day. */
 function shifted(time: string, minutes: number): string | undefined {
@@ -92,17 +80,15 @@ function samplesOf(request: DepartureRequest): Sample[] {
 }
 
 export type BoardContext = Pick<TripBundle, "places" | "routeLegs">;
+export type Fetcher = (input: string, init?: RequestInit) => Promise<Response>;
 export type BoardDeps = {
+  /** Every provider request goes through this (the worker's guard.ts). */
+  fetch: Fetcher;
   keys: { google?: string | undefined; navitime?: string | undefined };
-  /** Provider answers by sample key; read and added to in place. The caller persists it. */
-  cache: Record<string, CacheEntry>;
   timetables: CuratedTimetable[];
   /** English for names in Japanese or Korean; a name left out shows as given. */
-  translate(texts: string[]): Promise<{ translations: Record<string, string>; report?: TranslationReport }>;
-  /**
-   * Asked right before each NAVITIME request is actually sent (key and both places present, answer not
-   * fresh). false = the budget is spent: behave exactly as today's spent branch (stale answer or skip).
-   */
+  translate(texts: string[]): Promise<{ translations: Record<string, string> }>;
+  /** Asked before each NAVITIME request is sent; false means the budget is spent (skipped). */
   mayAskNavitime(): boolean | Promise<boolean>;
   now: Date;
 };
@@ -113,22 +99,16 @@ export async function buildBoards(
   deps: BoardDeps,
   report: DepartureReport,
 ): Promise<Record<string, DepartureBoard>> {
-  const { keys, cache, timetables, now } = deps;
+  const { keys, timetables, now } = deps;
 
-  /** One provider answer, from the cache when fresh, else asked for. */
-  const answer = async (sample: Sample): Promise<CacheEntry | undefined> => {
-    const key = cacheKey(sample);
-    if (fresh(cache[key], now)) {
-      report.cached += 1;
-      return cache[key];
-    }
+  /** One provider answer, asked for now. */
+  const answer = async (sample: Sample): Promise<Answer | undefined> => {
     const apiKey = keys[sample.provider];
     const from = context.places[sample.fromPlaceId];
     const to = context.places[sample.toPlaceId];
-    // A stale answer beats none: the timetable rarely moves.
     if (!apiKey || !from || !to) {
-      if (!cache[key]) report.skipped += 1;
-      return cache[key];
+      report.skipped += 1;
+      return undefined;
     }
     if (sample.provider === "google") report.requested.google += 1;
     // The origin's clock on the day asked about; UTC only when nothing is known.
@@ -139,31 +119,28 @@ export async function buildBoards(
     try {
       let options: DepartureOption[];
       if (sample.provider === "google") {
-        options = parseGoogleRoutes(await fetchGoogle(sample, from, to, apiKey, utcOffsetMinutes), utcOffsetMinutes);
+        options = parseGoogleRoutes(await fetchGoogle(sample, from, to, apiKey, utcOffsetMinutes, deps.fetch), utcOffsetMinutes);
       } else {
-        const response = await fetchNavitime(sample, from, to, apiKey, async () => {
+        const response = await fetchNavitime(sample, from, to, apiKey, deps.fetch, async () => {
           if (!(await deps.mayAskNavitime())) return false;
           report.requested.navitime += 1;
           return true;
         });
         if (!response) {
-          if (!cache[key]) report.skipped += 1;
-          return cache[key];
+          report.skipped += 1;
+          return undefined;
         }
         options = parseNavitime(response);
       }
-      const entry: CacheEntry = {
-        version: CACHE_VERSION,
+      return {
         fetchedAt: now.toISOString(),
         ...(sample.provider === "navitime" ? { approximate: true } : {}),
         options,
       };
-      cache[key] = entry;
-      return entry;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       if (report.errors.length < 5) report.errors.push(`${from.name} → ${to.name} at ${sample.time}: ${message}`);
-      return cache[key];
+      return undefined;
     }
   };
 
@@ -206,7 +183,7 @@ export async function buildBoards(
       continue;
     }
     const entries = (await Promise.all(samplesOf(request).map(answer))).filter(
-      (entry): entry is CacheEntry => Boolean(entry),
+      (entry): entry is Answer => Boolean(entry),
     );
     entries.push(...(await windowTail(request, entries, answer)));
     const options = tidy(plausible(entries.flatMap((entry) => entry.options), request, context));
@@ -242,14 +219,20 @@ export async function buildBoards(
     drafts[request.key] = board;
   }
 
-  // Names in Japanese or Korean, translated once and cached.
+  // Names in Japanese or Korean, translated once and kept by the caller.
   const locals = Object.values(drafts).flatMap((board) =>
     board.options.flatMap((option) =>
       option.segments.flatMap((segment) => [localOf(segment), segment.headsign ?? "", stationQuery(segment.from ?? ""), stationQuery(segment.to ?? "")]),
     ),
   );
-  const { translations, report: translation } = await deps.translate(locals.filter(needsTranslation));
-  if (translation !== undefined) report.translation = translation;
+  // The boards are already paid for: a failed translation leaves names as given.
+  let translations: Record<string, string> = {};
+  try {
+    translations = (await deps.translate(locals.filter(needsTranslation))).translations;
+  } catch (error) {
+    // Not a report error: that would make the caller discard the boards.
+    console.warn(JSON.stringify({ message: "board names left untranslated", error: String(error) }));
+  }
 
   const requestOf = new Map(requests.map((request) => [request.key, request]));
   const boards = Object.fromEntries(
@@ -272,9 +255,9 @@ export async function buildBoards(
  */
 async function windowTail(
   request: DepartureRequest,
-  entries: CacheEntry[],
-  answer: (sample: Sample) => Promise<CacheEntry | undefined>,
-): Promise<CacheEntry[]> {
+  entries: Answer[],
+  answer: (sample: Sample) => Promise<Answer | undefined>,
+): Promise<Answer[]> {
   if (!request.until || request.provider !== "google") return [];
   const options = entries.flatMap((entry) => entry.options);
   const latest = options.reduce<DepartureOption | undefined>(
@@ -284,7 +267,7 @@ async function windowTail(
   if (!latest || latest.arriveTime >= request.until) return [];
   const starts = [1, 21].flatMap((minutes) => shifted(latest.departTime, minutes) ?? []);
   const tail = await Promise.all(starts.map((time) => answer({ ...request, kind: "depart", time })));
-  return tail.filter((entry): entry is CacheEntry => Boolean(entry));
+  return tail.filter((entry): entry is Answer => Boolean(entry));
 }
 
 /**
@@ -320,7 +303,7 @@ function plausible(
 /** How far before an arrival window a board still lists trains. */
 const WINDOW_LEAD_MINUTES = 20;
 
-/** The provider's own name for a segment, whatever an older cache stored. */
+/** The provider's own name for a segment, even on a board already named. */
 const localOf = (segment: DepartureSegment) => localLineName(segment.nameLocal ?? segment.name);
 
 /** English names over the provider's own, which stay for the tooltip. */
@@ -402,8 +385,15 @@ function utcInstant(date: string, time: string, utcOffsetMinutes: number): strin
   return new Date(local - utcOffsetMinutes * 60_000).toISOString();
 }
 
-async function fetchGoogle(request: DepartureRequest, from: Place, to: Place, apiKey: string, utcOffsetMinutes: number) {
-  const response = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
+async function fetchGoogle(
+  request: DepartureRequest,
+  from: Place,
+  to: Place,
+  apiKey: string,
+  utcOffsetMinutes: number,
+  fetcher: Fetcher,
+) {
+  const response = await fetcher("https://routes.googleapis.com/directions/v2:computeRoutes", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -476,7 +466,6 @@ function stopName(raw: string | undefined): string | undefined {
   return raw?.normalize("NFKC").trim() || undefined;
 }
 
-// Use UTC when the caller has no origin offset.
 export function parseGoogleRoutes(response: GoogleRoutesResponse, utcOffsetMinutes = 0): DepartureOption[] {
   const options: DepartureOption[] = [];
   for (const route of response.routes ?? []) {
@@ -529,6 +518,7 @@ async function fetchNavitime(
   from: Place,
   to: Place,
   apiKey: string,
+  fetcher: Fetcher,
   mayAskNavitime: () => Promise<boolean>,
 ) {
   if (from.latitude == null || from.longitude == null || to.latitude == null || to.longitude == null) {
@@ -541,7 +531,7 @@ async function fetchNavitime(
     limit: String(OPTIONS_KEPT),
   });
   if (!(await mayAskNavitime())) return undefined;
-  const response = await fetch(`https://navitime-route-totalnavi.p.rapidapi.com/route_transit?${params}`, {
+  const response = await fetcher(`https://navitime-route-totalnavi.p.rapidapi.com/route_transit?${params}`, {
     headers: {
       "x-rapidapi-host": "navitime-route-totalnavi.p.rapidapi.com",
       "x-rapidapi-key": apiKey,

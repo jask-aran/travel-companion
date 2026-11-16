@@ -1,30 +1,25 @@
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
-import { acquireWithApi, acquireWithBrowser, acquireWithCli, type AcquiredSource } from "../packages/wanderlog-import/src/acquire.js";
+import { downloadPlan } from "../packages/wanderlog-import/src/acquire.js";
 import { loadIngestionConfig } from "../packages/wanderlog-import/src/config.js";
 import { parseWanderlogSource } from "../packages/wanderlog-import/src/index.js";
-import { parseTripBundle, type TripBundle } from "../packages/trip-schema/src/index.js";
+import { parseTripBundle } from "../packages/trip-schema/src/index.js";
 import { normaliseCompleteWanderlog } from "../packages/trip-normaliser/src/complete.js";
-import { attachPlacePhotos } from "../packages/trip-normaliser/src/place-photos.js";
 import { attachPlaceDetails } from "../packages/trip-normaliser/src/place-details.js";
-import { attachDepartures } from "../packages/trip-normaliser/src/departures.js";
-import { englishLocalities } from "../packages/trip-normaliser/src/translate.js";
-import { departureTargets } from "../apps/web/src/lib/departure-targets.js";
 import type { ImportOverrides } from "../packages/trip-normaliser/src/index.js";
 
 const { values } = parseArgs({
   options: {
     config: { type: "string", default: "config/trip.local.yaml" },
-    source: { type: "string", default: "auto" },
-    headed: { type: "boolean", default: false },
+    source: { type: "string", default: "api" },
   },
 });
 
 if (!values.config) throw new Error("Missing config path");
-if (!values.source || !["auto", "api", "cli", "html", "saved"].includes(values.source)) {
-  throw new Error("--source must be auto, api, cli, html, or saved");
+if (values.source !== "api" && values.source !== "saved") {
+  throw new Error("--source must be api or saved");
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -49,23 +44,19 @@ async function writeAtomic(path: string, contents: string): Promise<void> {
 }
 
 function reportMarkdown(
-  source: AcquiredSource,
+  source: string,
   report: ReturnType<typeof normaliseCompleteWanderlog>["report"],
 ): string {
   return [
     "# Wanderlog ingestion report",
     "",
-    `- Acquisition source: \`${source.source}\``,
+    `- Source: ${source}`,
     `- Fingerprint: \`${report.sourceFingerprint}\``,
     `- Days: ${report.counts.days}`,
     `- Items: ${report.counts.items}`,
     `- Places: ${report.counts.places}`,
     `- Route legs: ${report.counts.routeLegs}`,
     `- Representative images: ${report.counts.images}`,
-    "",
-    "## Acquisition",
-    "",
-    ...source.diagnostics.map((entry) => `- ${entry}`),
     "",
     "## Redacted by design",
     "",
@@ -83,39 +74,15 @@ function reportMarkdown(
 const loaded = await loadIngestionConfig(values.config);
 const { config } = loaded;
 const rawJsonPath = loaded.resolvePath(config.paths.rawJson);
-const rawHtmlPath = loaded.resolvePath(config.paths.rawHtml);
-const profilePath = loaded.resolvePath(config.wanderlog.web.browserProfileDir);
 
-let acquired: AcquiredSource;
-if (values.source === "saved") {
-  // The last download, processed again: for a change to the import or the
-  // curated timetables while Wanderlog is down, or without spending a fetch.
-  acquired = {
-    source: "api",
-    contents: await readFile(rawJsonPath, "utf8"),
-    diagnostics: ["Reprocessed the last saved download"],
-  };
-} else if (values.source === "api") {
-  acquired = await acquireWithApi(config);
-} else if (values.source === "cli") {
-  acquired = await acquireWithCli(config);
-} else if (values.source === "html") {
-  acquired = await acquireWithBrowser(config, profilePath, { headless: !values.headed });
-} else {
-  try {
-    acquired = await acquireWithApi(config);
-  } catch (apiError) {
-    console.warn(`Wanderlog API acquisition failed: ${apiError instanceof Error ? apiError.message : String(apiError)}`);
-    console.warn("Falling back to browser scraping.");
-    acquired = await acquireWithBrowser(config, profilePath, { headless: !values.headed });
-    acquired.diagnostics.unshift(`API fallback reason: ${apiError instanceof Error ? apiError.message : String(apiError)}`);
-  }
-}
+// "saved" processes the last download again: for a change to the import
+// without asking Wanderlog.
+const saved = values.source === "saved";
+const contents = saved ? await readFile(rawJsonPath, "utf8") : await downloadPlan(config);
+const source = saved ? "the last saved download" : "the Wanderlog API";
+if (!saved) await writeAtomic(rawJsonPath, contents);
 
-const rawPath = acquired.source === "html" ? rawHtmlPath : rawJsonPath;
-await writeAtomic(rawPath, acquired.contents);
-
-const parsed = parseWanderlogSource(acquired.contents);
+const parsed = parseWanderlogSource(contents);
 let overrides: ImportOverrides | undefined;
 const overridesPath = loaded.resolvePath(config.paths.overrides);
 if (await exists(overridesPath)) {
@@ -123,88 +90,28 @@ if (await exists(overridesPath)) {
 }
 
 const result = normaliseCompleteWanderlog(parsed.data, {
-  sourceKind: parsed.kind,
-  sourceText: acquired.contents,
+  sourceText: contents,
   ...(overrides ? { overrides } : {}),
 });
 
 result.bundle.tripId = config.trip.publicId;
 
-// Wanderlog's own scraped POI records: categories, blurb, hours, visit length.
 const detailCount = attachPlaceDetails(result.bundle, parsed.data);
 
 const workingBundlePath = loaded.resolvePath(config.paths.workingBundle);
-
-/*
- * Google photo names expire, so they are refreshed, but names fetched in the
- * last few days are reused from the previous bundle. Without a key the app
- * simply renders no photos.
- */
-const googleApiKey = process.env.GOOGLE_MAPS_API_KEY ?? config.google?.apiKey;
-const previousBundle = (await exists(workingBundlePath))
-  ? (JSON.parse(await readFile(workingBundlePath, "utf8")) as Pick<TripBundle, "places">)
-  : undefined;
-const photoReport = await attachPlacePhotos(result.bundle, googleApiKey, previousBundle);
-
-/*
- * Departure times for flight transfers and timed journeys: Google in Korea,
- * NAVITIME in Japan. Cached beside the bundle for a week, since NAVITIME's
- * plan allows 500 requests a month.
- */
-const departureReport = await attachDepartures(
-  result.bundle,
-  departureTargets(result.bundle),
-  {
-    google: googleApiKey,
-    navitime: process.env.NAVITIME_API_KEY ?? config.navitime?.apiKey,
-    translate: googleApiKey,
-    translateProject: config.google?.projectNumber?.toString(),
-  },
-  dirname(workingBundlePath),
-);
-
-// Town names Google gives only in Japanese or Korean, in English.
-const localities = await englishLocalities(
-  result.bundle,
-  googleApiKey,
-  join(dirname(workingBundlePath), "translations-cache.json"),
-  config.google?.projectNumber?.toString(),
-);
-
 const bundle = parseTripBundle(result.bundle);
 const reportPath = loaded.resolvePath(config.paths.report);
 const markdownReportPath = reportPath.replace(/\.json$/i, ".md");
 
 await writeAtomic(workingBundlePath, `${JSON.stringify(bundle, null, 2)}\n`);
-await writeAtomic(reportPath, `${JSON.stringify({ acquisition: acquired.diagnostics, ...result.report }, null, 2)}\n`);
-await writeAtomic(markdownReportPath, reportMarkdown(acquired, result.report));
+await writeAtomic(reportPath, `${JSON.stringify({ source, ...result.report }, null, 2)}\n`);
+await writeAtomic(markdownReportPath, reportMarkdown(source, result.report));
 
-console.log(`Acquired Wanderlog trip ${config.trip.wanderlogId} via ${acquired.source}.`);
-console.log(`Saved raw source: ${rawPath}`);
+console.log(`Read the plan from ${source}.`);
+console.log(`Raw plan: ${rawJsonPath}`);
 console.log(`Generated TripBundle: ${workingBundlePath}`);
 console.log(`Import report: ${reportPath}`);
 console.log(`Place details: ${detailCount} places enriched from Wanderlog metadata.`);
-if (localities) console.log(`Town names: ${localities} translated to English.`);
-if (!googleApiKey) {
-  console.log(
-    "Place photos: skipped. Set google.apiKey in config/trip.local.yaml (or GOOGLE_MAPS_API_KEY) to fetch them.",
-  );
-} else {
-  console.log(
-    `Place photos: ${photoReport.attached} fetched, ${photoReport.reused} reused, ${photoReport.failed} failed, ${photoReport.skipped} skipped.`,
-  );
-  for (const message of photoReport.errors) console.warn(`  ! ${message}`);
-}
 console.log(
-  `Departures: ${departureReport.boards} boards (${departureReport.cached} cached; ` +
-    `requested ${departureReport.requested.google} Google, ${departureReport.requested.navitime} NAVITIME; ` +
-    `${departureReport.skipped} skipped).`,
+  "Photos, departure times and English town and line names come from the deployed site, which uses the Google and NAVITIME keys; this pull asks only Wanderlog.",
 );
-for (const message of departureReport.errors) console.warn(`  ! ${message}`);
-const translation = departureReport.translation;
-if (translation) {
-  console.log(
-    `Line names (${translation.model} model): ${translation.translated} translated, ${translation.cached} cached.`,
-  );
-  if (translation.failed) console.warn(`  ! Translation unavailable, names left as given: ${translation.failed}`);
-}

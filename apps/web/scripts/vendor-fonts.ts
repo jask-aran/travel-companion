@@ -6,6 +6,9 @@
  * Chrome UA below gets woff2 (and a variable face for Sora's 400..700 range).
  * Only the `latin` subset is kept — the trip content is English.
  *
+ * The generated rules point at "/fonts/…", which Vite rewrites to the deployed
+ * base; a relative path would resolve against assets/ and 404.
+ *
  * Re-run with: pnpm --filter @travel-companion/web fonts:vendor
  */
 import { mkdir, writeFile } from "node:fs/promises";
@@ -34,6 +37,14 @@ const DIRECT = [
     url: `https://raw.githubusercontent.com/paper-design/paper-mono/${PAPER_MONO_COMMIT}/fonts/webfonts/PaperMono%5Bwght%5D.woff2`,
   },
 ];
+
+/**
+ * Druk Wide Super sets the trip title. It is a commercial face (Commercial
+ * Type), so this script does not fetch it and git does not track it: the
+ * licensed file is copied by hand to public/fonts/druk-wide-super.woff2.
+ * Without the file the title falls back to Sora.
+ */
+const LOCAL = [{ family: "Druk Wide Super", name: "druk-wide-super.woff2", weight: "400" }];
 
 type Face = {
   family: string;
@@ -100,7 +111,7 @@ for (const family of FAMILIES) {
       `  font-style: ${face.style};`,
       `  font-weight: ${face.weight};`,
       "  font-display: swap;",
-      `  src: url("./fonts/${name}") format("woff2");`,
+      `  src: url("/fonts/${name}") format("woff2");`,
       `  unicode-range: ${face.unicodeRange};`,
       "}",
       "",
@@ -119,7 +130,20 @@ for (const font of DIRECT) {
     "  font-style: normal;",
     `  font-weight: ${font.weight};`,
     "  font-display: swap;",
-    `  src: url("./fonts/${font.name}") format("woff2");`,
+    `  src: url("/fonts/${font.name}") format("woff2");`,
+    "}",
+    "",
+  );
+}
+
+for (const font of LOCAL) {
+  rules.push(
+    "@font-face {",
+    `  font-family: "${font.family}";`,
+    "  font-style: normal;",
+    `  font-weight: ${font.weight};`,
+    "  font-display: swap;",
+    `  src: url("/fonts/${font.name}") format("woff2");`,
     "}",
     "",
   );

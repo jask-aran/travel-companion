@@ -2,10 +2,7 @@ import type { Place } from "@travel-companion/trip-schema";
 
 export type MapsTravelMode = "transit" | "walking" | "driving";
 
-/**
- * Build a Google Maps directions URL that leaves origin empty so the device
- * supplies the current location. Destination priority matches the project spec.
- */
+/** A Google Maps directions URL with no origin, so the device supplies its location. */
 export function buildGoogleMapsUrl(
   place: Place,
   mode: MapsTravelMode = "transit",

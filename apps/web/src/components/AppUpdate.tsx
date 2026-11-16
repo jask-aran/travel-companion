@@ -11,7 +11,7 @@ const builtAt = new Intl.DateTimeFormat(undefined, {
 }).format(new Date(__APP_BUILT_AT__));
 
 /** The app shell's own update, separate from the trip data refresh. */
-export function AppUpdate() {
+export function AppUpdate(props: { revision: string }) {
   const [message, setMessage] = createSignal("");
   const [busy, setBusy] = createSignal(false);
 
@@ -34,7 +34,8 @@ export function AppUpdate() {
 
   return (
     <div class="refresh-trip">
-      <p>App built {builtAt}</p>
+      {/* The trip revision is for debugging: on hover, out of the line. */}
+      <p title={`Trip revision ${props.revision}`}>App built {builtAt}</p>
       <button type="button" class="text-button" disabled={busy()} onClick={() => void check()}>
         Get latest app version
       </button>

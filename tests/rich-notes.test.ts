@@ -2,165 +2,38 @@ import { describe, expect, it } from "vitest";
 import { quillToMarkdown } from "../packages/trip-normaliser/src/index.js";
 import { notesPreview, parseInlines, parseRichNotes } from "../apps/web/src/lib/rich-notes.js";
 
-/** Suzuka Circuit notes, verbatim from the Wanderlog export. */
+const bullet = { insert: "\n", attributes: { list: "bullet" } };
+/** Shaped like the Suzuka Circuit notes in the Wanderlog export. */
 const suzuka = {
-  "ops": [
-    {
-      "insert": "Qualifying starts at 9AM, try to be in by 8:50 AM\n\nSchedule:\n"
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "08:50 – 09:20:"
-    },
-    {
-      "insert": " "
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "Qualifying (Round 12)"
-    },
-    {
-      "insert": " – "
-    },
-    {
-      "attributes": {
-        "italic": true
-      },
-      "insert": "Don't miss this!"
-    },
-    {
-      "attributes": {
-        "list": "bullet"
-      },
-      "insert": "\n"
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "10:15 – 11:00:"
-    },
-    {
-      "insert": " Pit Walk (requires Paddock/Pit Walk pass)"
-    },
-    {
-      "attributes": {
-        "list": "bullet"
-      },
-      "insert": "\n"
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "14:30:"
-    },
-    {
-      "insert": " "
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "Round 12 Race Start"
-    },
-    {
-      "insert": " (Season Finale)"
-    },
-    {
-      "attributes": {
-        "list": "bullet"
-      },
-      "insert": "\n"
-    },
-    {
-      "insert": "\nTicket Options\n"
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "Advance Admission (2-Day)"
-    },
-    {
-      "insert": ": ¥4,400 | Basic entry to the circuit (General Admission areas). No reserved seat."
-    },
-    {
-      "attributes": {
-        "list": "bullet"
-      },
-      "insert": "\n"
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "V1 / V2 Reserved Seat"
-    },
-    {
-      "insert": ": ¥6,500 – ¥7,500 | Includes admission + a reserved seat in the Main Grandstand (lower/upper)."
-    },
-    {
-      "attributes": {
-        "list": "bullet"
-      },
-      "insert": "\n"
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "Q Area / B Area Ticket"
-    },
-    {
-      "insert": ": ¥5,500 | Admission + specific grandstand access at the first corner (B) or Chicane (Q)."
-    },
-    {
-      "attributes": {
-        "list": "bullet"
-      },
-      "insert": "\n"
-    },
-    {
-      "attributes": {
-        "bold": true
-      },
-      "insert": "Paddock Pass"
-    },
-    {
-      "insert": ": ¥16,500 | Includes admission, pit walk, and access to the paddock area (drivers/teams). "
-    },
-    {
-      "insert": "\n",
-      "attributes": {
-        "list": "bullet"
-      }
-    },
-    {
-      "insert": "\n"
-    }
-  ]
+  ops: [
+    { insert: "Qualifying starts at 9AM\n\nSchedule:\n" },
+    { insert: "08:50 – 09:20:", attributes: { bold: true } },
+    { insert: " " },
+    { insert: "Qualifying", attributes: { bold: true } },
+    { insert: " – " },
+    { insert: "Don't miss this!", attributes: { italic: true } },
+    bullet,
+    { insert: "14:30:", attributes: { bold: true } },
+    { insert: " Race start" },
+    bullet,
+    { insert: "Tickets\n" },
+    { insert: "Paddock Pass", attributes: { bold: true } },
+    { insert: ": ¥16,500" },
+    bullet,
+  ],
 };
 
 const suzukaMarkdown = [
-  "Qualifying starts at 9AM, try to be in by 8:50 AM",
+  "Qualifying starts at 9AM",
   "",
   "Schedule:",
   "",
-  "- **08:50 – 09:20:** **Qualifying (Round 12)** – _Don't miss this!_",
-  "- **10:15 – 11:00:** Pit Walk (requires Paddock/Pit Walk pass)",
-  "- **14:30:** **Round 12 Race Start** (Season Finale)",
+  "- **08:50 – 09:20:** **Qualifying** – _Don't miss this!_",
+  "- **14:30:** Race start",
   "",
-  "Ticket Options",
+  "Tickets",
   "",
-  "- **Advance Admission (2-Day)**: ¥4,400 | Basic entry to the circuit (General Admission areas). No reserved seat.",
-  "- **V1 / V2 Reserved Seat**: ¥6,500 – ¥7,500 | Includes admission + a reserved seat in the Main Grandstand (lower/upper).",
-  "- **Q Area / B Area Ticket**: ¥5,500 | Admission + specific grandstand access at the first corner (B) or Chicane (Q).",
-  "- **Paddock Pass**: ¥16,500 | Includes admission, pit walk, and access to the paddock area (drivers/teams).",
+  "- **Paddock Pass**: ¥16,500",
 ].join("\n");
 
 describe("quillToMarkdown", () => {
@@ -190,11 +63,11 @@ describe("parseRichNotes", () => {
     const blocks = parseRichNotes(suzukaMarkdown);
     expect(blocks.map((block) => block.type)).toEqual(["p", "p", "ul", "p", "ul"]);
     const schedule = blocks[2];
-    expect(schedule?.type === "ul" && schedule.items).toHaveLength(3);
+    expect(schedule?.type === "ul" && schedule.items).toHaveLength(2);
     expect(schedule?.type === "ul" && schedule.items[0]).toEqual([
       { text: "08:50 – 09:20:", bold: true },
       { text: " " },
-      { text: "Qualifying (Round 12)", bold: true },
+      { text: "Qualifying", bold: true },
       { text: " – " },
       { text: "Don't miss this!", italic: true },
     ]);
@@ -238,6 +111,6 @@ describe("self-check edge cases", () => {
 describe("notesPreview", () => {
   it("returns the first non-empty line without markers", () => {
     expect(notesPreview("\n- **08:50:** _Go_ [here](https://x.io)\nmore")).toBe("08:50: Go here");
-    expect(notesPreview(suzukaMarkdown)).toBe("Qualifying starts at 9AM, try to be in by 8:50 AM");
+    expect(notesPreview(suzukaMarkdown)).toBe("Qualifying starts at 9AM");
   });
 });

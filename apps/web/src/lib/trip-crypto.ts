@@ -1,15 +1,8 @@
 /**
- * Passphrase encryption for the trip payload.
- *
- * A password checked in JavaScript would protect nothing: `trip.json` is a
- * separate request, so anyone could fetch it directly and read every booking
- * reference without running our code. So the payload itself is encrypted at
- * build time and decrypted in the browser — what crosses the network is
- * ciphertext. Reading the trip does not send the passphrase. A remote refresh does, over HTTPS, so the worker can check it against the copy it already holds.
- *
- * AES-GCM for authenticated encryption (a wrong passphrase fails loudly rather
- * than yielding garbage), keyed by PBKDF2-SHA256. Runs unmodified in Node and
- * the browser, so the build and the app share exactly this code.
+ * Passphrase encryption for the trip payload. A password checked in JavaScript
+ * would protect nothing, since the payload is a separate request; so it is
+ * encrypted at build time and decrypted in the browser. AES-GCM (a wrong
+ * passphrase fails loudly) keyed by PBKDF2-SHA256; runs in Node and the browser.
  */
 
 export type EncryptedPayload = {

@@ -8,8 +8,6 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "trip:refresh": "tsx ../../scripts/refresh-trip.ts",
-    "trip:pull": "tsx ../../scripts/refresh-trip.ts --source cli",
     "fonts:vendor": "tsx scripts/vendor-fonts.ts"
   },
   "dependencies": {

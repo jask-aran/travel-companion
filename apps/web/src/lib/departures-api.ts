@@ -8,8 +8,11 @@ import type { DepartureTarget } from "./departure-targets.js";
  * asked about it at most twice a day. Shared by the app, the Pages worker
  * and Vite's dev middleware, as media.ts is for photos.
  *
- * The question carries what building a board needs, not the trip: the worker
- * can't read the itinerary without the passphrase, and doesn't need to.
+ * The app asks by leg (`leg=`, the target's key, `<from place id>><to place id>`)
+ * and sends its question (`q=`) too. The question names the board the worker keeps, so a kept board is served
+ * without opening the trip. A board is only built for a leg of the trip the
+ * worker stores (it holds the passphrase and reads the itinerary), from that
+ * trip's own question, never from the one sent.
  */
 
 export const DEPARTURES_ROUTE = "api/departures";
@@ -31,9 +34,7 @@ export type BoardQuestion = {
 
 /** Today and tomorrow, where the leg starts, are fetched live. */
 export const LIVE_DAYS = 2;
-/** How long a live board is good for: two asks a day. */
-export const SOON_LIFETIME_MS = 12 * 3_600_000;
-/** A board for a later day (a stop the pull has no board for) changes little. */
+/** A board for a later day is asked for again after a week. */
 export const LATER_LIFETIME_MS = 7 * 86_400_000;
 
 const pick = (place: Place): BoardPlace => ({
@@ -65,6 +66,15 @@ export function boardQuestion(target: DepartureTarget, bundle: Pick<TripBundle, 
     to: pick(to),
     ...(leg?.durationSeconds ? { estimateSeconds: leg.durationSeconds } : {}),
   });
+}
+
+/** Whether a board was built for this target as it now stands (a moved stop asks another question). */
+export function boardAnswers(board: DepartureBoard | undefined, target: DepartureTarget): board is DepartureBoard {
+  return Boolean(board) &&
+    board!.target.kind === target.kind &&
+    board!.target.date === target.date &&
+    board!.target.time === target.time &&
+    board!.target.until === target.until;
 }
 
 /** Fields in one order, so the same question is the same text, and the same stored board. */
@@ -165,7 +175,13 @@ export function isSoon(question: Dated, now: Date): boolean {
   return question.date >= today && question.date < addDays(today, LIVE_DAYS);
 }
 
-/** How long the worker keeps a board before asking again. */
-export function boardLifetimeMs(question: Dated, now: Date): number {
-  return isSoon(question, now) ? SOON_LIFETIME_MS : LATER_LIFETIME_MS;
+/**
+ * Whether the worker's board, fetched at `fetchedAt`, still answers. A leg
+ * is asked about once when its day becomes tomorrow, and that board stands
+ * through the day: the providers give timetables, not delays, so asking
+ * again would get the same answer. Before then, once a week.
+ */
+export function boardIsFresh(question: Dated, fetchedAt: Date, now: Date): boolean {
+  if (isSoon(question, now)) return isSoon(question, fetchedAt);
+  return now.getTime() - fetchedAt.getTime() < LATER_LIFETIME_MS;
 }

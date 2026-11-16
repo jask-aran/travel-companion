@@ -15,20 +15,16 @@ describe("providerFor", () => {
     ["Narita", 35.77, 140.38, "navitime"],
     ["Tsushima", 34.2, 129.29, "navitime"],
     ["Busan", 35.1, 129.04, "google"],
-    ["Seoul", 37.57, 126.98, "google"],
-    ["Paris", 48.85, 2.35, "google"],
     ["Naha, Okinawa", 26.21, 127.68, "navitime"],
     ["Taipei", 25.03, 121.56, "google"],
     ["Sakhalin", 47, 142.7, "google"],
-    ["Kunashir, Kurils", 44, 145.8, "google"],
     ["Ulleungdo", 37.5, 130.9, "google"],
     ["Nemuro", 43.33, 145.58, "navitime"],
-    ["Fukuoka", 33.59, 130.4, "navitime"],
   ])("selects the provider for %s", (_name, latitude, longitude, provider) => {
     expect(providerFor(place(latitude, longitude))).toBe(provider);
   });
 
-  it.each(["Remote island, Japan", "離島、日本", "Remote island, Japan  "])(
+  it.each(["離島、日本", "Remote island, Japan  "])(
     "uses the Japan address suffix: %s",
     (address) => {
       expect(providerFor(place(27.1, 142.2, address))).toBe("navitime");

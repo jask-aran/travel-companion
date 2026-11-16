@@ -7,7 +7,7 @@ import {
   parseNavitime,
   type GoogleRoutesResponse,
   type NavitimeResponse,
-} from "../packages/trip-normaliser/src/departures.js";
+} from "../packages/trip-normaliser/src/departure-boards.js";
 import { curateDepartureBoard } from "../packages/trip-normaliser/src/curated-timetables.js";
 import { loadTimetables } from "../packages/trip-normaliser/src/timetable-files.js";
 import {

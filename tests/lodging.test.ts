@@ -7,6 +7,11 @@ import {
   stayForDay,
 } from "../apps/web/src/lib/lodging.js";
 
+const lodging = (id: string, name: string, placeId: string, checkInDate: string, checkOutDate: string, phase: "check-in" | "check-out", sourceBlockId: number) =>
+  ({ id, type: "lodging", name, placeId, checkInDate, checkOutDate, phase, sourceBlockId }) as const;
+const day = (date: string, items: ReturnType<typeof lodging>[] = []) =>
+  ({ id: `day-${date}`, date, title: date, timezone: "Asia/Tokyo", items, map: { orderedPlaceIds: [], routeLegIds: [] } });
+
 function bundleWithStays(): TripBundle {
   return {
     schemaVersion: 1,
@@ -15,89 +20,14 @@ function bundleWithStays(): TripBundle {
     generatedAt: "2026-01-01T00:00:00.000Z",
     trip: { title: "T", startDate: "2026-11-21", endDate: "2026-11-25" },
     days: [
-      {
-        id: "day-2026-11-21",
-        date: "2026-11-21",
-        title: "Day 1",
-        timezone: "Asia/Tokyo",
-        items: [
-          {
-            id: "l1",
-            type: "lodging",
-            name: "Hotel A",
-            placeId: "a",
-            checkInDate: "2026-11-21",
-            checkOutDate: "2026-11-23",
-            phase: "check-in",
-            sourceBlockId: 1,
-          },
-        ],
-        map: { orderedPlaceIds: [], routeLegIds: [] },
-      },
-      {
-        id: "day-2026-11-22",
-        date: "2026-11-22",
-        title: "Day 2",
-        timezone: "Asia/Tokyo",
-        items: [],
-        map: { orderedPlaceIds: [], routeLegIds: [] },
-      },
-      {
-        id: "day-2026-11-23",
-        date: "2026-11-23",
-        title: "Day 3",
-        timezone: "Asia/Tokyo",
-        items: [
-          {
-            id: "l1-out",
-            type: "lodging",
-            name: "Hotel A",
-            placeId: "a",
-            checkInDate: "2026-11-21",
-            checkOutDate: "2026-11-23",
-            phase: "check-out",
-            sourceBlockId: 1,
-          },
-          {
-            id: "l2",
-            type: "lodging",
-            name: "Hotel B",
-            placeId: "b",
-            checkInDate: "2026-11-23",
-            checkOutDate: "2026-11-25",
-            phase: "check-in",
-            sourceBlockId: 2,
-          },
-        ],
-        map: { orderedPlaceIds: [], routeLegIds: [] },
-      },
-      {
-        id: "day-2026-11-24",
-        date: "2026-11-24",
-        title: "Day 4",
-        timezone: "Asia/Tokyo",
-        items: [],
-        map: { orderedPlaceIds: [], routeLegIds: [] },
-      },
-      {
-        id: "day-2026-11-25",
-        date: "2026-11-25",
-        title: "Day 5",
-        timezone: "Asia/Tokyo",
-        items: [
-          {
-            id: "l2-out",
-            type: "lodging",
-            name: "Hotel B",
-            placeId: "b",
-            checkInDate: "2026-11-23",
-            checkOutDate: "2026-11-25",
-            phase: "check-out",
-            sourceBlockId: 2,
-          },
-        ],
-        map: { orderedPlaceIds: [], routeLegIds: [] },
-      },
+      day("2026-11-21", [lodging("l1", "Hotel A", "a", "2026-11-21", "2026-11-23", "check-in", 1)]),
+      day("2026-11-22"),
+      day("2026-11-23", [
+        lodging("l1-out", "Hotel A", "a", "2026-11-21", "2026-11-23", "check-out", 1),
+        lodging("l2", "Hotel B", "b", "2026-11-23", "2026-11-25", "check-in", 2),
+      ]),
+      day("2026-11-24"),
+      day("2026-11-25", [lodging("l2-out", "Hotel B", "b", "2026-11-23", "2026-11-25", "check-out", 2)]),
     ],
     places: {},
     routeLegs: {},
@@ -108,11 +38,8 @@ describe("day lodging bookends", () => {
   const bundle = bundleWithStays();
   const stays = collectStays(bundle);
 
-  it("collects unique stays from edge items", () => {
-    expect(stays).toHaveLength(2);
-  });
-
   it("first day: check-in at start, tonight at end", () => {
+    expect(stays).toHaveLength(2);
     const plan = planDayLodging("2026-11-21", stays, "2026-11-21", "2026-11-25");
     expect(plan.start.map((s) => s.role)).toEqual(["check-in"]);
     expect(plan.end.map((s) => `${s.role}:${s.stay.name}`)).toEqual(["evening:Hotel A"]);
@@ -141,59 +68,17 @@ describe("day lodging bookends", () => {
 });
 
 describe("day summary lodging slots", () => {
-  const stay = (key: string) => ({
-    key,
-    name: key,
-    checkInDate: "2026-12-03",
-    checkOutDate: "2026-12-06",
-  });
+  const stay = (key: string) => ({ key, name: key, checkInDate: "2026-12-03", checkOutDate: "2026-12-06" });
+  type Slot = Parameters<typeof daySummarySlots>[0]["start"][number];
+  const slot = (role: Slot["role"], key: string) => ({ role, stay: stay(key) }) as Slot;
+  const roles = (start: Slot[], end: Slot[]) => daySummarySlots({ start, end }).map((s) => s.role);
 
-  it("drops Tonight when the same stay is already shown as Check in", () => {
-    const slots = daySummarySlots({
-      start: [{ role: "check-in", stay: stay("seoul") }],
-      end: [{ role: "evening", stay: stay("seoul") }],
-    });
-
-    expect(slots.map((s) => s.role)).toEqual(["check-in"]);
-  });
-
-  it("drops Woke here when the same stay is already shown as Check out", () => {
-    const slots = daySummarySlots({
-      start: [
-        { role: "check-out", stay: stay("osaka") },
-        { role: "morning", stay: stay("osaka") },
-      ],
-      end: [],
-    });
-
-    expect(slots.map((s) => s.role)).toEqual(["check-out"]);
-  });
-
-  it("keeps Tonight when it is a different stay from the one checked out of", () => {
-    const slots = daySummarySlots({
-      start: [{ role: "check-out", stay: stay("osaka") }],
-      end: [{ role: "evening", stay: stay("seoul") }],
-    });
-
-    expect(slots.map((s) => s.role)).toEqual(["check-out", "evening"]);
-  });
-
-  it("collapses a mid-stay day to one band instead of Woke here + Tonight", () => {
-    const slots = daySummarySlots({
-      start: [{ role: "morning", stay: stay("seoul") }],
-      end: [{ role: "evening", stay: stay("seoul") }],
-    });
-
-    expect(slots.map((s) => s.role)).toEqual(["stay"]);
-  });
-
-  it("does not collapse when the two nights are different stays", () => {
-    const slots = daySummarySlots({
-      start: [{ role: "morning", stay: stay("osaka") }],
-      end: [{ role: "evening", stay: stay("seoul") }],
-    });
-
-    expect(slots.map((s) => s.role)).toEqual(["morning", "evening"]);
+  it("shows each stay once, and a mid-stay day as one band", () => {
+    expect(roles([slot("check-in", "seoul")], [slot("evening", "seoul")])).toEqual(["check-in"]);
+    expect(roles([slot("check-out", "osaka"), slot("morning", "osaka")], [])).toEqual(["check-out"]);
+    expect(roles([slot("check-out", "osaka")], [slot("evening", "seoul")])).toEqual(["check-out", "evening"]);
+    expect(roles([slot("morning", "seoul")], [slot("evening", "seoul")])).toEqual(["stay"]);
+    expect(roles([slot("morning", "osaka")], [slot("evening", "seoul")])).toEqual(["morning", "evening"]);
   });
 });
 
@@ -203,17 +88,11 @@ describe("day base", () => {
     { key: "b", name: "B", checkInDate: "2026-11-23", checkOutDate: "2026-11-25" },
   ];
 
-  it("is the stay you sleep in that night", () => {
+  it("is the stay you sleep in that night, or leave on the last day", () => {
     expect(stayForDay(stays, "2026-11-22")?.key).toBe("a");
     // Moving day: you sleep in the new one.
     expect(stayForDay(stays, "2026-11-23")?.key).toBe("b");
-  });
-
-  it("is the stay you leave on the last day", () => {
     expect(stayForDay(stays, "2026-11-25")?.key).toBe("b");
-  });
-
-  it("is nothing outside every stay", () => {
     expect(stayForDay(stays, "2026-11-20")).toBeUndefined();
   });
 });

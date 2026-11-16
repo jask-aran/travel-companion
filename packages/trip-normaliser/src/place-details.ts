@@ -1,10 +1,6 @@
 import type { PlaceDetails, TripBundle } from "../../trip-schema/src/index.js";
 
-/**
- * Wanderlog scrapes a rich POI record for every place and parks it in
- * `resources.placeMetadata`, keyed by Google place id — separate from the
- * itinerary blocks, which is why none of it reached the app before.
- */
+/** Wanderlog's POI records, from `resources.placeMetadata`, keyed by Google place id. */
 
 type Json = Record<string, unknown>;
 

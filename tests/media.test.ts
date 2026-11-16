@@ -1,20 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { MEDIA_ROUTES, mediaToken, mediaUpstream } from "../apps/web/src/lib/media.js";
+import type { Place } from "../packages/trip-schema/src/index.js";
+import { latLngOf, mediaToken, photoMediaUrl, photoPlaceId, staticMapUpstream } from "../apps/web/src/lib/media.js";
 
-const params = (entries: Record<string, string>) => new URLSearchParams(entries);
-
-describe("media proxy", () => {
-  it("forwards a photo or a map of a point, with the key added server side", () => {
-    const photo = mediaUpstream(MEDIA_ROUTES.photo, params({ name: "places/abc_1/photos/xyz-2" }), "KEY");
-    expect(photo).toBe("https://places.googleapis.com/v1/places/abc_1/photos/xyz-2/media?maxWidthPx=480&key=KEY");
-    expect(mediaUpstream(MEDIA_ROUTES.map, params({ at: "35.17,136.88" }), "KEY")).toContain("center=35.17%2C136.88");
+describe("media requests", () => {
+  it("builds the Google URLs with the key added server side", () => {
+    expect(photoMediaUrl("places/abc_1/photos/xyz-2", "KEY")).toBe("https://places.googleapis.com/v1/places/abc_1/photos/xyz-2/media?maxWidthPx=480&key=KEY");
+    expect(staticMapUpstream("35.17,136.88", "KEY")).toContain("center=35.17%2C136.88");
   });
 
-  it("refuses anything else, so the key can't be spent elsewhere", () => {
-    expect(mediaUpstream(MEDIA_ROUTES.photo, params({ name: "../../v1/places:searchText" }), "KEY")).toBeUndefined();
-    expect(mediaUpstream(MEDIA_ROUTES.photo, params({ name: "places/a/photos/b?maxWidthPx=4800" }), "KEY")).toBeUndefined();
-    expect(mediaUpstream(MEDIA_ROUTES.map, params({ at: "35.17,136.88&size=640x640" }), "KEY")).toBeUndefined();
-    expect(mediaUpstream("api/other", params({}), "KEY")).toBeUndefined();
+  it("asks for a photo by the place's Google id and a map by its coordinates", () => {
+    const place = (fields: Partial<Place>) => ({ id: "x", name: "x", ...fields }) as Place;
+    expect(photoPlaceId(place({ id: "google-place:abc" }))).toBe("abc");
+    expect(photoPlaceId(place({ googlePlaceId: "def" }))).toBe("def");
+    expect(photoPlaceId(place({ photo: { name: "places/ghi/photos/1" } }))).toBe("ghi");
+    expect(photoPlaceId(place({ id: "source-block:4" }))).toBeUndefined();
+    expect(latLngOf({ latitude: 35.17, longitude: 136.88 })).toBe("35.17,136.88");
+    expect(latLngOf({ latitude: 35.123456789, longitude: 136.88 })).toBeUndefined();
   });
 
   it("derives a stable token that is not the passphrase", async () => {

@@ -1,4 +1,4 @@
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,14 +13,16 @@ const esbuild = require(
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 // The worker builds live departure boards as a pull does, so it carries
-// every trip's curated timetables (workers/refresh/live-boards.ts).
-const trips = readdirSync(resolve(root, "data/trips"), { withFileTypes: true })
+// every trip's curated timetables (workers/refresh/live-boards.ts). A trip
+// with no folder there simply has none.
+const timetableRoot = resolve(root, "data/trips");
+const trips = (existsSync(timetableRoot) ? readdirSync(timetableRoot, { withFileTypes: true }) : [])
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name);
 const timetables = Object.fromEntries(trips.map((trip) => [trip, loadTimetables(trip)]));
 
 await esbuild.build({
-  entryPoints: [resolve(root, "workers/refresh/index.ts")],
+  entryPoints: [resolve(root, "workers/refresh/entry.ts")],
   bundle: true,
   format: "esm",
   platform: "neutral",

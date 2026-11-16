@@ -32,12 +32,7 @@ export function Unlock(props: {
   return (
     <div class="unlock">
       <form class="unlock__card" onSubmit={submit}>
-        <p class="unlock__eyebrow">Travel Companion</p>
-        <h1 class="unlock__title">Enter the trip passphrase</h1>
-        <p class="unlock__body">
-          Asked once on this device. The itinerary is stored encrypted and
-          unlocks in your browser.
-        </p>
+        <h1 class="unlock__wordmark">Travel Companion</h1>
 
         <input
           class="unlock__input"

@@ -4,6 +4,12 @@ const isoDate = v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/));
 const optionalString = v.optional(v.string());
 const optionalNumber = v.optional(v.number());
 
+/**
+ * Subject line of the booking email Wanderlog read the item from, so an agent
+ * with the traveller's mailbox can find the original. Never the email's id.
+ */
+const bookingEmailSubject = optionalString;
+
 export const PlaceImageSchema = v.object({
   source: v.picklist(["wanderlog", "google-places", "manual", "fallback"]),
   url: optionalString,
@@ -19,14 +25,7 @@ export const PlaceImageSchema = v.object({
   sourcePageUri: optionalString,
 });
 
-/**
- * A Google Places (New) photo reference.
- *
- * Google's terms forbid caching or re-hosting the image (ToS 3.2.3(b)), and
- * the `name` itself expires — so this is refreshed on every ingest and the
- * image is loaded live from Google at render time. Photos are therefore
- * unavailable offline, which is a deliberate, accepted trade.
- */
+/** A Google Places (New) photo reference. The `name` expires. */
 export const PlacePhotoSchema = v.object({
   /** `places/PLACE_ID/photos/PHOTO_RESOURCE` */
   name: v.string(),
@@ -36,7 +35,7 @@ export const PlacePhotoSchema = v.object({
   attributions: v.optional(
     v.array(v.object({ displayName: v.string(), uri: optionalString })),
   ),
-  /** When the name was fetched; a pull reuses names younger than a few days. */
+  /** When the name was fetched. */
   fetchedAt: optionalString,
 });
 
@@ -47,12 +46,7 @@ export const OpeningPeriodSchema = v.object({
   close: optionalString,
 });
 
-/**
- * POI detail Wanderlog scrapes alongside the itinerary and stores in its own
- * `resources.placeMetadata` block, keyed by Google place id. Richer than the
- * per-item data: full category list, an editorial blurb, opening hours and a
- * typical visit length.
- */
+/** Wanderlog's `resources.placeMetadata` entry for a place, keyed by Google place id. */
 export const PlaceDetailsSchema = v.object({
   categories: v.optional(v.array(v.string())),
   /** One-line Google editorial summary. */
@@ -145,6 +139,7 @@ export const FlightItemSchema = v.object({
    */
   departPlaceId: optionalString,
   arrivePlaceId: optionalString,
+  bookingEmailSubject,
 });
 
 export const LodgingItemSchema = v.object({
@@ -163,6 +158,19 @@ export const LodgingItemSchema = v.object({
   phone: optionalString,
   website: optionalString,
   travellerNames: v.optional(v.array(v.string())),
+  /** As Wanderlog gives it: "YYYY-MM-DD" or "YYYY-MM-DD HH:MM", hotel-local. */
+  cancellationDeadline: optionalString,
+  /** The provider's own words, from the booking email. */
+  cancellationPolicy: optionalString,
+  /** Wanderlog's guest counts, field names as it has them. */
+  guests: v.optional(
+    v.object({
+      adultCount: optionalNumber,
+      roomCount: optionalNumber,
+      childrenAges: v.optional(v.array(v.number())),
+    }),
+  ),
+  bookingEmailSubject,
 });
 
 export const DayItemSchema = v.variant("type", [
@@ -277,14 +285,11 @@ export const TripBundleSchema = v.object({
   departures: v.optional(v.record(v.string(), DepartureBoardSchema)),
 });
 
-export type PlaceImage = v.InferOutput<typeof PlaceImageSchema>;
-export type OpeningPeriod = v.InferOutput<typeof OpeningPeriodSchema>;
 export type PlaceDetails = v.InferOutput<typeof PlaceDetailsSchema>;
 export type PlacePhoto = v.InferOutput<typeof PlacePhotoSchema>;
 export type Place = v.InferOutput<typeof PlaceSchema>;
 export type PlaceItem = v.InferOutput<typeof PlaceItemSchema>;
 export type NoteItem = v.InferOutput<typeof NoteItemSchema>;
-export type TransitItem = v.InferOutput<typeof TransitItemSchema>;
 export type FlightItem = v.InferOutput<typeof FlightItemSchema>;
 export type LodgingItem = v.InferOutput<typeof LodgingItemSchema>;
 export type DayItem = v.InferOutput<typeof DayItemSchema>;

@@ -10,21 +10,19 @@
     "dev": "pnpm --filter @travel-companion/web dev",
     "build": "pnpm --filter @travel-companion/web build",
     "preview": "pnpm --filter @travel-companion/web preview",
-    "trip:refresh": "tsx scripts/refresh-trip.ts",
-    "trip:pull": "tsx scripts/refresh-trip.ts --source api",
+    "trip:init": "tsx scripts/init-trip.ts",
+    "trip:keys": "tsx scripts/keys.ts",
+    "trip:pull": "tsx scripts/refresh-trip.ts",
     "trip:rebuild": "tsx scripts/refresh-trip.ts --source saved",
-    "trip:pull:cli": "tsx scripts/refresh-trip.ts --source cli",
-    "trip:scrape": "tsx scripts/refresh-trip.ts --source html",
-    "trip:scrape:headed": "tsx scripts/refresh-trip.ts --source html --headed",
-    "trip:import": "tsx scripts/import-trip.ts",
     "typecheck": "tsc --noEmit && pnpm --filter @travel-companion/web typecheck",
     "test": "vitest run",
-    "publish:stage": "tsx scripts/publish.ts",
-    "ship": "pnpm build && tsx scripts/publish.ts && tsx scripts/bundle-refresh.ts && wrangler pages deploy apps/web/.publish --project-name jask-aran --branch main --commit-dirty && wrangler kv key put trip.enc --path apps/web/dist/trip.enc --binding TRIP --remote"
+    "ship": "tsx scripts/ship.ts",
+    "ship:dry": "tsx scripts/ship.ts --dry-run",
+    "ship:check": "tsx scripts/ship.ts --check",
+    "mcp": "tsx scripts/mcp-local.ts"
   },
   "dependencies": {
     "@photostructure/tz-lookup": "11.2.0",
-    "playwright": "^1.61.1",
     "valibot": "^1.4.2",
     "yaml": "^2.9.0"
   },

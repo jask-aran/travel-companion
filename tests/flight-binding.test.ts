@@ -15,12 +15,7 @@ describe("binding flights onto a day's stops", () => {
     expect(b.before.get("gmp")?.id).toBe("f1");
     expect(b.after.size).toBe(0);
     expect(b.unbound).toHaveLength(0);
-  });
-
-  it("supersedes the invented ground route between the two airports", () => {
-    const stops = [stop("kix", "p:kix"), stop("gmp", "p:gmp")];
-    const b = bindFlights(stops, [flight({ departPlaceId: "p:kix", arrivePlaceId: "p:gmp" })]);
-
+    // The invented ground route between the two airports goes.
     expect(b.supersededLegs.has("gmp")).toBe(true);
   });
 
@@ -38,13 +33,10 @@ describe("binding flights onto a day's stops", () => {
 
     expect(b.after.get("nrt")?.id).toBe("f1");
     expect(b.before.size).toBe(0);
-  });
 
-  it("supersedes the onward ground route after flying out of a mid-day stop", () => {
-    const stops = [stop("nrt", "p:nrt"), stop("later", "p:later")];
-    const b = bindFlights(stops, [flight({ departPlaceId: "p:nrt", arrivePlaceId: "p:cns" })]);
-
-    expect(b.supersededLegs.has("later")).toBe(true);
+    // Flying out of a mid-day stop supersedes the onward ground route.
+    const midDay = bindFlights([stop("nrt", "p:nrt"), stop("later", "p:later")], [flight({ departPlaceId: "p:nrt", arrivePlaceId: "p:cns" })]);
+    expect(midDay.supersededLegs.has("later")).toBe(true);
   });
 
   it("leaves a flight unbound when neither airport is a stop", () => {
