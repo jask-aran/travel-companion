@@ -1,24 +1,23 @@
 import { Show } from "solid-js";
 import type { TripDay } from "@travel-companion/trip-schema";
-import { allDaysCollapsed, setDaysCollapsed } from "../lib/collapsed-days";
+import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
 
-/** Folds every day to its header, or opens them all again. */
-export function CollapseAll(props: {
-  days: TripDay[];
-  /** Called just before the change, so the page can hold its place. */
-  onToggle?: () => void;
+/** Folds or opens the selected day’s route. */
+export function CollapseRoute(props: {
+  day: TripDay;
 }) {
-  const folded = () => allDaysCollapsed(props.days);
-  const label = () => (folded() ? "Expand all routes" : "Collapse all routes");
+  const folded = () => isDayCollapsed(props.day.id, props.day.date);
+  const label = () => (folded() ? "Expand day route" : "Collapse day route");
 
   return (
     <button
       type="button"
       class="header-button"
       onClick={() => {
-        props.onToggle?.();
-        setDaysCollapsed(props.days.map((day) => day.id), !folded());
+        setDayCollapsed(props.day.id, !folded());
       }}
+      aria-expanded={!folded()}
+      aria-controls={`body-${props.day.id}`}
       aria-label={label()}
       title={label()}
     >

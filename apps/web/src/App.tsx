@@ -10,6 +10,8 @@ import {
   untrack,
 } from "solid-js";
 import { DaySection } from "./components/DaySection";
+import { CollapseRoute } from "./components/CollapseRoute";
+import { WaveBackground } from "./components/WaveBackground";
 import { DayTabs } from "./components/DayTabs";
 import { formatArrows, formatTripRange } from "./lib/format";
 import { loadTripBundle, tripIsEncrypted } from "./lib/load-trip";
@@ -118,6 +120,7 @@ export default function App() {
 
   return (
     <div class="app-shell">
+      <WaveBackground />
       <Switch>
         <Match when={checkingStored()}>
           <div class="state-panel" role="status">
@@ -174,6 +177,9 @@ export default function App() {
                     </p>
                     <div class="trip-header__actions">
                       <RefreshButton passphrase={passphrase() ?? ""} revision={data.revision} />
+                      <Show when={data.days.find((day) => day.id === activeDayId())}>
+                        {(day) => <CollapseRoute day={day()} />}
+                      </Show>
                       <ThemeToggle />
                     </div>
                   </div>
