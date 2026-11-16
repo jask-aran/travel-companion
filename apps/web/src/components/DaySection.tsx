@@ -21,6 +21,8 @@ import {
 import { bindFlights } from "../lib/flight-binding";
 import { dayRidingSeconds, dayWalking, isWaypoint, stopsBetween, type RouteLegIndex } from "../lib/route-legs";
 import { leaveFor, pickDeparture, readyAfter } from "../lib/departure-pick";
+import { placeSequences } from "../lib/day-map";
+import { DayMap } from "./DayMap";
 import { dayRouting, legOutOf as legOutOfDay } from "../lib/day-routing";
 import { departureKey } from "../lib/departure-targets";
 import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
@@ -48,22 +50,6 @@ function Stat(props: { icon: IconName; label: string; title?: string | undefined
       <dd>{props.children}</dd>
     </div>
   );
-}
-
-/**
- * Number the sightseeing stops. A place stop that is one of the trip's own
- * stays (Wanderlog lists the hotel as a stop too) is somewhere you sleep, not
- * the Nth thing you see, so it is shown with a bed glyph and skipped here.
- */
-function placeSequences(items: DayItem[], stayPlaceIds: Set<string>): number[] {
-  let sequence = 0;
-  return items.map((item) => {
-    if (item.type === "place" && !stayPlaceIds.has(item.placeId)) {
-      sequence += 1;
-      return sequence;
-    }
-    return 0;
-  });
 }
 
 function LodgingSlotView(props: {
@@ -649,6 +635,7 @@ export function DaySection(props: {
               </Show>
             </div>
           </Show>
+          <DayMap routing={routing()} bundle={props.bundle} stayPlaceIds={props.stayPlaceIds} />
       </div>
     </section>
   );
