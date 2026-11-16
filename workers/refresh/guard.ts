@@ -61,7 +61,7 @@ export type Fetcher = (input: string, init?: RequestInit) => Promise<Response>;
 
 /** Thrown instead of sending a request. */
 export class ProviderRefused extends Error {
-  constructor(readonly provider: Provider | undefined, readonly reason: "breaker" | "budget" | "store" | "host") {
+  constructor(readonly provider: Provider | undefined, readonly reason: "breaker" | "budget" | "store" | "host" | "cache") {
     super(`${provider ?? "unknown host"} not asked: ${reason}`);
     this.name = "ProviderRefused";
   }
@@ -150,6 +150,12 @@ export type Guard = {
   fetch: Fetcher;
   /** Whether a request to the provider would be sent now (no budget is spent). */
   available(provider: Provider): Promise<boolean>;
+};
+
+/** Verification may consume stored answers, never a provider's quota. */
+export const cacheOnlyGuard: Guard = {
+  available: async () => false,
+  fetch: async (input) => { throw new ProviderRefused(providerOf(input), "cache"); },
 };
 
 /** One period's count, as this invocation handles it. */

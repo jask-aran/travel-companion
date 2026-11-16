@@ -12,9 +12,11 @@ import type { Place } from "@travel-companion/trip-schema";
  * only someone who can open the trip can see its photos.
  */
 
-export const MEDIA_ROUTES = { photo: "api/photo", map: "api/map" } as const;
+export const MEDIA_ROUTES = { photo: "api/photo", map: "api/map", dayMap: "api/day-map" } as const;
 /** What the worker's guard holds for each provider (requests counted, last refusal), for `pnpm ship:check`. */
 export const STATUS_ROUTE = "api/status";
+/** Verification requests may read cached data but must not contact a provider. */
+export const CACHE_ONLY_HEADER = "x-trip-cache-only";
 
 /**
  * The photo column is at most 9rem × 1.6 (its fade) on a wide phone: 480px

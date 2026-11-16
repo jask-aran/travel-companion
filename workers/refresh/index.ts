@@ -3,15 +3,15 @@ import { parseWanderlogSource } from "../../packages/wanderlog-import/src/index.
 import { attachPlaceDetails } from "../../packages/trip-normaliser/src/place-details.js";
 import { normaliseCompleteWanderlog } from "../../packages/trip-normaliser/src/complete.js";
 import { encryptTrip } from "../../apps/web/src/lib/trip-crypto.js";
-import { MEDIA_ROUTES, STATUS_ROUTE, mediaToken } from "../../apps/web/src/lib/media.js";
+import { MEDIA_ROUTES, STATUS_ROUTE, CACHE_ONLY_HEADER, mediaToken } from "../../apps/web/src/lib/media.js";
 import { departureTargets } from "../../apps/web/src/lib/departure-targets.js";
 import { DEPARTURES_ROUTE } from "../../apps/web/src/lib/departures-api.js";
 import { AGENT_ROUTE, agentToken } from "../../apps/web/src/lib/agent-link.js";
 import { needsTranslation } from "../../packages/trip-normaliser/src/line-names.js";
 import { liveBoard, translateStored, type LiveBoardEnv } from "./live-boards.js";
 import { boardSession, connectorBoards } from "./connector-boards.js";
-import { createGuard, guardStatus, type Defer, type Guard } from "./guard.js";
-import { map, photo, type MediaStore } from "./media-routes.js";
+import { createGuard, guardStatus, cacheOnlyGuard, type Defer, type Guard } from "./guard.js";
+import { map, photo, dayMap, type MediaStore } from "./media-routes.js";
 import { OBJECT_KEY, storedCiphertext, storedTrip } from "./stored-trip.js";
 import {
   AGENT_LIMIT,
@@ -63,6 +63,7 @@ type ExecutionContextLike = { waitUntil(promise: Promise<unknown>): void };
 
 /** One request's worth of state. */
 type Invocation = {
+  cacheOnly: boolean;
   env: RefreshEnv;
   guard: Guard;
   /** The shipped `trip.enc` beside the app, for when KV has none. */
@@ -291,6 +292,7 @@ export function forgetLastCheck(): void {
 }
 
 async function refreshIfIdle(invocation: Invocation): Promise<void> {
+  if (invocation.cacheOnly) return;
   const { env } = invocation;
   const tripId = env.WANDERLOG_TRIP_ID;
   const passphrase = env.TRIP_PASSPHRASE;
@@ -340,6 +342,7 @@ async function media(route: string, url: URL, invocation: Invocation): Promise<R
     return new Response(null, { status: 401 });
   }
   const context = {
+    cacheOnly: invocation.cacheOnly,
     publicId: env.PUBLIC_ID,
     apiKey,
     store,
@@ -347,7 +350,7 @@ async function media(route: string, url: URL, invocation: Invocation): Promise<R
     trip: () => storedTrip(env, invocation.tripAsset, passphrase),
     defer: invocation.defer,
   };
-  return route === MEDIA_ROUTES.photo ? photo(url, context) : map(url, context);
+  return route === MEDIA_ROUTES.photo ? photo(url, context) : route === MEDIA_ROUTES.dayMap ? dayMap(url, context) : map(url, context);
 }
 
 /** `<base>/mcp/<token>`: the agent link (agent-link.ts). */
@@ -383,7 +386,7 @@ async function agent(request: Request, invocation: Invocation, token: string): P
     // A connector-only deployment has no shipped file, so an earlier failed
     // pull must not leave it empty until the next idle check; but with
     // Wanderlog down, not a pull on every call either: the button's gap.
-    if (!ciphertext && env.WANDERLOG_TRIP_ID && !invocation.pulled && !(await checkedWithin(invocation, REFRESH_GAP_MS))) {
+    if (!ciphertext && !invocation.cacheOnly && env.WANDERLOG_TRIP_ID && !invocation.pulled && !(await checkedWithin(invocation, REFRESH_GAP_MS))) {
       await pullTrip(invocation, env.WANDERLOG_TRIP_ID, passphrase).catch(() => undefined);
       ciphertext = (await env.TRIP.get(OBJECT_KEY)) ?? undefined;
     }
@@ -413,9 +416,11 @@ async function handle(request: Request, env: RefreshEnv, ctx: ExecutionContextLi
     // A failure is the work's own to log; waitUntil only keeps it running.
     ctx?.waitUntil(work.catch(() => undefined));
   };
+  const cacheOnly = request.headers.get(CACHE_ONLY_HEADER) === "1";
   const invocation = (suffix: string): Invocation => ({
     env,
-    guard: createGuard(env.TRIP),
+    cacheOnly,
+    guard: cacheOnly ? cacheOnlyGuard : createGuard(env.TRIP),
     tripAsset: besideApp(url, suffix),
     pulled: false,
     checkedRead: false,

@@ -88,6 +88,15 @@ export function photoAttribution(place: Place): string | undefined {
  * recognise on arrival. By the trip's place; `at` names the kept map, so a
  * place that moves gets a new one.
  */
+/**
+ * A day's overview picture, drawn once by Google Static Maps and kept in R2 for
+ * every traveller. `v` lets the worker refuse a drawing for a stale trip.
+ */
+export function dayMapPreviewUrl(dayId: string, revision: string): string | undefined {
+  if (!hasPagesFunction) return undefined;
+  return mediaUrl(MEDIA_ROUTES.dayMap, { day: dayId, v: revision });
+}
+
 export function staticMapUrl(place: Place): string | undefined {
   const at = latLngOf(place);
   if (!hasPagesFunction || !at) return undefined;

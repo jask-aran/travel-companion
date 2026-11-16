@@ -203,6 +203,11 @@ export function tripBundlePlugin(): Plugin {
         // Photos, maps and live boards come from the live worker, so dev
         // reuses what it has stored rather than asking Google or NAVITIME again.
         const route = path && [...Object.values(MEDIA_ROUTES), DEPARTURES_ROUTE].find((name) => path === `${basePath}${name}`);
+        if (route && process.env.TRIP_LIVE_PROVIDERS !== "1") {
+          res.statusCode = 503;
+          res.end();
+          return;
+        }
         if (route && !LIVE_ORIGIN) {
           res.statusCode = 404;
           res.end();

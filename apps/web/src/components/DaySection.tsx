@@ -635,7 +635,7 @@ export function DaySection(props: {
               </Show>
             </div>
           </Show>
-          <DayMap routing={routing()} bundle={props.bundle} stayPlaceIds={props.stayPlaceIds} />
+          <DayMap dayId={props.day.id} routing={routing()} bundle={props.bundle} stayPlaceIds={props.stayPlaceIds} />
       </div>
     </section>
   );

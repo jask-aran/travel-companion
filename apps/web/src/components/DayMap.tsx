@@ -3,6 +3,7 @@ import type { TripBundle } from "@travel-companion/trip-schema";
 import type { DayRouting } from "../lib/day-routing";
 import { MAP_MODES, buildDayMap, dayMapVisits, type DayMapView, type MapVisit } from "../lib/day-map";
 import { googleMapsKey } from "../lib/google-map-config";
+import { dayMapPreviewUrl } from "../lib/place-photo";
 import { buildGoogleMapsUrl, buildGooglePlaceUrl } from "../lib/maps";
 import { cityOf, formatCategory } from "../lib/format";
 import { TRAVEL_ICON_PATHS } from "../lib/travel-icons";
@@ -13,11 +14,17 @@ function StopIcon(props: { visit: MapVisit }) {
   return <Show when={path()} fallback={<span>{props.visit.label}</span>}><svg viewBox="0 0 16 16" aria-hidden="true"><path d={path()} /></svg></Show>;
 }
 
-export function DayMap(props: { routing: DayRouting; bundle: TripBundle; stayPlaceIds: Set<string> }) {
+export function DayMap(props: { dayId: string; routing: DayRouting; bundle: TripBundle; stayPlaceIds: Set<string> }) {
   let section!: HTMLElement;
   let canvas!: HTMLDivElement;
   let rail: HTMLDivElement | undefined;
   const [nearby, setNearby] = createSignal(false);
+  // Each Google map is a billed load, and changing days remounts this
+  // component, so Google's interactive map waits for an explicit tap.
+  const [interactive, setInteractive] = createSignal(false);
+  const gated = () => Boolean(googleMapsKey) && !interactive();
+  const [previewShown, setPreviewShown] = createSignal(true);
+  const previewUrl = () => dayMapPreviewUrl(props.dayId, props.bundle.revision);
   const data = createMemo(on(() => props.bundle.revision, () => untrack(() => buildDayMap(props.routing, props.bundle, props.stayPlaceIds))));
   const [view, setView] = createSignal<DayMapView>();
   const [selectedId, setSelectedId] = createSignal(dayMapVisits(data(), false)[0]?.id ?? "");
@@ -45,8 +52,8 @@ export function DayMap(props: { routing: DayRouting; bundle: TripBundle; stayPla
     onCleanup(() => observer.disconnect());
   });
 
-  createEffect(on([nearby, data, attempt], ([visible, next]) => {
-    if (!visible) return;
+  createEffect(on([nearby, data, attempt, interactive], ([visible, next]) => {
+    if (!visible || gated()) return;
     setFailed(false);
     setUnavailable(false);
     setLoading(next.stops.length > 0);
@@ -109,7 +116,11 @@ export function DayMap(props: { routing: DayRouting; bundle: TripBundle; stayPla
           <Show when={view()}><div class="journey-map__tools">
             <Show when={hasFlights()}><div class="journey-map__scope" role="group" aria-label="Map area"><button type="button" aria-pressed={!includeFlights()} onClick={() => showWholeDay(false)}>Ground route</button><button type="button" aria-pressed={includeFlights()} onClick={() => showWholeDay(true)}>Whole day</button></div></Show>
           </div></Show>
-          <Show when={!nearby() || loading()}><p class="day-map__state" role="status">Loading map…</p></Show>
+          <Show when={gated() && data().stops.length > 0}><div class="day-map__gate">
+            <Show when={nearby() && previewShown() && previewUrl()}>{(src) => <img class="day-map__preview" src={src()} alt="" loading="lazy" decoding="async" onLoad={(event) => { if (event.currentTarget.naturalWidth <= 1) setPreviewShown(false); }} onError={() => setPreviewShown(false)} />}</Show>
+            <button type="button" class="day-map__button day-map__explore" onClick={() => setInteractive(true)}><Icon name="map" /><span>Explore map</span></button>
+          </div></Show>
+          <Show when={(!nearby() && !gated()) || loading()}><p class="day-map__state" role="status">Loading map…</p></Show>
           <Show when={failed() || (unavailable() && Boolean(googleMapsKey))}><div class="day-map__state" role="status"><Icon name="map" /><p>Couldn’t load Google Maps.</p><button type="button" class="day-map__button" onClick={() => { if (unavailable()) location.reload(); else setAttempt((n) => n + 1); }}>{unavailable() ? "Reload map" : "Try again"}</button></div></Show>
           <Show when={data().stops.length === 0}><p class="day-map__state">No mapped places for this day.</p></Show>
         </div>

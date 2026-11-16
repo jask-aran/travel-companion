@@ -1,7 +1,7 @@
 import { parseTripBundle, type TripBundle } from "../packages/trip-schema/src/index.js";
 import { decryptTrip, WrongPassphraseError, type EncryptedPayload } from "../apps/web/src/lib/trip-crypto.js";
 import { AGENT_ROUTE, agentToken } from "../apps/web/src/lib/agent-link.js";
-import { MEDIA_ROUTES, STATUS_ROUTE, mediaToken, photoPlaceId } from "../apps/web/src/lib/media.js";
+import { MEDIA_ROUTES, STATUS_ROUTE, CACHE_ONLY_HEADER, MEDIA_STATE_HEADER, mediaToken, photoPlaceId } from "../apps/web/src/lib/media.js";
 import type { Provider, ProviderStatus } from "../workers/refresh/guard.js";
 
 /**
@@ -11,9 +11,8 @@ import type { Provider, ProviderStatus } from "../workers/refresh/guard.js";
  * POSTs that the server must reject. Reasons never contain the passphrase, a
  * token or trip content.
  *
- * A right-token connector call and the trip read can each start the server's
- * idle refresh (a Wanderlog pull after an hour without one), exactly as a
- * traveller opening the app would.
+ * Every request asks for cache-only handling: no idle refresh and no paid
+ * provider requests. Missing cached media is reported as skipped.
  */
 
 export type CheckStatus = "pass" | "fail" | "skipped";
@@ -39,8 +38,11 @@ export async function verifyLive(options: VerifyOptions): Promise<Check[]> {
   const site = options.site.endsWith("/") ? options.site : `${options.site}/`;
   const doFetch = options.fetch ?? fetch;
   const timeoutMs = options.timeoutMs ?? 20_000;
-  const get = (path: string, init: RequestInit = {}) =>
-    doFetch(new URL(path, site).toString(), { ...init, cache: "no-store", signal: AbortSignal.timeout(timeoutMs) });
+  const get = (path: string, init: RequestInit = {}) => {
+    const headers = new Headers(init.headers);
+    headers.set(CACHE_ONLY_HEADER, "1");
+    return doFetch(new URL(path, site).toString(), { ...init, headers, cache: "no-store", signal: AbortSignal.timeout(timeoutMs) });
+  };
   const checks: Check[] = [];
   const add = (name: string, status: CheckStatus, reason: string): void => {
     checks.push({ name, status, reason });
@@ -168,7 +170,8 @@ export async function verifyLive(options: VerifyOptions): Promise<Check[]> {
         const response = await get(`${MEDIA_ROUTES.photo}?${query.toString()}`);
         const type = response.headers.get("content-type") ?? "";
         await response.body?.cancel();
-        if (response.ok && type.startsWith("image/")) return add("Photos", "pass", "A place photo comes back as an image.");
+        if (response.ok && response.headers.get(MEDIA_STATE_HEADER) === "unavailable") return add("Photos", "skipped", "No cached photo available; verification does not ask Google.");
+        if (response.ok && type.startsWith("image/")) return add("Photos", "pass", "A cached place photo comes back as an image.");
         if (response.status === 503) {
           return add("Photos", "fail", "Photos are off on the server: the GOOGLE_MAPS_API_KEY secret, the TRIP_PASSPHRASE secret or the MEDIA bucket binding is missing on the Pages project.");
         }

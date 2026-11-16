@@ -16,6 +16,7 @@ const tripEncrypted = isBuild && localPassphrase().length > 0;
 const site = localSite();
 const base = site.base;
 const browserMaps = localBrowserMaps();
+const liveProviders = isBuild || process.env.TRIP_LIVE_PROVIDERS === "1";
 
 /**
  * Whether the Pages function (workers/refresh) is behind this app. A build has
@@ -23,7 +24,7 @@ const browserMaps = localBrowserMaps();
  * site (site.origin) to proxy to. `TRIP_FUNCTION=1` or `0` overrides either.
  */
 const functionOverride = process.env.TRIP_FUNCTION;
-const hasFunction =
+const configuredFunction =
   functionOverride === "1" || functionOverride === "true"
     ? true
     : functionOverride === "0" || functionOverride === "false"
@@ -31,6 +32,7 @@ const hasFunction =
       : isBuild
         ? Boolean(site.cloudflare)
         : Boolean(site.origin);
+const hasFunction = liveProviders && configuredFunction;
 
 /** Runtime caching for the Pages function's routes (photos, maps, live boards). */
 const functionCaching = [
@@ -38,7 +40,7 @@ const functionCaching = [
     // Photos and maps never change for a place, so the copy on the
     // phone wins (offline-media.ts fills this cache up front). Only real
     // images: a blank "no photo" or "Google refused" answer is not kept here.
-    urlPattern: /\/api\/(photo|map)\?/,
+    urlPattern: /\/api\/(photo|map|day-map)\?/,
     handler: "CacheFirst" as const,
     options: {
       cacheName: "media",
@@ -61,7 +63,7 @@ const functionCaching = [
 export default defineConfig({
   base,
   define: {
-    __GOOGLE_MAPS_BROWSER_KEY__: JSON.stringify(process.env.GOOGLE_MAPS_BROWSER_KEY ?? browserMaps.key),
+    __GOOGLE_MAPS_BROWSER_KEY__: JSON.stringify(liveProviders ? process.env.GOOGLE_MAPS_BROWSER_KEY ?? browserMaps.key : ""),
     __GOOGLE_MAP_ID__: JSON.stringify(browserMaps.mapId),
     __TRIP_ENCRYPTED__: JSON.stringify(tripEncrypted),
     __TRIP_BASE__: JSON.stringify(base),
