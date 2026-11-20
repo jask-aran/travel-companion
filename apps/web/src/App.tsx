@@ -31,13 +31,13 @@ import { hasPagesFunction } from "./lib/pages-function";
  */
 const nothing = (_props: { passphrase: string; revision?: string }) => null;
 const RefreshButton = !import.meta.env.PROD || hasPagesFunction ? RefreshTrip : nothing;
-import { setDayCollapsed } from "./lib/collapsed-days";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { indexRouteLegs } from "./lib/route-legs";
 import { withLiveBoards } from "./lib/live-departures";
 import { keepMediaOffline } from "./lib/offline-media";
 import { clock } from "./lib/clock";
 import { holdMapSnap } from "./lib/map-snap";
+import { BookingsPage } from "./components/BookingsPage";
 
 export default function App() {
   /*
@@ -96,21 +96,21 @@ export default function App() {
   };
 
   const [activeDayId, setActiveDayId] = createSignal("");
+  /** The Bookings page sits in the day tabs, before the days. */
+  const BOOKINGS = "bookings";
   // Selection owns the visible day; scrolling no longer changes the selection.
   createEffect(() => {
     const bundle = trip();
     if (!bundle) return;
     const selected = untrack(activeDayId);
-    if (bundle.days.some((day) => day.id === selected)) return;
+    if (selected === BOOKINGS || bundle.days.some((day) => day.id === selected)) return;
     const day = bundle.days.find((day) => day.date === untrack(clock).date) ?? bundle.days[0];
     if (!day) return;
-    setDayCollapsed(day.id, false);
     setActiveDayId(day.id);
   });
 
   const selectDay = (dayId: string) => {
-    if (dayId === activeDayId() || !trip()?.days.some((day) => day.id === dayId)) return;
-    setDayCollapsed(dayId, false);
+    if (dayId === activeDayId() || (dayId !== BOOKINGS && !trip()?.days.some((day) => day.id === dayId))) return;
     setActiveDayId(dayId);
     // Read the new layout after Solid has replaced the previous day.
     holdMapSnap();
@@ -191,9 +191,13 @@ export default function App() {
                   activeDayId={activeDayId() || data.days[0]?.id || ""}
                   today={clock().date}
                   onSelect={selectDay}
+                  lead={{ id: BOOKINGS, label: "Bookings" }}
                 />
 
                 <main class="itinerary" aria-label="Trip itinerary">
+                  <Show when={activeDayId() === BOOKINGS}>
+                    <BookingsPage bundle={shown() ?? data} today={clock().date} onSelectDay={selectDay} />
+                  </Show>
                   <For each={data.days.filter((day) => day.id === activeDayId())}>
                     {(day) => (
                       <DaySection

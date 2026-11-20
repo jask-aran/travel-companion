@@ -74,6 +74,14 @@ describe("flight timing", () => {
     });
   });
 
+  it("takes the time you put on the departure airport as when you'll be there", () => {
+    const planned = [{ id: "s1", type: "place", placeId: "kix", startTime: "05:00" }] as DayItem[];
+    expect(flightTiming(flight, planned, legs, places, "hotel")).toMatchObject({ airportBy: "05:00", airportUntil: "06:00", leaveBy: "04:00" });
+    // A time after take-off isn't an airport arrival; the usual margin stands.
+    const late = [{ id: "s1", type: "place", placeId: "kix", startTime: "09:00" }] as DayItem[];
+    expect(flightTiming(flight, late, legs, places, "hotel")).toMatchObject({ airportBy: "05:30" });
+  });
+
   describe("through a station on the way", () => {
     // Hotel → walk to the station → train to the airport, as on 6 Dec.
     const stationPlaces = {

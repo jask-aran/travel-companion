@@ -1,28 +1,26 @@
 import { Show } from "solid-js";
 import type { TripDay } from "@travel-companion/trip-schema";
-import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
+import { dayView, setDayView } from "../lib/day-view";
 
-/** Folds or opens the selected day’s route. */
+/** Switches the selected day between its Day summary and its Full Day Route. */
 export function CollapseRoute(props: {
   day: TripDay;
 }) {
-  const folded = () => isDayCollapsed(props.day.id, props.day.date);
-  const label = () => (folded() ? "Expand day route" : "Collapse day route");
+  const onRoute = () => dayView(props.day.id) === "route";
+  const label = () => (onRoute() ? "Show the Day summary" : "Show the Full Day Route");
 
   return (
     <button
       type="button"
       class="header-button"
-      onClick={() => {
-        setDayCollapsed(props.day.id, !folded());
-      }}
-      aria-expanded={!folded()}
+      onClick={() => setDayView(props.day.id, onRoute() ? "summary" : "route")}
       aria-controls={`body-${props.day.id}`}
+      aria-pressed={onRoute()}
       aria-label={label()}
       title={label()}
     >
       <Show
-        when={folded()}
+        when={!onRoute()}
         fallback={
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M7 4l5 5 5-5M7 20l5-5 5 5" />

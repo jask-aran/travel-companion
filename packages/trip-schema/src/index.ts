@@ -278,6 +278,11 @@ export const TripBundleSchema = v.object({
     title: v.string(),
     startDate: isoDate,
     endDate: isoDate,
+    /**
+     * The plan in Wanderlog. Kept inside the trip, which is encrypted, not in
+     * the app shell, which anyone can download: the link may open the plan.
+     */
+    wanderlogUrl: optionalString,
   }),
   days: v.array(TripDaySchema),
   places: v.record(v.string(), PlaceSchema),

@@ -6,26 +6,14 @@ import type { MapTheme } from "../lib/map-style";
 import { formatDistance, formatDurationShort } from "../lib/format";
 import { holdMapSnap } from "../lib/map-snap";
 import { selection, thud } from "../lib/haptics";
-import { theme } from "../lib/theme";
+import { useMapTheme } from "../lib/map-theme";
+import { SHOW_STOP_EVENT } from "./DaySummaryCards";
 import { TRAVEL_ICON_PATHS } from "../lib/travel-icons";
 import { Icon } from "./Icon";
 
 function StopIcon(props: { visit: MapVisit }) {
   const path = () => props.visit.kind === "poi" ? undefined : TRAVEL_ICON_PATHS[props.visit.kind === "hotel" ? "lodging" : props.visit.kind === "airport" ? "flight" : "transit"];
   return <Show when={path()} fallback={<span>{props.visit.label}</span>}><svg viewBox="0 0 16 16" aria-hidden="true"><path d={path()} /></svg></Show>;
-}
-
-/** The theme actually showing, following the system while the app's theme is "system". */
-function useMapTheme(): () => MapTheme {
-  const query = matchMedia("(prefers-color-scheme: dark)");
-  const [systemDark, setSystemDark] = createSignal(query.matches);
-  const onChange = () => setSystemDark(query.matches);
-  query.addEventListener("change", onChange);
-  onCleanup(() => query.removeEventListener("change", onChange));
-  return () => {
-    const chosen = theme();
-    return chosen === "system" ? (systemDark() ? "dark" : "light") : chosen;
-  };
 }
 
 /**
@@ -38,9 +26,9 @@ export function DayMap(props: {
   routing: DayRouting;
   bundle: TripBundle;
   stayPlaceIds: Set<string>;
-  /** A stop as the Day route draws it: photo, hours, rating, notes. */
+  /** A stop as the Full Day Route draws it: photo, hours, rating, notes. */
   renderStop: (visit: MapVisit) => JSX.Element;
-  /** A leg as the Day route draws it, departure board included; undefined where there is no route leg. */
+  /** A leg as the Full Day Route draws it, departure board included; undefined where there is no route leg. */
   renderLeg: (path: MapPath) => JSX.Element | undefined;
 }) {
   let section!: HTMLElement;
@@ -78,6 +66,7 @@ export function DayMap(props: {
   const selectedIndex = () => visits().findIndex((visit) => visit.id === selected()?.id);
   const hasFlights = () => data().paths.some((path) => path.mode === "flight");
   const hasMap = () => data().stops.length > 0;
+  const placeCount = () => new Set(visits().map((visit) => visit.place.id)).size;
   const poiCount = () => new Set(visits().filter((visit) => visit.kind === "poi").map((visit) => visit.place.id)).size;
   const stopCount = () => Math.max(0, ...visits().map((visit) => Number(visit.label)).filter(Number.isFinite));
   const label = (visit: MapVisit) => visit.id === first()?.id ? "Start" : visit.id === last()?.id ? (visit.place.id === first()?.place.id ? "Return" : "Finish") : visit.kind === "hotel" ? "Hotel" : `Stop ${visit.label}`;
@@ -92,7 +81,10 @@ export function DayMap(props: {
   });
 
   // Map mode: on when the page has come to rest with the map snapped under the tabs.
+  // Touch only. With a mouse the map already pans by dragging and zooms with
+  // ctrl + wheel, so desktop gets no snap and no lock.
   onMount(() => {
+    if (matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     const offset = () => section.getBoundingClientRect().top - (parseFloat(getComputedStyle(section).scrollMarginTop) || 0);
     const aligned = () => Math.abs(offset()) <= 4;
     /**
@@ -133,6 +125,19 @@ export function DayMap(props: {
       window.removeEventListener("scrollend", settled);
     });
   });
+  /** A Places tile asked for a stop before the map was ready: shown once it is. */
+  let pendingStop: string | undefined;
+  onMount(() => {
+    const show = (event: Event) => {
+      const itemId = (event as CustomEvent<{ itemId?: string }>).detail?.itemId;
+      if (!itemId || !visits().some((visit) => visit.id === itemId)) return;
+      section.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+      if (view()) choose(itemId);
+      else { pendingStop = itemId; setNearby(true); }
+    };
+    window.addEventListener(SHOW_STOP_EVENT, show);
+    onCleanup(() => window.removeEventListener(SHOW_STOP_EVENT, show));
+  });
   createEffect(() => view()?.setInteractive(engaged()));
   createEffect(on(mapTheme, (next) => view()?.setTheme(next), { defer: true }));
 
@@ -161,7 +166,13 @@ export function DayMap(props: {
       ready.setTheme(untrack(mapTheme));
       ready.setInteractive(untrack(engaged));
       // Again now the controls over the map exist, so the first view leaves room for them.
-      requestAnimationFrame(() => { if (!controller.signal.aborted) { ready.fit(false); const start = dayMapVisits(next, false)[0]; if (start) ready.highlight(start.id); } });
+      requestAnimationFrame(() => {
+        if (controller.signal.aborted) return;
+        ready.fit(false);
+        const start = dayMapVisits(next, false)[0];
+        if (start) ready.highlight(start.id);
+        if (pendingStop) { choose(pendingStop); pendingStop = undefined; }
+      });
     }).catch(() => {
       if (controller.signal.aborted) return;
       setLoading(false);
@@ -224,7 +235,7 @@ export function DayMap(props: {
   return (
     <section class="day-map journey-map" classList={{ "day-map--live": hasMap(), "day-map--snap": snappable() && !snapRested(), "day-map--engaged": engaged() }} ref={section} aria-label="Day map">
       <div class="day-map__heading">
-        <div><h3 class="day-part__label">Day map</h3><p class="journey-map__subheading">{new Set(visits().map((visit) => visit.place.id)).size} places<Show when={poiCount()}> · {poiCount()} {poiCount() === 1 ? "point of interest" : "points of interest"}</Show></p></div>
+        <div><h3 class="day-part__label">Day map</h3><p class="journey-map__subheading">{placeCount()} {placeCount() === 1 ? "place" : "places"}<Show when={poiCount()}> · {poiCount()} {poiCount() === 1 ? "point of interest" : "points of interest"}</Show></p></div>
         <Show when={engaged()}><button type="button" class="day-map__button" onClick={leave}>Done</button></Show>
       </div>
       <div class="journey-map__card">

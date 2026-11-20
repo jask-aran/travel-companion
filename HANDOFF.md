@@ -87,6 +87,61 @@ CC BY 4.0 design, credited in the attribution); every colour is ours.
   (CacheFirst). The style itself is in the bundle now.
 - In dev only, `window.dayMap` is the live map, for inspecting layers.
 
+## Day summary cards (2026-11-17)
+
+From the proposal the operator approved: https://claude.ai/artifact/7PGai4i9yGeSfMVAuhufHM (version 4).
+
+- `lib/day-insights.ts` (pure, tested in `tests/day-insights.test.ts`) works out from the trip
+  by rules, with no AI:
+  - the stops, with the travel before each (`dayStops`), and each stop's hours that weekday (`hoursOn`);
+  - the plan's times (`dayTimes`: every place item with a start time, stations included, leaving
+    out stays and the day's flight airports, which other cards already time);
+  - the blocks of exploring between long journeys (`exploreBlocks`), and the day's notes.
+- Notes render through `RichNotes` (`lib/rich-notes.ts`), the same Markdown reader as the stop cards.
+- **Heads-up was removed (2026-11-17).** The rule-based version only flagged closing times, which the
+  Opening hours fold shows better. It comes back as an AI-written heads-up once an Anthropic API key is
+  added and the operator OKs sending the trip to the API.
+- `components/DaySummaryCards.tsx` draws the cards in the summary, in this order:
+  - the plan's times (`DayTimesLine`: up to three, else the first and last);
+  - the stay;
+  - flights (`SummaryFlight`): a departures-board row on the journey rail ("06:15 MEL ⋯ CNS 08:30",
+    flight number and airport time beneath). Tapping it opens the full `FlightRow` card with the
+    booking. A flight leaving the airport the one before landed at, the same day, starts with its
+    layover. A time you put on the departure airport becomes the flight's airport time (`flightTiming`).
+  - journeys, whose ends name a stay by its stay name (`RouteLegRow`'s `nameOf`), not its address. A block of exploring between journeys is a fixed map when it has 2+ places, or the
+    place named with its time (`BlockStopsLine`) when it has one. The block after the last journey is
+    a fixed map from one place, captioned with that place's name.
+  - Places;
+  - Opening hours, folded;
+  - Your notes: links shown by site name; a note past about six lines is cut short with "Show all". They start open on a day with at most one place to visit,
+    since there the notes are the plan, and folded otherwise, led by the first note with words in it;
+  - then the free day.
+  - then Tomorrow (`TomorrowLine`, `lib/tomorrow.ts`): when the next day's first fixed time is before
+    08:00 (leaving for a flight, at the airport, or leaving for / arriving at the first planned stop),
+    tonight's summary ends with it. Today that's Days 1, 7, 12 and 15.
+- Blocks are cut at airports (`cutAtAirports`), because a flight's transfers are drawn with the
+  flight and aren't in `journeys()`. A block's fixed map draws only its places to visit, never
+  airports, stations or stays.
+- **Fixed maps** (`MiniMap`, `lib/map-snapshot.ts`): a still image fitted to a block's stops.
+  One hidden MapLibre map draws each picture in turn (`preserveDrawingBuffer`), and is let go
+  after 30 idle seconds. Pictures are cached for the session by request, and redrawn when the
+  theme changes.
+- **Areas** (`lib/map-areas.ts`, tested in `tests/map-areas.test.ts`): when a block's stops, fitted in
+  one view at the drawn width, would put two pins closer than 18px, the fixed map splits them into areas and
+  ‹ › step between them.
+  - Stops within 1.5 km of each other share an area, halving the distance until each area reads.
+  - Neighbouring areas that read together are then merged back.
+  - An area is named after its town, or after its first stop when two areas share a town.
+  - Other areas' pins stay on the map, faded. The next area is drawn ahead.
+  - `SNAPSHOT_PADDING` is measured to pin centres, so it allows for the pin radius, the stepper at the top
+    and the credit at the bottom. `mapAreas` must use the same padding as the drawing, or its sums are off.
+- **Places** tiles use `usePlacePhoto` (shared with the stop cards). A tap sends
+  `trip:show-stop`, and the Day map scrolls in and opens on that stop.
+- **Free day:** a fixed map around the stay, places in the same city on other days, and
+  `trip.wanderlogUrl`. That link is set by the normaliser from the plan's key and kept inside the
+  encrypted trip, not the public app shell. The live trip only has it after the next Wanderlog
+  update.
+
 ## Removed
 
 Google's interactive renderer, the Explore map gate, the `api/day-map` Static Maps overview,
@@ -119,3 +174,31 @@ and the Expand/Shrink button (map mode replaces it).
   FAQ says not to do. It could move to a MapLibre snapshot.
 - After billing was restored, the live guard's breaker held Google closed until 19:59 on
   2026-11-16; `pnpm ship:check` reports that as FAIL until it lapses.
+
+
+## Bookings page
+
+- The first of the day tabs, "Bookings" (`BookingsPage`; `activeDayId` is `"bookings"`), is a page,
+  not a day. From `lib/bookings.ts` (tested in `tests/bookings.test.ts`):
+  - The trip at a glance: each stay as a stretch of a bar sized by its nights, chips that open the
+    stay's first day, flights between them, and "Starts in N days" / "Day N of 21 · City".
+  - Flights, with a connection on one booking (same day, from where the last landed) as one journey.
+  - Stays, with reference (tap to copy), rooms, and free cancellation from the booking's
+    `cancellationDeadline`, red with a countdown within 10 days, struck through once past.
+- Turned down in review (2026-11-17): the deadline on the Day summary's stay line, a Flying figure,
+  clock-change lines, and Google's one-line place summary on stop cards.
+
+## Day views
+
+- A day shows one of two views, the Day summary or the Full Day Route (`DayViews`), with a switch
+  above. They sit side by side in a sideways scroller that snaps to each (CSS scroll snap), so a
+  swipe is the browser's own. The scroller's height is set from script, interpolated between the
+  two views' heights as it scrolls, so the page below opens and closes with the swipe.
+- Each day opens on the summary. The view chosen per day (`lib/day-view.ts`) is kept in memory for
+  the visit only, so a reload starts on the summary again. The route mounts the first time it is
+  asked for (a tap, or a finger on the scroller).
+- The header's route button (`CollapseRoute`) and tapping the day header switch views. This replaced
+  the "Full Day Route" fold (`collapsed-days.ts` and `fold-motion.ts` are gone).
+- Height animation re-lays out the page below on every frame of a swipe; the day map is all that
+  sits below, so it was judged acceptable, but it's unmeasured on a phone.
+- Route legs and notes sit straight on the blue page and use light ink (`--on-dark`).

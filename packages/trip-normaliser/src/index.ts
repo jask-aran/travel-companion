@@ -548,6 +548,7 @@ export function normaliseWanderlog(
       title: asString(tripPlan.title) ?? "Untitled trip",
       startDate: asString(tripPlan.startDate),
       endDate: asString(tripPlan.endDate),
+      ...(asString(tripPlan.key) ? { wanderlogUrl: `https://wanderlog.com/plan/${encodeURIComponent(asString(tripPlan.key)!)}` } : {}),
     },
     days: [...daysByDate.values()].sort((left, right) => left.date.localeCompare(right.date)),
     places,

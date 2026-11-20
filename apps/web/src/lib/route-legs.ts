@@ -97,7 +97,9 @@ const WAYPOINT_TYPES = new Set([
   "transportation_service",
 ]);
 
-export const isWaypoint = (place?: Place) => WAYPOINT_TYPES.has(place?.category ?? "");
+/** A station Google gave no category to still reads as one by its name. */
+export const isWaypoint = (place?: Place) =>
+  WAYPOINT_TYPES.has(place?.category ?? "") || (!place?.category && /\bStation$/i.test(place?.name?.trim() ?? ""));
 
 /**
  * How many places you spend time at between two journeys: the stops from

@@ -5,6 +5,7 @@ import {
   dayRidingSeconds,
   dayWalking,
   isJourney,
+  isWaypoint,
   stopsBetween,
   indexRouteLegs,
   legsForDay,
@@ -294,5 +295,14 @@ describe("cityOf", () => {
     expect(formatCategory("establishment")).toBeUndefined();
     expect(formatCategory("logical_transit_station")).toBe("Transit station");
     expect(isUntitled("2026-12-04", "2026-12-04")).toBe(true);
+  });
+});
+
+describe("waypoints", () => {
+  it("reads a station Google gave no category to by its name", () => {
+    expect(isWaypoint({ id: "a", name: "Takaosanguchi Station" } as never)).toBe(true);
+    expect(isWaypoint({ id: "b", name: "Station Hotel" } as never)).toBe(false);
+    // A category Google did give wins over the name.
+    expect(isWaypoint({ id: "c", name: "Tokyo Station", category: "shopping_mall" } as never)).toBe(false);
   });
 });

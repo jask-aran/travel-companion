@@ -566,16 +566,6 @@ p {
   padding-top: 1.4rem;
 }
 
-/* A folded day is a summary and a "Day route" row: without more air around
-   its divider, a run of them reads as one long list. */
-.day-section--collapsed {
-  padding-bottom: 1.6rem;
-}
-
-.day-section--collapsed + .day-section {
-  padding-top: 1.9rem;
-}
-
 .day-section + .day-section::before {
   content: "";
   position: absolute;
@@ -694,10 +684,15 @@ p {
   color: var(--ink-muted);
 }
 
+/* The air between a day's sections: Day summary, Full Day Route, Day map. */
+.day-section {
+  --section-gap: 2rem;
+}
+
 .day-part {
   display: grid;
   gap: 0.45rem;
-  margin-bottom: 1rem;
+  margin-bottom: var(--section-gap);
 }
 
 .day-part__label {
@@ -705,58 +700,6 @@ p {
   color: var(--ink-muted);
 }
 
-/* "Day route" is the fold: the label, the stop count while folded, a chevron. */
-.day-part__toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  min-height: 2.4rem;
-  padding: 0.3rem 0 0.4rem;
-  border: 0;
-  background: none;
-  text-align: left;
-  cursor: pointer;
-}
-
-.day-part__count {
-  margin-left: auto;
-  color: var(--ink-soft);
-  letter-spacing: 0.04em;
-}
-
-.day-part__chevron {
-  flex: none;
-  width: 0.45rem;
-  height: 0.45rem;
-  margin: 0 0.35rem 0.2rem auto;
-  border-right: 1.5px solid var(--ink-muted);
-  border-bottom: 1.5px solid var(--ink-muted);
-  transform: rotate(45deg);
-  transition: transform 160ms ease;
-}
-
-.day-part__count + .day-part__chevron {
-  margin-left: 0.2rem;
-}
-
-.day-part__chevron.is-open {
-  transform: translateY(0.2rem) rotate(225deg);
-}
-
-/* Folded, the route is a single line above the day's divider: no rule of its own. */
-.day-part__toggle[aria-expanded="false"] {
-  border-bottom-color: transparent;
-}
-
-.day-part:has(> .day-part__toggle[aria-expanded="false"]) {
-  margin-bottom: 0.25rem;
-}
-
-.day-part__toggle:focus-visible {
-  outline: 2px solid var(--kind-travel);
-  outline-offset: 2px;
-}
 
 .day-part > *,
 .timeline > * {
@@ -1600,8 +1543,8 @@ p {
 .note-text {
   padding: 0.5rem 0.75rem;
   border-radius: 10px;
-  background: rgb(var(--line-rgb) / 16%);
-  color: var(--ink-soft);
+  background: rgb(8 20 34 / 62%);
+  color: var(--on-dark);
   overflow-wrap: break-word;
 }
 
@@ -2914,6 +2857,93 @@ html {
 }
 
 /*
+ * The Day summary's cards for what a day holds besides its long journeys
+ * (DaySummaryCards): the plan's times, places, fixed maps of each block of
+ * exploring, opening hours and notes folded to a line each, and the free day.
+ * Each is a section of the summary card, divided by its hairlines.
+ */
+.summary-label { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; margin: 0; color: var(--ink-muted); font-size: var(--fs-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.summary-label small { letter-spacing: 0; text-transform: none; }
+
+/* The plan's times in one line (DayTimesLine); wraps to a second line rather than cutting off. */
+.day-times { margin: 0; padding: 0.5rem var(--pad); color: var(--ink-muted); font-size: var(--fs-label); line-height: 1.45; }
+.day-times svg { flex: none; color: var(--ink-muted); }
+.day-times strong { color: var(--ink); font-family: var(--font-mono); font-weight: 500; white-space: nowrap; }
+.day-times { align-items: flex-start; }
+.day-times svg { margin-top: 0.2em; }
+.day-summary__between strong { color: var(--ink); font-family: var(--font-mono); font-weight: 500; white-space: nowrap; }
+.day-summary__between--named { align-items: baseline; font-family: inherit; font-size: var(--fs-small); text-transform: none; letter-spacing: 0; word-spacing: normal; }
+.day-summary__between--named svg { align-self: center; flex: none; }
+.day-summary__stop { color: var(--ink); font-weight: 600; }
+
+
+
+.places-strip { display: grid; gap: 0.4rem; padding: 0.55rem 0 0.6rem var(--pad); }
+.places-strip .summary-label { padding-right: var(--pad); }
+.places-strip__row { display: flex; gap: 0.55rem; overflow-x: auto; overscroll-behavior-x: contain; padding-right: var(--pad); scrollbar-width: none; }
+.places-strip__row::-webkit-scrollbar { display: none; }
+.place-tile { flex: 0 0 6.6rem; display: grid; gap: 0.2rem; padding: 0; border: 0; background: none; color: var(--ink); text-align: left; }
+.place-tile__photo { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px; background: linear-gradient(140deg, rgb(var(--sea-rgb) / 22%), rgb(var(--seal-rgb) / 16%)); }
+.place-tile__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.place-tile__photo b { position: absolute; left: 0.3rem; top: 0.3rem; display: grid; place-items: center; min-width: 1.3rem; height: 1.3rem; padding: 0 0.3rem; border-radius: 999px; background: var(--seal); color: var(--on-seal); font-family: var(--font-mono); font-size: 0.72rem; }
+.place-tile__credit { position: absolute; right: 0; bottom: 0; left: 0; overflow: hidden; padding: 0.05rem 0.3rem; background: linear-gradient(transparent, rgb(0 0 0 / 55%)); color: #fff; font-size: 0.55rem; white-space: nowrap; text-overflow: ellipsis; }
+.place-tile__name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--fs-label); font-weight: 600; }
+.place-tile:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; border-radius: 10px; }
+
+/* A fixed map of a block of stops: an image, not a live map. */
+.mini-map { position: relative; margin: 0; overflow: hidden; background: var(--paper); }
+.mini-map img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mini-map figcaption { position: absolute; left: 0.5rem; top: 0.5rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: color-mix(in srgb, var(--paper-elevated) 85%, transparent); backdrop-filter: blur(6px); color: var(--ink); font-size: var(--fs-label); }
+.mini-map figcaption svg { color: var(--seal); }
+.mini-map__areas { position: absolute; left: 0.4rem; top: 0.4rem; right: 0.5rem; display: flex; align-items: center; justify-content: space-between; gap: 0.25rem; max-width: max-content; padding: 0.15rem; border-radius: 999px; background: color-mix(in srgb, var(--paper-elevated) 85%, transparent); backdrop-filter: blur(6px); color: var(--ink); font-size: var(--fs-label); }
+.mini-map__areas span { min-width: 0; overflow: hidden; padding: 0 0.2rem; white-space: nowrap; text-overflow: ellipsis; }
+.mini-map__areas small { color: var(--ink-muted); }
+.mini-map__areas button { flex: none; display: grid; place-items: center; width: 1.65rem; height: 1.65rem; padding: 0 0 0.12rem; border: 0; border-radius: 999px; background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); font-size: 1.1rem; line-height: 1; }
+.mini-map__areas button:disabled { opacity: 0.35; }
+.mini-map__areas button:focus-visible { outline: 2px solid var(--sea); outline-offset: 1px; }
+.mini-map__credit { position: absolute; right: 0.35rem; bottom: 0.25rem; padding: 0 0.3rem; border-radius: 4px; background: color-mix(in srgb, var(--paper-elevated) 75%, transparent); color: var(--ink-muted); font-size: 0.6rem; }
+
+.summary-fold summary { display: flex; align-items: baseline; gap: 0.6rem; padding: 0.6rem var(--pad); cursor: pointer; list-style: none; }
+.summary-fold summary::-webkit-details-marker { display: none; }
+.summary-fold summary::after { content: "›"; margin-left: auto; color: var(--ink-muted); transition: transform 160ms ease; }
+.summary-fold[open] summary::after { transform: rotate(90deg); }
+.summary-fold summary:focus-visible { outline: 2px solid var(--sea); outline-offset: -2px; }
+.summary-fold .summary-label { flex: none; }
+.summary-fold__hint { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--ink); font-size: var(--fs-label); }
+
+.hours-clock { display: grid; grid-template-columns: 6.6rem minmax(0, 1fr); align-items: center; gap: 0.25rem 0.55rem; padding: 0 var(--pad) 0.7rem; font-size: var(--fs-label); }
+.hours-clock__name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.hours-clock__name b { display: inline-block; min-width: 1.1rem; margin-right: 0.3rem; color: var(--seal); font-family: var(--font-mono); font-weight: 600; }
+.hours-clock__track { position: relative; height: 0.6rem; border-radius: 999px; background: rgb(var(--ink-rgb) / 6%); }
+.hours-clock__bar { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: rgb(var(--sea-rgb) / 55%); }
+.hours-clock__bar--always { background: rgb(var(--sea-rgb) / 22%); }
+.hours-clock__bar--none { background: repeating-linear-gradient(90deg, rgb(var(--ink-rgb) / 18%) 0 4px, transparent 4px 8px); }
+.hours-clock__bar--closed { background: rgb(var(--seal-rgb) / 18%); }
+.hours-clock__plan { position: absolute; top: -0.2rem; width: 0.5rem; height: 1rem; margin-left: -0.25rem; border-radius: 3px; background: var(--seal); }
+.hours-clock__sun { position: absolute; top: -0.3rem; bottom: -0.3rem; width: 0; border-left: 2px dotted var(--warn); }
+.hours-clock__axis { position: relative; height: 0.9rem; color: var(--ink-muted); font-family: var(--font-mono); font-size: 0.66rem; }
+.hours-clock__axis span { position: absolute; transform: translateX(-50%); }
+.hours-clock__key { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; margin: 0.2rem 0 0; color: var(--ink-muted); font-size: 0.7rem; }
+.hours-clock__key i { position: relative; display: inline-block; width: 0.9rem; height: 0.5rem; margin-right: 0.3rem; vertical-align: middle; }
+.hours-clock__key .hours-clock__plan { width: 0.45rem; height: 0.7rem; margin: 0 0.3rem 0 0; }
+.hours-clock__key .hours-clock__sun { width: 0; height: 0.8rem; margin-left: 0.2rem; }
+
+.day-notes { display: grid; gap: 0.45rem; margin: 0; padding: 0 var(--pad) 0.7rem; list-style: none; }
+.day-notes > li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: 0.1rem 0.5rem; font-size: var(--fs-small); }
+.day-notes > li > b { grid-row: span 2; display: grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 999px; background: rgb(var(--seal-rgb) / 14%); color: var(--seal); font-family: var(--font-mono); font-size: 0.7rem; }
+.day-notes__text { display: grid; gap: 0.2rem; min-width: 0; overflow-wrap: anywhere; }
+/* About six lines, then "Show all"; the fade says there is more. */
+.day-notes__measure { max-height: 7.6em; overflow: hidden; }
+.day-notes__clamp { -webkit-mask-image: linear-gradient(180deg, #000 65%, transparent); mask-image: linear-gradient(180deg, #000 65%, transparent); }
+.day-notes__more { justify-self: start; min-height: 1.75rem; padding: 0; border: 0; background: none; color: var(--sea); font: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+.day-notes__where { color: var(--ink-muted); font-size: 0.72rem; }
+
+.free-day { display: grid; gap: 0.6rem; padding: 0 0 0.8rem; }
+.free-day .mini-map { border-radius: 0; }
+.free-day p { margin: 0; padding: 0 var(--pad); color: var(--ink-muted); font-size: var(--fs-small); }
+.free-day__link { justify-self: start; margin: 0 var(--pad); color: var(--sea); font-size: var(--fs-small); text-underline-offset: 3px; }
+
+/*
  * Interactive day map. The isolated stack keeps renderer controls below DayTabs.
  * Colours on the map surface (pins, captions, controls) follow the base map's
  * own theme through these tokens, so dark mode is dark all the way through.
@@ -2926,7 +2956,7 @@ html {
   --map-shadow: rgb(10 30 42 / 22%);
   --map-chip-active: #193e55;
   --map-chip-active-ink: #fffaf0;
-  margin-top: 1rem;
+  margin-top: var(--section-gap, 2rem);
   scroll-margin-top: var(--sticky-offset);
 }
 :root[data-theme="dark"] .day-map {
@@ -3082,7 +3112,7 @@ html.map-snap-off { scroll-snap-type: none; }
 /*
  * The dock, over the map's foot: a translucent legend, then the step card.
  * The step card takes the day one step at a time, a stop then the leg to the
- * next, drawn with the Day route's own stop card and leg row. Its other mode
+ * next, drawn with the Full Day Route's own stop card and leg row. Its other mode
  * is the step strip. It floats, so the map keeps its full height; a long
  * departure board scrolls inside it.
  */
@@ -3274,3 +3304,96 @@ html.map-snap-off { scroll-snap-type: none; }
 
 .journey-pin--edge-left { align-items: flex-start; transform: translateX(-18px); }
 .journey-pin--edge-right { align-items: flex-end; transform: translateX(calc(-100% + 18px)); }
+
+/* A flight in the Day summary: a departures board on the journey rail. */
+.flight-line__button { width: 100%; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.flight-line__body { flex: 1; min-width: 0; display: grid; gap: 0.15rem; }
+.flight-line__board { display: flex; align-items: center; gap: 0.45rem; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.flight-line__board strong { font-size: var(--fs-name); font-weight: 500; color: var(--ink); }
+.flight-line__board .flight-end__plus { line-height: 0; vertical-align: 0.5em; }
+.flight-line__code { font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em; color: var(--kind-flight); }
+/* A dashed track with a dot at each end: the flight's own line. */
+.flight-line__path { flex: 1; min-width: 1.5rem; height: 2px; background: repeating-linear-gradient(90deg, var(--kind-flight) 0 4px, transparent 4px 8px); position: relative; opacity: 0.8; }
+.flight-line__path::before, .flight-line__path::after { content: ""; position: absolute; top: -2px; width: 6px; height: 6px; border-radius: 50%; background: var(--kind-flight); }
+.flight-line__path::before { left: -1px; }
+.flight-line__path::after { right: -1px; }
+.flight-line__meta { display: flex; flex-wrap: wrap; gap: 0.2rem 0.75rem; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; color: var(--ink-muted); }
+.flight-line__meta .with-icon { gap: 0.25rem; }
+.flight-line__meta .mode-glyph { width: 0.85rem; height: 0.85rem; fill: none; stroke: currentColor; stroke-width: 1.4; transform: none; }
+.flight-line__button::after { content: "›"; align-self: center; margin-left: 0.25rem; color: var(--ink-muted); transition: transform 160ms ease; }
+.flight-line__button[aria-expanded="true"]::after { transform: rotate(90deg); }
+/* The ground between two flights: the rail goes dotted, with the wait on it. */
+.flight-layover { position: relative; list-style: none; padding: 0.1rem var(--pad) 0.1rem calc(var(--pad) + 2.1rem); }
+.flight-layover::before { content: ""; position: absolute; left: calc(var(--pad) + 0.85rem); top: 0; bottom: 0; border-left: 3px dotted var(--kind-flight); }
+.flight-layover__pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: rgb(var(--sea-rgb) / 10%); font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink); }
+.flight-layover__pill .mode-glyph { width: 0.8rem; height: 0.8rem; color: var(--ink-muted); }
+.flight-layover__at { color: var(--kind-flight); letter-spacing: 0.08em; }
+@media (prefers-reduced-motion: reduce) { .flight-line__button::after { transition: none; } }
+
+/*
+ * Bookings page (BookingsPage): the trip at a glance on the page itself,
+ * then one card of flights and stays.
+ */
+.day-tab--lead { padding-inline: 0.85rem; }
+.bookings { display: grid; gap: 1.4rem; padding-top: 0.4rem; }
+.trip-glance { display: grid; gap: 0.6rem; padding: 0.85rem var(--pad) 0.75rem; border-radius: var(--card-radius); background: rgb(8 20 34 / 78%); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--on-dark); }
+.trip-glance__status { margin: 0; font-family: var(--font-mono); font-size: var(--fs-label); letter-spacing: 0.08em; text-transform: uppercase; color: rgb(var(--on-dark-rgb) / 72%); }
+.trip-glance__status strong { color: var(--on-dark); font-weight: 600; }
+.trip-glance__bar { position: relative; display: flex; gap: 3px; height: 10px; }
+.trip-glance__stretch { flex: 1 1 0; border-radius: 3px; background: rgb(var(--on-dark-rgb) / 34%); }
+.trip-glance__stretch--now { background: var(--seal); }
+.trip-glance__today { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 2px; background: var(--on-dark); }
+.trip-glance__chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+.trip-glance__chip { min-height: 2rem; padding: 0.2rem 0.65rem; border: 0; border-radius: 999px; background: rgb(var(--on-dark-rgb) / 12%); color: var(--on-dark); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer; }
+.trip-glance__chip small { font-family: var(--font-mono); font-weight: 400; font-size: 0.7rem; color: rgb(var(--on-dark-rgb) / 70%); }
+.trip-glance__chip--now { background: var(--seal); color: var(--on-seal); }
+.trip-glance__chip--now small { color: inherit; }
+.trip-glance__chip:focus-visible { outline: 2px solid var(--on-dark); outline-offset: 2px; }
+.trip-glance__fly { display: inline-grid; place-items: center; color: rgb(var(--on-dark-rgb) / 75%); }
+.trip-glance__fly .mode-glyph { width: 0.95rem; height: 0.95rem; fill: currentColor; stroke: none; }
+.trip-glance__ends { margin: 0; display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.7rem; color: rgb(var(--on-dark-rgb) / 65%); }
+.bookings__card { border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--paper-elevated); box-shadow: var(--card-shadow); overflow: hidden; }
+.bookings__label { margin: 0; padding: 0.9rem var(--pad) 0.35rem; }
+.bookings__list { margin: 0; padding: 0; list-style: none; }
+.booking { display: flex; align-items: center; gap: 0.5rem; padding-right: var(--pad); border-top: var(--hairline); }
+.booking__main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0.65rem; padding: 0.6rem 0 0.6rem var(--pad); border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.booking__main:disabled { cursor: default; }
+.booking__text { min-width: 0; display: grid; gap: 0.1rem; }
+.booking__name { font-size: var(--fs-small); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.booking__name--codes { font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.06em; color: var(--kind-flight); }
+.booking__sub { font-size: 0.75rem; color: var(--ink-muted); }
+.booking__deadline { font-size: 0.75rem; color: var(--ink-muted); }
+.booking__deadline--urgent { color: var(--seal); font-weight: 600; }
+.booking__deadline--past { text-decoration: line-through; opacity: 0.75; }
+.booking__countdown { margin-left: 0.35rem; padding: 0.02rem 0.4rem; border-radius: 999px; background: rgb(var(--seal-rgb) / 14%); font-family: var(--font-mono); font-weight: 500; font-size: 0.7rem; }
+.booking__ref { flex: none; display: inline-flex; align-items: center; gap: 0.25rem; min-height: 2rem; padding: 0.2rem 0.55rem; border: 0; border-radius: 8px; background: rgb(var(--sea-rgb) / 10%); color: var(--ink); font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.04em; cursor: pointer; }
+.booking__ref .mode-glyph { width: 0.9rem; height: 0.9rem; }
+.booking__ref--none { background: none; color: var(--ink-muted); font-family: var(--font-sans); font-size: 0.72rem; letter-spacing: 0; cursor: default; }
+
+/* Tomorrow's early start, closing tonight's summary. */
+.tomorrow { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.15rem 0.65rem; align-items: baseline; padding: 0.7rem var(--pad) 0.8rem; background: rgb(var(--sea-rgb) / 7%); }
+.tomorrow .summary-label { grid-column: 1 / -1; }
+.tomorrow__time { font-family: var(--font-mono); font-size: var(--fs-name); font-weight: 500; color: var(--seal); font-variant-numeric: tabular-nums; }
+.tomorrow__text { font-size: var(--fs-small); color: var(--ink); }
+.tomorrow__detail { color: var(--ink-muted); }
+
+/*
+ * The day's two views (DayViews): a switch, then the Day summary and the
+ * Full Day Route side by side in a sideways scroller that snaps to each. Its
+ * height is set from script, sliding between the two views' heights.
+ */
+.day-views { margin-bottom: var(--section-gap); }
+.day-views__switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 0.55rem; border-bottom: 1px solid rgb(var(--on-dark-rgb) / 18%); }
+.day-views__tab { display: flex; align-items: baseline; justify-content: center; gap: 0.4rem; min-height: 2.5rem; padding: 0.5rem 0.25rem; border: 0; background: none; color: rgb(var(--on-dark-rgb) / 60%); font-family: var(--font-mono); font-size: var(--fs-label); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: color 160ms ease; }
+.day-views__tab[aria-selected="true"] { color: var(--on-dark); }
+.day-views__tab:focus-visible { outline: 2px solid var(--kind-travel); outline-offset: -2px; }
+.day-views__hint { color: rgb(var(--on-dark-rgb) / 60%); font-size: 0.68rem; letter-spacing: 0.02em; text-transform: none; }
+/* Follows the finger: the scroller's progress, 0 on the summary, 1 on the route. */
+.day-views__indicator { position: absolute; left: 0; bottom: -1px; width: 50%; height: 2px; border-radius: 2px; background: var(--seal); transform: translateX(calc(var(--view-progress, 0) * 100%)); }
+.day-views__track { display: flex; align-items: flex-start; margin-inline: -0.75rem; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.day-views__track::-webkit-scrollbar { display: none; }
+.day-views__pane { flex: 0 0 100%; min-width: 0; box-sizing: border-box; padding: 0 0.75rem 0.75rem; scroll-snap-align: start; scroll-snap-stop: always; }
+
+/* The route's legs sit between the cards, straight on the blue: light ink, as the labels have. */
+.timeline > .travel .travel__detail,
+.timeline > .travel .travel__open { color: rgb(var(--on-dark-rgb) / 85%); }

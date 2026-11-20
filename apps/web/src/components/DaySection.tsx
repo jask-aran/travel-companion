@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createMemo, createSignal, on, type JSX } from "solid-js";
+import { For, Match, Show, Switch, createEffect, createMemo, type JSX } from "solid-js";
 import type { DepartureBoard, DepartureOption, RouteLeg, TripBundle, TripDay } from "@travel-companion/trip-schema";
 import {
   formatArrows,
@@ -21,16 +21,19 @@ import {
 import { bindFlights } from "../lib/flight-binding";
 import { dayRidingSeconds, dayWalking, isWaypoint, stopsBetween, type RouteLegIndex } from "../lib/route-legs";
 import { leaveFor, pickDeparture, readyAfter } from "../lib/departure-pick";
-import { placeSequences, type MapPath, type MapVisit } from "../lib/day-map";
+import { buildDayMap, placeSequences, type MapPath, type MapVisit } from "../lib/day-map";
+import { blockStops, cutAtAirports, dayNotes, dayStops, dayTimes, exploreBlocks, minutesOf } from "../lib/day-insights";
+import { BlockStopsLine, DayTimesLine, FreeDay, HoursFold, MiniMap, NotesFold, PlacesStrip, SummaryFlight, TomorrowLine } from "./DaySummaryCards";
 import { DayMap } from "./DayMap";
+import { earlyStart } from "../lib/tomorrow";
 import { dayRouting, legOutOf as legOutOfDay } from "../lib/day-routing";
 import { departureKey } from "../lib/departure-targets";
-import { isDayCollapsed, setDayCollapsed } from "../lib/collapsed-days";
-import { fold, unfold } from "../lib/fold-motion";
+import { dayView, setDayView } from "../lib/day-view";
+import { DayViews } from "./DayViews";
 import { shiftClock, sunTimes, type FlightTiming } from "../lib/day-times";
 import { clock } from "../lib/clock";
 import { dayOpened } from "../lib/live-departures";
-import { DayItemRow, FlightConnector, FlightRow, HotelPill, LodgingBand, PlaceRow, RouteLegRow, StayLine } from "./ItemCards";
+import { DayItemRow, FlightConnector, HotelPill, LodgingBand, PlaceRow, RouteLegRow, StayLine } from "./ItemCards";
 import { Hidden, Icon, type IconName } from "./Icon";
 
 /**
@@ -90,10 +93,26 @@ export function DaySection(props: {
   onFocus?: (dayId: string) => void;
 }) {
   const stays = createMemo(() => props.stays ?? collectStays(props.bundle));
+  /** A stay by its stay name ("Stay in Nipponbashi"), not its place's, often a street address. */
+  const stayNames = createMemo(
+    () => new Map(stays().flatMap((stay) => (stay.placeId ? [[stay.placeId, stayDisplay(stay.name, props.bundle.places[stay.placeId]).name] as const] : []))),
+  );
+  const stayNameOf = (placeId: string) => stayNames().get(placeId);
 
   const routing = createMemo(() => dayRouting(props.bundle, props.day, stays(), props.legIndex));
+  /** An early start tomorrow, said tonight. */
+  const tomorrow = createMemo(() => earlyStart(props.bundle, props.bundle.days[props.index + 1], stays(), props.legIndex));
   const plan = () => routing().plan;
   const flights = () => routing().flights;
+  /** Minutes between landing and the next take-off, when that flight leaves the same airport the same day. */
+  const layoverBefore = (index: number) => {
+    const before = flights()[index - 1];
+    const next = flights()[index];
+    if (!before?.arriveTime || !next?.departTime || before.arriveAirport !== next.departAirport) return undefined;
+    if ((before.arriveDate ?? props.day.date) !== (next.departDate ?? props.day.date)) return undefined;
+    const minutes = minutesOf(next.departTime.padStart(5, "0")) - minutesOf(before.arriveTime.padStart(5, "0"));
+    return minutes > 0 ? minutes : undefined;
+  };
   const routeItems = () => routing().routeItems;
   const binding = createMemo(() => bindFlights(routeItems(), flights()));
   const sequences = createMemo(() => placeSequences(routeItems(), props.stayPlaceIds));
@@ -368,62 +387,296 @@ export function DaySection(props: {
   const hasStats = createMemo(
     () => Boolean(ridingLabel()) || Boolean(walking()) || Boolean(sun()),
   );
-  const hasSummary = createMemo(
-    () => hasStats() || summarySlots().length > 0 || flights().length > 0,
-  );
-  /**
-   * A memo, not a plain accessor: the collapsed set is one store for every
-   * day, and a fold effect keyed on the raw read would re-run (and replay its
-   * unfold) on every day whenever any one of them is toggled.
+  /*
+   * What the day holds besides its long journeys (lib/day-insights.ts). After
+   * `weekday` and `sun`: memos run as they are made.
    */
-  const collapsed = createMemo(() => isDayCollapsed(props.day.id, props.day.date));
-  const bodyId = () => `body-${props.day.id}`;
-
-  /**
-   * The route stays mounted while it folds shut, so it can animate out, and
-   * is unmounted after: a folded route costs nothing, photos included.
-   */
-  const [shown, setShown] = createSignal(!collapsed());
-  // An open route is the cue to fetch boards its legs don't have yet.
-  createEffect(() => shown() && dayOpened(props.day.date));
-  let body: HTMLOListElement | undefined;
-  createEffect(
-    on(
-      collapsed,
-      (isCollapsed) => {
-        if (!isCollapsed) {
-          setShown(true);
-          // After Solid mounts the body (and points `body` at it), before paint.
-          queueMicrotask(() => body && unfold(body));
-          return;
-        }
-        if (!body) return setShown(false);
-        void fold(body).then(() => {
-          // Reopened mid-fold: leave it mounted.
-          if (collapsed()) setShown(false);
-        });
-      },
-      { defer: true },
+  const stops = createMemo(() => dayStops(routeItems(), props.bundle.places, props.stayPlaceIds, legs()));
+  /** Places you visit, leaving out stations and the like you pass through. */
+  const visitStops = createMemo(() => stops().filter((stop) => !stop.waypoint));
+  // Stays have their own lines, and a flight row times its airports.
+  const times = createMemo(() =>
+    dayTimes(
+      routeItems(),
+      props.bundle.places,
+      new Set([...props.stayPlaceIds, ...flights().flatMap((flight) => [flight.departPlaceId, flight.arrivePlaceId].filter((id): id is string => Boolean(id)))]),
     ),
+  );
+  const notes = createMemo(() => dayNotes(routeItems(), stops()));
+  const hoursKnown = createMemo(() => visitStops().filter((stop) => stop.place.details?.openingPeriods?.length).length >= 2);
+  /** The Day map's geometry, shared by the fixed maps of each block of exploring. */
+  const mapData = createMemo(() => buildDayMap(routing(), props.bundle, props.stayPlaceIds));
+  const blocks = createMemo(() =>
+    exploreBlocks(routeItems().length, journeys())
+      .map((whole) => cutAtAirports(whole, stops()))
+      .map((block) => ({ block, stops: blockStops(stops(), block) }))
+      .filter((entry) => entry.stops.length > 0),
+  );
+  /** A block as a fixed map: its stops, numbered as on the Day map, and the lines between them. */
+  const blockMap = (block: { from: number; to: number }) => {
+    const shown = new Set(blockStops(stops(), { ...block, before: undefined }).map((stop) => stop.item.id));
+    // Lines run through the block's stations too, so they join up.
+    const inside = new Set(stops().filter((stop) => stop.index >= block.from && stop.index <= block.to).map((stop) => stop.item.id));
+    const visits = mapData().visits.filter((visit) => shown.has(visit.id));
+    return {
+      stops: visits.map((visit) => {
+        const area = cityOf(visit.place.address) ?? visit.place.locality?.split(", ")[0];
+        return { lat: visit.point[0], lng: visit.point[1], label: visit.label, name: visit.place.name, ...(area ? { area } : {}) };
+      }),
+      lines: mapData()
+        .paths.filter((path) => path.mode !== "flight" && path.fromVisitId && path.toVisitId && inside.has(path.fromVisitId) && inside.has(path.toVisitId))
+        .map((path) => ({ points: path.points, mode: path.mode, approximate: path.approximate })),
+    };
+  };
+  /** A block's fixed map; its stops and lines are read live, so a trip refresh redraws it. */
+  const BlockMap = (p: { entry: { block: { from: number; to: number }; stops: { place: { name: string } }[] } }) => {
+    const map = createMemo(() => blockMap(p.entry.block));
+    const label = () => `Map of ${stopsLabel(p.entry.stops.length).toLowerCase()}: ${p.entry.stops.map((stop) => stop.place.name).join(", ")}`;
+    // One stop is named; more are counted.
+    const caption = () => (p.entry.stops.length === 1 ? p.entry.stops[0]!.place.name : stopsLabel(p.entry.stops.length));
+    return <MiniMap stops={map().stops} lines={map().lines} caption={caption()} label={label()} />;
+  };
+  /** Blocks drawn as a fixed map: 2+ places between journeys, 1+ after the last. */
+  const mapped = (entry: { block: { before: number | undefined }; stops: unknown[] }) => entry.stops.length >= (entry.block.before === undefined ? 1 : 2);
+  const blockBefore = (journeyIndex: number) => blocks().find((entry) => entry.block.before === journeyIndex);
+  const lastBlock = () => blocks().find((entry) => entry.block.before === undefined);
+  /** A day with nothing planned: where you stay, and the same city's places on other days. */
+  const freeDay = createMemo(() => {
+    if (stops().length > 0) return undefined;
+    const stay = stayForDay(stays(), props.day.date);
+    if (!stay) return undefined;
+    const city = baseCity();
+    const others = city
+      ? props.bundle.days
+          .filter((day) => day.date !== props.day.date)
+          .flatMap((day) =>
+            day.items.flatMap((item) => {
+              if (item.type !== "place" || props.stayPlaceIds.has(item.placeId)) return [];
+              const place = props.bundle.places[item.placeId];
+              const where = cityOf(place?.address) ?? place?.locality;
+              return place && where === city && !isWaypoint(place) ? [{ name: place.name, when: formatDayHeading(day.date) }] : [];
+            }),
+          )
+          .slice(0, 3)
+      : [];
+    return { stay: stayPlace(props.bundle, stay), city, others };
+  });
+  const hasSummary = createMemo(
+    () => hasStats() || summarySlots().length > 0 || flights().length > 0 || visitStops().length > 0 || Boolean(freeDay()) || Boolean(tomorrow()),
+  );
+  const view = createMemo(() => dayView(props.day.id));
+  const bodyId = () => `body-${props.day.id}`;
+  const hasRoute = () => routeItems().length > 0;
+  // A route on screen is the cue to fetch boards its legs don't have yet.
+  createEffect(() => hasRoute() && (view() === "route" || !hasSummary()) && dayOpened(props.day.date));
+
+  /** The day at a glance; one of the two views. */
+  const summaryCard = () => (
+    <div class="day-summary">
+                    <Show when={hasStats()}>
+                      <dl class="day-stats">
+                        <Show when={ridingLabel()}>
+                          {(label) => (
+                            <Stat icon="clock" label="Transit">
+                              {label()}
+                            </Stat>
+                          )}
+                        </Show>
+                        <Show when={walking()}>
+                          {(walk) => (
+                            <Stat
+                              icon="walk"
+                              label="Walk"
+                              title={`${walk().time} on foot between stops. Walking inside sights and stations is not counted.`}
+                            >
+                              {walk().distance}
+                              <span class="day-stats__mark" aria-hidden="true">
+                                +
+                              </span>
+                              <Hidden> or more</Hidden>
+                            </Stat>
+                          )}
+                        </Show>
+                        <Show when={sun()}>
+                          {(times) => (
+                            <Stat icon="sunset" label="Daylight">
+                              <span class="day-stats__mark" aria-hidden="true">
+                                ↑
+                              </span>
+                              <Hidden>Sunrise </Hidden>
+                              {times().rise}
+                              <span class="day-stats__mark day-stats__mark--set" aria-hidden="true">
+                                ↓
+                              </span>
+                              <Hidden> Sunset </Hidden>
+                              {times().set}
+                            </Stat>
+                          )}
+                        </Show>
+                      </dl>
+                    </Show>
+                    <Show when={times().length}><DayTimesLine times={times()} /></Show>
+                    <For each={leaving()}>
+                      {(slot) => (
+                        <LodgingSlotView slot={slot} bundle={props.bundle} date={props.day.date} checkOutBy={checkOutBy()} />
+                      )}
+                    </For>
+                    {/* Each flight with its transfers either side, each its own section,
+                        so the summary alone gets you from hotel to hotel. A
+                        transfer is drawn exactly like a journey: both ends named. */}
+                    <For each={flights()}>
+                      {(item, index) => (
+                        <>
+                          <Show when={timings().get(item.id)?.legs.length}>
+                            <ol class="day-summary__transfer">
+                              <For each={timings().get(item.id)?.legs}>
+                                {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} ride={rideFor(leg)} times={timesFor(leg)} showEnds nameOf={stayNameOf} />}
+                              </For>
+                            </ol>
+                          </Show>
+                          <SummaryFlight
+                            item={item}
+                            timing={timings().get(item.id)}
+                            leaveLabel={leaveLabel(timings().get(item.id))}
+                            layover={layoverBefore(index())}
+                          />
+                          <Show when={legOutOf(item.arrivePlaceId)}>
+                            {(leg) => (
+                              <ol class="day-summary__transfer">
+                                <RouteLegRow leg={leg()} places={props.bundle.places} ride={rideFor(leg())} times={timesFor(leg())} showEnds nameOf={stayNameOf} />
+                              </ol>
+                            )}
+                          </Show>
+                        </>
+                      )}
+                    </For>
+                    {/* Stop counts between journeys give the day its shape: a
+                        handful between two long legs is a day out. No stops is a
+                        change of train, and two journeys in a row already say so. */}
+                    <For each={journeys()}>
+                      {(journey, index) => (
+                        <>
+                          {/* A block of exploring before this journey: a fixed map of it,
+                              else the count of stops, as before. */}
+                          <Show
+                            when={blockBefore(index())}
+                            keyed
+                            fallback={
+                              <Show when={index() > 0 && (stopsBefore(index()) ?? 0) > 0}>
+                                <p class="day-summary__between with-icon">
+                                  <Icon name="pin" />
+                                  {stopsLabel(stopsBefore(index()) ?? 0)}
+                                </p>
+                              </Show>
+                            }
+                          >
+                            {(entry) => (mapped(entry) ? <BlockMap entry={entry} /> : <BlockStopsLine stops={entry.stops} />)}
+                          </Show>
+                          <ol class="day-summary__transfer">
+                            <RouteLegRow
+                              leg={journey.leg}
+                              places={props.bundle.places}
+                              ride={rideFor(journey.leg)}
+                              times={timesFor(journey.leg)}
+                              showEnds
+                              nameOf={stayNameOf}
+                            />
+                          </ol>
+                        </>
+                      )}
+                    </For>
+                    {/* The stretch after the last journey, or the whole day when there is none. */}
+                    <Show when={lastBlock()} keyed>
+                      {(entry) => (mapped(entry) ? <BlockMap entry={entry} /> : <BlockStopsLine stops={entry.stops} />)}
+                    </Show>
+                    <Show when={visitStops().length >= 2}><PlacesStrip stops={visitStops()} /></Show>
+                    <Show when={hoursKnown()}><HoursFold stops={visitStops()} weekday={weekday()} sunset={sun()?.set} /></Show>
+                    <Show when={notes().length}><NotesFold notes={notes()} open={visitStops().length <= 1} /></Show>
+                    <For each={arriving()}>
+                      {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} date={props.day.date} />}
+                    </For>
+                    <Show when={freeDay()}>
+                      {(free) => <FreeDay stay={free().stay} city={free().city} others={free().others} wanderlogUrl={props.bundle.trip.wanderlogUrl} />}
+                    </Show>
+                    <Show when={tomorrow()}>{(early) => <TomorrowLine start={early()} />}</Show>
+                  </div>
+  );
+  /** Every stop and leg in order; the other view. */
+  const routeList = () => (
+    <ol class="timeline">
+                    <Show when={wokeIn()}>
+                      {(stay) => (
+                        <HotelPill
+                          name={stay().name}
+                          place={stayPlace(props.bundle, stay())}
+                          leaveBy={leaveHotelBy()}
+                        />
+                      )}
+                    </Show>
+                    <For each={routeItems()}>
+                      {(item, index) => (
+                        <>
+                          {/* A bound flight replaces the ground route into this stop. */}
+                          <Show when={binding().before.get(item.id)}>
+                            {(flight) => <FlightConnector item={flight()} />}
+                          </Show>
+                          <Show when={!binding().supersededLegs.has(item.id) && legs().get(item.id)}>
+                            {(leg) => (
+                              <RouteLegRow
+                                leg={leg()}
+                                places={props.bundle.places}
+                                board={boardFor(leg())}
+                                ride={rideFor(leg())}
+                                notBefore={legPlans().get(item.id)?.notBefore}
+                              />
+                            )}
+                          </Show>
+                          <DayItemRow
+                            item={item}
+                            bundle={props.bundle}
+                            placeSequence={sequences()[index()] ?? 0}
+                            isStay={item.type === "place" && props.stayPlaceIds.has(item.placeId)}
+                            weekday={weekday()}
+                          />
+                          <Show when={binding().after.get(item.id)}>
+                            {(flight) => <FlightConnector item={flight()} />}
+                          </Show>
+                        </>
+                      )}
+                    </For>
+                    <Show when={endLeg()}>
+                      {(leg) => (
+                        <RouteLegRow
+                          leg={leg()}
+                          places={props.bundle.places}
+                          board={boardFor(leg())}
+                          ride={rideFor(leg())}
+                          notBefore={legPlans().get("end")?.notBefore}
+                        />
+                      )}
+                    </Show>
+                    <Show when={sleepsIn()}>
+                      {(stay) => (
+                        <HotelPill name={stay().name} place={stayPlace(props.bundle, stay())} checkIn={checksInTonight()} />
+                      )}
+                    </Show>
+                  </ol>
   );
 
   return (
     <section
       class="day-section"
-      classList={{ "day-section--collapsed": collapsed() }}
       id={props.day.id}
       aria-labelledby={`heading-${props.day.id}`}
     >
-      {/* The whole header opens and closes the day's route (the summary is
-          always shown): a big target, and the title stays the section's
-          accessible name. */}
+      {/* The whole header switches between the summary and the route: a
+          big target, and the title stays the section's accessible name. */}
       <button
         type="button"
         class="day-section__header"
-        aria-expanded={!collapsed()}
         aria-controls={bodyId()}
         onClick={() => {
-          setDayCollapsed(props.day.id, !collapsed());
+          setDayView(props.day.id, view() === "route" ? "summary" : "route");
           props.onFocus?.(props.day.id);
         }}
       >
@@ -472,199 +725,32 @@ export function DaySection(props: {
           {/* The shape of the day up front: how much of it is moving, where
               you sleep, whether you fly. An AI-written summary will sit
               between the figures and the bookings. */}
-          <Show when={hasSummary()}>
-            <div class="day-part">
-              <p class="day-part__label">Day summary</p>
-              <div class="day-summary">
-                <Show when={hasStats()}>
-                  <dl class="day-stats">
-                    <Show when={ridingLabel()}>
-                      {(label) => (
-                        <Stat icon="clock" label="Transit">
-                          {label()}
-                        </Stat>
-                      )}
-                    </Show>
-                    <Show when={walking()}>
-                      {(walk) => (
-                        <Stat
-                          icon="walk"
-                          label="Walk"
-                          title={`${walk().time} on foot between stops. Walking inside sights and stations is not counted.`}
-                        >
-                          {walk().distance}
-                          <span class="day-stats__mark" aria-hidden="true">
-                            +
-                          </span>
-                          <Hidden> or more</Hidden>
-                        </Stat>
-                      )}
-                    </Show>
-                    <Show when={sun()}>
-                      {(times) => (
-                        <Stat icon="sunset" label="Daylight">
-                          <span class="day-stats__mark" aria-hidden="true">
-                            ↑
-                          </span>
-                          <Hidden>Sunrise </Hidden>
-                          {times().rise}
-                          <span class="day-stats__mark day-stats__mark--set" aria-hidden="true">
-                            ↓
-                          </span>
-                          <Hidden> Sunset </Hidden>
-                          {times().set}
-                        </Stat>
-                      )}
-                    </Show>
-                  </dl>
-                </Show>
-                <For each={leaving()}>
-                  {(slot) => (
-                    <LodgingSlotView slot={slot} bundle={props.bundle} date={props.day.date} checkOutBy={checkOutBy()} />
-                  )}
-                </For>
-                {/* Each flight with its transfers either side, each its own section,
-                    so the summary alone gets you from hotel to hotel. A
-                    transfer is drawn exactly like a journey: both ends named. */}
-                <For each={flights()}>
-                  {(item) => (
-                    <>
-                      <Show when={timings().get(item.id)?.legs.length}>
-                        <ol class="day-summary__transfer">
-                          <For each={timings().get(item.id)?.legs}>
-                            {(leg) => <RouteLegRow leg={leg} places={props.bundle.places} ride={rideFor(leg)} times={timesFor(leg)} showEnds />}
-                          </For>
-                        </ol>
-                      </Show>
-                      <ol class="day-summary__flights">
-                        <FlightRow
-                          item={item}
-                          timing={timings().get(item.id)}
-                          leaveLabel={leaveLabel(timings().get(item.id))}
-                        />
-                      </ol>
-                      <Show when={legOutOf(item.arrivePlaceId)}>
-                        {(leg) => (
-                          <ol class="day-summary__transfer">
-                            <RouteLegRow leg={leg()} places={props.bundle.places} ride={rideFor(leg())} times={timesFor(leg())} showEnds />
-                          </ol>
-                        )}
-                      </Show>
-                    </>
-                  )}
-                </For>
-                {/* Stop counts between journeys give the day its shape: a
-                    handful between two long legs is a day out. No stops is a
-                    change of train, and two journeys in a row already say so. */}
-                <For each={journeys()}>
-                  {(journey, index) => (
-                    <>
-                      <Show when={index() > 0 && (stopsBefore(index()) ?? 0) > 0}>
-                        <p class="day-summary__between with-icon">
-                          <Icon name="pin" />
-                          {stopsLabel(stopsBefore(index()) ?? 0)}
-                        </p>
-                      </Show>
-                      <ol class="day-summary__transfer">
-                        <RouteLegRow
-                          leg={journey.leg}
-                          places={props.bundle.places}
-                          ride={rideFor(journey.leg)}
-                          times={timesFor(journey.leg)}
-                          showEnds
-                        />
-                      </ol>
-                    </>
-                  )}
-                </For>
-                <For each={arriving()}>
-                  {(slot) => <LodgingSlotView slot={slot} bundle={props.bundle} date={props.day.date} />}
-                </For>
+          <Switch>
+            <Match when={hasSummary() && hasRoute()}>
+              <DayViews
+                view={view()}
+                onView={(next) => setDayView(props.day.id, next)}
+                summary={summaryCard}
+                route={routeList}
+                routeHint={stopCount() > 0 ? stopsLabel(stopCount()) : undefined}
+                routeId={bodyId()}
+              />
+            </Match>
+            <Match when={hasSummary()}>
+              <div class="day-part">
+                <p class="day-part__label">Day summary</p>
+                {summaryCard()}
               </div>
-            </div>
-          </Show>
-
-          <Show when={routeItems().length === 0}>
+            </Match>
+            <Match when={hasRoute()}>
+              <div class="day-part" id={bodyId()}>
+                <p class="day-part__label">Full Day Route</p>
+                {routeList()}
+              </div>
+            </Match>
+          </Switch>
+          <Show when={routeItems().length === 0 && !freeDay()}>
             <p class="day-part__empty">Nothing planned yet</p>
-          </Show>
-          <Show when={routeItems().length > 0}>
-            <div class="day-part">
-              {/* The route is what opens: the summary above says the day's
-                  shape at a glance, the route is the detail. */}
-              <button
-                type="button"
-                class="day-part__label day-part__toggle"
-                aria-expanded={!collapsed()}
-                aria-controls={bodyId()}
-                onClick={() => setDayCollapsed(props.day.id, !collapsed())}
-              >
-                <span>Day route</span>
-                <Show when={collapsed() && stopCount() > 0}>
-                  <span class="day-part__count">{stopsLabel(stopCount())}</span>
-                </Show>
-                <span class="day-part__chevron" classList={{ "is-open": !collapsed() }} aria-hidden="true" />
-              </button>
-              <Show when={shown()}>
-              <ol class="timeline" id={bodyId()} ref={body}>
-                <Show when={wokeIn()}>
-                  {(stay) => (
-                    <HotelPill
-                      name={stay().name}
-                      place={stayPlace(props.bundle, stay())}
-                      leaveBy={leaveHotelBy()}
-                    />
-                  )}
-                </Show>
-                <For each={routeItems()}>
-                  {(item, index) => (
-                    <>
-                      {/* A bound flight replaces the ground route into this stop. */}
-                      <Show when={binding().before.get(item.id)}>
-                        {(flight) => <FlightConnector item={flight()} />}
-                      </Show>
-                      <Show when={!binding().supersededLegs.has(item.id) && legs().get(item.id)}>
-                        {(leg) => (
-                          <RouteLegRow
-                            leg={leg()}
-                            places={props.bundle.places}
-                            board={boardFor(leg())}
-                            ride={rideFor(leg())}
-                            notBefore={legPlans().get(item.id)?.notBefore}
-                          />
-                        )}
-                      </Show>
-                      <DayItemRow
-                        item={item}
-                        bundle={props.bundle}
-                        placeSequence={sequences()[index()] ?? 0}
-                        isStay={item.type === "place" && props.stayPlaceIds.has(item.placeId)}
-                        weekday={weekday()}
-                      />
-                      <Show when={binding().after.get(item.id)}>
-                        {(flight) => <FlightConnector item={flight()} />}
-                      </Show>
-                    </>
-                  )}
-                </For>
-                <Show when={endLeg()}>
-                  {(leg) => (
-                    <RouteLegRow
-                      leg={leg()}
-                      places={props.bundle.places}
-                      board={boardFor(leg())}
-                      ride={rideFor(leg())}
-                      notBefore={legPlans().get("end")?.notBefore}
-                    />
-                  )}
-                </Show>
-                <Show when={sleepsIn()}>
-                  {(stay) => (
-                    <HotelPill name={stay().name} place={stayPlace(props.bundle, stay())} checkIn={checksInTonight()} />
-                  )}
-                </Show>
-              </ol>
-              </Show>
-            </div>
           </Show>
           <DayMap routing={routing()} bundle={props.bundle} stayPlaceIds={props.stayPlaceIds} renderStop={mapStop} renderLeg={mapLeg} />
       </div>

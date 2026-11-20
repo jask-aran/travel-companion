@@ -18,6 +18,8 @@ export function DayTabs(props: {
   /** The phone's date: that day's tab reads "Today". */
   today: string;
   onSelect: (dayId: string) => void;
+  /** A tab before the days for a page that isn't a day (Bookings). */
+  lead?: { id: string; label: string } | undefined;
 }) {
   let scroller!: HTMLDivElement;
 
@@ -39,6 +41,21 @@ export function DayTabs(props: {
   return (
     <div class="day-tabs" role="tablist" aria-label="Trip days" data-haptic="selection">
       <div class="day-tabs__scroller" ref={scroller}>
+        {props.lead && (
+          <button
+            type="button"
+            role="tab"
+            class="day-tab day-tab--lead"
+            classList={{ "day-tab--active": props.activeDayId === props.lead.id }}
+            data-day-id={props.lead.id}
+            aria-selected={props.activeDayId === props.lead.id}
+            id={`tab-${props.lead.id}`}
+            tabindex={props.activeDayId === props.lead.id ? 0 : -1}
+            onClick={() => props.lead && props.onSelect(props.lead.id)}
+          >
+            <span class="day-tab__weekday">{props.lead.label}</span>
+          </button>
+        )}
         <For each={props.days}>
           {(day, index) => {
             const active = () => day.id === props.activeDayId;

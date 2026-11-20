@@ -63,7 +63,7 @@ function TimeLabel(props: { start?: string | undefined; end?: string | undefined
 }
 
 
-function ModeGlyph(props: { mode: string }) {
+export function ModeGlyph(props: { mode: string }) {
   return (
     <svg class="mode-glyph" viewBox="0 0 16 16" aria-hidden="true">
       <path d={TRAVEL_ICON_PATHS[props.mode] ?? TRAVEL_ICON_PATHS.walking} />
@@ -96,7 +96,10 @@ export function RouteLegRow(props: {
   ride?: DepartureOption | undefined;
   /** When the ride runs, where a timed plan fixes it; stands in for the duration. */
   times?: RideTimes | undefined;
+  /** An end's name, where it isn't the place's own: a stay goes by its stay name. */
+  nameOf?: ((placeId: string) => string | undefined) | undefined;
 }) {
+  const nameOf = (placeId: string) => props.nameOf?.(placeId) ?? props.places[placeId]?.name;
   const long = () => (props.leg.durationSeconds ?? 0) >= LONG_LEG_SECONDS;
 
   const transit = () => props.leg.travelMode === "transit";
@@ -158,7 +161,7 @@ export function RouteLegRow(props: {
             <Show when={transit() && props.ride}>{(ride) => <LineChips option={ride()} />}</Show>
           </span>
           <span class="travel__ends">
-            {props.places[props.leg.fromPlaceId]?.name} → {props.places[props.leg.toPlaceId]?.name}
+            {nameOf(props.leg.fromPlaceId)} → {nameOf(props.leg.toPlaceId)}
           </span>
           <Show when={aside()}>
             <span class="travel__detail">{aside()}</span>
@@ -169,8 +172,8 @@ export function RouteLegRow(props: {
   );
 
   const label = () =>
-    `${formatTravelMode(props.leg.travelMode)} directions, ${props.places[props.leg.fromPlaceId]?.name} to ${
-      props.places[props.leg.toPlaceId]?.name
+    `${formatTravelMode(props.leg.travelMode)} directions, ${nameOf(props.leg.fromPlaceId)} to ${
+      nameOf(props.leg.toPlaceId)
     }`;
 
   return (
@@ -514,22 +517,28 @@ function DepartureBoardView(props: {
  * place the trip names no photo for gets its slot only once the worker has
  * found one, so a place with none never shows a frame that then goes.
  */
-function PlacePhoto(props: { place: Place; mapFallback?: boolean | undefined }) {
+/**
+ * A place's photo, as the stop cards show it: the trip's named photo, or one
+ * looked up once for the place, or for a stay without either, its street map.
+ * Shared with the Day summary's Places tiles, so both show the same picture.
+ */
+export function usePlacePhoto(place: () => Place, mapFallback?: () => boolean | undefined) {
   const [blank, setBlank] = createSignal(false);
   const [found, setFound] = createSignal<PhotoFound>();
   createEffect(() => {
-    const url = placePhotoUrl(props.place);
+    const url = placePhotoUrl(place());
     setFound(undefined);
-    if (!url || hasNamedPhoto(props.place)) return;
+    setBlank(false);
+    if (!url || hasNamedPhoto(place())) return;
     void findPlacePhoto(url).then((photo) => {
-      if (photo && placePhotoUrl(props.place) === url) setFound(photo);
+      if (photo && placePhotoUrl(place()) === url) setFound(photo);
     });
   });
-  const photo = () => (hasNamedPhoto(props.place) ? placePhotoUrl(props.place) : found()?.url);
+  const photo = () => (hasNamedPhoto(place()) ? placePhotoUrl(place()) : found()?.url);
   /** A stay without a photo shows its streets instead. */
-  const map = () => (!photo() && props.mapFallback ? staticMapUrl(props.place) : undefined);
+  const map = () => (!photo() && mapFallback?.() ? staticMapUrl(place()) : undefined);
   const url = () => photo() ?? map();
-  const credit = () => (photo() ? photoAttribution(props.place) ?? found()?.credit : undefined);
+  const credit = () => (photo() ? photoAttribution(place()) ?? found()?.credit : undefined);
   /** Blank or failed this session (place-photo.ts): not shown, and not asked for again on a remount. */
   const failed = () => blank() || Boolean(url() && mediaFailed(url()!));
   const fail = () => {
@@ -541,6 +550,11 @@ function PlacePhoto(props: { place: Place; mapFallback?: boolean | undefined }) 
   const onLoad = (event: Event) => {
     if ((event.currentTarget as HTMLImageElement).naturalWidth <= 1) fail();
   };
+  return { url, map, credit, failed, fail, onLoad };
+}
+
+function PlacePhoto(props: { place: Place; mapFallback?: boolean | undefined }) {
+  const { url, map, credit, failed, fail, onLoad } = usePlacePhoto(() => props.place, () => props.mapFallback);
 
   return (
     <Show when={!failed() && url()}>
@@ -706,7 +720,8 @@ export function PlaceRow(props: {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {props.place.name}
+            {/* A stay by its stay name: an apartment's place name is often its street address. */}
+            {props.isStay ? stayDisplay(props.place.name, props.place).name : props.place.name}
           </a>
           <Show when={category()}>{(text) => <p class="stop__meta">{text()}</p>}</Show>
           <PlaceHours place={props.place} weekday={props.weekday} />

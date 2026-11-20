@@ -126,13 +126,18 @@ export function flightTiming(
   hotelPlaceId?: string,
 ): FlightTiming | undefined {
   if (!flight.departTime) return undefined;
-  const buffer = bufferMinutes(flight, places);
-  const airportBy = shiftClock(flight.departTime, -buffer);
-  const airportUntil = shiftClock(flight.departTime, -buffer + AIRPORT_WINDOW_MINUTES);
-  if (!airportBy || !airportUntil) return undefined;
-
   const stops = items.filter((item) => item.type === "place");
   const at = stops.findIndex((item) => item.placeId === flight.departPlaceId);
+  // A time you put on the departure airport is when you mean to be there.
+  const planned = stops[at]?.type === "place" ? stops[at].startTime?.padStart(5, "0") : undefined;
+  const yours = planned && /^\d\d:\d\d$/.test(planned) && planned < flight.departTime.padStart(5, "0") ? planned : undefined;
+  const buffer = bufferMinutes(flight, places);
+  const airportBy = yours ?? shiftClock(flight.departTime, -buffer);
+  const latest = shiftClock(flight.departTime, -buffer + AIRPORT_WINDOW_MINUTES);
+  const fromYours = yours && shiftClock(yours, AIRPORT_WINDOW_MINUTES);
+  const airportUntil = fromYours && latest && fromYours < latest ? fromYours : latest;
+  if (!airportBy || !airportUntil) return undefined;
+
   const direct = at >= 0 ? legs.get(stops[at]!.id) : undefined;
   if (!direct) return { airportBy, airportUntil, legs: [], fromHotel: false };
 
